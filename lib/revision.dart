@@ -1,12 +1,11 @@
 import 'package:flutter/material.dart';
-import 'signUp2.dart';
 
 void main() {
-  runApp(const SignUp());
+  runApp(const MyApp());
 }
 
-class SignUp extends StatelessWidget {
-  const SignUp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -37,16 +36,16 @@ class _MyHomePageState extends State<MyHomePage> {
   var nameText = TextEditingController();
   bool validate = false;
 
-  // void _navigateToNextPage() {
-  //   if (nameText.text.isNotEmpty) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => NextPage(name: nameText.text),
-  //       ),
-  //     );
-  //   }
-  // }
+  void _navigateToNextPage() {
+    if (nameText.text.isNotEmpty) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => NextPage(name: nameText.text),
+        ),
+      );
+    }
+  }
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -126,10 +125,8 @@ class _MyHomePageState extends State<MyHomePage> {
                           height: 70,
                           child: FilledButton(
                               backgroundColor:
-                               Colors.orange,
-                              onPressed: () {
-                                Navigator.pushNamed(context, '/signUp2');
-                              },
+                              Colors.orange,
+                              onPressed: _navigateToNextPage,
                               child: Center(
                                   child: Text('Next',
                                       style: TextStyle(
@@ -169,33 +166,23 @@ class FilledButton extends StatelessWidget {
     );
   }
 }
-//
-// class NextPage extends StatelessWidget {
-//   final String name;
-//
-//   const NextPage({Key? key, required this.name}) : super(key: key);
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       appBar: AppBar(
-//         title: Text('Next Page'),
-//       ),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Text('Welcome, $name!', style: TextStyle(fontSize: 20)),
-//             SizedBox(height: 20),
-//             ElevatedButton(
-//               onPressed: () {
-//                 Navigator.pop(context);
-//               },
-//               child: Text('Go Back'),
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+
+class NextPage extends StatelessWidget {
+  final String name;
+
+  const NextPage({Key? key, required this.name}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Next Page'),
+      ),
+      body: GridView.count(crossAxisCount: 2,children: [
+        Container(height : 100,width : 100, color: Colors.black),
+        Container(height : 100,width : 100, color: Colors.black),
+        Container(height : 100,width : 100, color: Colors.black),
+      ],)
+    );
+  }
+}
