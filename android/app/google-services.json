@@ -1,0 +1,39 @@
+{
+  "project_info": {
+    "project_number": "868490350353",
+    "project_id": "culturtap-otp-manager",
+    "storage_bucket": "culturtap-otp-manager.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:868490350353:android:3950596392d575482a06b0",
+        "android_client_info": {
+          "package_name": "com.example.learn_flutter"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "868490350353-drpfg946ho4mpgd7c5j2hvuus1q9d1fl.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBxbHWlOxYdvtNs6wBqbHEsdiyd1c31qGM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "868490350353-drpfg946ho4mpgd7c5j2hvuus1q9d1fl.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
