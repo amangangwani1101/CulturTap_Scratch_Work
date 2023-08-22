@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'signUp.dart';
-import 'signUp2.dart';
+import 'package:learn_flutter/IntroPage.dart';
+
 
 void main() {
   runApp(const MyApp());
@@ -13,12 +13,6 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      initialRoute: '/',
-      routes: {
-
-        '/': (context) => SignUp(),
-        '/signUp2': (context) => SignUp2(),
-      },
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
       theme: ThemeData(
@@ -40,9 +34,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: Center(
-        child: const MyHomePage(title: 'LogIn'),
-      ),
+      home: IntroPage(),
     );
   }
 }

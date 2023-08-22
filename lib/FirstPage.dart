@@ -11,15 +11,13 @@ class SignUp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: Center(
-        child: const MyHomePage(title: 'LogIn'),
-      ),
+        title: 'Flutter Demo',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+          useMaterial3: true,
+        ),
+        home: SignUp(),
     );
   }
 }
@@ -126,10 +124,9 @@ class _MyHomePageState extends State<MyHomePage> {
                           height: 70,
                           child: FilledButton(
                               backgroundColor:
-                               Colors.orange,
+                              Colors.orange,
                               onPressed: () {
-
-                                ));
+                                Navigator.pushNamed(context, '/signUp2');
                               },
                               child: Center(
                                   child: Text('Next',
@@ -171,33 +168,32 @@ class FilledButton extends StatelessWidget {
   }
 }
 //
-class NextPage extends StatelessWidget {
-  final String name;
-
-  const NextPage({Key? key, required this.name}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Next Page'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Welcome, $name!', style: TextStyle(fontSize: 20)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage(title:"homepage"),
-                ));
-              },
-              child: Text('Go Back'),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+// class NextPage extends StatelessWidget {
+//   final String name;
+//
+//   const NextPage({Key? key, required this.name}) : super(key: key);
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: Text('Next Page'),
+//       ),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             Text('Welcome, $name!', style: TextStyle(fontSize: 20)),
+//             SizedBox(height: 20),
+//             ElevatedButton(
+//               onPressed: () {
+//                 Navigator.pop(context);
+//               },
+//               child: Text('Go Back'),
+//             ),
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
