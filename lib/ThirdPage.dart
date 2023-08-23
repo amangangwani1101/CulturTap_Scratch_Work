@@ -1,67 +1,14 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'signUp2.dart';
 
-void main() {
-  runApp(const SignUp());
-}
-
-class SignUp extends StatelessWidget {
-  const SignUp({super.key});
-
+class ThirdPage extends StatelessWidget {
+  var OTP = TextEditingController();
   @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-        useMaterial3: true,
-      ),
-      home: Center(
-        child: const MyHomePage(title: 'LogIn'),
-      ),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  var nameText = TextEditingController();
-  bool validate = false;
-
-  // void _navigateToNextPage() {
-  //   if (nameText.text.isNotEmpty) {
-  //     Navigator.push(
-  //       context,
-  //       MaterialPageRoute(
-  //         builder: (context) => NextPage(name: nameText.text),
-  //       ),
-  //     );
-  //   }
-  // }
-
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-          backgroundColor: Colors.white,
-          title: Center(
-            child: Text(
-              'CULTURTAP',
-              style: TextStyle(
-                color: Colors.orange,
-                fontWeight: FontWeight.bold,
-                fontSize: 30,
-              ),
-            ),
-          )),
+        title: Text('THird Page'),
+      ),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(30),
@@ -73,46 +20,52 @@ class _MyHomePageState extends State<MyHomePage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+
                       Container(
                           margin: const EdgeInsets.only(bottom: 35),
-                          height: 300,
+                          height: 250,
                           color: Colors.white54),
-                      Text('SIGNUP',
+                      Text('Earn by assisting nearby turists !',style: TextStyle(fontWeight: FontWeight.w200,fontSize: 25,),),
+                      Container(
+                        width : double.infinity,
+                        height : 20,
+                      ),
+
+                      Text('ENTER OTP',
                           style: TextStyle(
                               fontSize: 35,
                               color: Colors.black,
                               fontWeight: FontWeight.bold)),
                       Container(
                           margin: EdgeInsets.only(bottom: 31),
-                          child: Text('Explore, Update, Guide & Earn !',
+                          child: Text('it should be autofilled or type manually',
                               style: TextStyle(
                                   fontSize: 25, color: Colors.black))),
-                      Text('Please Enter Your Name',
-                          style: TextStyle(
-                              fontSize: 20,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold)),
+
                       Container(
                         margin: EdgeInsets.only(bottom: 19),
                         width: 300,
-                        child: TextField(
-                          controller: nameText,
+                        child:
+                        TextField(
+                          controller: OTP,
+
                           decoration: InputDecoration(
-                            hintText: 'Ex : Kishor Kumar',
+                            hintText: 'otp',
                           ),
                         ),
                       ),
+
                       Container(
                           margin: EdgeInsets.only(bottom: 21),
-                          child: Row(
+                          child: Column(
                             children: [
-                              Text('Already User ?',
+                              Text("Didn't receive it?",
                                   style: TextStyle(
                                       fontSize: 20,
                                       fontWeight: FontWeight.w100)),
                               TextButton(
                                 onPressed: () {},
-                                child: Text('Sign In',
+                                child: Text('RESEND !',
                                     style: TextStyle(
                                       color: Colors.orange,
                                       fontWeight: FontWeight.w900,
@@ -121,22 +74,25 @@ class _MyHomePageState extends State<MyHomePage> {
                               )
                             ],
                           )),
+
                       Container(
                           width: 330,
                           height: 70,
                           child: FilledButton(
-                              backgroundColor:
-                               Colors.orange,
-                              onPressed: () {
+                              backgroundColor: Colors.orange,
 
-                                ));
+                              onPressed: () {
+                                String OTPP = OTP.text;
+                                print('PhoneNumber  : ${OTPP} ');
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => ThirdPage(),));
                               },
                               child: Center(
                                   child: Text('Next',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
-                                          fontSize: 25))))),
+                                          fontSize: 25))))
+                      ),
                     ],
                   ),
                 ),
@@ -146,6 +102,7 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
 
 class FilledButton extends StatelessWidget {
   final void Function() onPressed;
@@ -167,37 +124,6 @@ class FilledButton extends StatelessWidget {
         primary: backgroundColor,
       ),
       child: child,
-    );
-  }
-}
-//
-class NextPage extends StatelessWidget {
-  final String name;
-
-  const NextPage({Key? key, required this.name}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Next Page'),
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Welcome, $name!', style: TextStyle(fontSize: 20)),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.push(context, MaterialPageRoute(builder: (context) => MyHomePage(title:"homepage"),
-                ));
-              },
-              child: Text('Go Back'),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }

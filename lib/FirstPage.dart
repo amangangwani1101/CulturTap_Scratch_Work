@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
-import 'signUp2.dart';
+import 'package:learn_flutter/SecondPage.dart';
+
 
 void main() {
-  runApp(const SignUp());
+  runApp(const FirstPage());
 }
 
-class SignUp extends StatelessWidget {
-  const SignUp({super.key});
+class FirstPage extends StatelessWidget {
+  const FirstPage({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -17,7 +18,9 @@ class SignUp extends StatelessWidget {
           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
           useMaterial3: true,
         ),
-        home: SignUp(),
+        home: Center(
+          child: const MyHomePage(title: 'LogIn'),
+        ),
     );
   }
 }
@@ -75,7 +78,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           margin: const EdgeInsets.only(bottom: 35),
                           height: 300,
                           color: Colors.white54),
-                      Text('SIGNUP',
+                      Text('FirstPage',
                           style: TextStyle(
                               fontSize: 35,
                               color: Colors.black,
@@ -126,14 +129,17 @@ class _MyHomePageState extends State<MyHomePage> {
                               backgroundColor:
                               Colors.orange,
                               onPressed: () {
-                                Navigator.pushNamed(context, '/signUp2');
+                                String Name = nameText.text.toString();
+                                print('Name  : ${Name} ');
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => SecondPage(),));
                               },
                               child: Center(
                                   child: Text('Next',
                                       style: TextStyle(
                                           fontWeight: FontWeight.bold,
                                           color: Colors.white,
-                                          fontSize: 25))))),
+                                          fontSize: 25))))
+                      ),
                     ],
                   ),
                 ),
