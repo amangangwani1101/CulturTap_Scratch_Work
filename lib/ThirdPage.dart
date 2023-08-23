@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/FourthPage.dart';
 
 class ThirdPage extends StatelessWidget {
   var OTP = TextEditingController();
@@ -84,7 +85,7 @@ class ThirdPage extends StatelessWidget {
                               onPressed: () {
                                 String OTPP = OTP.text;
                                 print('PhoneNumber  : ${OTPP} ');
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => ThirdPage(),));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => FourthPage(),));
                               },
                               child: Center(
                                   child: Text('Next',
