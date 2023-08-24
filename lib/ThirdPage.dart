@@ -8,7 +8,16 @@ class ThirdPage extends StatelessWidget {
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(
-        title: Text('THird Page'),
+        title: Center(
+          child: Text(
+            'CULTURTAP',
+            style: TextStyle(
+              color: Colors.orange,
+              fontWeight: FontWeight.w900,
+              fontSize: 30,
+            ),
+          ),
+        ),
       ),
       body: Center(
         child: Padding(
@@ -25,6 +34,7 @@ class ThirdPage extends StatelessWidget {
                       Container(
                           margin: const EdgeInsets.only(bottom: 35),
                           height: 250,
+                          child : Image.asset('assets/images/thirdPage.png'),
                           color: Colors.white54),
                       Text('Earn by assisting nearby turists !',style: TextStyle(fontWeight: FontWeight.w200,fontSize: 25,),),
                       Container(

@@ -13,8 +13,24 @@ class FirstPage extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme(
+          primary: Colors.black,
+
+          secondary: Colors.white,
+
+          surface: Colors.white,
+          background: Colors.white,
+          error: Colors.red,
+          onPrimary: Colors.black,
+          onSecondary: Colors.white,
+          onSurface: Colors.black,
+          onBackground: Colors.black,
+          onError: Colors.red,
+          brightness: Brightness.light,
+        ),
+
         useMaterial3: true,
       ),
       home: Center(
@@ -65,10 +81,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   children: [
                     Container(
                       margin: const EdgeInsets.only(bottom: 35),
+                      child : Image.asset('assets/images/firstPage.png'),
                       height: 300,
-                      color: Colors.white54,
+                      color: Colors.white,
                     ),
-                    Text('FirstPage',
+                    Text('SIGNUP',
                         style: TextStyle(
                             fontSize: 35,
                             color: Colors.black,

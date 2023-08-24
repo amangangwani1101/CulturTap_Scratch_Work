@@ -47,7 +47,18 @@ class _SecondPageState extends State<SecondPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('INTRO'),
+        title: Container(
+          margin : EdgeInsets.only(top : 3, left : 40),
+          child: Text(
+
+            'CULTURTAP',
+            style: TextStyle(
+              color: Colors.orange,
+              fontWeight: FontWeight.w900,
+              fontSize: 35,
+            ),
+          ),
+        ),
       ),
       body: Center(
         child: Padding(
@@ -61,9 +72,10 @@ class _SecondPageState extends State<SecondPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Container(
+                      child : Image.asset('assets/images/secondPage.png'),
                       margin: const EdgeInsets.only(bottom: 35),
                       height: 300,
-                      color: Colors.white54,
+                      color: Colors.white,
                     ),
                     Text(
                       'SIGNUP',
