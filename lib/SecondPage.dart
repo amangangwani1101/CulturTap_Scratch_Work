@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/ThirdPage.dart';
 
@@ -7,6 +8,7 @@ class PhoneNumberValidator extends StatefulWidget {
 }
 
 class _PhoneNumberValidatorState extends State<PhoneNumberValidator> {
+
   final TextEditingController _phoneNumberController = TextEditingController();
 
   @override
@@ -35,7 +37,12 @@ class SecondPage extends StatefulWidget {
 }
 
 class _SecondPageState extends State<SecondPage> {
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  String verificationIDRecieved = "";
   bool _isPhoneNumberValid = true; // Default to true
+
+
 
   // Function to validate phone number using regex
   bool validatePhoneNumber(String input) {
@@ -126,16 +133,24 @@ class _SecondPageState extends State<SecondPage> {
                           String number = widget.phoneNumberController.text;
                           bool isValid = validatePhoneNumber(number);
 
+                          //for verifying the number using firebase
+                          verifyNumber();
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => ThirdPage(),
+                          ));
+
                           setState(() {
                             _isPhoneNumberValid = isValid;
                           });
 
                           if (isValid) {
                             print('PhoneNumber: $number');
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => ThirdPage()),
-                            );
+                            // Navigator.push(
+                            //   context,
+                            //   MaterialPageRoute(builder: (context) => ThirdPage()),
+                            // );
                           }
                         },
                         child: Center(
@@ -159,7 +174,34 @@ class _SecondPageState extends State<SecondPage> {
       ),
     );
   }
+  void verifyNumber(){
+
+    auth.verifyPhoneNumber(
+       phoneNumber: widget.phoneNumberController.text,
+        verificationCompleted: (PhoneAuthCredential credential) async {
+          await auth.signInWithCredential(credential).then((value)=>{
+            print("you are logged in successfully")
+          });
+        },
+        verificationFailed: (FirebaseAuthException exception){
+          print(exception.message);
+        },
+        codeSent: (String verificationID, int? resendToken){
+         verificationIDRecieved = verificationID;
+
+        },
+        codeAutoRetrievalTimeout: (String verificationID){
+
+        }
+    );
+
+  }
+
+
 }
+
+
+
 
 class FilledButton extends StatelessWidget {
   final void Function() onPressed;

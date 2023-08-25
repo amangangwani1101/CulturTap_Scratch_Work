@@ -1,9 +1,14 @@
 import 'package:flutter/cupertino.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/FourthPage.dart';
 
+
+
 class ThirdPage extends StatelessWidget {
-  var OTP = TextEditingController();
+
+  FirebaseAuth auth = FirebaseAuth.instance;
+  var otpCodeControlloer = TextEditingController();
   @override
   Widget build(BuildContext context){
     return Scaffold(
@@ -58,7 +63,7 @@ class ThirdPage extends StatelessWidget {
                         width: 300,
                         child:
                         TextField(
-                          controller: OTP,
+                          controller: otpCodeControlloer,
 
                           decoration: InputDecoration(
                             hintText: 'otp',
@@ -93,7 +98,8 @@ class ThirdPage extends StatelessWidget {
                               backgroundColor: Colors.orange,
 
                               onPressed: () {
-                                String OTPP = OTP.text;
+                                // verifyCode();
+                                String OTPP = otpCodeControlloer.text;
                                 print('PhoneNumber  : ${OTPP} ');
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => FourthPage(),));
                               },
@@ -112,6 +118,15 @@ class ThirdPage extends StatelessWidget {
       ),
     );
   }
+
+
+
+  // void verifyCode()async{
+  //    PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: , smsCode: otpCodeControlloer.text, );
+  //    await auth.signInWithCredential(credential).then((value)=>{
+  //      print("you are logged in successfully")
+  //    });
+  // }
 }
 
 
