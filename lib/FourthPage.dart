@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/ThirdPage.dart';
+import './CostumAppbar.dart';
 
 class FourthPage extends StatefulWidget {
   @override
@@ -63,18 +64,7 @@ class _FourthPageState extends State<FourthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: Text(
-            'CULTURTAP',
-            style: TextStyle(
-              color: Colors.orange,
-              fontWeight: FontWeight.bold,
-              fontSize: 30,
-            ),
-          ),
-        ),
-      ),
+      appBar: CustomAppBar(title:""),
       body: Center(
         child: Padding(
           padding: const EdgeInsets.all(30),
@@ -128,8 +118,8 @@ class _FourthPageState extends State<FourthPage> {
                     ),
                   ),
                   Container(
-                    width: 330,
-                    height: 70,
+                    width: 325,
+                    height: 63,
                     child: FilledButton(
                       backgroundColor: Colors.orange,
                       onPressed: () {
