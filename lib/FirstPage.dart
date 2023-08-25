@@ -59,7 +59,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
         title: Center(
           child: Container(
-            width : 156,
+            width : 200,
               height : 48.6,
               child : Image.asset('assets/images/logo.png')),
         ),
