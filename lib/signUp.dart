@@ -124,8 +124,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           width: 330,
                           height: 70,
                           child: FilledButton(
-                              backgroundColor:
-                               Colors.orange,
+                              backgroundColor: Colors.orange,
                               onPressed: _navigateToNextPage,
                               child: Center(
                                   child: Text('Next',
