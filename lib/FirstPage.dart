@@ -13,8 +13,24 @@ class FirstPage extends StatelessWidget {
     return MaterialApp(
       title: 'Flutter Demo',
       debugShowCheckedModeBanner: false,
+
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: ColorScheme(
+          primary: Colors.black,
+
+          secondary: Colors.white,
+
+          surface: Colors.white,
+          background: Colors.white,
+          error: Colors.red,
+          onPrimary: Colors.black,
+          onSecondary: Colors.white,
+          onSurface: Colors.black,
+          onBackground: Colors.black,
+          onError: Colors.red,
+          brightness: Brightness.light,
+        ),
+
         useMaterial3: true,
       ),
       home: Center(
@@ -40,88 +56,101 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.white,
+
         title: Center(
-          child: Text(
-            'CULTURTAP',
-            style: TextStyle(
-              color: Colors.orange,
-              fontWeight: FontWeight.bold,
-              fontSize: 30,
-            ),
-          ),
+          child: Container(
+            width : 156,
+              height : 48.6,
+              child : Image.asset('assets/images/logo.png')),
         ),
       ),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Container(
-            width: double.infinity,
-            child: Center(
-              child: SingleChildScrollView(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      margin: const EdgeInsets.only(bottom: 35),
-                      height: 300,
-                      color: Colors.white54,
-                    ),
-                    Text('FirstPage',
-                        style: TextStyle(
-                            fontSize: 35,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold)),
-                    Container(
-                        margin: EdgeInsets.only(bottom: 31),
-                        child: Text('Explore, Update, Guide & Earn !',
-                            style: TextStyle(fontSize: 25, color: Colors.black))),
-                    Text('Please Enter Your Name',
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold)),
-                    Container(
-                      margin: EdgeInsets.only(bottom: 19),
-                      width: 300,
-                      child: TextField(
-                        controller: nameText,
-                        decoration: InputDecoration(
-                          hintText: 'Ex : Kishor Kumar',
+
+      body: Container(
+        width : double.infinity,
+        height : double.infinity,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              width : 325,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    margin: const EdgeInsets.only(bottom: 35),
+                    child : Image.asset('assets/images/firstPage.png'),
+                    height: 268,
+                    width : 389,
+                    color: Colors.white,
+                  ),
+                  Text('SIGNUP',
+                      style: TextStyle(
+                          fontSize: 35,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold)),
+                  Container(
+                      margin: EdgeInsets.only(bottom: 31),
+                      child: Text('Explore, Update, Guide & Earn !',
+                          style: TextStyle(fontSize: 25, color: Colors.black))),
+                  Text('Please Enter Your Name',
+                      style: TextStyle(
+                          fontSize: 20,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold)),
+
+
+                  Container(
+                    height : 10,
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 10),
+                    width: 324,
+                    height : 54,
+                    child: TextField(
+                      controller: nameText,
+                      decoration: InputDecoration(
+                        hintText: 'Ex : Kishor Kumar',
+                          filled: true,
+                          fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10.0),
+                          borderSide: BorderSide.none, // No border
                         ),
+                        contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
                       ),
                     ),
-                    Container(
-                      margin: EdgeInsets.only(bottom: 21),
-                      child: Row(
-                        children: [
-                          Text('Already User ?',
-                              style: TextStyle(
-                                  fontSize: 20,
-                                  fontWeight: FontWeight.w100)),
-                          TextButton(
-                            onPressed: () {
-                              // TODO: Add navigation to Sign In page
-                            },
-                            child: Text('Sign In',
-                                style: TextStyle(
-                                  color: Colors.orange,
-                                  fontWeight: FontWeight.w900,
-                                  fontSize: 25,
-                                )),
-                          )
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 330,
-                      height: 70,
-                      child: FilledButton(
-                          backgroundColor: Colors.orange,
+                  ),
+                  Container(
+                    margin: EdgeInsets.only(bottom: 21),
+                    child: Row(
+                      children: [
+                        Text('Already User ?',
+                            style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w100)),
+                        TextButton(
                           onPressed: () {
-                            String Name = nameText.text.toString();
-                            print('Name  : ${Name} ');
+                            // TODO: Add navigation to Sign In page
+                          },
+                          child: Text('Sign In',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontWeight: FontWeight.w900,
+                                fontSize: 25,
+                              )),
+                        )
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: 330,
+                    height: 70,
+                    child: FilledButton(
+                        backgroundColor: Colors.orange,
+                        onPressed: () {
+                          String Name = nameText.text.toString();
+                          print('Name  : ${Name} ');
+                          if(Name.length > 2){
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -130,16 +159,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
                             );
-                          },
-                          child: Center(
-                              child: Text('Next',
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontSize: 25)))),
-                    ),
-                  ],
-                ),
+                          };
+
+                        },
+                        child: Center(
+                            child: Text('Next',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 25)))),
+                  ),
+                ],
               ),
             ),
           ),
