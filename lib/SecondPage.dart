@@ -12,7 +12,7 @@ class PhoneNumberValidator extends StatefulWidget {
 
 class _PhoneNumberValidatorState extends State<PhoneNumberValidator> {
 
-  final TextEditingController _phoneNumberController = TextEditingController(text: '+91');
+  final TextEditingController _phoneNumberController = TextEditingController();
 
   @override
   void dispose() {
@@ -120,7 +120,7 @@ class _SecondPageState extends State<SecondPage> {
                           borderSide: BorderSide.none, // No border
                         ),
                         contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
-                        hintText: 'Ex : 9026966203',
+                        hintText: 'Ex : +919026966203',
                         errorText: _isPhoneNumberValid
                             ? null
                             : 'Invalid Phone Number',
@@ -140,10 +140,14 @@ class _SecondPageState extends State<SecondPage> {
                         //for verifying the number using firebase
                         verifyNumber();
 
-                        // Navigator.push(
-                        //   context,
-                        //   MaterialPageRoute(builder: (context) => OtpScreen(),
-                        // ));
+                        //temporary solution
+                        if( number.length>12 ){
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(builder: (context) => OtpScreen(),
+                              ));
+                        }
+
 
                         setState(() {
                           _isPhoneNumberValid = isValid;
@@ -151,10 +155,10 @@ class _SecondPageState extends State<SecondPage> {
 
                         if (isValid) {
                           print('PhoneNumber: $number');
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(builder: (context) => OtpScreen()),
-                          );
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => OtpScreen()),
+                          // );
                         }
                       },
                       child: Center(
