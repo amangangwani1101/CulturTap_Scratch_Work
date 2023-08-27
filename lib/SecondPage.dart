@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/ThirdPage.dart';
+import 'package:learn_flutter/OtpScreen.dart';
+
+
 import './CostumAppbar.dart';
 
 class PhoneNumberValidator extends StatefulWidget {
@@ -10,7 +12,7 @@ class PhoneNumberValidator extends StatefulWidget {
 
 class _PhoneNumberValidatorState extends State<PhoneNumberValidator> {
 
-  final TextEditingController _phoneNumberController = TextEditingController();
+  final TextEditingController _phoneNumberController = TextEditingController(text: '+91');
 
   @override
   void dispose() {
@@ -75,7 +77,8 @@ class _SecondPageState extends State<SecondPage> {
                   Text(
                     'SIGNUP',
                     style: TextStyle(
-                        fontSize: 35,
+                      fontFamily: 'Poppins',
+                        fontSize: 22,
                         color: Colors.black,
                         fontWeight: FontWeight.bold),
                   ),
@@ -83,7 +86,7 @@ class _SecondPageState extends State<SecondPage> {
                     margin: EdgeInsets.only(bottom: 31),
                     child: Text(
                       'Start Your Adventure now !',
-                      style: TextStyle(fontSize: 25, color: Colors.black),
+                      style: TextStyle(fontSize: 20, color: Colors.black),
                     ),
                   ),
                   Text(
@@ -91,15 +94,18 @@ class _SecondPageState extends State<SecondPage> {
                     style: TextStyle(
                         fontSize: 20,
                         color: Colors.black,
-                        fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.w600,),
 
                   ),
+                  Container(height : 20),
                   Container(
                     margin: EdgeInsets.only(bottom: 19),
                     width: 325,
                     child: TextField(
+
                       controller: widget.phoneNumberController,
                       keyboardType: TextInputType.phone,
+
 
                       onChanged: (value) {
                         setState(() {
@@ -114,7 +120,7 @@ class _SecondPageState extends State<SecondPage> {
                           borderSide: BorderSide.none, // No border
                         ),
                         contentPadding: EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
-                        hintText: '+91 ' + 'Ex : 9026966203',
+                        hintText: 'Ex : 9026966203',
                         errorText: _isPhoneNumberValid
                             ? null
                             : 'Invalid Phone Number',
@@ -122,6 +128,7 @@ class _SecondPageState extends State<SecondPage> {
                     ),
                   ),
                   Container(
+                    margin:EdgeInsets.only(top : 20),
                     width: 325,
                     height: 63,
                     child: FilledButton(
@@ -133,10 +140,10 @@ class _SecondPageState extends State<SecondPage> {
                         //for verifying the number using firebase
                         verifyNumber();
 
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => ThirdPage(),
-                        ));
+                        // Navigator.push(
+                        //   context,
+                        //   MaterialPageRoute(builder: (context) => OtpScreen(),
+                        // ));
 
                         setState(() {
                           _isPhoneNumberValid = isValid;
@@ -144,10 +151,10 @@ class _SecondPageState extends State<SecondPage> {
 
                         if (isValid) {
                           print('PhoneNumber: $number');
-                          // Navigator.push(
-                          //   context,
-                          //   MaterialPageRoute(builder: (context) => ThirdPage()),
-                          // );
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => OtpScreen()),
+                          );
                         }
                       },
                       child: Center(
@@ -217,7 +224,11 @@ class FilledButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         primary: backgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.0), // Updated border radius
+        ),
       ),
+
       child: child,
     );
   }

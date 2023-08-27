@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:learn_flutter/ThirdPage.dart';
+import 'package:learn_flutter/OtpScreen.dart';
+
 import './CostumAppbar.dart';
 
 class FourthPage extends StatefulWidget {
@@ -65,39 +66,41 @@ class _FourthPageState extends State<FourthPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(title:""),
-      body: Center(
-        child: Padding(
-          padding: const EdgeInsets.all(30),
-          child: Container(
-            width: double.infinity,
-            child: SingleChildScrollView(
+      body: Container(
+        height : double.infinity,
+        width: double.infinity,
+        child: Center(
+          child: SingleChildScrollView(
+            child: Container(
+              width : 325,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     margin: const EdgeInsets.only(bottom: 35),
-                    height: 250,
+                    height: 248,
+                    width : 389,
                     child : Image.asset('assets/images/fourthPage.png'),
                     color: Colors.white,
                   ),
                   Text(
                     'CONFIRM YOUR LOCATION',
                     style: TextStyle(
-                        fontSize: 35,
+                        fontSize: 24,
                         color: Colors.black,
-                        fontWeight: FontWeight.bold),
+                      fontWeight: FontWeight.w600,),
                   ),
                   Container(
                     margin: EdgeInsets.only(bottom: 31),
                     child: Text(
                       'Fetched Location',
-                      style: TextStyle(fontSize: 25, color: Colors.black),
+                      style: TextStyle(fontSize: 20, color: Colors.black),
                     ),
                   ),
                   Container(
                     margin: EdgeInsets.only(bottom: 19),
-                    width: 300,
+                    width: 325,
                     child: TextField(
                       controller: _locationController,
                       decoration: InputDecoration(
@@ -112,8 +115,8 @@ class _FourthPageState extends State<FourthPage> {
                       'Edit',
                       style: TextStyle(
                         color: Colors.orange,
-                        fontWeight: FontWeight.w900,
-                        fontSize: 25,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
                       ),
                     ),
                   ),
@@ -127,7 +130,7 @@ class _FourthPageState extends State<FourthPage> {
                         print('Location: $fetchedLocation');
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => ThirdPage()),
+                          MaterialPageRoute(builder: (context) => OtpScreen()),
                         );
                       },
                       child: Center(
@@ -170,8 +173,12 @@ class FilledButton extends StatelessWidget {
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
         primary: backgroundColor,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(5.0), // Updated border radius
+        ),
       ),
       child: child,
+
     );
   }
 }
