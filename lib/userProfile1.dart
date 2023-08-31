@@ -35,7 +35,7 @@ class ProfilePage extends StatelessWidget {
           children: [
             ProfileHeader(),
             ProfileStrengthCard(),
-            // CoverPage(),
+            CoverPage(),
             // UserInformationSection(),
             // ShareButton(),
             // CompleteProfileButton(),
@@ -56,7 +56,7 @@ class HexColor extends Color {
 }
 
 
-// profile header section -- start 1
+// profile header section -- state1
 class ProfileHeader extends StatefulWidget {
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
@@ -90,6 +90,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               ),
 
               Container(height: 2,),
+
               Text('Profile',style: TextStyle(fontSize: 16,color:HexColor("#FB8C00"),fontWeight: FontWeight.w900),),
             ],
           ),
@@ -138,7 +139,41 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   }
 }
 
-class ProfileStrengthCard extends StatelessWidget {
+
+// profile strength card -- state2
+class IconHover extends StatefulWidget {
+  @override
+  _IconHoverState createState() => _IconHoverState();
+}
+
+class _IconHoverState extends State<IconHover> {
+  bool isClicked = false;
+
+  void _toggleClick() {
+    setState(() {
+      isClicked = !isClicked;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _toggleClick,
+      child: Icon(
+        Icons.arrow_forward,
+        size: 30,
+        color: (!isClicked) ? HexColor("#FB8C00") : Colors.black,
+      ),
+    );
+  }
+}
+
+class ProfileStrengthCard extends StatefulWidget {
+  @override
+  _ProfileStrengthCardState createState() => _ProfileStrengthCardState();
+}
+
+class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
   final String profileStatus = 'low'; // Replace this with the actual profile status
 
   Color _getStatusColor() {
@@ -159,8 +194,7 @@ class ProfileStrengthCard extends StatelessWidget {
     return Card(
       color: Colors.white,
       child: Container(
-        height: 120,
-        // width:300,
+        height: 110,
         margin: EdgeInsets.only(left: 16.0,right: 16.0,),
         decoration: BoxDecoration(
           color: Colors.white, // Container background color
@@ -174,21 +208,23 @@ class ProfileStrengthCard extends StatelessWidget {
               padding: const EdgeInsets.all(8.0),
               child: ListTile(
                 leading:Container(
-                  height: 200,
-                    child: Image.asset('assets/images/profile_strength.jpg',fit: BoxFit.cover,width: 60,
-                    ),
+                  height: 150,
+                  child: Image.asset('assets/images/profile_strength.jpg',
+                  ),
                 ),
-                title: Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w800  ),),
+                title: Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w800,fontSize: 14),),
                 subtitle: RichText(
                   text: TextSpan(
                       style: TextStyle(color: Colors.black),
                       children: [
-                        TextSpan(text: 'Profile Strength\n'),
+                        TextSpan(text: 'Profile Strength\n',style: TextStyle(fontSize: 13)),
                         TextSpan(text: '${profileStatus.toUpperCase()}',style: TextStyle(color: _getStatusColor()),),
                       ],
                     ),
                   ),
-                trailing:Icon( Icons.arrow_forward,),
+                trailing:Container(
+                    child: IconHover(),
+                ),
               ),
             ),
           itemCount: 1,
@@ -199,14 +235,94 @@ class ProfileStrengthCard extends StatelessWidget {
 }
 
 class CoverPage extends StatelessWidget {
+  final bool hasVideoUploaded = false; // Replace with backend logic
+
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 200.0,
-      child: Placeholder(), // Replace with VideoPlayer widget
+    return Stack(
+      children: [
+        // Display the video if available
+        if (hasVideoUploaded)
+          Center(
+            child: Container(
+              width: 300, // Set the desired video width
+              height: 200, // Set the desired video height
+              color: Colors.grey, // Replace with your video player or widget
+            ),
+          ),
+
+        // Display the video upload icon if no video is available
+        if (!hasVideoUploaded)
+          Padding(
+            padding: const EdgeInsets.only(top: 17.0,left: 8.0,right: 8.0),
+            child: Container(
+              height: 180,
+              color: HexColor('#EDEDED'),
+              child: Center(
+                child: Image.asset(
+                  'assets/images/video_icon.png', // Replace with the actual path to your asset image
+                  width: 50, // Set the desired image width
+                  height: 50, // Set the desired image height
+                  fit: BoxFit.contain, // Adjust the fit as needed
+                ),
+              ),
+            ),
+          ),
+
+        // Display guidance icons/messages
+        Positioned(
+          bottom: -160,
+          left: 0,
+          right: 0,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  border: Border.all(
+                    color: Colors.white, // Border color
+                    width: 15.0, // Border width
+                  ),
+                ),
+                child: CircleAvatar(
+                  radius: 70,
+                  backgroundImage: AssetImage('assets/images/user.png'),
+                  backgroundColor: Colors.white,// Replace with user avatar image
+                ),
+              ),
+              SizedBox(height: 5),
+              Text(
+                'Hemant Singh', // Replace with actual user name
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ],
+          ),
+        ),
+
+        Positioned(
+          top: 40,
+          right: 40,
+          child: GestureDetector(
+            onTap: () {
+              // Handle tap on help icon
+            },
+            child: Icon(Icons.help_outline, size: 30, color: HexColor('#FB8C0A')),
+          ),
+        ),
+
+
+      ],
     );
+
   }
 }
+
+
 
 class UserInformationSection extends StatelessWidget {
   @override
