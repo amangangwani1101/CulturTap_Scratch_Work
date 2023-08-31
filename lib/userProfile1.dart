@@ -36,7 +36,8 @@ class ProfilePage extends StatelessWidget {
             ProfileHeader(),
             ProfileStrengthCard(),
             CoverPage(),
-            // UserInformationSection(),
+            UserPhoto(),
+            UserInformationSection(),
             // ShareButton(),
             // CompleteProfileButton(),
           ],
@@ -106,7 +107,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                   alignment: Alignment.center,
                   children: [
-                    Image.asset('assets/images/profile_image.jpg',height: 32 ,fit: BoxFit.cover,
+                    Image.asset('assets/images/ping_image.png',height: 32 ,fit: BoxFit.cover,
                     ),
                     if(notificationCount>0)
                       Positioned(
@@ -256,7 +257,7 @@ class CoverPage extends StatelessWidget {
           Padding(
             padding: const EdgeInsets.only(top: 17.0,left: 8.0,right: 8.0),
             child: Container(
-              height: 180,
+              height: 170,
               color: HexColor('#EDEDED'),
               child: Center(
                 child: Image.asset(
@@ -269,41 +270,52 @@ class CoverPage extends StatelessWidget {
             ),
           ),
 
-        // Display guidance icons/messages
         Positioned(
-          bottom: -160,
-          left: 0,
-          right: 0,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white, // Border color
-                    width: 15.0, // Border width
+          child: Container(
+            height:190,
+            // dec
+            child: Stack(
+              children: [
+                Positioned(
+                  top:100,
+                  left: 0,
+                  right: 0,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: Colors.white, // Border color
+                            width: 15.0, // Border width
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 70,
+                          backgroundImage: AssetImage('assets/images/user.png'),
+                          backgroundColor: Colors.white,// Replace with user avatar image
+                        ),
+                      ),
+                      SizedBox(height: 5),
+                      Text(
+                        'Hemant Singh', // Replace with actual user name
+                        style: TextStyle(
+                          color: Colors.black,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                child: CircleAvatar(
-                  radius: 70,
-                  backgroundImage: AssetImage('assets/images/user.png'),
-                  backgroundColor: Colors.white,// Replace with user avatar image
-                ),
-              ),
-              SizedBox(height: 5),
-              Text(
-                'Hemant Singh', // Replace with actual user name
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
 
+
+        // Display guidance icons/messages
         Positioned(
           top: 40,
           right: 40,
@@ -322,36 +334,106 @@ class CoverPage extends StatelessWidget {
   }
 }
 
+class UserPhoto extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height:120,
+      // dec
+      child: Stack(
+        children: [
+          Positioned(
+            top: -90,
+            left: 0,
+            right: 0,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    border: Border.all(
+                      color: Colors.white, // Border color
+                      width: 15.0, // Border width
+                    ),
+                  ),
+                  child: CircleAvatar(
+                    radius: 70,
+                    backgroundImage: AssetImage('assets/images/user.png'),
+                    backgroundColor: Colors.white,// Replace with user avatar image
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  'Hemant Singh', // Replace with actual user name
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+}
 
 
 class UserInformationSection extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      padding: EdgeInsets.only(top: 16.0,left: 16.0,right: 16.0 , bottom: 16.00),
       child: Column(
         children: [
-          CircleAvatar(
-            radius: 50.0,
-            backgroundImage: AssetImage('assets/profile_image.jpg'),
-          ),
-          SizedBox(height: 10.0),
-          Text('User Name'),
-          SizedBox(height: 10.0),
-          Text('Motivational Quote'),
-          SizedBox(height: 10.0),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              InfoWidget(icon: Icons.people, text: 'Follower'),
-              InfoWidget(icon: Icons.people_outline, text: 'Following'),
-              InfoWidget(icon: Icons.location_on, text: 'Location'),
-            ],
-          ),
-          SizedBox(height: 20.0),
+          MotivationalQuote(),
+          SizedBox(height: 25.0),
+          ReachAndLocation(),
+          SizedBox(height: 35.0),
           UserDetailsTable(),
+          SizedBox(height: 45.0),
+          ExpertCardDetails(),
+          SizedBox(height: 35.0),
+          ProfielStatusAndButton(),
         ],
       ),
+    );
+  }
+}
+
+
+class MotivationalQuote extends StatelessWidget{
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 350,
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+              Text('+ Add your Motivational quote',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),),
+              ),
+              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){},),
+          ],
+      ),
+    );
+  }
+}
+
+class ReachAndLocation extends StatelessWidget{
+  int followers = 0,following = 0,locations=1;
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceAround,
+      children: [
+        InfoWidget(icon: Icons.person_add_alt, text: '${followers} Follower'),
+        InfoWidget(icon: Icons.person_outline, text: '${following} Following'),
+        InfoWidget(icon: Icons.add_location_outlined, text: '${locations} Location'),
+      ],
     );
   }
 }
@@ -366,71 +448,276 @@ class InfoWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     return Column(
       children: [
+        // IconButton(padding: EdgeInsets.zero,onPressed: (){},icon: Icon(icon),),
         Icon(icon),
-        SizedBox(height: 4.0),
-        Text(text),
+        // SizedBox(height: 4.0),
+        Text(text,style: TextStyle(fontSize: 12,fontWeight: FontWeight.w800),),
       ],
     );
   }
 }
 
 class UserDetailsTable extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return DataTable(
-      columns: [
-        DataColumn(label: Text('Field')),
-        DataColumn(label: Text('Value')),
-      ],
-      rows: [
-        DataRow(cells: [
-          DataCell(Text('Place')),
-          DataCell(Text('N/A')),
-        ]),
-        DataRow(cells: [
-          DataCell(Text('Profession')),
-          DataCell(Text('N/A')),
-        ]),
-        DataRow(cells: [
-          DataCell(Text('Age/Gender')),
-          DataCell(Text('N/A')),
-        ]),
-        DataRow(cells: [
-          DataCell(Text('Languages')),
-          DataCell(Text('N/A')),
-        ]),
-      ],
-    );
-  }
-}
-
-class ShareButton extends StatelessWidget {
+  String place = 'NA',profession = 'NA',age = 'NA',gender = 'NA';
+  List<String> languageList = [];
   @override
   Widget build(BuildContext context) {
     return Container(
-      alignment: Alignment.center,
-      child: IconButton(
-        onPressed: () {
-          // Handle share button click
-        },
-        icon: Icon(Icons.share),
+      width: 320,
+      // decoration: BoxDecoration(
+      //   border: Border.all(
+      //     color: Colors.red,
+      //     width: 2.0,
+      //   )
+      // ),
+      child: Column(
+        // crossAxisAlignment: CrossAxisAlignment.end,
+        // mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          Row(
+            children: [
+              Text('Place - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              SizedBox(width: 100,),
+              Text('${place}',style: TextStyle(fontSize: 14),),
+            ],
+          ),
+          Row(
+            children: [
+              Text('Profession - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              SizedBox(width: 62,),
+              Text('${profession}',style: TextStyle(fontSize: 14),),
+            ],
+          ),
+          Row(
+            children: [
+              Text('Age/Gender - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              SizedBox(width: 55,),
+              Text(age=='NA'?age:'${age} Yr/ ${gender}',style: TextStyle(fontSize: 14),),
+            ],
+          ),
+          Row(
+            children: [
+              Text('Language - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              SizedBox(width: 71,),
+              Container(
+                  child: languageList.isEmpty ? Text('NA', style: TextStyle(fontSize: 14)):
+                  Wrap(
+                    runSpacing: 8.0, // Vertical spacing between lines of items
+                    children: [
+                      Row(
+                        children: [
+                          for (int i = 0; i < languageList.length; i++)
+                            Container(
+                              margin: EdgeInsets.only(right: 8.0),
+                              child: Row(
+                                children: [
+                                  Text(languageList[i]),
+                                  if (i < languageList.length - 1)
+                                    Text(',', style: TextStyle(fontSize: 16)),
+                                ],
+                              ),
+                            ),
+                        ],
+                      ),
+                    ],
+                  ),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
 }
 
-class CompleteProfileButton extends StatelessWidget {
+class ExpertCardDetails extends StatelessWidget{
+  List<String> expertLocations = [];
+  int visitedplace = 0,coveredLocation = 0, ratings = 0;
   @override
   Widget build(BuildContext context) {
-    return Container(
-      alignment: Alignment.center,
-      padding: EdgeInsets.all(16.0),
-      child: ElevatedButton(
-        onPressed: () {
-          // Handle complete profile button click
-        },
-        child: Text('Complete Profile'),
+      return Padding(
+        padding: const EdgeInsets.only(left: 16.0,right: 16.0),
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Your Expert Cards' ,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+                IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined)),
+              ],
+            ),
+            Column(
+              // crossAxisAlignment: CrossAxisAlignment.end,
+              // mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                  children: [
+                    Text('Expert in locations -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+                    SizedBox(width: 31,),
+                    Container(
+                      child: expertLocations.isEmpty ? Text('NA', style: TextStyle(fontSize: 14)):
+                      Wrap(
+                        runSpacing: 8.0, // Vertical spacing between lines of items
+                        children: [
+                          Row(
+                            children: [
+                              for (int i = 0; i < expertLocations.length; i++)
+                                Container(
+                                  margin: EdgeInsets.only(right: 8.0),
+                                  child: Row(
+                                    children: [
+                                      Text(expertLocations[i]),
+                                      if (i < expertLocations.length - 1)
+                                        Text(',', style: TextStyle(fontSize: 16)),
+                                    ],
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+                    SizedBox(width: 60,),
+                    Text('${visitedplace}',style: TextStyle(fontSize: 14),),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+                    SizedBox(width: 30,),
+                    Text('${coveredLocation}',style: TextStyle(fontSize: 14),),
+                  ],
+                ),
+                Row(
+                  children: [
+                    Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+                    SizedBox(width: 38,),
+                    Container(
+                      child: ratings == 0
+                          ? Container(
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(Icons.star,color: HexColor('#FB8C00'),),
+                            SizedBox(width: 5),
+                            Text('N/A'),
+                          ],
+                        ),
+                      )
+                          : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(ratings, (index) {
+                          return Icon(Icons.star, color: HexColor('#FB8C00'));
+                        }),
+                      ),
+                    ),
+
+                  ],
+                ),
+              ],
+            ),
+          ],
+        ),
+      );
+  }
+}
+
+class ProfielStatusAndButton  extends StatelessWidget{
+  String profileStatus = "Out Standing";
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.only(left: 16.0),
+      child: Column(
+        children: [
+          Row(
+            children: [
+              Text('Your Culturtap Status',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              SizedBox(width: 55,),
+              Container(
+                child: profileStatus=='Out Standing'?
+                  Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),),):
+                    Text('Working',style: TextStyle(color: Colors.red,fontWeight: (FontWeight.w800),),),
+              ),
+            ],
+          ),
+          SizedBox(height: 40,),
+          Container(
+            width: 400,
+            height: 70,
+            child: FilledButton(
+                backgroundColor: HexColor('#FB8C00'),
+                onPressed: () {},
+                child: Center(
+                    child: Text('COMPLETE PROFILE',
+                        style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 25)))),
+                ),
+              ],
+            ),
+        );
+  }
+
+}
+
+class FilledButton extends StatelessWidget {
+  final void Function() onPressed;
+  final Widget child;
+  final Color backgroundColor;
+
+  const FilledButton({
+    Key? key,
+    required this.onPressed,
+    required this.child,
+    required this.backgroundColor,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+      onPressed: onPressed,
+      style: ElevatedButton.styleFrom(
+        primary: backgroundColor,
       ),
+      child: child,
     );
   }
 }
+
+// class ShareButton extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       alignment: Alignment.center,
+//       child: IconButton(
+//         onPressed: () {
+//           // Handle share button click
+//         },
+//         icon: Icon(Icons.share),
+//       ),
+//     );
+//   }
+// }
+//
+// class CompleteProfileButton extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       alignment: Alignment.center,
+//       padding: EdgeInsets.all(16.0),
+//       child: ElevatedButton(
+//         onPressed: () {
+//           // Handle complete profile button click
+//         },
+//         child: Text('Complete Profile'),
+//       ),
+//     );
+//   }
+// }
