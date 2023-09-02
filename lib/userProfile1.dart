@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'dart:ui';
+
+import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 
 void main() {
   runApp(ProfileApp());
@@ -38,8 +41,6 @@ class ProfilePage extends StatelessWidget {
             CoverPage(),
             UserPhoto(),
             UserInformationSection(),
-            // ShareButton(),
-            // CompleteProfileButton(),
           ],
         ),
       ),
@@ -70,7 +71,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      padding: EdgeInsets.all(16.0),
+      // decoration: BoxDecoration(
+      //   border: Border.all(
+      //     color: Colors.red,
+      //     width: 2,
+      //   ),
+      // ),
+      height: 92,
+      padding: EdgeInsets.only(top: 12.0,left: 25.0,right: 24.0,bottom:16.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -82,37 +90,47 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 },
                 child: Container(
                   // width: 100,
-                  height: 50,
+                  height: 35,
                   child: CircleAvatar(
-                    radius: 30.0,
+                    radius: 20.0,
                     backgroundImage: AssetImage('assets/images/profile_image.jpg'),
                   ),
                 ),
               ),
-
-              Container(height: 2,),
-
-              Text('Profile',style: TextStyle(fontSize: 16,color:HexColor("#FB8C00"),fontWeight: FontWeight.w900),),
+              // Container(height: 2,),
+              Text('Profile',style: TextStyle(fontSize: 14,color:HexColor("#FB8C00"),fontWeight: FontWeight.w900,fontFamily: 'Poppins',),),
             ],
           ),
-          Image.asset('assets/images/logo.png', width: 180.0),
-
+          Padding(
+              padding:EdgeInsets.only(top: 13.0),
+              child:Align(
+                alignment: Alignment.topLeft,
+                child: Image.asset('assets/images/logo.png',width: 145),
+            ),
+          ),
           Column(
-
             children: [
               Container(
-                width: 70,
-                height: 45,
+                width: 55,
+                height: 35,
+                // decoration: BoxDecoration(
+                //   border: Border.all(
+                //     color: Colors.orange,
+                //     width: 2,
+                //   ),
+                // ),
                 child: Stack(
-
-                  alignment: Alignment.center,
+                  alignment: Alignment.topRight,
                   children: [
-                    Image.asset('assets/images/ping_image.png',height: 32 ,fit: BoxFit.cover,
+                    Padding(
+                        padding: EdgeInsets.only(top: 6.0,right: 4.0),
+                        child: Image.asset('assets/images/ping_image.png',height: 28 ,fit: BoxFit.cover,
+                        ),
                     ),
                     if(notificationCount>0)
                       Positioned(
                         top: -6,
-                        right: 13,
+                        right: 0,
                         // height: 20,
                         child: Container(
                           padding: EdgeInsets.all(4),
@@ -122,15 +140,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           ),
                           child: Text(
                             notificationCount.toString(),
-                            style: TextStyle(color: Colors.white,fontWeight: FontWeight.w800),
+                            style: TextStyle(color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
                           ),
                         ),
                       ),
                   ],
                 ),
               ),
-              Container(height: 2,),
-              Text('Pings',style: TextStyle(fontSize: 16,color:Colors.black,fontWeight: FontWeight.w900),),
+              Text('Pings',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
             ],
           ),
 
@@ -196,7 +213,7 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
       color: Colors.white,
       child: Container(
         height: 110,
-        margin: EdgeInsets.only(left: 16.0,right: 16.0,),
+        margin: EdgeInsets.only(top: 10.0,left: 16.0,right: 16.0,),
         decoration: BoxDecoration(
           color: Colors.white, // Container background color
           border: Border.all(
@@ -209,17 +226,29 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
               padding: const EdgeInsets.all(8.0),
               child: ListTile(
                 leading:Container(
-                  height: 150,
+                  // height: 150,
+                  // decoration: BoxDecoration(
+                  //   border: Border.all(
+                  //     color: Colors.orange,
+                  //     width: 2,
+                  //   ),
+                  // ),
                   child: Image.asset('assets/images/profile_strength.jpg',
                   ),
                 ),
-                title: Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w800,fontSize: 14),),
+                title: Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w800,fontSize: 14,fontFamily: 'Poppins'),),
                 subtitle: RichText(
                   text: TextSpan(
                       style: TextStyle(color: Colors.black),
                       children: [
-                        TextSpan(text: 'Profile Strength\n',style: TextStyle(fontSize: 13)),
-                        TextSpan(text: '${profileStatus.toUpperCase()}',style: TextStyle(color: _getStatusColor()),),
+                        TextSpan(text: 'Profile Strength\n',style: TextStyle(fontSize: 13,fontFamily: 'Poppins',shadows: <Shadow>[
+                        Shadow(
+                        offset: Offset(2.0, 1.0), // Specify the x and y offset of the shadow
+                          blurRadius: 6.0, // Specify the blur radius of the shadow
+                          color: Colors.grey, // Specify the color of the shadow
+                        ),
+                      ],),),
+                        TextSpan(text: '${profileStatus.toUpperCase()}',style: TextStyle(color: _getStatusColor(),fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
                       ],
                     ),
                   ),
@@ -262,8 +291,8 @@ class CoverPage extends StatelessWidget {
               child: Center(
                 child: Image.asset(
                   'assets/images/video_icon.png', // Replace with the actual path to your asset image
-                  width: 50, // Set the desired image width
-                  height: 50, // Set the desired image height
+                  width: 35, // Set the desired image width
+                  height: 35, // Set the desired image height
                   fit: BoxFit.contain, // Adjust the fit as needed
                 ),
               ),
@@ -273,11 +302,10 @@ class CoverPage extends StatelessWidget {
         Positioned(
           child: Container(
             height:190,
-            // dec
             child: Stack(
               children: [
                 Positioned(
-                  top:100,
+                  top:120,
                   left: 0,
                   right: 0,
                   child: Column(
@@ -292,18 +320,18 @@ class CoverPage extends StatelessWidget {
                           ),
                         ),
                         child: CircleAvatar(
-                          radius: 70,
+                          radius: 60,
                           backgroundImage: AssetImage('assets/images/user.png'),
                           backgroundColor: Colors.white,// Replace with user avatar image
                         ),
                       ),
-                      SizedBox(height: 5),
                       Text(
                         'Hemant Singh', // Replace with actual user name
                         style: TextStyle(
                           color: Colors.black,
                           fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontWeight: FontWeight.w900,
+                            fontFamily: 'Poppins',
                         ),
                       ),
                     ],
@@ -317,13 +345,14 @@ class CoverPage extends StatelessWidget {
 
         // Display guidance icons/messages
         Positioned(
-          top: 40,
-          right: 40,
-          child: GestureDetector(
-            onTap: () {
-              // Handle tap on help icon
+          top: 20,
+          right: 30,
+          child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+            showDialog(context: context, builder: (BuildContext context){
+              return Container(child: CustomHelpOverlay(),decoration: BoxDecoration(border: Border.all(width: 2,color: Colors.red,)),);
             },
-            child: Icon(Icons.help_outline, size: 30, color: HexColor('#FB8C0A')),
+            );
+          },
           ),
         ),
 
@@ -339,15 +368,21 @@ class UserPhoto extends StatelessWidget{
   Widget build(BuildContext context) {
     return Container(
       height:120,
+      // decoration: BoxDecoration(
+      //   border: Border.all(
+      //     color: Colors.black,width: 2,
+      //   ),
+      // ),
       // dec
       child: Stack(
         children: [
           Positioned(
-            top: -90,
+            top: -70,
             left: 0,
             right: 0,
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: [
                 Container(
                   decoration: BoxDecoration(
@@ -358,20 +393,20 @@ class UserPhoto extends StatelessWidget{
                     ),
                   ),
                   child: CircleAvatar(
-                    radius: 70,
+                    radius: 60,
                     backgroundImage: AssetImage('assets/images/user.png'),
                     backgroundColor: Colors.white,// Replace with user avatar image
                   ),
                 ),
-                SizedBox(height: 5),
                 Text(
-                  'Hemant Singh', // Replace with actual user name
-                  style: TextStyle(
-                    color: Colors.black,
-                    fontSize: 22,
-                    fontWeight: FontWeight.bold,
+                    'Hemant Singh', // Replace with actual user name
+                    style: TextStyle(
+                      color: Colors.black,
+                      fontSize: 19,
+                      fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                    ),
                   ),
-                ),
               ],
             ),
           ),
@@ -390,10 +425,11 @@ class UserInformationSection extends StatelessWidget {
       padding: EdgeInsets.only(top: 16.0,left: 16.0,right: 16.0 , bottom: 16.00),
       child: Column(
         children: [
+          SizedBox(height: 10,),
           MotivationalQuote(),
-          SizedBox(height: 25.0),
+          SizedBox(height: 20.0),
           ReachAndLocation(),
-          SizedBox(height: 35.0),
+          SizedBox(height: 45.0),
           UserDetailsTable(),
           SizedBox(height: 45.0),
           ExpertCardDetails(),
@@ -414,9 +450,15 @@ class MotivationalQuote extends StatelessWidget{
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-              Text('+ Add your Motivational quote',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),),
+              Text('+ Add your Motivational quote',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
               ),
-              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){},),
+              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+                    showDialog(context: context, builder: (BuildContext context){
+                      return Container(child: CustomHelpOverlay(),decoration: BoxDecoration(border: Border.all(width: 2,color: Colors.red,)),);
+                    },
+                  );
+                },
+              ),
           ],
       ),
     );
@@ -451,7 +493,7 @@ class InfoWidget extends StatelessWidget {
         // IconButton(padding: EdgeInsets.zero,onPressed: (){},icon: Icon(icon),),
         Icon(icon),
         // SizedBox(height: 4.0),
-        Text(text,style: TextStyle(fontSize: 12,fontWeight: FontWeight.w800),),
+        Text(text,style: TextStyle(fontSize: 12,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
       ],
     );
   }
@@ -476,31 +518,31 @@ class UserDetailsTable extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Place - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              Text('Place - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 100,),
               Text('${place}',style: TextStyle(fontSize: 14),),
             ],
           ),
           Row(
             children: [
-              Text('Profession - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              Text('Profession - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 62,),
-              Text('${profession}',style: TextStyle(fontSize: 14),),
+              Text('${profession}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
-              Text('Age/Gender - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              Text('Age/Gender - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 55,),
-              Text(age=='NA'?age:'${age} Yr/ ${gender}',style: TextStyle(fontSize: 14),),
+              Text(age=='NA'?age:'${age} Yr/ ${gender}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
-              Text('Language - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
+              Text('Language - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 71,),
               Container(
-                  child: languageList.isEmpty ? Text('NA', style: TextStyle(fontSize: 14)):
+                  child: languageList.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
                   Wrap(
                     runSpacing: 8.0, // Vertical spacing between lines of items
                     children: [
@@ -513,7 +555,7 @@ class UserDetailsTable extends StatelessWidget {
                                 children: [
                                   Text(languageList[i]),
                                   if (i < languageList.length - 1)
-                                    Text(',', style: TextStyle(fontSize: 16)),
+                                    Text(',', style: TextStyle(fontSize: 16,fontFamily: 'Poppins')),
                                 ],
                               ),
                             ),
@@ -532,121 +574,143 @@ class UserDetailsTable extends StatelessWidget {
 
 class ExpertCardDetails extends StatelessWidget{
   List<String> expertLocations = [];
+  String profileStatus = "Out Standing";
   int visitedplace = 0,coveredLocation = 0, ratings = 0;
   @override
   Widget build(BuildContext context) {
-      return Padding(
-        padding: const EdgeInsets.only(left: 16.0,right: 16.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Your Expert Cards' ,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
-                IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined)),
-              ],
+      return Container(
+        decoration: BoxDecoration(
+          // border: Border.all(
+          //   color: Colors.black,
+          //   width: 2,
+          // ),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black,
+              // offset: Offset(0.0,0.0),
+              blurRadius: 5.0,
+              spreadRadius: 7.9,
             ),
-            Column(
-              // crossAxisAlignment: CrossAxisAlignment.end,
-              // mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Row(
-                  children: [
-                    Text('Expert in locations -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
-                    SizedBox(width: 31,),
-                    Container(
-                      child: expertLocations.isEmpty ? Text('NA', style: TextStyle(fontSize: 14)):
-                      Wrap(
-                        runSpacing: 8.0, // Vertical spacing between lines of items
-                        children: [
-                          Row(
-                            children: [
-                              for (int i = 0; i < expertLocations.length; i++)
-                                Container(
-                                  margin: EdgeInsets.only(right: 8.0),
-                                  child: Row(
-                                    children: [
-                                      Text(expertLocations[i]),
-                                      if (i < expertLocations.length - 1)
-                                        Text(',', style: TextStyle(fontSize: 16)),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
-                    SizedBox(width: 60,),
-                    Text('${visitedplace}',style: TextStyle(fontSize: 14),),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
-                    SizedBox(width: 30,),
-                    Text('${coveredLocation}',style: TextStyle(fontSize: 14),),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
-                    SizedBox(width: 38,),
-                    Container(
-                      child: ratings == 0
-                          ? Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(Icons.star,color: HexColor('#FB8C00'),),
-                            SizedBox(width: 5),
-                            Text('N/A'),
-                          ],
-                        ),
-                      )
-                          : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(ratings, (index) {
-                          return Icon(Icons.star, color: HexColor('#FB8C00'));
-                        }),
-                      ),
-                    ),
-
-                  ],
-                ),
-              ],
+            BoxShadow(
+              color: Colors.white,
+              // offset: Offset(0.0,0.0),
+              blurRadius:5,
+              spreadRadius: 12.9,
             ),
           ],
+        ),
+        child: Padding(
+          padding: const EdgeInsets.only(left: 20.0,right: 20.0,top: 2.0,bottom: 0.0),
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Your Expert Cards' ,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                  IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined)),
+                ],
+              ),
+              Column(
+                // crossAxisAlignment: CrossAxisAlignment.end,
+                // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                    children: [
+                      Text('Expert in locations -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 31,),
+                      Container(
+                        child: expertLocations.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
+                        Wrap(
+                          runSpacing: 8.0, // Vertical spacing between lines of items
+                          children: [
+                            Row(
+                              children: [
+                                for (int i = 0; i < expertLocations.length; i++)
+                                  Container(
+                                    margin: EdgeInsets.only(right: 8.0),
+                                    child: Row(
+                                      children: [
+                                        Text(expertLocations[i]),
+                                        if (i < expertLocations.length - 1)
+                                          Text(',', style: TextStyle(fontSize: 16,fontFamily: 'Poppins')),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 20,),
+                  Row(
+                    children: [
+                      Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 60,),
+                      Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 30,),
+                      Text('${coveredLocation}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 38,),
+                      Container(
+                        child: ratings == 0
+                            ? Container(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.star,color: HexColor('#FB8C00'),),
+                              SizedBox(width: 5),
+                              Text('N/A'),
+                            ],
+                          ),
+                        )
+                            : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(ratings, (index) {
+                            return Icon(Icons.star, color: HexColor('#FB8C00'));
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 40,),
+                  Row(
+                    children: [
+                      Text('Your Culturtap Status',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 30,),
+                      Container(
+                        child: profileStatus=='Out Standing'?
+                        Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
+                        Text('Working',style: TextStyle(color: Colors.red,fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       );
   }
 }
 
 class ProfielStatusAndButton  extends StatelessWidget{
-  String profileStatus = "Out Standing";
   @override
   Widget build(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
       child: Column(
         children: [
-          Row(
-            children: [
-              Text('Your Culturtap Status',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800),),
-              SizedBox(width: 55,),
-              Container(
-                child: profileStatus=='Out Standing'?
-                  Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),),):
-                    Text('Working',style: TextStyle(color: Colors.red,fontWeight: (FontWeight.w800),),),
-              ),
-            ],
-          ),
-          SizedBox(height: 40,),
           Container(
             width: 400,
             height: 70,
