@@ -209,55 +209,98 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
 
   @override
   Widget build(BuildContext context) {
-    return Card(
-      color: Colors.white,
+    final screenWidth = MediaQuery.of(context).size.width;
+    // return Container(
+    //   height: 110,
+    //   width: 46,
+    //   margin: EdgeInsets.only(top: 10.0,left: 16.0,right: 16.0,),
+    //   decoration: BoxDecoration(
+    //     color: Colors.white, // Container background color
+    //     border: Border.all(
+    //       color: HexColor('#001B33'), // Border color
+    //       width: 1.0, // Border width
+    //     ),
+    //   ),
+    //   child: ListView.builder(itemBuilder: (context,index)=>
+    //       ListTile(
+    //         leading:Image.asset('assets/images/profile_strength.jpg',
+    //         width: 80,height: 120,),
+    //         title: Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w800,fontSize: 14,fontFamily: 'Poppins'),),
+    //         subtitle: RichText(
+    //           text: TextSpan(
+    //               style: TextStyle(color: Colors.black),
+    //               children: [
+    //                 TextSpan(text: 'Profile Strength\n',style: TextStyle(fontSize: 13,fontFamily: 'Poppins',shadows: <Shadow>[
+    //                 Shadow(
+    //                 offset: Offset(2.0, 1.0), // Specify the x and y offset of the shadow
+    //                   blurRadius: 6.0, // Specify the blur radius of the shadow
+    //                   color: Colors.grey, // Specify the color of the shadow
+    //                 ),
+    //               ],),),
+    //                 TextSpan(text: '${profileStatus.toUpperCase()}',style: TextStyle(color: _getStatusColor(),fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+    //               ],
+    //             ),
+    //           ),
+    //         trailing:Container(
+    //             child: IconHover(),
+    //         ),
+    //       ),
+    //     itemCount: 1,
+    //   ),
+    // );
+    return Padding(
+      padding: EdgeInsets.only(top: 12.0,left: 25.0,right: 24.0,bottom:0.0),
       child: Container(
-        height: 110,
-        margin: EdgeInsets.only(top: 10.0,left: 16.0,right: 16.0,),
+        width: 400,
+        height: 120,
+        // padding: EdgeInsets.only(top: 12.0),
         decoration: BoxDecoration(
-          color: Colors.white, // Container background color
           border: Border.all(
-            color: HexColor('#001B33'), // Border color
-            width: 1.0, // Border width
+            color: Colors.black,
+            width: 1,
           ),
         ),
-        child: ListView.builder(itemBuilder: (context,index)=>
+        child:Row(
+          children: [
+            Container(
+              child: Image.asset('assets/images/profile_strength.jpg', width: 110,height: 92,fit: BoxFit.contain,),
+            ),
             Padding(
-              padding: const EdgeInsets.all(8.0),
-              child: ListTile(
-                leading:Container(
-                  // height: 150,
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(
-                  //     color: Colors.orange,
-                  //     width: 2,
-                  //   ),
-                  // ),
-                  child: Image.asset('assets/images/profile_strength.jpg',
-                  ),
-                ),
-                title: Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w800,fontSize: 14,fontFamily: 'Poppins'),),
-                subtitle: RichText(
-                  text: TextSpan(
-                      style: TextStyle(color: Colors.black),
-                      children: [
-                        TextSpan(text: 'Profile Strength\n',style: TextStyle(fontSize: 13,fontFamily: 'Poppins',shadows: <Shadow>[
-                        Shadow(
+              padding: const EdgeInsets.only(left: 10.0),
+              child: Container(
+                width: screenWidth*0.41,
+                // decoration: BoxDecoration(
+                //   border: Border.all(
+                //     color:Colors.lightGreen,
+                //     width: 2,
+                //   ),
+                // ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children:[
+                    Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w900,fontSize: 14,fontFamily: 'Poppins'),),
+                    SizedBox(height: 10,),
+                    Text('Profile Strength',style: TextStyle(fontSize: 11,fontFamily: 'Poppins',shadows: <Shadow>[
+                      Shadow(
                         offset: Offset(2.0, 1.0), // Specify the x and y offset of the shadow
-                          blurRadius: 6.0, // Specify the blur radius of the shadow
-                          color: Colors.grey, // Specify the color of the shadow
-                        ),
-                      ],),),
-                        TextSpan(text: '${profileStatus.toUpperCase()}',style: TextStyle(color: _getStatusColor(),fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      ],
-                    ),
-                  ),
-                trailing:Container(
-                    child: IconHover(),
+                        blurRadius: 6.0, // Specify the blur radius of the shadow
+                        color: Colors.grey, // Specify the color of the shadow
+                      ),
+                    ],),),
+                    Text('LOW',style: TextStyle(color: Colors.red,fontWeight: FontWeight.w900,fontFamily: 'Poppins',fontSize: 11),),
+                  ],
                 ),
               ),
             ),
-          itemCount: 1,
+            Container(
+              padding: EdgeInsets.only(left: screenWidth*0.01),
+              child: Align(
+                alignment: Alignment.topRight,
+                child:  IconButton(onPressed: (){}, icon: Icon(Icons.arrow_forward,),color: Colors.orange,),
+              ),
+            ),
+          ],
         ),
       ),
     );
@@ -349,7 +392,7 @@ class CoverPage extends StatelessWidget {
           right: 30,
           child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
             showDialog(context: context, builder: (BuildContext context){
-              return Container(child: CustomHelpOverlay(),decoration: BoxDecoration(border: Border.all(width: 2,color: Colors.red,)),);
+              return Container(child: CustomHelpOverlay(),);
             },
             );
           },
@@ -454,7 +497,7 @@ class MotivationalQuote extends StatelessWidget{
               ),
               IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                     showDialog(context: context, builder: (BuildContext context){
-                      return Container(child: CustomHelpOverlay(),decoration: BoxDecoration(border: Border.all(width: 2,color: Colors.red,)),);
+                      return Container(child: CustomHelpOverlay(),);
                     },
                   );
                 },
@@ -519,7 +562,7 @@ class UserDetailsTable extends StatelessWidget {
           Row(
             children: [
               Text('Place - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 100,),
+              SizedBox(width: 96,),
               Text('${place}',style: TextStyle(fontSize: 14),),
             ],
           ),
@@ -540,7 +583,7 @@ class UserDetailsTable extends StatelessWidget {
           Row(
             children: [
               Text('Language - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 71,),
+              SizedBox(width: 69,),
               Container(
                   child: languageList.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
                   Wrap(
@@ -600,7 +643,7 @@ class ExpertCardDetails extends StatelessWidget{
           ],
         ),
         child: Padding(
-          padding: const EdgeInsets.only(left: 20.0,right: 20.0,top: 2.0,bottom: 0.0),
+          padding: const EdgeInsets.only(left: 20.0,right: 20.0,top: 5.0,bottom: 9.0),
           child: Column(
             children: [
               Row(
@@ -647,7 +690,7 @@ class ExpertCardDetails extends StatelessWidget{
                   Row(
                     children: [
                       Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 60,),
+                      SizedBox(width: 58,),
                       Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
                     ],
                   ),
@@ -661,7 +704,7 @@ class ExpertCardDetails extends StatelessWidget{
                   Row(
                     children: [
                       Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 38,),
+                      SizedBox(width: 35,),
                       Container(
                         child: ratings == 0
                             ? Container(

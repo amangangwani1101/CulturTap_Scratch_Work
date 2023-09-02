@@ -1,5 +1,6 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/userProfile1.dart';
 
 class CustomHelpOverlay extends StatelessWidget {
   @override
@@ -19,45 +20,47 @@ class CustomHelpOverlay extends StatelessWidget {
             child: Container(
               padding: EdgeInsets.all(20.0),
               width: screenWidth*0.95,
-              height: 350,
+              height: 315,
               decoration: BoxDecoration(
-                color: Colors.white,
-                border: Border.all(
-                  color: Colors.brown,
-                  width: 2,
+                color: HexColor('#D9D9D9'),
+                // border: Border.all(
+                //   color: Colors.brown,
+                //   width: 2,
+                // ),
+                // borderRadius: BorderRadius.circular(10.0),
+              ),
+              // child: Align(
+              //   alignment: Alignment.topRight,
+              //   child: ElevatedButton(
+              //     onPressed: () {
+              //       Navigator.of(context).pop();
+              //     },
+              //     child: (Icon(Icons.crop_sharp)),
+              //   ),
+              // ),
+
+              child: Container(
+                // decoration: BoxDecoration(
+                //   border: Border.all(color: Colors.black), // Optional border
+                // ),
+                child: Stack(
+                  children: [
+                    Center(child: Image.asset('assets/images/help_motivation_icon.jpg',width: 361,height: 281,fit: BoxFit.contain,),),
+                    Positioned(
+                      top: 25,
+                      right: 15,
+                      child:IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: (){
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  ],
                 ),
-                borderRadius: BorderRadius.circular(10.0),
               ),
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Help Title',
-                    style: TextStyle(
-                      fontSize: 20.0,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: 10.0),
-                  Text(
-                    'Here is some help content...',
-                    style: TextStyle(
-                      fontSize: 16.0,
-                    ),
-                  ),
-                  SizedBox(height: 20.0),
-                  Align(
-                    alignment: Alignment.topRight,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                      child: Text('Close'),
-                    ),
-                  ),
-                ],
-              ),
+
+
             ),
           ),
         ],
