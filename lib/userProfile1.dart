@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
-
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
+import 'package:learn_flutter/widgets/02_customNavbar.dart';
 
 void main() {
   runApp(ProfileApp());
 }
 
 class ProfileApp extends StatelessWidget {
+  bool reqPage = true;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -15,13 +16,15 @@ class ProfileApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: ProfilePage(),
+      home: ProfilePage(reqPage:reqPage),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class ProfilePage extends StatelessWidget {
+  final bool reqPage;
+  ProfilePage({required this.reqPage});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -36,8 +39,8 @@ class ProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ProfileHeader(),
-            ProfileStrengthCard(),
+            ProfileHeader(reqPage: reqPage),
+            reqPage?ProfileStrengthCard():SizedBox(height: 20,),
             CoverPage(),
             UserPhoto(),
             UserInformationSection(),
@@ -60,6 +63,9 @@ class HexColor extends Color {
 
 // profile header section -- state1
 class ProfileHeader extends StatefulWidget {
+  final bool reqPage;
+
+  ProfileHeader({required this.reqPage});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -67,7 +73,6 @@ class ProfileHeader extends StatefulWidget {
 class _ProfileHeaderState extends State<ProfileHeader> {
   // notification count will be made dynamic from backend
   int notificationCount = 2;
-
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -82,6 +87,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+          widget.reqPage?
           Column(
             children: [
               GestureDetector(
@@ -97,9 +103,23 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   ),
                 ),
               ),
-              // Container(height: 2,),
               Text('Profile',style: TextStyle(fontSize: 14,color:HexColor("#FB8C00"),fontWeight: FontWeight.w900,fontFamily: 'Poppins',),),
             ],
+          ):
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.black,
+                width: 2,
+              ),
+            ),
+            padding: EdgeInsets.all(0),
+            child: GestureDetector(
+              onTap: (){
+                Navigator.of(context).pop();
+              },
+              child: Image.asset('assets/images/back_icon.png',width: 60,height: 30,),
+            ),
           ),
           Padding(
               padding:EdgeInsets.only(top: 13.0),
@@ -759,7 +779,9 @@ class ProfielStatusAndButton  extends StatelessWidget{
             height: 70,
             child: FilledButton(
                 backgroundColor: HexColor('#FB8C00'),
-                onPressed: () {},
+                onPressed: () {
+                  Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),));
+                },
                 child: Center(
                     child: Text('COMPLETE PROFILE',
                         style: TextStyle(
@@ -798,33 +820,3 @@ class FilledButton extends StatelessWidget {
   }
 }
 
-// class ShareButton extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       alignment: Alignment.center,
-//       child: IconButton(
-//         onPressed: () {
-//           // Handle share button click
-//         },
-//         icon: Icon(Icons.share),
-//       ),
-//     );
-//   }
-// }
-//
-// class CompleteProfileButton extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return Container(
-//       alignment: Alignment.center,
-//       padding: EdgeInsets.all(16.0),
-//       child: ElevatedButton(
-//         onPressed: () {
-//           // Handle complete profile button click
-//         },
-//         child: Text('Complete Profile'),
-//       ),
-//     );
-//   }
-// }
