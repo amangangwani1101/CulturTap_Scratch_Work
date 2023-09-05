@@ -40,10 +40,10 @@ class ProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ProfileHeader(reqPage: reqPage),
-            reqPage?ProfileStrengthCard():SizedBox(height: 20,),
+            reqPage?ProfileStrengthCard():SizedBox(height: 0,),
             CoverPage(),
             UserPhoto(),
-            UserInformationSection(),
+            UserInformationSection(reqPage:reqPage),
           ],
         ),
       ),
@@ -107,25 +107,36 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             ],
           ):
           Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black,
-                width: 2,
+            // decoration: BoxDecoration(
+            //   border: Border.all(
+            //     color: Colors.black,
+            //     width: 2,
+            //   ),
+            // ),
+            width: 60,
+            height: 45,
+            child: Align(
+              alignment: Alignment.topCenter,
+              child: GestureDetector(
+                onTap: (){
+                  Navigator.of(context).pop();
+                },
+                child: Image.asset('assets/images/back.png',width: 60,height: 30,),
               ),
             ),
-            padding: EdgeInsets.all(0),
-            child: GestureDetector(
-              onTap: (){
-                Navigator.of(context).pop();
-              },
-              child: Image.asset('assets/images/back_icon.png',width: 60,height: 30,),
-            ),
           ),
+          widget.reqPage?
           Padding(
               padding:EdgeInsets.only(top: 13.0),
               child:Align(
                 alignment: Alignment.topLeft,
                 child: Image.asset('assets/images/logo.png',width: 145),
+            ),
+          ):Padding(
+            padding:EdgeInsets.only(top: 13.0,right: 12,),
+            child:Align(
+              alignment: Alignment.topLeft,
+              child: Image.asset('assets/images/logo.png',width: 145),
             ),
           ),
           Column(
@@ -482,6 +493,9 @@ class UserPhoto extends StatelessWidget{
 
 
 class UserInformationSection extends StatelessWidget {
+  final bool reqPage;
+
+  UserInformationSection({required this.reqPage});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -493,7 +507,7 @@ class UserInformationSection extends StatelessWidget {
           SizedBox(height: 20.0),
           ReachAndLocation(),
           SizedBox(height: 45.0),
-          UserDetailsTable(),
+          reqPage?UserDetailsTable():Text('Hello'),
           SizedBox(height: 45.0),
           ExpertCardDetails(),
           SizedBox(height: 35.0),
