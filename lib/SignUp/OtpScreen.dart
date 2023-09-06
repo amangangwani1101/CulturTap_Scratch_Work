@@ -1,10 +1,13 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/FourthPage.dart';
-import './CostumAppbar.dart';
+import 'package:learn_flutter/SignUp/FourthPage.dart';
+import '../CustomItems/CostumAppbar.dart';
 
 
 class OtpScreen extends StatefulWidget {
+  final String otp;
+  OtpScreen({required this.otp});
+
   @override
   _OtpScreenState createState() => _OtpScreenState();
 }
@@ -50,6 +53,12 @@ class _OtpScreenState extends State<OtpScreen>{
                         height: 250,
                         child : Image.asset('assets/images/thirdPage.png'),
                         color: Colors.white54),
+                    Container(
+                      child : Image.asset('assets/images/SignUp3.png'),
+                    ),
+                    Container(
+                      height : 20,
+                    ),
                     Text('Earn by assisting nearby turists !',style: TextStyle(fontWeight: FontWeight.w200,fontSize: 20,),),
                     Container(
                       width : double.infinity,
@@ -144,10 +153,13 @@ class _OtpScreenState extends State<OtpScreen>{
                             backgroundColor: Colors.orange,
 
                             onPressed: () {
-                              // verifyCode();
-                              String OTPP = otpCodeControlloer.text;
-                              print('PhoneNumber  : ${OTPP} ');
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => FourthPage(),));
+
+                              verifyCode();
+
+
+                              // String OTPP = otpCodeControlloer.text;
+                              // print('otp  : ${OTPP} ');
+                              // Navigator.push(context, MaterialPageRoute(builder: (context) => FourthPage(),));
                             },
                             child: Center(
                                 child: Text('Next',
@@ -166,12 +178,35 @@ class _OtpScreenState extends State<OtpScreen>{
 
 
 
-// void verifyCode()async{
-//    PhoneAuthCredential credential = PhoneAuthProvider.credential(verificationId: , smsCode: otpCodeControlloer.text, );
-//    await auth.signInWithCredential(credential).then((value)=>{
-//      print("you are logged in successfully")
-//    });
-// }
+  void verifyCode() async {
+    print('Received OTP: ${widget.otp}');
+    print('User-Entered OTP: ${_controllers.map((controller) => controller.text).join('')}');
+    String OTPP = widget.otp; // Access the OTP passed from the previous page
+
+    // Now you can compare it with the OTP entered by the user
+    if (OTPP == _controllers.map((controller) => controller.text).join('')) {
+      // OTPs match, proceed with verification
+      PhoneAuthCredential credential = PhoneAuthProvider.credential(
+        verificationId: OTPP,
+        smsCode: _controllers.map((controller) => controller.text).join(''),
+      );
+
+      await auth.signInWithCredential(credential).then((value) {
+        print("you are logged in successfully");
+
+        // Navigate to the FourthPage
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FourthPage()),
+        );
+      });
+    } else {
+      // OTPs do not match, handle the error
+      print("OTP does not match");
+    }
+  }
+
+
 }
 
 

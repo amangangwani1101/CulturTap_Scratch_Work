@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/SecondPage.dart';
+import 'package:learn_flutter/CustomItems/CustomImagePopup.dart';
+import 'package:learn_flutter/SignUp/SecondPage.dart';
+import 'package:learn_flutter/CustomItems/CustomImagePopup.dart';
+
 
 void main() {
   runApp(const FirstPage());
@@ -42,6 +45,7 @@ class MyHomePage extends StatefulWidget {
 
   final String title;
 
+
   @override
   State<MyHomePage> createState() => _MyHomePageState();
 }
@@ -76,9 +80,15 @@ class _MyHomePageState extends State<MyHomePage> {
                     width: 389,
                     color: Colors.white,
                   ),
+                  Container(
+                    child : Image.asset('assets/images/SignUp1.png'),
+                  ),
+                  Container(
+                    height : 20,
+                  ),
                   Text('SIGNUP',
                       style: TextStyle(
-                        fontSize: 24,
+                        fontSize: 22,
                         color: Colors.black,
                         fontWeight: FontWeight.bold,
                         fontFamily: 'Poppins',
@@ -106,7 +116,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       decoration: InputDecoration(
                         hintText: 'Ex : Utkarsh Gupta',
                         filled: true,
-                        fillColor: Colors.grey[100],
+                        fillColor: Colors.grey[50],
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(5.0), // Updated border radius
                           borderSide: BorderSide.none, // No border
@@ -125,7 +135,17 @@ class _MyHomePageState extends State<MyHomePage> {
                                 fontSize: 20, fontWeight: FontWeight.w100)),
                         TextButton(
                           onPressed: () {
-                            // TODO: Add navigation to Sign In page
+                            bool signIn = true;
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => SecondPage(
+                                  phoneNumberController: TextEditingController(),
+                                  signIn : signIn,
+                                ),
+                              ),
+                            );
                           },
                           child: Text('Sign In',
                               style: TextStyle(
@@ -151,6 +171,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               MaterialPageRoute(
                                 builder: (context) => SecondPage(
                                   phoneNumberController: TextEditingController(),
+
                                 ),
                               ),
                             );

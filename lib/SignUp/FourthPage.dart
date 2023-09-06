@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:learn_flutter/OtpScreen.dart';
 
-import './CostumAppbar.dart';
+
+import '../CustomItems/CostumAppbar.dart';
 
 class FourthPage extends StatefulWidget {
   @override
@@ -84,6 +84,12 @@ class _FourthPageState extends State<FourthPage> {
                     child : Image.asset('assets/images/fourthPage.png'),
                     color: Colors.white,
                   ),
+                  Container(
+                    child : Image.asset('assets/images/SignUp4.png'),
+                  ),
+                  Container(
+                    height : 20,
+                  ),
                   Text(
                     'CONFIRM YOUR LOCATION',
                     style: TextStyle(
@@ -130,7 +136,7 @@ class _FourthPageState extends State<FourthPage> {
                         print('Location: $fetchedLocation');
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => OtpScreen()),
+                          MaterialPageRoute(builder: (context) => FourthPage()),
                         );
                       },
                       child: Center(
