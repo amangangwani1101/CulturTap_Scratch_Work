@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'dart:convert';
 import 'package:learn_flutter/SignUp/OtpScreen.dart';
+import 'package:http/http.dart' as http;
 
 import '../CustomItems/CostumAppbar.dart';
 
@@ -21,6 +23,7 @@ class _PhoneNumberValidatorState extends State<PhoneNumberValidator> {
   @override
   Widget build(BuildContext context) {
     return SecondPage(
+      userName: 'YourUserName',
       phoneNumberController: _phoneNumberController,
 
 
@@ -30,13 +33,17 @@ class _PhoneNumberValidatorState extends State<PhoneNumberValidator> {
 
 class SecondPage extends StatefulWidget {
   final TextEditingController phoneNumberController;
+
+  final String userName;
   final bool signIn;
 
 
   SecondPage({
-
+    required this.userName,
     required this.phoneNumberController,
     this.signIn = false,
+
+
 
 
   });
@@ -45,7 +52,62 @@ class SecondPage extends StatefulWidget {
   _SecondPageState createState() => _SecondPageState();
 }
 
+
+
 class _SecondPageState extends State<SecondPage> {
+
+  void registerUser() async {
+    try {
+      final String userName = widget.userName; // Access the userName from the widget
+      final String phoneNumber = widget.phoneNumberController.text; // Assuming you have a phoneNumberController
+
+      final Map<String, String> regBody = {
+        "userName": userName,
+        "phoneNumber": phoneNumber,
+      };
+
+      print('Request Body: $regBody');
+
+      final String serverUrl = 'http://192.168.85.191:8080'; // Replace with your server's URL
+      final http.Response response = await http.post(
+        Uri.parse('$serverUrl/signUp'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(regBody),
+      );
+
+      print('Response: ${response.statusCode} ${response.reasonPhrase}');
+
+      if (response.statusCode == 200) {
+        // Request was successful
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OtpScreen(otp: verificationIDReceived),
+          ),
+        );
+        print('Response Data: ${response.body}');
+
+        // You can handle the response here as needed, e.g., show a success message or navigate to a new page.
+      } else {
+        // Request failed with a non-200 status code
+        print('Request failed with status: ${response.statusCode}');
+        print('Response Data: ${response.body}');
+
+        // Handle the error here, e.g., show an error message.
+      }
+    } catch (error) {
+      // Handle network or other errors
+      print("Error: $error");
+    }
+  }
+
+
+
+
+
+
   FirebaseAuth auth = FirebaseAuth.instance;
   String verificationIDReceived = "";
   bool _isPhoneNumberValid = true; // Default to true
@@ -193,12 +255,8 @@ class _SecondPageState extends State<SecondPage> {
 
                         if (isValid) {
                           print('PhoneNumber: $number');
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => OtpScreen(otp: verificationIDReceived),
-                            ),
-                          );
+                          registerUser();
+
                         }
                       },
                       child: Center(

@@ -1,7 +1,7 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/CustomItems/CustomImagePopup.dart';
 import 'package:learn_flutter/SignUp/SecondPage.dart';
-import 'package:learn_flutter/CustomItems/CustomImagePopup.dart';
+import 'package:http/http.dart' as http;
 
 
 void main() {
@@ -51,8 +51,55 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  var nameText = TextEditingController();
+  final TextEditingController _textController = TextEditingController();
   bool validate = false;
+
+
+  // void registerUser() async {
+  //   try {
+  //     // print('userRegistration started');
+  //     final String userName = _textController.text;
+  //     final Map<String, String> regBody = {
+  //       "userName": userName,
+  //     };
+  //
+  //     print('Request Body: $regBody');
+  //
+  //     final String serverUrl = 'http://192.168.85.191:8080';
+  //     // Replace with your server's URL
+  //     final http.Response response = await http.post(
+  //
+  //       Uri.parse('$serverUrl/SignUp'),
+  //       headers: {
+  //         "Content-Type": "application/json",
+  //       },
+  //       body: jsonEncode(regBody),
+  //     );
+  //
+  //     print('response : ');
+  //     print(response);
+  //
+  //     if (response.statusCode == 200) {
+  //       // Request was successful
+  //       print('Response Data: ${response.body}');
+  //
+  //
+  //
+  //     } else {
+  //       // Request failed with a non-200 status code
+  //       print('Request failed with status: ${response.statusCode}');
+  //       print('Response Data: ${response.body}');
+  //     }
+  //   } catch (error) {
+  //     // Handle network or other errors
+  //     print("Error: $error");
+  //   }
+  //
+  //   // print('user registration ended');
+  // }
+
+
+
 
   Widget build(BuildContext context) {
     return Scaffold(
@@ -112,7 +159,7 @@ class _MyHomePageState extends State<MyHomePage> {
                     width: 324,
                     height: 54,
                     child: TextField(
-                      controller: nameText,
+                      controller: _textController,
                       decoration: InputDecoration(
                         hintText: 'Ex : Utkarsh Gupta',
                         filled: true,
@@ -143,6 +190,8 @@ class _MyHomePageState extends State<MyHomePage> {
                                 builder: (context) => SecondPage(
                                   phoneNumberController: TextEditingController(),
                                   signIn : signIn,
+                                  userName : 'raju',
+
                                 ),
                               ),
                             );
@@ -161,28 +210,39 @@ class _MyHomePageState extends State<MyHomePage> {
                     width: 330,
                     height: 70,
                     child: FilledButton(
-                        backgroundColor: Colors.orange,
-                        onPressed: () {
-                          String Name = nameText.text.toString();
-                          print('Name  : ${Name} ');
-                          if (Name.length > 2) {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => SecondPage(
-                                  phoneNumberController: TextEditingController(),
+                      backgroundColor: Colors.orange,
+                      onPressed: () async {
+                        String name = _textController.text.toString();
+                        print('userName: $name');
 
-                                ),
+                        if (name.length > 2) {
+
+                          // registerUser();
+
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SecondPage(
+                                phoneNumberController: TextEditingController(),
+                                userName : _textController.text,
+
                               ),
-                            );
-                          }
-                        },
-                        child: Center(
-                            child: Text('Next',
-                                style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 22)))),
+                            ),
+                          );
+                        }
+
+                      },
+                      child: Center(
+                        child: Text(
+                          'Next',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 22,
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
                 ],
               ),
