@@ -22,7 +22,7 @@ class CustomHelpOverlay extends StatelessWidget {
               width: screenWidth*0.95,
               height: 315,
               decoration: BoxDecoration(
-                color: HexColor('#D9D9D9'),
+                // color: HexColor('#D9D9D9'),
                 // border: Border.all(
                 //   color: Colors.brown,
                 //   width: 2,
@@ -47,7 +47,7 @@ class CustomHelpOverlay extends StatelessWidget {
                   children: [
                     Center(child: Image.asset('assets/images/help_motivation_icon.jpg',width: 361,height: 281,fit: BoxFit.contain,),),
                     Positioned(
-                      top: 25,
+                      top: 15,
                       right: 15,
                       child:IconButton(
                         icon: Icon(Icons.close),

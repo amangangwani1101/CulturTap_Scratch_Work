@@ -8,168 +8,81 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: ProfileForm(),
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('Edit Name Example'),
+        ),
+        body: EditNameForm(),
+      ),
     );
   }
 }
 
-class ProfileForm extends StatefulWidget {
+class EditNameForm extends StatefulWidget {
   @override
-  _ProfileFormState createState() => _ProfileFormState();
+  _EditNameFormState createState() => _EditNameFormState();
 }
 
-class _ProfileFormState extends State<ProfileForm> {
-  String selectedProfession = 'Engineer'; // Initialize with a default value
-  DateTime? selectedDateOfBirth; // Initialize with null
-  String selectedGender = 'Male'; // Initialize with a default value
-  String selectedLanguage = 'English'; // Initialize with a default value
-
-
-  // List of profession options for the dropdown
-  final List<String> professions = [
-    'Engineer',
-    'Doctor',
-    'Teacher',
-    'Artist',
-    // Add more professions as needed
-  ];
-
-  // List of gender options for the dropdown
-  final List<String> genders = <String>['Male', 'Female', 'Other'];
-
-  // List of language options for the dropdown
-  final List<String> languages = [
-    'English',
-    'Spanish',
-    'French',
-    'German',
-    // Add more languages as needed
-  ];
+class _EditNameFormState extends State<EditNameForm> {
+  TextEditingController nameController = TextEditingController();
+  String userName = "Hemant Singh"; // Initial static name
+  // String editedName = ""; // Stores the edited name
+  bool isEditing = false;
 
   @override
   void initState() {
     super.initState();
-    // Print the selected values when the widget is initialized
-    print('Selected Profession: $selectedProfession');
-    print('Selected Date of Birth: $selectedDateOfBirth');
-    print('Selected Gender: $selectedGender');
-    print('Selected Language: $selectedLanguage');
+    nameController.text = userName;
   }
+
+  void toggleEdit() {
+    setState(() {
+      isEditing = !isEditing;
+
+      if (!isEditing) {
+        if(nameController.text.length<1){
+          isEditing = !isEditing;
+          print('Name is too small');
+        }else{
+          // Save the edited name when exiting edit mode
+          userName = nameController.text;
+          // Here, you can send the updated name to your backend for processing
+          // For demonstration, we'll just print it
+          print("Updated Name: $userName");
+        }
+      }
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    print('Selected Profession: $selectedProfession');
-    print('Selected Date of Birth: $selectedDateOfBirth');
-    print('Selected Gender: $selectedGender');
-    print('Selected Language: $selectedLanguage');
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile Form'),
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            // Profession Dropdown
-            Text('Profession'),
-            // DropdownButton<String>(
-            //   value: selectedProfession,
-            //   items: professions.map((profession) {
-            //     return DropdownMenuItem(
-            //       value: profession, // Make sure each value is unique
-            //       child: new Text(profession),
-            //     );
-            //   }).toList(),
-            //   onChanged: (String? newValue) {
-            //     setState(() {
-            //       selectedProfession = newValue!;
-            //     });
-            //   },
-            // ),
-
-            SizedBox(height: 20),
-
-            // Date of Birth
-            Text('Date of Birth'),
-            InkWell(
-              onTap: () async {
-                final DateTime picked = (await showDatePicker(
-                  context: context,
-                  initialDate: selectedDateOfBirth ?? DateTime.now(),
-                  firstDate: DateTime(1900),
-                  lastDate: DateTime(2101),
-                ))!;
-                if (picked != null && picked != selectedDateOfBirth) {
-                  setState(() {
-                    selectedDateOfBirth = picked;
-                  });
-                }
-              },
-              child: InputDecorator(
-                decoration: InputDecoration(
-                  border: OutlineInputBorder(),
-                  hintText: selectedDateOfBirth == null
-                      ? 'Select Date of Birth'
-                      : selectedDateOfBirth.toString(),
+    return Container(
+      width: 400,
+      // height: 30,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          isEditing
+              ? Container(
+                width: 200,
+                child: TextField(
+                  controller: nameController,
+                  onChanged: (value){
+                    userName = value;
+                  },
+                  style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500,fontFamily: 'Poppins'),
                 ),
+              )
+              : Text(
+                userName,
+                style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
               ),
-            ),
-
-            SizedBox(height: 20),
-
-            // Gender Dropdown
-            Text('Gender'),
-            // DropdownButton<String>(
-            //   value: selectedGender,
-            //   items: genders.map((String gender) {
-            //     return DropdownMenuItem<String>(
-            //       value: gender,
-            //       child: Text(gender),
-            //     );
-            //   }).toList(),
-            //   onChanged: (String? newValue) {
-            //     setState(() {
-            //       selectedGender = newValue!;
-            //     });
-            //   },
-            // ),
-            Text('Gender:$selectedGender'),
-            Text('Profession is :$selectedProfession'),
-
-            SizedBox(height: 20),
-
-            // Language Dropdown
-            Text('Language'),
-            // DropdownButton<String>(
-            //   value: selectedLanguage,
-            //   items: languages.map((String language) {
-            //     return DropdownMenuItem<String>(
-            //       value: language,
-            //       child: Text(language),
-            //     );
-            //   }).toList(),
-            //   onChanged: (String? newValue) {
-            //     setState(() {
-            //       selectedLanguage = newValue!;
-            //     });
-            //   },
-            // ),
-
-            SizedBox(height: 20),
-
-            // Submit Button
-            ElevatedButton(
-              onPressed: () {
-                // Use the selected values as needed
-                print('Selected Profession: $selectedProfession');
-                print('Selected Date of Birth: $selectedDateOfBirth');
-                print('Selected Gender: $selectedGender');
-                print('Selected Language: $selectedLanguage');
-              },
-              child: Text('Submit'),
-            ),
-          ],
-        ),
+          IconButton(
+            icon: Icon(isEditing ? Icons.save_outlined : Icons.edit_outlined),
+            onPressed: toggleEdit,
+          ),
+        ],
       ),
     );
   }

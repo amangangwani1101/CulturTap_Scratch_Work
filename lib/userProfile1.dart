@@ -1,14 +1,18 @@
 import 'package:flutter/material.dart';
 import 'dart:ui';
+import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/02_customNavbar.dart';
+import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
+import 'package:learn_flutter/work.dart';
 
 void main() {
   runApp(ProfileApp());
 }
 
 class ProfileApp extends StatelessWidget {
-  bool reqPage = true;
+  bool reqPage = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -16,7 +20,7 @@ class ProfileApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: ProfilePage(reqPage:reqPage),
+      home: ProfilePage(reqPage:true),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -41,8 +45,8 @@ class ProfilePage extends StatelessWidget {
           children: [
             ProfileHeader(reqPage: reqPage),
             reqPage?ProfileStrengthCard():SizedBox(height: 0,),
-            CoverPage(),
-            UserPhoto(),
+            reqPage?SizedBox(height: 17,):SizedBox(height: 0,),
+            CoverPage(reqPage:reqPage),
             UserInformationSection(reqPage:reqPage),
           ],
         ),
@@ -171,7 +175,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           ),
                           child: Text(
                             notificationCount.toString(),
-                            style: TextStyle(color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
+                            style: TextStyle(fontSize: 14,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
                           ),
                         ),
                       ),
@@ -279,59 +283,61 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
     //     itemCount: 1,
     //   ),
     // );
-    return Padding(
-      padding: EdgeInsets.only(top: 12.0,left: 25.0,right: 24.0,bottom:0.0),
-      child: Container(
-        width: 400,
-        height: 120,
-        // padding: EdgeInsets.only(top: 12.0),
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.black,
-            width: 1,
-          ),
-        ),
-        child:Row(
-          children: [
-            Container(
-              child: Image.asset('assets/images/profile_strength.jpg', width: 110,height: 92,fit: BoxFit.contain,),
+    return Container(
+      width: screenWidth,
+      height: 120,
+      child: Center(
+        child: Container(
+          width: screenWidth*0.9,
+          // padding: EdgeInsets.only(top: 12.0),
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black,
+              width: 1,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 10.0),
-              child: Container(
-                width: screenWidth*0.41,
-                // decoration: BoxDecoration(
-                //   border: Border.all(
-                //     color:Colors.lightGreen,
-                //     width: 2,
-                //   ),
-                // ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:[
-                    Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w900,fontSize: 14,fontFamily: 'Poppins'),),
-                    SizedBox(height: 10,),
-                    Text('Profile Strength',style: TextStyle(fontSize: 11,fontFamily: 'Poppins',shadows: <Shadow>[
-                      Shadow(
-                        offset: Offset(2.0, 1.0), // Specify the x and y offset of the shadow
-                        blurRadius: 6.0, // Specify the blur radius of the shadow
-                        color: Colors.grey, // Specify the color of the shadow
-                      ),
-                    ],),),
-                    Text('LOW',style: TextStyle(color: Colors.red,fontWeight: FontWeight.w900,fontFamily: 'Poppins',fontSize: 11),),
-                  ],
+          ),
+          child:Row(
+            children: [
+              Container(
+                child: Image.asset('assets/images/profile_strength.jpg', width: 110,height: 92,fit: BoxFit.contain,),
+              ),
+              Padding(
+                padding: const EdgeInsets.only(left: 10.0),
+                child: Container(
+                  width: screenWidth*0.41,
+                  // decoration: BoxDecoration(
+                  //   border: Border.all(
+                  //     color:Colors.lightGreen,
+                  //     width: 2,
+                  //   ),
+                  // ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:[
+                      Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w900,fontSize: 14,fontFamily: 'Poppins'),),
+                      SizedBox(height: 10,),
+                      Text('Profile Strength',style: TextStyle(fontSize: 11,fontFamily: 'Poppins',shadows: <Shadow>[
+                        Shadow(
+                          offset: Offset(2.0, 1.0), // Specify the x and y offset of the shadow
+                          blurRadius: 6.0, // Specify the blur radius of the shadow
+                          color: Colors.grey, // Specify the color of the shadow
+                        ),
+                      ],),),
+                      Text('LOW',style: TextStyle(color: Colors.red,fontWeight: FontWeight.w900,fontFamily: 'Poppins',fontSize: 11),),
+                    ],
+                  ),
                 ),
               ),
-            ),
-            Container(
-              padding: EdgeInsets.only(left: screenWidth*0.01),
-              child: Align(
-                alignment: Alignment.topRight,
-                child:  IconButton(onPressed: (){}, icon: Icon(Icons.arrow_forward,),color: Colors.orange,),
+              Container(
+                padding: EdgeInsets.only(left: screenWidth*0.01),
+                child: Align(
+                  alignment: Alignment.topRight,
+                  child:  IconButton(onPressed: (){}, icon: Icon(Icons.arrow_forward,),color: Colors.orange,),
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -340,50 +346,235 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
 
 class CoverPage extends StatelessWidget {
   final bool hasVideoUploaded = false; // Replace with backend logic
+  final bool reqPage;
+
+  CoverPage({required this.reqPage});
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        // Display the video if available
-        if (hasVideoUploaded)
-          Center(
-            child: Container(
-              width: 300, // Set the desired video width
-              height: 200, // Set the desired video height
-              color: Colors.grey, // Replace with your video player or widget
-            ),
-          ),
+    // return Stack(
+    //   children: [
+    //     // Display the video if available
+    //     if (hasVideoUploaded)
+    //       Center(
+    //         child: Container(
+    //           width: 300, // Set the desired video width
+    //           height: 200, // Set the desired video height
+    //           color: Colors.grey, // Replace with your video player or widget
+    //         ),
+    //       ),
+    //
+    //     // Display the video upload icon if no video is available
+    //     if (!hasVideoUploaded)
+    //       Padding(
+    //       padding: const EdgeInsets.only(top: 17.0,left: 8.0,right: 8.0),
+    //       child: Container(
+    //         height: 170,
+    //         color: HexColor('#EDEDED'),
+    //         child: Center(
+    //           child: Image.asset(
+    //             'assets/images/video_icon.png', // Replace with the actual path to your asset image
+    //             width: 35, // Set the desired image width
+    //             height: 35, // Set the desired image height
+    //             fit: BoxFit.contain, // Adjust the fit as needed
+    //           ),
+    //         ),
+    //       ),
+    //     ),
+    //
+    //     Positioned(
+    //       child: Container(
+    //         height:190,
+    //         child: Stack(
+    //           children: [
+    //             Positioned(
+    //               top:120,
+    //               left: 0,
+    //               right: 0,
+    //               child: Column(
+    //                 mainAxisAlignment: MainAxisAlignment.center,
+    //                 children: [
+    //                   Container(
+    //                     decoration: BoxDecoration(
+    //                       shape: BoxShape.circle,
+    //                       border: Border.all(
+    //                         color: Colors.white, // Border color
+    //                         width: 15.0, // Border width
+    //                       ),
+    //                     ),
+    //                     child: CircleAvatar(
+    //                       radius: 60,
+    //                       backgroundImage: AssetImage('assets/images/user.png'),
+    //                       backgroundColor: Colors.white,// Replace with user avatar image
+    //                     ),
+    //                   ),
+    //                   Text(
+    //                     'Hemant Singh', // Replace with actual user name
+    //                     style: TextStyle(
+    //                       color: Colors.black,
+    //                       fontSize: 14,
+    //                       fontWeight: FontWeight.w900,
+    //                         fontFamily: 'Poppins',
+    //                     ),
+    //                   ),
+    //                 ],
+    //               ),
+    //             ),
+    //           ],
+    //         ),
+    //       ),
+    //     ),
+    //
+    //
+    //     // Display guidance icons/messages
+    //     Positioned(
+    //       top: 20,
+    //       right: 30,
+    //       child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+    //         showDialog(context: context, builder: (BuildContext context){
+    //           return Container(child: CustomHelpOverlay(),);
+    //         },
+    //         );
+    //       },
+    //       ),
+    //     ),
+    //
+    //
+    //   ],
+    // );
+    return UserImage(reqPages: reqPage,);
+  }
+}
 
-        // Display the video upload icon if no video is available
-        if (!hasVideoUploaded)
-          Padding(
-            padding: const EdgeInsets.only(top: 17.0,left: 8.0,right: 8.0),
-            child: Container(
-              height: 170,
-              color: HexColor('#EDEDED'),
-              child: Center(
-                child: Image.asset(
-                  'assets/images/video_icon.png', // Replace with the actual path to your asset image
-                  width: 35, // Set the desired image width
-                  height: 35, // Set the desired image height
-                  fit: BoxFit.contain, // Adjust the fit as needed
-                ),
+class UserImage extends StatefulWidget {
+  final bool reqPages;
+  UserImage({required this.reqPages});
+  @override
+  _UserImageState createState() => _UserImageState();
+}
+
+class _UserImageState extends State<UserImage>{
+
+  File? _userProfileImage;
+
+  Future<void> _updateProfileImage() async{
+    final croppedImage = await ImageUtil.pickAndCropImage();
+
+    if(croppedImage!=null){
+      setState(() {
+        _userProfileImage = croppedImage;
+      });
+    }
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    final bool hasVideoUploaded = false; // Replace with backend logic
+    return Container(
+      width: double.infinity,
+      height: 290,
+      // decoration: BoxDecoration(
+      //   border: Border.all(
+      //     color: Colors.orange,
+      //   ),
+      // ),
+      child: Stack(
+        children: [
+          Container(
+            // decoration: BoxDecoration(
+            //   border: Border.all(
+            //     color: Colors.orange,
+            //     width: 2,
+            //   ),
+            // ),
+            width: double.infinity,
+            height: 170,
+            child:Center(
+              child: Stack(
+                children: [
+                  Container(
+                    width: 373,
+                    color: HexColor("#EDEDED"),
+                  ),
+                  // height: 170,
+                  !hasVideoUploaded?Container(
+                    // decoration: BoxDecoration(
+                    //   border: Border.all(
+                    //     color: Colors.orange,
+                    //     width: 2,
+                    //   ),
+                    // ),
+                    child: Container(
+                      width: 373,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          widget.reqPages?
+                          Container(
+                            child: Image.asset(
+                              'assets/images/video_icon.png', // Replace with the actual path to your asset image
+                              width: 35, // Set the desired image width
+                              height: 35, // Set the desired image height
+                              fit: BoxFit.contain, // Adjust the fit as needed
+                            ),
+                          ):Column(
+                            children:[
+                              Container(
+                                child: Image.asset(
+                                  'assets/images/video_icon.png', // Replace with the actual path to your asset image
+                                  width: 35, // Set the desired image width
+                                  height: 35, // Set the desired image height
+                                  fit: BoxFit.contain, // Adjust the fit as needed
+                                ),
+                              ),
+                              Text('Add your cover'),
+                              Text('Expereince via video here !',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ): Container(
+                    width: 373,
+                    color: Colors.grey, // Replace with your video player or widget
+                  ),
+                  Positioned(
+                    top: 20,
+                    right: 30,
+                    child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+                      showDialog(context: context, builder: (BuildContext context){
+                        return Container(child: CustomHelpOverlay(),);
+                      },
+                      );
+                    },
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
-
-        Positioned(
-          child: Container(
-            height:190,
-            child: Stack(
+          Container(
+            width: double.infinity,
+            height: 290,
+            // decoration: BoxDecoration(
+            //   border: Border.all(
+            //     color: Colors.black,
+            //     width: 2,
+            //   ),
+            // ),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                Positioned(
-                  top:120,
-                  left: 0,
-                  right: 0,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
+                Container(
+                  // decoration: BoxDecoration(
+                  //   border: Border.all(
+                  //     color: Colors.black,
+                  //     width: 2,
+                  //   ),
+                  // ),
+                  child: Stack(
                     children: [
                       Container(
                         decoration: BoxDecoration(
@@ -393,94 +584,53 @@ class CoverPage extends StatelessWidget {
                             width: 15.0, // Border width
                           ),
                         ),
-                        child: CircleAvatar(
+                        child: _userProfileImage!=null?
+                        CircleAvatar(
+                          radius: 60,
+                          backgroundImage: FileImage(_userProfileImage!),
+                        ) :CircleAvatar(
                           radius: 60,
                           backgroundImage: AssetImage('assets/images/user.png'),
                           backgroundColor: Colors.white,// Replace with user avatar image
                         ),
                       ),
-                      Text(
-                        'Hemant Singh', // Replace with actual user name
-                        style: TextStyle(
-                          color: Colors.black,
-                          fontSize: 22,
-                          fontWeight: FontWeight.w900,
-                            fontFamily: 'Poppins',
+                      widget.reqPages?SizedBox(height: 0,):
+                      Positioned(
+                        top: 100,
+                        right:15,
+                        child: Container(
+                          width: 36,
+                          height: 34,
+                          decoration: BoxDecoration(
+                            // border: Border.all(
+                            //   color: Colors.black,
+                            //   width: 2,
+                            // ),
+                            shape: BoxShape.circle,
+                            color: Colors.orange,
+                          ),
+                          child: IconButton(
+                            icon: Icon(Icons.camera_alt_outlined),
+                            color: Colors.white,
+                            iconSize: 20,
+                            onPressed: _updateProfileImage,
+                          ),
                         ),
                       ),
+
                     ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
-
-
-        // Display guidance icons/messages
-        Positioned(
-          top: 20,
-          right: 30,
-          child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-            showDialog(context: context, builder: (BuildContext context){
-              return Container(child: CustomHelpOverlay(),);
-            },
-            );
-          },
-          ),
-        ),
-
-
-      ],
-    );
-
-  }
-}
-
-class UserPhoto extends StatelessWidget{
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height:120,
-      // decoration: BoxDecoration(
-      //   border: Border.all(
-      //     color: Colors.black,width: 2,
-      //   ),
-      // ),
-      // dec
-      child: Stack(
-        children: [
-          Positioned(
-            top: -70,
-            left: 0,
-            right: 0,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
-                      color: Colors.white, // Border color
-                      width: 15.0, // Border width
-                    ),
-                  ),
-                  child: CircleAvatar(
-                    radius: 60,
-                    backgroundImage: AssetImage('assets/images/user.png'),
-                    backgroundColor: Colors.white,// Replace with user avatar image
-                  ),
-                ),
+                widget.reqPages?
                 Text(
-                    'Hemant Singh', // Replace with actual user name
-                    style: TextStyle(
-                      color: Colors.black,
-                      fontSize: 19,
-                      fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
-                    ),
+                  'Hemant Singh', // Replace with actual user name
+                  style: TextStyle(
+                    color: Colors.black,
+                    fontSize: 15,
+                    fontWeight: FontWeight.w900,
+                    fontFamily: 'Poppins',
                   ),
+                ):EditNameForm(),
               ],
             ),
           ),
@@ -490,6 +640,60 @@ class UserPhoto extends StatelessWidget{
   }
 
 }
+
+// class UserPhoto extends StatelessWidget{
+//   @override
+//   Widget build(BuildContext context) {
+//     return Container(
+//       height:120,
+//       // decoration: BoxDecoration(
+//       //   border: Border.all(
+//       //     color: Colors.black,width: 2,
+//       //   ),
+//       // ),
+//       // dec
+//       child: Stack(
+//         children: [
+//           Positioned(
+//             top: -70,
+//             left: 0,
+//             right: 0,
+//             child: Column(
+//               mainAxisAlignment: MainAxisAlignment.start,
+//               crossAxisAlignment: CrossAxisAlignment.center,
+//               children: [
+//                 Container(
+//                   decoration: BoxDecoration(
+//                     shape: BoxShape.circle,
+//                     border: Border.all(
+//                       color: Colors.white, // Border color
+//                       width: 15.0, // Border width
+//                     ),
+//                   ),
+//                   child: CircleAvatar(
+//                     radius: 60,
+//                     backgroundImage: AssetImage('assets/images/user.png'),
+//                     backgroundColor: Colors.white,// Replace with user avatar image
+//                   ),
+//                 ),
+//                 Text(
+//                     'Hemant Singh', // Replace with actual user name
+//                     style: TextStyle(
+//                       color: Colors.black,
+//                       fontSize: 15,
+//                       fontWeight: FontWeight.w900,
+//                         fontFamily: 'Poppins',
+//                     ),
+//                   ),
+//               ],
+//             ),
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+// }
 
 
 class UserInformationSection extends StatelessWidget {
@@ -507,17 +711,231 @@ class UserInformationSection extends StatelessWidget {
           SizedBox(height: 20.0),
           ReachAndLocation(),
           SizedBox(height: 45.0),
-          reqPage?UserDetailsTable():Text('Hello'),
+          reqPage?UserDetailsTable():ProfileForm(),
           SizedBox(height: 45.0),
           ExpertCardDetails(),
           SizedBox(height: 35.0),
-          ProfielStatusAndButton(),
+          ProfielStatusAndButton(reqPages: reqPage,),
         ],
       ),
     );
   }
 }
 
+class ProfileForm extends StatefulWidget {
+  @override
+  _ProfileFormState createState() => _ProfileFormState();
+}
+
+class _ProfileFormState extends State<ProfileForm> {
+  String? selectedProfession;
+  DateTime? selectedDateOfBirth;
+  String? selectedGender;
+  String? selectedLanguage;
+
+  final List<String> professions = [
+    'Engineer',
+    'Doctor',
+    'Teacher',
+    'Artist',
+    // Add more professions as needed
+  ];
+
+  final List<String> genders = ['Male', 'Female', 'Other'];
+
+  final List<String> languages = [
+    'English',
+    'Spanish',
+    'French',
+    'German',
+    // Add more languages as needed
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+
+    @override
+    void initState() {
+      super.initState();
+      // Get the device width using MediaQuery and store it in deviceWidth
+      screenWidth = MediaQuery.of(context).size.width;
+    }
+
+    return Container(
+      padding: EdgeInsets.all(10.0),
+
+      child: Column(
+
+        children: [
+          CustomDropdown.build(
+            label: 'Profession',
+            items: professions,
+            deviceWidth:screenWidth,
+            onChanged: (String? newValue) {
+              // Handle the selected value here, if needed
+              print('Selected: $newValue');
+            },
+            setSelectedValue: (String? newValue) {
+              // Set the selected value outside the widget
+              selectedProfession = newValue;
+            },
+            selectedValue: selectedProfession, // Pass the selected value to the widget
+          ),
+          SizedBox(height: 10,),
+          CustomDOBDropDown(
+            label: 'Date of Birth',
+            selectedDate: selectedDateOfBirth,
+            deviceWidth: screenWidth,
+            onDateSelected: (DateTime? newDate) {
+              setState(() {
+                selectedDateOfBirth = newDate;
+                print('Selected: $newDate');
+              });
+            },
+          ),
+          SizedBox(height: 10,),
+          CustomDropdown.build(
+            label: 'Gender',
+            items: genders,
+            deviceWidth:screenWidth,
+            onChanged: (String? newValue) {
+              // Handle the selected value here, if needed
+              print('Selected: $newValue');
+            },
+            setSelectedValue: (String? newValue) {
+              // Set the selected value outside the widget
+              selectedGender = newValue;
+            },
+            selectedValue: selectedGender, // Pass the selected value to the widget
+          ),
+          SizedBox(height: 10,),
+          CustomDropdown.build(
+            label: 'Language You Know',
+            items: languages,
+            deviceWidth:screenWidth,
+            onChanged: (String? newValue) {
+              // Handle the selected value here, if needed
+              print('Selected: $newValue');
+            },
+            setSelectedValue: (String? newValue) {
+              // Set the selected value outside the widget
+              selectedLanguage = newValue;
+            },
+            selectedValue: selectedLanguage, // Pass the selected value to the widget
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class CustomDropdown {
+
+  static Widget build({
+    required String label,
+    required List<String> items,
+    required ValueChanged<String?> onChanged,
+    required Function(String?) setSelectedValue, // Callback for setting the selected value
+    String? selectedValue,
+    required double deviceWidth,
+  }) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+        SizedBox(height: 10,),
+        Container(
+          width: deviceWidth*0.90,
+          height: 57,
+          child: DropdownButtonFormField<String>(
+            value: selectedValue,
+            icon: Icon(Icons.arrow_drop_down_circle,color: HexColor('#FB8C00'),),
+            hint: Text('Select'),
+            decoration: InputDecoration(
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey), // Change the border color here
+              ), // Add an outline border
+            ),
+            onChanged: (String? newValue) {
+              onChanged(newValue); // Call the provided onChanged callback
+              setSelectedValue(newValue); // Set the selected value using the callback
+            },
+            items: items.map((String item) {
+              return DropdownMenuItem<String>(
+                value: item,
+                child: Text(item,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class CustomDOBDropDown extends StatelessWidget{
+  final String label;
+  final DateTime? selectedDate;
+  final ValueChanged<DateTime?> onDateSelected;
+  double deviceWidth;
+
+  CustomDOBDropDown({
+    required this.label,
+    required this.onDateSelected,
+    required this.selectedDate,
+    required this.deviceWidth,
+  });
+
+  @override
+  Widget build(BuildContext context){
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+        SizedBox(height: 10,),
+        InkWell(
+          onTap: () async {
+            DateTime? selected = await showDatePicker(
+              context: context,
+              initialDate: selectedDate ?? DateTime.now(),
+              firstDate: DateTime(1900),
+              lastDate: DateTime.now(),
+            );
+            onDateSelected(selected);
+
+          },
+          child: Container(
+            decoration: BoxDecoration(
+              border: Border.all(width: 1.0, color: Colors.grey), // Border style
+              borderRadius: BorderRadius.circular(5.0), // Rounded corners
+            ),
+            width: deviceWidth*0.90,
+            height: 55,
+            child: Padding(
+              padding: const EdgeInsets.only(left: 11.0,right: 8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    selectedDate != null
+                        ? "${selectedDate!.toLocal()}".split(' ')[0]
+                        : 'Select Date',
+                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                  Icon(Icons.calendar_today_rounded,color: HexColor('#FB8C00'),), // Calendar icon
+                ],
+              ),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+}
 
 class MotivationalQuote extends StatelessWidget{
   @override
@@ -603,21 +1021,21 @@ class UserDetailsTable extends StatelessWidget {
           Row(
             children: [
               Text('Profession - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 62,),
+              SizedBox(width: 58,),
               Text('${profession}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
               Text('Age/Gender - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 55,),
+              SizedBox(width: 42,),
               Text(age=='NA'?age:'${age} Yr/ ${gender}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
               Text('Language - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 69,),
+              SizedBox(width: 60,),
               Container(
                   child: languageList.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
                   Wrap(
@@ -632,7 +1050,7 @@ class UserDetailsTable extends StatelessWidget {
                                 children: [
                                   Text(languageList[i]),
                                   if (i < languageList.length - 1)
-                                    Text(',', style: TextStyle(fontSize: 16,fontFamily: 'Poppins')),
+                                    Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
                                 ],
                               ),
                             ),
@@ -709,7 +1127,7 @@ class ExpertCardDetails extends StatelessWidget{
                                       children: [
                                         Text(expertLocations[i]),
                                         if (i < expertLocations.length - 1)
-                                          Text(',', style: TextStyle(fontSize: 16,fontFamily: 'Poppins')),
+                                          Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
                                       ],
                                     ),
                                   ),
@@ -724,21 +1142,21 @@ class ExpertCardDetails extends StatelessWidget{
                   Row(
                     children: [
                       Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 58,),
+                      SizedBox(width: 61,),
                       Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
                     ],
                   ),
                   Row(
                     children: [
                       Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 30,),
+                      SizedBox(width: 23,),
                       Text('${coveredLocation}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
                     ],
                   ),
                   Row(
                     children: [
                       Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 35,),
+                      SizedBox(width: 37,),
                       Container(
                         child: ratings == 0
                             ? Container(
@@ -782,6 +1200,9 @@ class ExpertCardDetails extends StatelessWidget{
 }
 
 class ProfielStatusAndButton  extends StatelessWidget{
+  final bool reqPages;
+  ProfielStatusAndButton({required this.reqPages});
+
   @override
   Widget build(BuildContext context) {
     return Padding(
@@ -797,11 +1218,11 @@ class ProfielStatusAndButton  extends StatelessWidget{
                   Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),));
                 },
                 child: Center(
-                    child: Text('COMPLETE PROFILE',
+                    child: Text(reqPages?'COMPLETE PROFILE':'SET PROFILE',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            fontSize: 25)))),
+                            fontSize: 18)))),
                 ),
               ],
             ),
@@ -827,6 +1248,7 @@ class FilledButton extends StatelessWidget {
     return ElevatedButton(
       onPressed: onPressed,
       style: ElevatedButton.styleFrom(
+        shape:RoundedRectangleBorder(),
         primary: backgroundColor,
       ),
       child: child,

@@ -41,8 +41,6 @@ class CompleteProfilePage extends StatelessWidget {
     //         // Add profile completion widgets here
     //       ],
     //     ),
-    //   ),
-    // );
-    return ProfilePage(reqPage: reqPage,);
+    return ProfilePage(reqPage: reqPage);
   }
 }
