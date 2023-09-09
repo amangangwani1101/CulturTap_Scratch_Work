@@ -49,7 +49,7 @@ class _ServiceCardState extends State<ServiceCard>{
               Text(widget.titleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
               IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                 showDialog(context: context, builder: (BuildContext context){
-                  return Container(child: CustomHelpOverlay(imagePath: 'assets/images/3.png',),);
+                  return Container(child: CustomHelpOverlay(imagePath: widget.iconImage,),);
                 },
                 );
               },
