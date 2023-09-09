@@ -1,88 +1,77 @@
-import 'package:flutter/material.dart';
+import 'dart:io';
 
-void main() {
-  runApp(MyApp());
-}
+import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+// import 'package:video_player/video_player.dart';
+
+void main() => runApp(MyApp());
 
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text('Edit Name Example'),
-        ),
-        body: EditNameForm(),
-      ),
+      home: VideoSelectionScreen(),
     );
   }
 }
 
-class EditNameForm extends StatefulWidget {
+class VideoSelectionScreen extends StatefulWidget {
   @override
-  _EditNameFormState createState() => _EditNameFormState();
+  _VideoSelectionScreenState createState() => _VideoSelectionScreenState();
 }
 
-class _EditNameFormState extends State<EditNameForm> {
-  TextEditingController nameController = TextEditingController();
-  String userName = "Hemant Singh"; // Initial static name
-  // String editedName = ""; // Stores the edited name
-  bool isEditing = false;
+class _VideoSelectionScreenState extends State<VideoSelectionScreen> {
+  VideoPlayerController? _videoController;
+  late String _selectedVideoPath;
 
-  @override
-  void initState() {
-    super.initState();
-    nameController.text = userName;
+  Future<void> _pickVideo() async {
+    final picker = ImagePicker();
+    final pickedFile = await picker.pickVideo(source: ImageSource.gallery);
+    if (pickedFile != null) {
+      setState(() {
+        _selectedVideoPath = pickedFile.path;
+        _videoController = VideoPlayerController.file(File(_selectedVideoPath))
+          ..initialize().then((_) {
+            // Ensure the first frame is shown
+            setState(() {});
+          });
+      });
+    }
   }
 
-  void toggleEdit() {
-    setState(() {
-      isEditing = !isEditing;
-
-      if (!isEditing) {
-        if(nameController.text.length<1){
-          isEditing = !isEditing;
-          print('Name is too small');
-        }else{
-          // Save the edited name when exiting edit mode
-          userName = nameController.text;
-          // Here, you can send the updated name to your backend for processing
-          // For demonstration, we'll just print it
-          print("Updated Name: $userName");
-        }
-      }
-    });
+  @override
+  void dispose() {
+    _videoController?.dispose();
+    super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 400,
-      // height: 30,
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          isEditing
-              ? Container(
-                width: 200,
-                child: TextField(
-                  controller: nameController,
-                  onChanged: (value){
-                    userName = value;
-                  },
-                  style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500,fontFamily: 'Poppins'),
-                ),
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Video Selection'),
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            if (_videoController != null && _videoController!.value.isInitialized)
+              AspectRatio(
+                aspectRatio: _videoController!.value.aspectRatio,
+                child: VideoPlayer(_videoController!),
               )
-              : Text(
-                userName,
-                style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
+            else
+              Icon(
+                Icons.video_library,
+                size: 100.0,
+                color: Colors.grey,
               ),
-          IconButton(
-            icon: Icon(isEditing ? Icons.save_outlined : Icons.edit_outlined),
-            onPressed: toggleEdit,
-          ),
-        ],
+            ElevatedButton(
+              onPressed: _pickVideo,
+              child: Text('Pick a Video'),
+            ),
+          ],
+        ),
       ),
     );
   }

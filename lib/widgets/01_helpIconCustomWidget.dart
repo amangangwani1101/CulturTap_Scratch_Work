@@ -3,8 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:learn_flutter/userProfile1.dart';
 
 class CustomHelpOverlay extends StatelessWidget {
-  @override
 
+  final String imagePath;
+  CustomHelpOverlay({required this.imagePath});
+  @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Container(
@@ -45,7 +47,7 @@ class CustomHelpOverlay extends StatelessWidget {
                 // ),
                 child: Stack(
                   children: [
-                    Center(child: Image.asset('assets/images/help_motivation_icon.jpg',width: 361,height: 281,fit: BoxFit.contain,),),
+                    Center(child: Image.asset(imagePath,width: 361,height: 281,fit: BoxFit.contain,),),
                     Positioned(
                       top: 15,
                       right: 15,

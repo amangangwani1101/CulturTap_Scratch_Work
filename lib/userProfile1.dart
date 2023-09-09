@@ -5,7 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/02_customNavbar.dart';
 import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
-import 'package:learn_flutter/work.dart';
+import 'package:learn_flutter/widgets/sample.dart';
 
 void main() {
   runApp(ProfileApp());
@@ -545,7 +545,7 @@ class _UserImageState extends State<UserImage>{
                     right: 30,
                     child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                       showDialog(context: context, builder: (BuildContext context){
-                        return Container(child: CustomHelpOverlay(),);
+                        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/cover_icon.jpg',),);
                       },
                       );
                     },
@@ -638,8 +638,78 @@ class _UserImageState extends State<UserImage>{
       ),
     );
   }
-
 }
+
+class EditNameForm extends StatefulWidget {
+  @override
+  _EditNameFormState createState() => _EditNameFormState();
+}
+
+class _EditNameFormState extends State<EditNameForm> {
+  TextEditingController nameController = TextEditingController();
+  String userName = "Hemant Singh"; // Initial static name
+  // String editedName = ""; // Stores the edited name
+  bool isEditing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    nameController.text = userName;
+  }
+
+  void toggleEdit() {
+    setState(() {
+      isEditing = !isEditing;
+
+      if (!isEditing) {
+        if(nameController.text.length<1){
+          isEditing = !isEditing;
+          print('Name is too small');
+        }else{
+          // Save the edited name when exiting edit mode
+          userName = nameController.text;
+          // Here, you can send the updated name to your backend for processing
+          // For demonstration, we'll just print it
+          print("Updated Name: $userName");
+        }
+      }
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 400,
+      // height: 30,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          isEditing
+              ? Container(
+            width: 200,
+            child: TextField(
+              controller: nameController,
+              onChanged: (value){
+                userName = value;
+              },
+              style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500,fontFamily: 'Poppins'),
+            ),
+          )
+              : Text(
+            userName,
+            style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
+          ),
+          IconButton(
+            icon: Icon(isEditing ? Icons.save_outlined : Icons.edit_outlined),
+            onPressed: toggleEdit,
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 // class UserPhoto extends StatelessWidget{
 //   @override
@@ -715,6 +785,18 @@ class UserInformationSection extends StatelessWidget {
           SizedBox(height: 45.0),
           ExpertCardDetails(),
           SizedBox(height: 35.0),
+          reqPage?SizedBox(height: 0,):
+              Container(
+                height: 800,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    ServiceCard(titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/3.png', iconImage: 'assets/images/service_card_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner '),
+                    ServiceCard(titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/bar_.png', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner '),
+                    ServiceCard(titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/3.png', iconImage: 'assets/images/service_card_3.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner '),
+                  ],
+                ),
+              ),
           ProfielStatusAndButton(reqPages: reqPage,),
         ],
       ),
@@ -949,7 +1031,7 @@ class MotivationalQuote extends StatelessWidget{
               ),
               IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                     showDialog(context: context, builder: (BuildContext context){
-                      return Container(child: CustomHelpOverlay(),);
+                      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',),);
                     },
                   );
                 },
