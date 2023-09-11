@@ -34,6 +34,19 @@ class _ServiceCardState extends State<ServiceCard>{
     });
   }
 
+  void onPressedHandler() {
+    if (!buttonState) {
+      showDialog(context: context, builder: (BuildContext context){
+        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/clock_icon.jpg',),);
+      },
+    );
+
+    }else {
+      (){};
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -64,6 +77,7 @@ class _ServiceCardState extends State<ServiceCard>{
               ),
             ),
             child: Container(
+
               height: 120,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -104,7 +118,7 @@ class _ServiceCardState extends State<ServiceCard>{
             children: [
               Text(widget.endLabel),
               ElevatedButton(
-                onPressed: toggleButton,
+                onPressed: onPressedHandler,
                 child: Text(buttonState ? 'On' : 'Off'),
               ),
             ],
