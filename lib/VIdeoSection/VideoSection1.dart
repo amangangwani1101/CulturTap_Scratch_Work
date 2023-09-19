@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:path_provider/path_provider.dart';
 import 'dart:async';
+import 'dart:io';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -13,7 +15,8 @@ class CameraApp extends StatefulWidget {
   final List<CameraDescription> cameras;
   final CameraDescription camera;
 
-  CameraApp({Key? key, required this.cameras, required this.camera}) : super(key: key);
+  CameraApp({Key? key, required this.cameras, required this.camera})
+      : super(key: key);
 
   @override
   _CameraAppState createState() => _CameraAppState();
@@ -45,6 +48,14 @@ class _CameraAppState extends State<CameraApp> {
     super.dispose();
   }
 
+  Future<void> saveVideo(File videoFile) async {
+    final Directory appDirectory = await getApplicationDocumentsDirectory();
+    final String videoPath = '${appDirectory.path}/recorded_video.mp4';
+
+    // Copy the recorded video file to the desired location
+    await videoFile.copy(videoPath);
+  }
+
   void startRecording() async {
     await _controller.startVideoRecording();
     setState(() {
@@ -52,7 +63,6 @@ class _CameraAppState extends State<CameraApp> {
       _currentProgress = 0.0;
     });
 
-    // Start a timer for 60 seconds
     Timer.periodic(Duration(milliseconds: 100), (timer) {
       setState(() {
         _currentProgress += 0.00166666667; // 1/60 to complete in 60 seconds
@@ -66,11 +76,16 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void stopRecording() async {
-    await _controller.stopVideoRecording();
+    XFile? videoFile = await _controller.stopVideoRecording();
     setState(() {
       _isRecording = false;
       _currentProgress = 0.0; // Reset progress
     });
+
+    if (videoFile != null) {
+      // Save the recorded video
+      saveVideo(File(videoFile.path));
+    }
   }
 
   void toggleCamera() {
@@ -120,33 +135,24 @@ class _CameraAppState extends State<CameraApp> {
               Expanded(
                 child: Stack(
                   children: <Widget>[
-                    CameraPreview(_controller),
-                    if (_isRecording)
-                      Align(
-                        alignment: Alignment.center,
-
-                      ),
+                    AspectRatio(
+                      aspectRatio: _controller.value.aspectRatio,
+                      child: CameraPreview(_controller),
+                    ),
                   ],
                 ),
               ),
-              // Existing code...
-
               Container(
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: <Widget>[
-                    Container(
-                      width: 80,
-                      height : 80,
-
-                    ),
                     Column(
                       children: [
                         GestureDetector(
                           onTap: _isRecording ? stopRecording : startRecording,
                           child: Container(
-                            margin: EdgeInsets.all(20.0), // Add margin around the button
+                            margin: EdgeInsets.all(20.0),
                             child: Stack(
                               alignment: Alignment.center,
                               children: [
@@ -155,9 +161,9 @@ class _CameraAppState extends State<CameraApp> {
                                   height: 80,
                                   child: CircularProgressIndicator(
                                     value: _isRecording ? _currentProgress : 10.0,
-                                    backgroundColor: Colors.transparent, // Make background transparent
+                                    backgroundColor: Colors.transparent,
                                     valueColor: AlwaysStoppedAnimation<Color>(Colors.orange),
-                                    strokeWidth: 12.0, // Adjust the thickness of the progress bar
+                                    strokeWidth: 12.0,
                                   ),
                                 ),
                                 SizedBox(
@@ -166,33 +172,36 @@ class _CameraAppState extends State<CameraApp> {
                                   child: Icon(
                                     _isRecording ? Icons.pause_circle : Icons.circle,
                                     size: 69,
-                                    color : _isRecording ? Colors.white60 : Colors.white,
+                                    color: _isRecording ? Colors.white60 : Colors.white,
                                   ),
                                 ),
                               ],
                             ),
                           ),
                         ),
-                        Text('Start Filming',style: TextStyle(fontWeight: FontWeight.bold,color : Colors.white,fontSize: 18),),
-
+                        Text(
+                          'Start Filming',
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                        ),
                       ],
                     ),
                     Column(
                       children: [
                         SizedBox(
                           child: IconButton(
-                            // icon: Icon(Icons.flip_camera_ios_rounded),
-                            icon : Image.asset('assets/images/flip_camera.png'),
+                            icon: Icon(Icons.flip_camera_ios),
                             onPressed: toggleCamera,
                           ),
                         ),
-                        Text('Flip',style: TextStyle(fontWeight: FontWeight.bold,color : Colors.white,fontSize: 18),),
+                        Text(
+                          'Flip',
+                          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white, fontSize: 18),
+                        ),
                       ],
                     ),
                   ],
                 ),
               ),
-
             ],
           ),
         ),
