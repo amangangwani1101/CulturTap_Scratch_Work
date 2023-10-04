@@ -5,7 +5,7 @@ import 'package:learn_flutter/userProfile1.dart';
 
 class CompleteProfilePage extends StatelessWidget {
   @override
-  bool reqPage = false;
+
   Widget build(BuildContext context) {
     // return Scaffold(
     //   appBar: AppBar(
@@ -41,6 +41,6 @@ class CompleteProfilePage extends StatelessWidget {
     //         // Add profile completion widgets here
     //       ],
     //     ),
-    return ProfilePage(reqPage: reqPage);
+    return ProfilePage(reqPage: 1);
   }
 }

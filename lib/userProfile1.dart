@@ -1,33 +1,47 @@
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:learn_flutter/camera.dart';
+import 'package:learn_flutter/rating.dart';
+import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/02_customNavbar.dart';
 import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
 import 'package:learn_flutter/widgets/sample.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:google_sign_in/google_sign_in.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:geolocator/geolocator.dart';
 
-void main() {
+typedef void ImageCallback(File image);
+typedef void SetQuote(String? image);
+
+void main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
   runApp(ProfileApp());
 }
-
+  
 class ProfileApp extends StatelessWidget {
-  bool reqPage = false;
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+        colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
         useMaterial3: true,
       ),
-      home: ProfilePage(reqPage:true),
+      home: ProfilePage(reqPage:0),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class ProfilePage extends StatelessWidget {
-  final bool reqPage;
+  final int reqPage;
   ProfilePage({required this.reqPage});
   @override
   Widget build(BuildContext context) {
@@ -44,10 +58,11 @@ class ProfilePage extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ProfileHeader(reqPage: reqPage),
-            reqPage?ProfileStrengthCard():SizedBox(height: 0,),
-            reqPage?SizedBox(height: 17,):SizedBox(height: 0,),
+            reqPage==1?ProfileStrengthCard():SizedBox(height: 0,),
+            reqPage==1?SizedBox(height: 17,):SizedBox(height: 0,),
             CoverPage(reqPage:reqPage),
             UserInformationSection(reqPage:reqPage),
+
           ],
         ),
       ),
@@ -67,7 +82,7 @@ class HexColor extends Color {
 
 // profile header section -- state1
 class ProfileHeader extends StatefulWidget {
-  final bool reqPage;
+  final int reqPage;
 
   ProfileHeader({required this.reqPage});
   @override
@@ -88,10 +103,11 @@ class _ProfileHeaderState extends State<ProfileHeader> {
       // ),
       height: 92,
       padding: EdgeInsets.only(top: 12.0,left: 25.0,right: 24.0,bottom:16.0),
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          widget.reqPage?
+          widget.reqPage<1?
           Column(
             children: [
               GestureDetector(
@@ -129,7 +145,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               ),
             ),
           ),
-          widget.reqPage?
+          widget.reqPage>=1?
           Padding(
               padding:EdgeInsets.only(top: 13.0),
               child:Align(
@@ -143,6 +159,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               child: Image.asset('assets/images/logo.png',width: 145),
             ),
           ),
+          widget.reqPage<=1?
           Column(
             children: [
               Container(
@@ -184,11 +201,32 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               ),
               Text('Pings',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
             ],
+          ):
+            Container(
+            // decoration: BoxDecoration(
+            //   border: Border.all(
+            //     color: Colors.black,
+            //     width: 2,
+            //   ),
+            // ),
+            width: 60,
+            height: 45,
+            child: Align(
+                alignment: Alignment.topCenter,
+                child: GestureDetector(
+                onTap: (){
+                  showDialog(context: context, builder: (BuildContext context){
+                    return Container(child: CustomHelpOverlay(imagePath: 'assets/images/icon.jpg',serviceSettings: false,),);
+                  },
+                  );
+              },
+              child: Image.asset('assets/images/skip.png',width: 60,height: 30,),
+            ),
           ),
-
-        ],
-      ),
-    );
+        ),
+      ],
+    ),
+  );
   }
 }
 
@@ -346,108 +384,18 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
 
 class CoverPage extends StatelessWidget {
   final bool hasVideoUploaded = false; // Replace with backend logic
-  final bool reqPage;
+  final int reqPage;
 
   CoverPage({required this.reqPage});
 
   @override
   Widget build(BuildContext context) {
-    // return Stack(
-    //   children: [
-    //     // Display the video if available
-    //     if (hasVideoUploaded)
-    //       Center(
-    //         child: Container(
-    //           width: 300, // Set the desired video width
-    //           height: 200, // Set the desired video height
-    //           color: Colors.grey, // Replace with your video player or widget
-    //         ),
-    //       ),
-    //
-    //     // Display the video upload icon if no video is available
-    //     if (!hasVideoUploaded)
-    //       Padding(
-    //       padding: const EdgeInsets.only(top: 17.0,left: 8.0,right: 8.0),
-    //       child: Container(
-    //         height: 170,
-    //         color: HexColor('#EDEDED'),
-    //         child: Center(
-    //           child: Image.asset(
-    //             'assets/images/video_icon.png', // Replace with the actual path to your asset image
-    //             width: 35, // Set the desired image width
-    //             height: 35, // Set the desired image height
-    //             fit: BoxFit.contain, // Adjust the fit as needed
-    //           ),
-    //         ),
-    //       ),
-    //     ),
-    //
-    //     Positioned(
-    //       child: Container(
-    //         height:190,
-    //         child: Stack(
-    //           children: [
-    //             Positioned(
-    //               top:120,
-    //               left: 0,
-    //               right: 0,
-    //               child: Column(
-    //                 mainAxisAlignment: MainAxisAlignment.center,
-    //                 children: [
-    //                   Container(
-    //                     decoration: BoxDecoration(
-    //                       shape: BoxShape.circle,
-    //                       border: Border.all(
-    //                         color: Colors.white, // Border color
-    //                         width: 15.0, // Border width
-    //                       ),
-    //                     ),
-    //                     child: CircleAvatar(
-    //                       radius: 60,
-    //                       backgroundImage: AssetImage('assets/images/user.png'),
-    //                       backgroundColor: Colors.white,// Replace with user avatar image
-    //                     ),
-    //                   ),
-    //                   Text(
-    //                     'Hemant Singh', // Replace with actual user name
-    //                     style: TextStyle(
-    //                       color: Colors.black,
-    //                       fontSize: 14,
-    //                       fontWeight: FontWeight.w900,
-    //                         fontFamily: 'Poppins',
-    //                     ),
-    //                   ),
-    //                 ],
-    //               ),
-    //             ),
-    //           ],
-    //         ),
-    //       ),
-    //     ),
-    //
-    //
-    //     // Display guidance icons/messages
-    //     Positioned(
-    //       top: 20,
-    //       right: 30,
-    //       child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-    //         showDialog(context: context, builder: (BuildContext context){
-    //           return Container(child: CustomHelpOverlay(),);
-    //         },
-    //         );
-    //       },
-    //       ),
-    //     ),
-    //
-    //
-    //   ],
-    // );
     return UserImage(reqPages: reqPage,);
   }
 }
 
 class UserImage extends StatefulWidget {
-  final bool reqPages;
+  final int reqPages;
   UserImage({required this.reqPages});
   @override
   _UserImageState createState() => _UserImageState();
@@ -457,16 +405,11 @@ class _UserImageState extends State<UserImage>{
 
   File? _userProfileImage;
 
-  Future<void> _updateProfileImage() async{
-    final croppedImage = await ImageUtil.pickAndCropImage();
-
-    if(croppedImage!=null){
-      setState(() {
-        _userProfileImage = croppedImage;
-      });
-    }
+  void handleImageUpdated(File image) {
+    setState(() {
+      _userProfileImage = image; // Update the parameter in the main class
+    });
   }
-
 
   @override
   Widget build(BuildContext context) {
@@ -510,7 +453,7 @@ class _UserImageState extends State<UserImage>{
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          widget.reqPages?
+                          widget.reqPages<1?
                           Container(
                             child: Image.asset(
                               'assets/images/video_icon.png', // Replace with the actual path to your asset image
@@ -545,7 +488,7 @@ class _UserImageState extends State<UserImage>{
                     right: 30,
                     child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                       showDialog(context: context, builder: (BuildContext context){
-                        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/cover_icon.jpg',),);
+                        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/cover_icon.jpg',serviceSettings: false,),);
                       },
                       );
                     },
@@ -594,8 +537,7 @@ class _UserImageState extends State<UserImage>{
                           backgroundColor: Colors.white,// Replace with user avatar image
                         ),
                       ),
-                      widget.reqPages?SizedBox(height: 0,):
-                      Positioned(
+                      if (widget.reqPages<1) SizedBox(height: 0,) else Positioned(
                         top: 100,
                         right:15,
                         child: Container(
@@ -609,19 +551,19 @@ class _UserImageState extends State<UserImage>{
                             shape: BoxShape.circle,
                             color: Colors.orange,
                           ),
-                          child: IconButton(
-                            icon: Icon(Icons.camera_alt_outlined),
-                            color: Colors.white,
-                            iconSize: 20,
-                            onPressed: _updateProfileImage,
-                          ),
+                          child:IconButton(icon:Icon(Icons.camera_alt_outlined),color: Colors.white,onPressed: (){
+                                showDialog(context: context, builder: (BuildContext context){
+                                return Container(child: UploadMethods(onImageUpdated : handleImageUpdated),);
+                              },
+                            );
+                          },
                         ),
                       ),
-
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-                widget.reqPages?
+              ),
+                widget.reqPages<1?
                 Text(
                   'Hemant Singh', // Replace with actual user name
                   style: TextStyle(
@@ -639,6 +581,123 @@ class _UserImageState extends State<UserImage>{
     );
   }
 }
+
+class UploadMethods extends StatefulWidget{
+  final ImageCallback onImageUpdated;
+
+  UploadMethods({required this.onImageUpdated});
+
+
+  @override
+  State<UploadMethods> createState() => _UploadMethodsState();
+}
+
+class _UploadMethodsState extends State<UploadMethods> {
+
+  File? _userProfileImage;
+  Future<void> _takePicture() async {
+    final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
+
+    if (pickedFile != null) {
+      setState(() {
+        _userProfileImage = File(pickedFile.path);
+        widget.onImageUpdated(_userProfileImage!); // Call the callback to update the parameter in the parent class
+      });
+    }
+  }
+  // upload from gallery
+  Future<void> _updateProfileImage() async{
+    final croppedImage = await ImageUtil.pickAndCropImage();
+
+    if(croppedImage!=null){
+      setState(() {
+        _userProfileImage = croppedImage;
+        widget.onImageUpdated(_userProfileImage!); // Call the callback to update the parameter in the parent class
+      });
+    }
+    return;
+  }
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: Stack(
+        children:[
+          GestureDetector(
+            onTap:(){
+              Navigator.of(context).pop();
+            },
+            child: BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+              child: Container(
+                color: Colors.grey.withOpacity(0),
+              ),
+            ),
+          ),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Container(
+                width: 411,
+                height: 188,
+                color:Colors.white,
+                child: Column(
+                  children: [
+                    Center(
+                      child: Container(
+                        height: 90,
+                        width: 300,
+                        child: GestureDetector(
+                          onTap: _updateProfileImage,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Upload',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.black,decoration: TextDecoration.none,),),
+                              Icon(Icons.arrow_forward_rounded),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: 380,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.black, // Set the border color
+                            width: 1.0, // Set the border width
+                          ),
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Container(
+                        height: 90,
+                        width: 300,
+                        child: GestureDetector(
+                          onTap: _takePicture,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text('Open Camera',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.black,decoration: TextDecoration.none,),),
+                              Icon(Icons.arrow_forward_rounded),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class EditNameForm extends StatefulWidget {
   @override
@@ -767,8 +826,14 @@ class _EditNameFormState extends State<EditNameForm> {
 
 
 class UserInformationSection extends StatelessWidget {
-  final bool reqPage;
-
+  final int reqPage;
+  bool videoUploaded =  true;
+  final ratings = [
+    RatingEntry(name: 'Aishwary Shrivastava', count: 3, comment: 'Good in communication... Not the explorer'),
+    RatingEntry(name: 'Pushpit Kant', count: 4, comment: 'Funny!Helpful! if you are a girl then. '),
+    RatingEntry(name: 'Anonomus', count: 5, comment: 'Good Services.'),
+  ];
+  final currentReview = 3;
   UserInformationSection({required this.reqPage});
   @override
   Widget build(BuildContext context) {
@@ -780,12 +845,16 @@ class UserInformationSection extends StatelessWidget {
           MotivationalQuote(),
           SizedBox(height: 20.0),
           ReachAndLocation(),
-          SizedBox(height: 45.0),
-          reqPage?UserDetailsTable():ProfileForm(),
+          SizedBox(height: 30,),
+          reqPage==0?SizedBox(height: 0):SignIn(),
+          SizedBox(height: 30.0),
+          reqPage==0?SizedBox(height: 0):LocationEditor(),
+          SizedBox(height: 30.0),
+          reqPage==0?UserDetailsTable():ProfileForm(),
           SizedBox(height: 45.0),
           ExpertCardDetails(),
           SizedBox(height: 35.0),
-          reqPage?SizedBox(height: 0,):
+          reqPage==0?SizedBox(height: 0,):
               Container(
                 height: 860,
                 child: Column(
@@ -797,12 +866,759 @@ class UserInformationSection extends StatelessWidget {
                   ],
                 ),
               ),
+          // SizedBox(height: 30,),
+          reqPage==0?SizedBox(width: 0,):
+          RatingSection(ratings: ratings,reviewCnt:currentReview),
+          // VisitedSection(),
+          SizedBox(height: 20,),
+          reqPage==0?SizedBox(width: 0,):
+            !videoUploaded?
+            Container(
+              width: 335,
+              height: 195,
+              child: Center(
+                child: SizedBox(
+                  width: 340,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Other visits',
+                        style: TextStyle(fontSize: 24,
+                            fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                      Text('No visits till yet, You can start it now even, Just click on add “ + “ button at the bottom of your screen & '
+                          ' record your outside surroundings.',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                      SizedBox(height: 7,),
+                      Text('You can make video post private & public as per your choice. ',
+                        style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                      SizedBox(height:7,),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Profile Strength Now',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily:'Poppins',),),
+                          Text('Medium',style: TextStyle(fontSize: 12,fontFamily: 'Poppins',color: HexColor('#FB8C00'),fontWeight: FontWeight.bold),),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            )
+            :VisitsSection(),
+          SizedBox(height: 20,),
           ProfielStatusAndButton(reqPages: reqPage,),
         ],
       ),
     );
   }
 }
+
+class CardItem {
+  final String image;
+  // final String videoUrl;
+  final int countVideos;
+  final String location;
+  final String category;
+  final int viewCnt;
+  final int likes;
+  final String distance;
+
+  CardItem({
+    required this.image,
+    required this.location,
+    required this.countVideos,
+    required this.category,
+    required this.viewCnt,
+    required this.likes,
+    required this.distance,
+    // required this.videoUrl,
+  });
+}
+
+class CardSlider extends StatefulWidget {
+  final List<CardItem> cards;
+  final String category;
+  CardSlider({required this.category,required this.cards});
+
+  @override
+  _CardSliderState createState() => _CardSliderState();
+}
+
+class _CardSliderState extends State<CardSlider> {
+  int currentIndex = 0;
+  late PageController _pageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _pageController = PageController(
+      initialPage: currentIndex,
+      viewportFraction: 0.8, // Adjust the viewportFraction for card width
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      // child: Column(
+      //   crossAxisAlignment: CrossAxisAlignment.start,
+      //   children: <Widget>[
+      //     Padding(
+      //       padding: EdgeInsets.all(16),
+      //       child: Row(
+      //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      //         children: [
+      //           Text(
+      //             widget.category,
+      //             style: TextStyle(
+      //               fontSize: 20,
+      //               fontWeight: FontWeight.bold,
+      //             ),
+      //           ),
+      //           ElevatedButton(
+      //             onPressed: () {
+      //               Navigator.push(
+      //                 context,
+      //                 MaterialPageRoute(
+      //                   builder: (context) => AllCardsPage(cards: widget.cards),
+      //                 ),
+      //               );
+      //             },
+      //             child: Text('View All'),
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //     Container(
+      //       height: 479,
+      //       // width: 279,
+      //       child: PageView.builder(
+      //         itemCount: widget.cards.length,
+      //         controller: PageController(
+      //           initialPage: currentIndex,
+      //         ),
+      //         onPageChanged: (index) {
+      //           setState(() {
+      //             currentIndex = index;
+      //           });
+      //         },
+      //         itemBuilder: (context, index) {
+      //           return SizedBox(
+      //               width: 279,
+      //               child: CardItemWidget(card: widget.cards[index]));
+      //         },
+      //       ),
+      //     ),
+      //   ],
+      // ),
+      child: Container(
+        height: 590,
+        // decoration: BoxDecoration(
+        //   border: Border.all(
+        //     color: Colors.black,
+        //     width: 1,
+        //   ),
+        // ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.center,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              width: 370,
+              height: 50,
+              // decoration: BoxDecoration(
+              //   border: Border.all(
+              //     color: Colors.black,
+              //     width: 1,
+              //   ),
+              // ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text(
+                    widget.category,
+                    style: TextStyle(
+                      fontSize: 20,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: (){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => AllCardsPage(cards: widget.cards),
+                        ),
+                      );
+                    },
+                    child: Row(
+                      children: [
+                        Text('View All',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),
+                        Icon( Icons.arrow_forward_ios, size: 12,color: HexColor('#FB8C00'),),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            Container(
+              height: 479,
+              child: GlowingOverscrollIndicator(
+                axisDirection: AxisDirection.right,
+                color: HexColor('#FB8C00'), // Set the color to your desired color
+                showLeading: true, // Set to false to disable the leading glow effect
+                showTrailing: true, child: ListView(
+                scrollDirection: Axis.horizontal,
+                controller: _pageController,
+                children: widget.cards.map((card) {
+                  return SizedBox(
+                    width: 279,
+                    child: CardItemWidget(card: card),
+                  );
+                }).toList(),
+              ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class CardItemWidget extends StatelessWidget {
+  final CardItem card;
+
+  CardItemWidget({required this.card});
+
+  @override
+  Widget build(BuildContext context) {
+    // return Card(
+    //   child: Column(
+    //     crossAxisAlignment: CrossAxisAlignment.start,
+    //     children: <Widget>[
+    //       Image.network(
+    //         card.image,
+    //         height: 200, // Adjust the image height as needed.
+    //         width: double.infinity, // Set image width to match card width.
+    //         fit: BoxFit.cover, // Make the image cover the whole space.
+    //       ),
+    //       Padding(
+    //         padding: EdgeInsets.all(16),
+    //         child: Column(
+    //           crossAxisAlignment: CrossAxisAlignment.start,
+    //           children: <Widget>[
+    //             Text(
+    //               card.viewCnt.toString(),
+    //               style: TextStyle(
+    //                 fontSize: 18,
+    //                 fontWeight: FontWeight.bold,
+    //               ),
+    //             ),
+    //             SizedBox(height: 8),
+    //             Text(
+    //               card.likes.toString(),
+    //               style: TextStyle(fontSize: 16),
+    //             ),
+    //           ],
+    //         ),
+    //       ),
+    //     ],
+    //   ),
+    // );
+    return Container(
+      // decoration: BoxDecoration(
+      //   border: Border.all(
+      //     color: Colors.black,
+      //     width: 1,
+      //   ),
+      // ),
+      child: Stack(
+        children: [
+          Center(
+            child: Image.network(
+              card.image,
+              height: 440, // Adjust the image height as needed.
+              width: 257, // Set image width to match card width.
+              fit: BoxFit.cover,
+              // Make the image cover the whole space.
+            ),
+          ),
+          Positioned(
+            top: 7,
+            right:20,
+            child: Container(
+              width: 73,
+              height: 21,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: HexColor('#263238'),
+              ),
+
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset('assets/images/arrow.png',width: 15,height: 10,fit: BoxFit.cover,),
+                  Text(' ${card.distance} KM',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white),),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 57,
+            right:20,
+            child: Container(
+              width: 63,
+              height: 38,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(10),
+                color: HexColor('#263238'),
+              ),
+
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  Image.asset('assets/images/video_bar.png',width: 17,height: 17,fit: BoxFit.cover,),
+                  Text('+${card.countVideos}',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white),),
+                ],
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: 1,
+            child: Container(
+              width: 277,
+              height: 56,
+              color: HexColor('#FFFFFF'),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Location',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                      Text('Category',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('${card.location}',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                      Text('${card.category}',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                    ],
+                  ),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          Icon( Icons.remove_red_eye_outlined,size: 15,),
+                          Text('${card.viewCnt}',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                        ],
+                      ),
+                      Row(
+                        children: [
+                          Image.asset('assets/images/heart_like.png',width: 13,height: 12,fit: BoxFit.cover,),
+                          Text('${card.likes}',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+class AllCardsPage extends StatelessWidget {
+  final List<CardItem> cards;
+
+  AllCardsPage({required this.cards});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('All Cards'),
+      ),
+      body: SingleChildScrollView(
+        child: Column(
+          children: [
+            for (var card in cards) Container(
+                width: 279,
+                child: CardItemWidget(card: card)),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+class VisitsSection extends StatelessWidget{
+  List<String>categories = ['Most recent visits','local visits','Nearby Outings',
+  'Solo trips','trips with family',
+  'trips with friends','Attended Festivals',
+  'food and restaurants','Pubs & Bars','Fashion'];
+
+  List<CardItem> cards = [CardItem(
+    // videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+    image: 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg',
+    viewCnt:  2112,
+    location: 'HSR Layout, Sector 4',
+    category: 'family Visit',
+    likes: 21,
+    countVideos: 3,
+    distance: '1.9',
+  ), CardItem(
+      // videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+      image: 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg',
+      viewCnt:  2112,
+      location: 'HSR Layout, Sector 4',
+      category: 'family Visit',
+      likes: 21,
+      countVideos: 4,
+      distance: '2.9',
+    ), CardItem(
+      // videoUrl: 'http://techslides.com/demos/sample-videos/small.mp4',
+      image: 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg',
+      viewCnt:  2112,
+      location: 'HSR Layout, Sector 4',
+      category: 'family Visit',
+      likes: 21,
+      countVideos: 4,
+      distance: '0.7',
+    ),];
+
+  @override
+  Widget build(BuildContext context){
+    return SingleChildScrollView(
+      child: Column(
+        children: [
+          for (int i = 0; i < categories.length; i++)
+            Container(
+              // width: 279,
+              child: CardSlider(
+                category: categories[i],
+                cards: cards,
+              ),
+            ),
+        ],
+      ),
+    );
+  }
+}
+
+class RatingEntry {
+  final String name;
+  final int count;
+  final String comment;
+
+  RatingEntry({
+    required this.name,
+    required this.count,
+    required this.comment,
+  });
+}
+
+
+class RatingSection extends StatefulWidget {
+  final List<RatingEntry> ratings;
+  final reviewCnt;
+  RatingSection({required this.ratings,required this.reviewCnt});
+
+  @override
+  _RatingSectionState createState() => _RatingSectionState();
+}
+
+class _RatingSectionState extends State<RatingSection> {
+  bool showAllRatings = false;
+
+  @override
+  Widget build(BuildContext context) {
+    List<RatingEntry> displayedRatings =
+    showAllRatings ? widget.ratings : widget.ratings.take(2).toList();
+
+    return Container(
+      // decoration: BoxDecoration(
+      //   border: Border.all(
+      //     color: Colors.black,
+      //     width: 1,
+      //   ),
+      // ),
+      child: Center(
+        child: SizedBox(
+          width: 340,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: <Widget>[
+              Text(
+                'Review About You ( ${widget.reviewCnt} )',
+                style: TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins'
+                ),
+              ),
+              SizedBox(height: 10),
+              widget.reviewCnt==0?
+              Text('You did’t receive any review or feedback yet. ',
+                style: TextStyle(
+                    fontSize: 12,
+                    fontFamily: 'Poppins'
+                ),)
+                  :SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: displayedRatings.map((rating) {
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          rating.name,
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,fontSize: 14,fontFamily: 'Poppins'
+                          ),
+                        ),
+                        SizedBox(height: 2),
+                        Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(5, (index) {
+                            if(index<rating.count)
+                              return Icon(Icons.star, color: HexColor('#FB8C00'),size: 17,);
+                            else
+                              return Icon(Icons.star, color: Colors.grey,size: 17,);
+                          }),
+                        ),
+                        SizedBox(height: 5),
+                        Text(rating.comment,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                        SizedBox(height: 12,),
+                      ],
+                    );
+                  }).toList(),
+                ),
+              ),
+              if (widget.reviewCnt!=0 && widget.ratings.length > 2)
+                GestureDetector(
+                  onTap: (){
+                    setState(() {
+                      showAllRatings = !showAllRatings;
+                    });
+                  },
+                  child: Text(showAllRatings ? 'Show Less' : 'View All',style: TextStyle(fontSize: 14,fontFamily:'Poppins',color: HexColor('#FB8C00'),fontWeight: FontWeight.bold),),
+                ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
+class LocationEditor extends StatefulWidget {
+  @override
+  _LocationEditorState createState() => _LocationEditorState();
+}
+
+class _LocationEditorState extends State<LocationEditor> {
+  TextEditingController _locationController = TextEditingController();
+  String _currentLocation = "Bengaluru"; // Default location
+
+  @override
+  void initState() {
+    super.initState();
+    _locationController.text = _currentLocation;
+  }
+
+  Future<void> _editLocation() async {
+    LocationPermission permission; permission = await Geolocator.requestPermission();
+    Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.high,
+    );
+
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      position.latitude,
+      position.longitude,
+    );
+
+    String city = placemarks.first.locality ?? "Unknown City";
+    String state = placemarks.first.administrativeArea ?? "Bengaluru";
+
+    setState(() {
+      _currentLocation = "$city";
+      _locationController.text = _currentLocation;
+    });
+
+    print("Latitude: ${position.latitude}");
+    print("Longitude: ${position.longitude}");
+    print("State: $state");
+    print("City: $city");
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 64,
+      width: 360,
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Container(
+            width: 140,
+            height: 200,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  child: Icon(Icons.location_on),
+                ),
+                Text('Location',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold),),
+                Text(_currentLocation,style: TextStyle(fontSize: 12),),
+              ],
+            ),
+          ),
+          GestureDetector(
+            onTap: (){
+              _editLocation();
+            },
+            child: Container(
+              width: 62,
+              height: 61,
+              child: Align(
+                alignment: Alignment.bottomCenter,
+                child: Text('Autio-Locate',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,color: Colors.orange),),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  void dispose() {
+    _locationController.dispose();
+    super.dispose();
+  }
+}
+
+
+class ServiceCard extends StatefulWidget{
+  final String titleLabel,iconImage,serviceImage,subTitleLabel,endLabel;
+  ServiceCard({
+    required this.titleLabel,
+    required this.serviceImage,
+    required this.iconImage,
+    required this.subTitleLabel,
+    required this.endLabel,
+  });
+
+  @override
+  _ServiceCardState createState() => _ServiceCardState();
+}
+
+class _ServiceCardState extends State<ServiceCard>{
+  bool buttonState = false;
+  void toggleButton(){
+    setState(() {
+      buttonState = !buttonState;
+    });
+  }
+
+
+
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: 400,
+      height: 250,
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(widget.titleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+                showDialog(context: context, builder: (BuildContext context){
+                  return Container(child: CustomHelpOverlay(imagePath: widget.iconImage,serviceSettings: false),);
+                },
+                );
+              },
+              ),
+            ],
+          ),
+          Container(
+            decoration: BoxDecoration(
+              border: Border.all(
+                color: Colors.black,
+                width: 1,
+              ),
+            ),
+            child: Container(
+
+              height: 120,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Image.asset(widget.serviceImage,width: 160,height: 89,fit: BoxFit.contain,),
+                  Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Text(widget.subTitleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                      Container(
+                        child: RichText(
+                          text: TextSpan(
+                            style: DefaultTextStyle.of(context).style,
+                            children: [
+                              TextSpan(
+                                  text: 'Earn Easy'
+                              ),
+                              TextSpan(
+                                text: ' 500 INR',
+                                style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.green),
+                              ),
+                              TextSpan(
+                                  text: '\nper Call'
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                      Text('*Terms & Conditions applied',style: TextStyle(fontSize: 7,fontFamily: 'Poppins',color: Colors.red),),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Text(widget.endLabel),
+              ConcentricCircles(),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+}
+
 
 class ProfileForm extends StatefulWidget {
   @override
@@ -930,7 +1746,7 @@ class CustomDropdown {
         SizedBox(height: 10,),
         Container(
           width: deviceWidth*0.90,
-          height: 57,
+          height: 60,
           child: DropdownButtonFormField<String>(
             value: selectedValue,
             icon: Icon(Icons.arrow_drop_down_circle,color: HexColor('#FB8C00'),),
@@ -944,8 +1760,10 @@ class CustomDropdown {
               ), // Add an outline border
             ),
             onChanged: (String? newValue) {
+              newValue = newValue==''?newValue:selectedValue! +',${newValue}';
               onChanged(newValue); // Call the provided onChanged callback
-              setSelectedValue(newValue); // Set the selected value using the callback
+              setSelectedValue(newValue);
+              selectedValue = newValue;  // Set the selected value using the callback
             },
             items: items.map((String item) {
               return DropdownMenuItem<String>(
@@ -1019,7 +1837,21 @@ class CustomDOBDropDown extends StatelessWidget{
   }
 }
 
-class MotivationalQuote extends StatelessWidget{
+class MotivationalQuote extends StatefulWidget{
+  @override
+  _MotivationalQuoteState createState() => _MotivationalQuoteState();
+}
+class _MotivationalQuoteState extends State<MotivationalQuote>{
+
+  String? setQuote = '+ Add your Motivational quote';
+  bool isQuoteSet = false;
+  void handleQuote(String? quote) {
+    setState(() {
+      setQuote = quote ?? '+ Add your Motivational quote'; // Update the parameter in the main class
+      isQuoteSet = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1027,15 +1859,30 @@ class MotivationalQuote extends StatelessWidget{
       child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: [
-              Text('+ Add your Motivational quote',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
+              Container(
+                width: 260,
+                child: GestureDetector(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote)));
+                  },
+                  child:
+                  !isQuoteSet?
+                  Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
+                  ):
+                  Center(
+                    child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins',),maxLines: 2,overflow: TextOverflow.ellipsis,
+                    ),
+                  ),
+                ),
               ),
+              !isQuoteSet?
               IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                     showDialog(context: context, builder: (BuildContext context){
-                      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',),);
+                      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',serviceSettings: false),);
                     },
                   );
                 },
-              ),
+              ):SizedBox(width: 0,),
           ],
       ),
     );
@@ -1282,7 +2129,7 @@ class ExpertCardDetails extends StatelessWidget{
 }
 
 class ProfielStatusAndButton  extends StatelessWidget{
-  final bool reqPages;
+  final int reqPages;
   ProfielStatusAndButton({required this.reqPages});
 
   @override
@@ -1300,7 +2147,7 @@ class ProfielStatusAndButton  extends StatelessWidget{
                   Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),));
                 },
                 child: Center(
-                    child: Text(reqPages?'COMPLETE PROFILE':'SET PROFILE',
+                    child: Text(reqPages<1?'COMPLETE PROFILE':'SET PROFILE',
                         style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,

@@ -1,7 +1,9 @@
 import 'dart:io';
 import 'dart:ui';
+import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
+import 'package:learn_flutter/camera.dart';
 
 class ImageUtil{
   static Future<File?> pickAndCropImage() async{
@@ -17,15 +19,19 @@ class ImageUtil{
       final croppedFile = await ImageCropper().cropImage(
         sourcePath: imageFile.path,
         aspectRatio: CropAspectRatio(ratioX: 2, ratioY: 2),
+        cropStyle: CropStyle.circle,
+        aspectRatioPresets: [
+          CropAspectRatioPreset.square,
+        ],
         maxHeight:132,
         maxWidth: 132,
         compressFormat:ImageCompressFormat.jpg,
         uiSettings: [
           AndroidUiSettings(
-            toolbarColor: Color(0xFF42A5F5),
+            toolbarColor: HexColor('#FB8C00'),
             toolbarTitle: 'Crop Image',
-            statusBarColor: Color(0xFF42A5F5),
-            backgroundColor: Color(0xFF42A5F5),
+            statusBarColor: HexColor('#FB8C00'),
+            backgroundColor: HexColor('#FB8C00'),
           ),
         ],
       );
