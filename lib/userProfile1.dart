@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
@@ -16,6 +18,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:provider/provider.dart';
+import 'package:http/http.dart' as http;
 
 typedef void ImageCallback(File image);
 typedef void SetQuote(String? image);
@@ -23,26 +27,63 @@ typedef void SetQuote(String? image);
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
-  runApp(ProfileApp());
+  runApp(ChangeNotifierProvider(
+      create:(context) => ProfileDataProvider(),
+      child: ProfileApp(),
+    ),
+  );
 }
+class ProfileData{
+  File? imagePath;
+  String? name;
+
+  ProfileData({this.name,this.imagePath});
+
+  Map<String,dynamic> toJson(){
+    return {
+      'userPhoto':imagePath,
+      'userName':name,
+    };
+  }
+}
+
+class ProfileDataProvider extends ChangeNotifier {
+  ProfileData _profileData = ProfileData();
+
+  ProfileData get profileData => _profileData;
+
+  void updateImagePath(File path) {
+    _profileData.imagePath = path!;
+    notifyListeners();
+  }
+
+  void updateName(String userName) {
+    _profileData.name = userName!;
+    notifyListeners();
+  }
+}
+
   
 class ProfileApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final profileDataProvider = Provider.of<ProfileDataProvider>(context);
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
         useMaterial3: true,
       ),
-      home: ProfilePage(reqPage:0),
+      home: ProfilePage(reqPage:0,profileDataProvider: profileDataProvider,),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
+
 class ProfilePage extends StatelessWidget {
   final int reqPage;
-  ProfilePage({required this.reqPage});
+  final ProfileDataProvider profileDataProvider;
+  ProfilePage({required this.reqPage,required this.profileDataProvider});
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -60,7 +101,7 @@ class ProfilePage extends StatelessWidget {
             ProfileHeader(reqPage: reqPage),
             reqPage==1?ProfileStrengthCard():SizedBox(height: 0,),
             reqPage==1?SizedBox(height: 17,):SizedBox(height: 0,),
-            CoverPage(reqPage:reqPage),
+            CoverPage(reqPage:reqPage,profileDataProvider: profileDataProvider,),
             UserInformationSection(reqPage:reqPage),
 
           ],
@@ -385,18 +426,19 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
 class CoverPage extends StatelessWidget {
   final bool hasVideoUploaded = false; // Replace with backend logic
   final int reqPage;
-
-  CoverPage({required this.reqPage});
+  final ProfileDataProvider profileDataProvider;
+    CoverPage({required this.reqPage, required this.profileDataProvider});
 
   @override
   Widget build(BuildContext context) {
-    return UserImage(reqPages: reqPage,);
+    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider);
   }
 }
 
 class UserImage extends StatefulWidget {
   final int reqPages;
-  UserImage({required this.reqPages});
+  final ProfileDataProvider profileDataProvider; // Pass the profileDataProvider here
+  UserImage({required this.reqPages, required this.profileDataProvider});
   @override
   _UserImageState createState() => _UserImageState();
 }
@@ -408,6 +450,7 @@ class _UserImageState extends State<UserImage>{
   void handleImageUpdated(File image) {
     setState(() {
       _userProfileImage = image; // Update the parameter in the main class
+      widget.profileDataProvider.updateImagePath(_userProfileImage!); // Update image path in the provider
     });
   }
 
@@ -553,7 +596,7 @@ class _UserImageState extends State<UserImage>{
                           ),
                           child:IconButton(icon:Icon(Icons.camera_alt_outlined),color: Colors.white,onPressed: (){
                                 showDialog(context: context, builder: (BuildContext context){
-                                return Container(child: UploadMethods(onImageUpdated : handleImageUpdated),);
+                                return Container(child: UploadMethods(onImageUpdated : handleImageUpdated));
                               },
                             );
                           },
@@ -572,7 +615,7 @@ class _UserImageState extends State<UserImage>{
                     fontWeight: FontWeight.w900,
                     fontFamily: 'Poppins',
                   ),
-                ):EditNameForm(),
+                ):EditNameForm(profileDataProvider:widget.profileDataProvider),
               ],
             ),
           ),
@@ -584,7 +627,6 @@ class _UserImageState extends State<UserImage>{
 
 class UploadMethods extends StatefulWidget{
   final ImageCallback onImageUpdated;
-
   UploadMethods({required this.onImageUpdated});
 
 
@@ -700,6 +742,8 @@ class _UploadMethodsState extends State<UploadMethods> {
 
 
 class EditNameForm extends StatefulWidget {
+  final ProfileDataProvider profileDataProvider;
+  EditNameForm({required this.profileDataProvider});
   @override
   _EditNameFormState createState() => _EditNameFormState();
 }
@@ -727,6 +771,7 @@ class _EditNameFormState extends State<EditNameForm> {
         }else{
           // Save the edited name when exiting edit mode
           userName = nameController.text;
+          widget.profileDataProvider.updateName(userName);
           // Here, you can send the updated name to your backend for processing
           // For demonstration, we'll just print it
           print("Updated Name: $userName");
@@ -2134,6 +2179,26 @@ class ProfielStatusAndButton  extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
+    final profileDataProvider = Provider.of<ProfileDataProvider>(context);
+
+    void sendDataToBackend () async{
+      final profileData = profileDataProvider.profileData.toJson();
+      final url = Uri.parse('');
+
+      final response = await http.post(
+        url,
+        headers: {'Content-Type': 'application/json'},
+        body:json.encode(profileData),
+      );
+
+      if (response.statusCode == 201) {
+        print('Data saved successfully');
+      } else {
+        print('Failed to save data: ${response.statusCode}');
+      }
+
+    }
+
     return Padding(
       padding: const EdgeInsets.only(left: 16.0),
       child: Column(
@@ -2144,7 +2209,8 @@ class ProfielStatusAndButton  extends StatelessWidget{
             child: FilledButton(
                 backgroundColor: HexColor('#FB8C00'),
                 onPressed: () {
-                  Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),));
+                  sendDataToBackend;
+                  // Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),));
                 },
                 child: Center(
                     child: Text(reqPages<1?'COMPLETE PROFILE':'SET PROFILE',
