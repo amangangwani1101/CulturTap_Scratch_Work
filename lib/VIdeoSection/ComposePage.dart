@@ -170,7 +170,7 @@ class _ComposePageState extends State<ComposePage> {
                               child: Text(value, style: TextStyle(color: Colors.white)),
                             );
                           }).toList(),
-                          icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                          icon: Icon(Icons.keyboard_arrow_down, color: Colors.white),
                           underline: Container(
                             height: 2,
                             color: Colors.orange,
