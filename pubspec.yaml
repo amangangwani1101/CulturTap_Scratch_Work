@@ -41,10 +41,14 @@ dependencies:
   firebase_core: ^2.15.1
   firebase_auth: ^4.8.0
   geolocator: ^10.0.0
+  geocoding: ^2.1.0
   web_socket_channel: ^2.4.0
   camera: ^0.10.5+4
   path_provider: ^2.1.1
   video_player: ^2.7.1
+  dropdown_search: ^5.0.6
+
+
 
 dev_dependencies:
   flutter_test:

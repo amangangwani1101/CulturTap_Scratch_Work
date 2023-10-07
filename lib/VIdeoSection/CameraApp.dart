@@ -148,15 +148,12 @@ class _CameraAppState extends State<CameraApp> {
         fit: StackFit.expand,
         children: <Widget>[
           CameraPreview(_controller),
-          Align(
-            alignment: Alignment.center,
-            child: Text(
-              _isRecording ? 'Recording...' : '',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24.0,
-                fontWeight: FontWeight.bold,
-              ),
+          Text(
+            _isRecording ? 'Recording...' : '',
+            style: TextStyle(
+              color : Colors.white60,
+              fontSize: 24.0,
+              fontWeight: FontWeight.bold,
             ),
           ),
           Positioned(

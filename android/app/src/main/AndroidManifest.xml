@@ -43,4 +43,10 @@
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- Add READ_EXTERNAL_STORAGE permission here -->
 
     <!-- ... other manifest elements ... -->
+
+    <!-- Add location permission -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- ... other manifest elements ... -->
+
 </manifest>
