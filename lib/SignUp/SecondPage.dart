@@ -179,6 +179,7 @@ class _SecondPageState extends State<SecondPage> {
                     ),
                   ),
                   Container(height: 20),
+
                   Container(
 
                     padding: EdgeInsets.symmetric(
@@ -234,6 +235,7 @@ class _SecondPageState extends State<SecondPage> {
                       ],
                     ),
                   ),
+
                   Container(height: 10),
                   Container(
                     margin: EdgeInsets.only(top: 10),
