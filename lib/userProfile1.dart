@@ -1,4 +1,7 @@
 import 'dart:convert';
+import 'dart:core';
+import 'dart:core';
+import 'dart:core';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -10,7 +13,7 @@ import 'package:learn_flutter/camera.dart';
 import 'package:learn_flutter/rating.dart';
 import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
-import 'package:learn_flutter/widgets/02_customNavbar.dart';
+// import 'package:learn_flutter/widgets/02_customNavbar.dart';
 import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
 import 'package:learn_flutter/widgets/sample.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -34,15 +37,35 @@ void main() async{
   );
 }
 class ProfileData{
-  File? imagePath;
+  String? userId;
+  String? imagePath;
   String? name;
+  String? quote;
+  int? followerCnt = 0;
+  int? followingCnt = 0;
+  int? locations = 1;
+  String? place;
+  String?profession;
+  String? gender;
+  String? age;
+  List<String>?languages;
 
-  ProfileData({this.name,this.imagePath});
+
+  ProfileData({this.userId,this.name,this.imagePath,this.quote,this.followerCnt,this.locations,this.followingCnt,this.place,this.profession,this.age,this.languages,this.gender});
 
   Map<String,dynamic> toJson(){
     return {
       'userPhoto':imagePath,
       'userName':name,
+      'userQuote':quote,
+      'userFollowers':followerCnt,
+      'userFollowing':followingCnt,
+      'userExploredLocations' : locations,
+      'userPlace':place,
+      'userProfession':profession,
+      'userAge':age,
+      'userGender':gender,
+      'userLanguages':languages,
     };
   }
 }
@@ -52,16 +75,83 @@ class ProfileDataProvider extends ChangeNotifier {
 
   ProfileData get profileData => _profileData;
 
-  void updateImagePath(File path) {
+
+  void setUserId(String id) {
+    _profileData.userId = id!;
+    print('Path is $id');
+    notifyListeners();
+  }
+  String? retUserId(){
+    return _profileData.userId;
+  }
+
+  void updateImagePath(String path) {
     _profileData.imagePath = path!;
+    print('Path is $path');
     notifyListeners();
   }
 
   void updateName(String userName) {
     _profileData.name = userName!;
+    print('Path is $userName');
+    notifyListeners();
+  }
+
+  void updateQuote(String userQuote) {
+    _profileData.quote = userQuote!;
+    print('Path is $userQuote');
+    notifyListeners();
+  }
+
+  void updateFollowersCnt(int userFollowers){
+    _profileData.followerCnt = userFollowers==null?0:userFollowers;
+    print('Path1 is $userFollowers');
+    notifyListeners();
+  }
+
+  void updateFollowingCnt(int userFollowering){
+    _profileData.followingCnt = userFollowering==null?0:userFollowering;
+    print('Path2 is $userFollowering');
+    notifyListeners();
+  }
+
+  void updateLocationsCnt(int userExploredLocations){
+    _profileData.locations = userExploredLocations==null?0:userExploredLocations;
+    print('Path3 is $userExploredLocations');
+    notifyListeners();
+  }
+
+  void updatePlace(String userPlace) {
+    _profileData.place = userPlace!;
+    print('Path is $userPlace');
+    notifyListeners();
+  }
+
+  void updateProfession(String userProfession) {
+    _profileData.profession = userProfession!;
+    print('Path is $userProfession');
+    notifyListeners();
+  }
+
+  void updateAge(String userAge) {
+    _profileData.age = userAge!;
+    print('Path is $userAge');
+    notifyListeners();
+  }
+
+  void updateGender(String userGender) {
+    _profileData.gender = userGender!;
+    print('Path is $userGender');
+    notifyListeners();
+  }
+
+  void updateLanguages(List<String> languages) {
+    _profileData.languages = languages!;
+    print('Path is $languages');
     notifyListeners();
   }
 }
+
 
   
 class ProfileApp extends StatelessWidget {
@@ -102,7 +192,7 @@ class ProfilePage extends StatelessWidget {
             reqPage==1?ProfileStrengthCard():SizedBox(height: 0,),
             reqPage==1?SizedBox(height: 17,):SizedBox(height: 0,),
             CoverPage(reqPage:reqPage,profileDataProvider: profileDataProvider,),
-            UserInformationSection(reqPage:reqPage),
+            UserInformationSection(reqPage:reqPage,profileDataProvider:profileDataProvider),
 
           ],
         ),
@@ -124,8 +214,8 @@ class HexColor extends Color {
 // profile header section -- state1
 class ProfileHeader extends StatefulWidget {
   final int reqPage;
-
-  ProfileHeader({required this.reqPage});
+  final String? imagePath;
+  ProfileHeader({required this.reqPage,this.imagePath});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -160,7 +250,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   height: 35,
                   child: CircleAvatar(
                     radius: 20.0,
-                    backgroundImage: AssetImage('assets/images/profile_image.jpg'),
+                    backgroundImage: widget.imagePath != null
+                        ? FileImage(File(widget.imagePath!)) as ImageProvider<Object>?
+                        : AssetImage('assets/images/profile_image.jpg'), // Use a default asset image
                   ),
                 ),
               ),
@@ -426,19 +518,23 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
 class CoverPage extends StatelessWidget {
   final bool hasVideoUploaded = false; // Replace with backend logic
   final int reqPage;
+  final String? imagePath;
+  final String? name;
   final ProfileDataProvider profileDataProvider;
-    CoverPage({required this.reqPage, required this.profileDataProvider});
+  CoverPage({required this.reqPage,required this.profileDataProvider,this.imagePath,this.name});
 
   @override
   Widget build(BuildContext context) {
-    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider);
+    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider,imagePath:imagePath,name:name);
   }
 }
 
 class UserImage extends StatefulWidget {
   final int reqPages;
-  final ProfileDataProvider profileDataProvider; // Pass the profileDataProvider here
-  UserImage({required this.reqPages, required this.profileDataProvider});
+  final ProfileDataProvider profileDataProvider;
+  final String? name;// Pass the profileDataProvider here
+  final String? imagePath;
+  UserImage({required this.reqPages, required this.profileDataProvider,this.imagePath,this.name});
   @override
   _UserImageState createState() => _UserImageState();
 }
@@ -450,7 +546,7 @@ class _UserImageState extends State<UserImage>{
   void handleImageUpdated(File image) {
     setState(() {
       _userProfileImage = image; // Update the parameter in the main class
-      widget.profileDataProvider.updateImagePath(_userProfileImage!); // Update image path in the provider
+      widget.profileDataProvider.updateImagePath((image.path)!); // Update image path in the provider
     });
   }
 
@@ -570,7 +666,12 @@ class _UserImageState extends State<UserImage>{
                             width: 15.0, // Border width
                           ),
                         ),
-                        child: _userProfileImage!=null?
+                        child: widget.imagePath!=null?
+                        CircleAvatar(
+                          radius: 60,
+                          backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>,
+                        )
+                            : _userProfileImage!=null?
                         CircleAvatar(
                           radius: 60,
                           backgroundImage: FileImage(_userProfileImage!),
@@ -608,7 +709,7 @@ class _UserImageState extends State<UserImage>{
               ),
                 widget.reqPages<1?
                 Text(
-                  'Hemant Singh', // Replace with actual user name
+                  widget.name!=null?widget.name!:'Hemant Singh', // Replace with actual user name
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 15,
@@ -878,8 +979,9 @@ class UserInformationSection extends StatelessWidget {
     RatingEntry(name: 'Pushpit Kant', count: 4, comment: 'Funny!Helpful! if you are a girl then. '),
     RatingEntry(name: 'Anonomus', count: 5, comment: 'Good Services.'),
   ];
+  final ProfileDataProvider profileDataProvider;
   final currentReview = 3;
-  UserInformationSection({required this.reqPage});
+  UserInformationSection({required this.reqPage,required this.profileDataProvider});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -887,15 +989,15 @@ class UserInformationSection extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 10,),
-          MotivationalQuote(),
+          MotivationalQuote(profileDataProvider:profileDataProvider),
           SizedBox(height: 20.0),
-          ReachAndLocation(),
+          ReachAndLocation(profileDataProvider:profileDataProvider),
           SizedBox(height: 30,),
           reqPage==0?SizedBox(height: 0):SignIn(),
           SizedBox(height: 30.0),
-          reqPage==0?SizedBox(height: 0):LocationEditor(),
+          reqPage==0?SizedBox(height: 0):LocationEditor(profileDataProvider:profileDataProvider),
           SizedBox(height: 30.0),
-          reqPage==0?UserDetailsTable():ProfileForm(),
+          reqPage==0?UserDetailsTable():ProfileForm(profileDataProvider:profileDataProvider),
           SizedBox(height: 45.0),
           ExpertCardDetails(),
           SizedBox(height: 35.0),
@@ -1472,6 +1574,8 @@ class _RatingSectionState extends State<RatingSection> {
 
 
 class LocationEditor extends StatefulWidget {
+  final ProfileDataProvider profileDataProvider;
+  LocationEditor({required this.profileDataProvider});
   @override
   _LocationEditorState createState() => _LocationEditorState();
 }
@@ -1502,6 +1606,7 @@ class _LocationEditorState extends State<LocationEditor> {
 
     setState(() {
       _currentLocation = "$city";
+      widget.profileDataProvider.updatePlace(city);
       _locationController.text = _currentLocation;
     });
 
@@ -1666,6 +1771,8 @@ class _ServiceCardState extends State<ServiceCard>{
 
 
 class ProfileForm extends StatefulWidget {
+  final ProfileDataProvider profileDataProvider;
+  ProfileForm({required this.profileDataProvider});
   @override
   _ProfileFormState createState() => _ProfileFormState();
 }
@@ -1675,7 +1782,8 @@ class _ProfileFormState extends State<ProfileForm> {
   DateTime? selectedDateOfBirth;
   String? selectedGender;
   String? selectedLanguage;
-
+  String? age;
+  TextEditingController _ageController = TextEditingController();
   final List<String> professions = [
     'Engineer',
     'Doctor',
@@ -1721,7 +1829,9 @@ class _ProfileFormState extends State<ProfileForm> {
             },
             setSelectedValue: (String? newValue) {
               // Set the selected value outside the widget
-              selectedProfession = newValue;
+              selectedProfession = newValue!;
+              if(newValue!=null)
+                widget.profileDataProvider.updateProfession(newValue!);
             },
             selectedValue: selectedProfession, // Pass the selected value to the widget
           ),
@@ -1745,12 +1855,47 @@ class _ProfileFormState extends State<ProfileForm> {
             onChanged: (String? newValue) {
               // Handle the selected value here, if needed
               print('Selected: $newValue');
+              widget.profileDataProvider.updateGender(newValue!);
             },
             setSelectedValue: (String? newValue) {
               // Set the selected value outside the widget
-              selectedGender = newValue;
+              selectedGender = newValue!;
+              if(newValue!=null)
+                widget.profileDataProvider.updateGender(newValue!);
             },
             selectedValue: selectedGender, // Pass the selected value to the widget
+          ),
+          SizedBox(height: 10,),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text('Age',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+              Container(
+                width: screenWidth*0.90,
+                height: 60,
+                child: TextField(
+                  controller: _ageController,
+                  decoration: InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
+                    ),
+                    enabledBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey), // Change the border color here
+                    ),
+                    hintText: 'Enter your age',
+                    // icon: Icon(Icons.person),
+                  ),
+                  keyboardType: TextInputType.number,
+                  onChanged: (value) {
+                    setState(() {
+                      age = value;
+                      widget.profileDataProvider.updateAge(age!);
+                    });
+                  },
+                ),
+              ),
+            ],
           ),
           SizedBox(height: 10,),
           CustomDropdown.build(
@@ -1764,6 +1909,7 @@ class _ProfileFormState extends State<ProfileForm> {
             setSelectedValue: (String? newValue) {
               // Set the selected value outside the widget
               selectedLanguage = newValue;
+              // widget.profileDataProvider.updateLanguages.add(newValue);
             },
             selectedValue: selectedLanguage, // Pass the selected value to the widget
           ),
@@ -1805,8 +1951,8 @@ class CustomDropdown {
               ), // Add an outline border
             ),
             onChanged: (String? newValue) {
-              newValue = newValue==''?newValue:selectedValue! +',${newValue}';
-              onChanged(newValue); // Call the provided onChanged callback
+              // newValue = newValue==''?newValue:selectedValue! +',${newValue}';
+              // onChanged(newValue); // Call the provided onChanged callback
               setSelectedValue(newValue);
               selectedValue = newValue;  // Set the selected value using the callback
             },
@@ -1883,6 +2029,9 @@ class CustomDOBDropDown extends StatelessWidget{
 }
 
 class MotivationalQuote extends StatefulWidget{
+  final ProfileDataProvider profileDataProvider;
+  final String? quote;
+  MotivationalQuote({required this.profileDataProvider,this.quote});
   @override
   _MotivationalQuoteState createState() => _MotivationalQuoteState();
 }
@@ -1893,57 +2042,95 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
   void handleQuote(String? quote) {
     setState(() {
       setQuote = quote ?? '+ Add your Motivational quote'; // Update the parameter in the main class
+      widget.profileDataProvider.updateQuote(quote!);
       isQuoteSet = true;
     });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      width: 350,
-      child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-              Container(
-                width: 260,
-                child: GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote)));
-                  },
-                  child:
-                  !isQuoteSet?
-                  Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
-                  ):
-                  Center(
-                    child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins',),maxLines: 2,overflow: TextOverflow.ellipsis,
+    return
+      Center(
+        child: Container(
+        width: 350,
+        child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+                Container(
+                  width: widget.quote!=null?320:260,
+                  child: GestureDetector(
+                    onTap: (){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote)));
+                    },
+                    child:
+                    widget.quote!=null
+                      ? Center(
+                        child: Text('" ${widget.quote} "' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',),maxLines: 2,overflow: TextOverflow.visible,
+                        ),
+                      )
+                      : !isQuoteSet?
+                    Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
+                    ):
+                    Center(
+                      child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins',),maxLines: 2,overflow: TextOverflow.ellipsis,
+                      ),
                     ),
                   ),
                 ),
-              ),
-              !isQuoteSet?
-              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-                    showDialog(context: context, builder: (BuildContext context){
-                      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',serviceSettings: false),);
-                    },
-                  );
-                },
-              ):SizedBox(width: 0,),
-          ],
-      ),
-    );
+                widget.quote!=null
+                  ?SizedBox(width: 0,)
+                  :!isQuoteSet?
+                IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+                      showDialog(context: context, builder: (BuildContext context){
+                        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',serviceSettings: false),);
+                      },
+                    );
+                  },
+                ):SizedBox(width: 0,),
+            ],
+        ),
+    ),
+      );
   }
 }
 
-class ReachAndLocation extends StatelessWidget{
-  int followers = 0,following = 0,locations=1;
+class ReachAndLocation extends StatefulWidget{
+  final ProfileDataProvider profileDataProvider;
+  int? followers,following,locations;
+
+  ReachAndLocation({required this.profileDataProvider,this.following,this.followers,this.locations});
+  @override
+  _ReachAndLocationState createState() => _ReachAndLocationState();
+}
+class _ReachAndLocationState extends State<ReachAndLocation>{
+
   @override
   Widget build(BuildContext context) {
+    // func();
     return Row(
       mainAxisAlignment: MainAxisAlignment.spaceAround,
       children: [
-        InfoWidget(icon: Icons.person_add_alt, text: '${followers} Follower'),
-        InfoWidget(icon: Icons.person_outline, text: '${following} Following'),
-        InfoWidget(icon: Icons.add_location_outlined, text: '${locations} Location'),
+        GestureDetector(
+          onTap: (){
+            setState(() {
+              widget.followers = (widget.followers! + 1)!;
+              print('Followers : ${(widget.followers)}');
+              widget.profileDataProvider.updateFollowersCnt(widget.followers!);
+            });
+          },
+          child: InfoWidget(icon: Icons.person_add_alt, text: widget.followers!=null?'${widget.followers} Follower':'${0} Follower')
+        ),
+        GestureDetector(
+          onTap: (){
+            setState(() {
+              widget.following = (widget.following! + 1)!;
+              print('Following : ${(widget.following)}');
+              widget.profileDataProvider.updateFollowersCnt(widget.following!);
+            });
+          },
+          child: InfoWidget(icon: Icons.person_outline, text: widget.following!=null?'${widget.following} Following':'${0} Following')
+        ),
+        InfoWidget(icon: Icons.add_location_outlined, text: widget.locations!=null?'${widget.locations} Location':'${1} Location'),
       ],
     );
   }
@@ -1969,8 +2156,10 @@ class InfoWidget extends StatelessWidget {
 }
 
 class UserDetailsTable extends StatelessWidget {
-  String place = 'NA',profession = 'NA',age = 'NA',gender = 'NA';
-  List<String> languageList = [];
+  String? place = null,profession = null,age = null,gender = null;
+  List<String>? languageList = [];
+  UserDetailsTable({this.place,this.profession,this.age,
+    this.gender,this.languageList});
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -1989,21 +2178,22 @@ class UserDetailsTable extends StatelessWidget {
             children: [
               Text('Place - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 96,),
-              Text('${place}',style: TextStyle(fontSize: 14),),
+
+              Text(place==null?'NA':'${place}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
               Text('Profession - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 58,),
-              Text('${profession}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+              Text(profession==null?'NA':'${profession}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
               Text('Age/Gender - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 42,),
-              Text(age=='NA'?age:'${age} Yr/ ${gender}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+              Text(age ==null?'NA':'${age} Yr / ${gender}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
@@ -2011,19 +2201,19 @@ class UserDetailsTable extends StatelessWidget {
               Text('Language - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 60,),
               Container(
-                  child: languageList.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
+                  child: languageList==null ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
                   Wrap(
                     runSpacing: 8.0, // Vertical spacing between lines of items
                     children: [
                       Row(
                         children: [
-                          for (int i = 0; i < languageList.length; i++)
+                          for (int i = 0; i < languageList!.length; i++)
                             Container(
                               margin: EdgeInsets.only(right: 8.0),
                               child: Row(
                                 children: [
-                                  Text(languageList[i]),
-                                  if (i < languageList.length - 1)
+                                  Text(languageList![i]),
+                                  if (i < languageList!.length - 1)
                                     Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
                                 ],
                               ),
@@ -2175,6 +2365,7 @@ class ExpertCardDetails extends StatelessWidget{
 
 class ProfielStatusAndButton  extends StatelessWidget{
   final int reqPages;
+
   ProfielStatusAndButton({required this.reqPages});
 
   @override
@@ -2182,21 +2373,30 @@ class ProfielStatusAndButton  extends StatelessWidget{
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
 
     void sendDataToBackend () async{
-      final profileData = profileDataProvider.profileData.toJson();
-      final url = Uri.parse('');
+      print('Status');
+      try {
+        final profileData = profileDataProvider.profileData.toJson();
+        print('Path is $profileData');
+        final String serverUrl = 'http://192.168.146.54:8080'; // Replace with your server's URL
+        final http.Response response = await http.post(
+          Uri.parse('$serverUrl/profileSection'), // Adjust the endpoint as needed
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonEncode(profileData),
+        );
 
-      final response = await http.post(
-        url,
-        headers: {'Content-Type': 'application/json'},
-        body:json.encode(profileData),
-      );
-
-      if (response.statusCode == 201) {
-        print('Data saved successfully');
-      } else {
-        print('Failed to save data: ${response.statusCode}');
+        if (response.statusCode == 200) {
+          final responseData = json.decode(response.body);
+          print('User Id : ${responseData}');
+          profileDataProvider.setUserId(responseData['_id']);
+          print('Data saved successfully');
+        } else {
+          print('Failed to save data: ${response.statusCode}');
+        }
+      }catch(err){
+        print("Error: $err");
       }
-
     }
 
     return Padding(
@@ -2209,8 +2409,11 @@ class ProfielStatusAndButton  extends StatelessWidget{
             child: FilledButton(
                 backgroundColor: HexColor('#FB8C00'),
                 onPressed: () {
-                  sendDataToBackend;
-                  // Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),));
+                  print('Reqpages is $reqPages');
+                  reqPages==1?sendDataToBackend():null;
+                  reqPages<1
+                    ?Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),))
+                    :Navigator.push(context, MaterialPageRoute(builder: (context) => FinalProfile(userId:profileDataProvider.retUserId()!),));
                 },
                 child: Center(
                     child: Text(reqPages<1?'COMPLETE PROFILE':'SET PROFILE',
@@ -2225,6 +2428,101 @@ class ProfielStatusAndButton  extends StatelessWidget{
   }
 
 }
+
+class CompleteProfilePage extends StatelessWidget {
+  @override
+
+  Widget build(BuildContext context) {
+    final profileDataProvider = Provider.of<ProfileDataProvider>(context);
+    return ProfilePage(reqPage: 1, profileDataProvider: profileDataProvider,);
+  }
+}
+
+class FinalProfile extends StatefulWidget{
+  final String userId;
+  FinalProfile({required this.userId});
+  @override
+  _FinalProfileState createState() => _FinalProfileState();
+}
+
+class _FinalProfileState extends State<FinalProfile> {
+  Map<String, dynamic>? dataset;
+  @override
+  void initState() {
+    super.initState();
+    fetchDataset();
+  }
+  Future<void> fetchDataset() async {
+
+    final String serverUrl = 'http://192.168.146.54:8080'; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/userStoredData/${widget.userId}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Fetched Data ${widget.userId}');
+      setState(() {
+        dataset = data;
+      });
+    } else {
+      // Handle error
+      print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
+  Widget build(BuildContext context) {
+    final profileDataProvider = Provider.of<ProfileDataProvider>(context);
+    return Scaffold(
+      appBar: PreferredSize(
+          preferredSize: Size.fromHeight(0), // Set the preferred height to 0
+          child: AppBar(
+            elevation: 0, // Remove the shadow
+            backgroundColor: Colors.transparent, // Make the background transparent
+          ),
+        ),
+      body: WillPopScope(
+        onWillPop: () async{
+          return false;
+        },
+        child: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
+            child: Center(
+              child: Column(
+                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null),
+                  SizedBox(height: 20,),
+                  CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
+                  SizedBox(height: 20,),
+                  MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,),
+                  SizedBox(height: 30,),
+                  ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
+                  SizedBox(height: 40,),
+                  Container(
+                    width: 360,
+                    child: Center(
+                      child: UserDetailsTable(place:dataset != null ? dataset!['userPlace'] : null,
+                      profession:dataset != null ? dataset!['userProfession'] : null,
+                      age:dataset != null ? dataset!['userAge'] : null,
+                      gender:dataset != null ? dataset!['userGender'] : null,
+                      languageList:dataset != null ? dataset!['userLanguages'] : null,
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 40,),
+                  ExpertCardDetails(),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+
 
 class FilledButton extends StatelessWidget {
   final void Function() onPressed;
