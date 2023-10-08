@@ -17,16 +17,15 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+<<<<<<< HEAD
+=======
+      appBar:VideoAppBar(),
+>>>>>>> safefile
 
       body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            colors: [Colors.black, Colors.black],
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-          ),
-        ),
+        color: Color(0xFF263238),
         child: Column(
+
           children: [
             Expanded(
               child: GridView.builder(
