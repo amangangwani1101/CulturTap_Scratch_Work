@@ -17,10 +17,9 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-<<<<<<< HEAD
-=======
+
       appBar:VideoAppBar(),
->>>>>>> safefile
+
 
       body: Container(
         color: Color(0xFF263238),

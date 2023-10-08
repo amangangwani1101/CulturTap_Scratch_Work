@@ -144,7 +144,7 @@ class _ComposePageState extends State<ComposePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-<<<<<<< HEAD
+
 
 
                       ],
