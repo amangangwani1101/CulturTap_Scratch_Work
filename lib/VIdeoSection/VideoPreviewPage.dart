@@ -1,10 +1,5 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-<<<<<<< HEAD
-import 'package:learn_flutter/SignUp/FourthPage.dart';
-import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
-import 'package:video_player/video_player.dart';
-=======
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -19,7 +14,6 @@ void main() {
     ),
   ));
 }
->>>>>>> protectedfile1
 
 Map<String, List<VideoInfo>> videoData = {};
 
@@ -129,14 +123,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-<<<<<<< HEAD
-
-      appBar:VideoAppBar(),
-
-
-=======
       appBar: VideoAppBar(),
->>>>>>> protectedfile1
       body: Container(
         color: Color(0xFF263238),
         child: Column(
@@ -144,49 +131,41 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
             Expanded(
               child: GridView.builder(
                 gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2, // 2 columns
-                  childAspectRatio: 2 / 4, // Width / Height ratio for videos
+                  crossAxisCount: 2,
+                  childAspectRatio: 2 / 3,
                 ),
                 itemCount: widget.videoPaths.length,
                 itemBuilder: (context, index) {
                   return VideoItem(
                     videoPath: widget.videoPaths[index],
-<<<<<<< HEAD
-=======
                     videoNumber: index + 1,
->>>>>>> protectedfile1
                     onClosePressed: () {
-                      // Display a confirmation dialog before removing the video.
                       showDialog(
                         context: context,
                         builder: (context) {
-<<<<<<< HEAD
-=======
                           Color myHexColor = Color(0xFF263238);
->>>>>>> protectedfile1
                           return AlertDialog(
-                            title: Text('Confirm Video Removal'),
-                            content: Text('Are you sure you want to remove this video?'),
+                            backgroundColor: myHexColor,
+                            icon: Center(child: Image.asset('assets/images/remove.png')),
+                            title: Text('Are You Sure ?', style: TextStyle(color: Colors.white)),
+                            content: Container(
+                              height: 15,
+                              child: Center(child: Text('you are removing a film shoot.', style: TextStyle(color: Colors.white))),
+                            ),
                             actions: [
                               TextButton(
                                 onPressed: () {
-                                  Navigator.of(context).pop(); // Close the dialog
+                                  Navigator.of(context).pop();
                                 },
-                                child: Text('Cancel'),
+                                child: Text('Cancel', style: TextStyle(color: Colors.orange)),
                               ),
                               TextButton(
                                 onPressed: () {
-<<<<<<< HEAD
-                                  // Remove the video and update the UI.
-                                  removeVideo(index);
-                                  Navigator.of(context).pop(); // Close the dialog
-=======
                                   // Remove video logic here
                                   removeVideo(widget.videoPaths[index]);
                                   Navigator.of(context).pop();
->>>>>>> protectedfile1
                                 },
-                                child: Text('Remove'),
+                                child: Text('Remove', style: TextStyle(color: Colors.orange)),
                               ),
                             ],
                           );
@@ -209,7 +188,6 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                   Column(
                     children: [
                       GestureDetector(
-
                         child: Container(
                           margin: EdgeInsets.all(10.0),
                           child: Stack(
@@ -219,8 +197,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                                 width: 60,
                                 height: 60,
                                 child: CircularProgressIndicator(
-                                  value :1,
-
+                                  value: 1,
                                   backgroundColor: Colors.transparent,
                                   valueColor: AlwaysStoppedAnimation<Color>(
                                     Colors.orange,
@@ -233,11 +210,9 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                                 height: 80,
                                 child: IconButton(
                                   icon: Image.asset("assets/images/addNewButton.png"),
-                                  onPressed: (){
+                                  onPressed: () {
                                     Navigator.pop(context);
-
                                   },
-
                                 ),
                               ),
                             ],
@@ -255,23 +230,20 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                     ],
                   ),
                   Column(
-
                     children: [
                       SizedBox(
-
                         child: Container(
-                          height : 100,
-                          width : 80,
-
-                          child:IconButton(
+                          height: 100,
+                          width: 80,
+                          child: IconButton(
                             icon: Image.asset("assets/images/next_button.png"),
-                            onPressed: (){
+                            onPressed: () {
+                              // Navigate to the next page
                               Navigator.push(
                                 context,
-                                MaterialPageRoute(builder: (context) => FourthPage()),
+                                MaterialPageRoute(builder: (context) => ComposePage(videoPaths: widget.videoPaths)),
                               );
                             },
-
                           ),
                         ),
                       ),
@@ -297,13 +269,10 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
 class VideoItem extends StatefulWidget {
   final String videoPath;
-<<<<<<< HEAD
-=======
   final int videoNumber;
->>>>>>> protectedfile1
   final VoidCallback? onClosePressed;
 
-  VideoItem({required this.videoPath, this.onClosePressed});
+  VideoItem({required this.videoPath, required this.videoNumber, this.onClosePressed});
 
   @override
   _VideoItemState createState() => _VideoItemState();
@@ -312,6 +281,7 @@ class VideoItem extends StatefulWidget {
 class _VideoItemState extends State<VideoItem> {
   late VideoPlayerController _controller;
   bool _isPlaying = false;
+  bool _isFullScreen = false;
 
   @override
   void initState() {
@@ -333,49 +303,51 @@ class _VideoItemState extends State<VideoItem> {
     }
   }
 
+  void _toggleFullScreen() {
+    setState(() {
+      _isFullScreen = !_isFullScreen;
+    });
+    if (_isFullScreen) {
+      _controller.setVolume(1.0);
+      _controller.play();
+    } else {
+      _controller.setVolume(0.0);
+      _controller.pause();
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: () {
-        // Toggle play/pause when tapping on the video.
         _togglePlayPause();
       },
-      child: Container(
-        margin: EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          border: Border.all(color: Colors.white, width: 0.0),
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            Stack(
-              alignment: Alignment.center,
-              children: [
-                AspectRatio(
-                  aspectRatio: _controller.value.aspectRatio,
-                  child: VideoPlayer(_controller),
-                ),
-                IconButton(
+      onLongPress: () {
+        _toggleFullScreen();
+      },
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.0),
+        child: Container(
+          margin: EdgeInsets.all(10.0),
+          decoration: BoxDecoration(
+            border: Border.all(color: Colors.white, width: 4.0),
+          ),
+          child: Stack(
+            children: [
+              AspectRatio(
+                aspectRatio: 2 / 3.15,
+                child: VideoPlayer(_controller),
+              ),
+              Align(
+                alignment: Alignment.center,
+                child: IconButton(
                   onPressed: _togglePlayPause,
                   icon: Icon(
                     _isPlaying ? Icons.pause : Icons.play_arrow,
-                    size: 30.0,
+                    size: 40.0,
                     color: Colors.white,
                   ),
                 ),
-<<<<<<< HEAD
-              ],
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                SizedBox(), // Empty space to maintain spacing
-                if (widget.onClosePressed != null)
-                  IconButton(
-                    onPressed: widget.onClosePressed,
-                    icon: Icon(Icons.close),
-
-=======
               ),
               Positioned(
                 top: 8.0,
@@ -409,11 +381,11 @@ class _VideoItemState extends State<VideoItem> {
                     Icons.close_rounded,
                     size: 20.0,
                     color: Colors.white,
->>>>>>> protectedfile1
                   ),
-              ],
-            ),
-          ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

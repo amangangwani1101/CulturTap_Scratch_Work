@@ -124,6 +124,17 @@ class _ComposePageState extends State<ComposePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
+                  SizedBox(height: 50),
+                  Padding(
+                    padding: EdgeInsets.only(left: 26.0),
+                    child: Row(
+                      children: [
+                        Icon(Icons.location_on, color: Colors.white),
+                        SizedBox(width: 8),
+                        Text(
+                          'Location',
+                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                        ),
 
 
 
@@ -145,7 +156,7 @@ class _ComposePageState extends State<ComposePage> {
                       ],
                     ),
                   ),
-                  SizedBox(height: 20),
+                  SizedBox(height: 30),
                   Padding(
                     padding: EdgeInsets.only(left: 26.0),
                     child: Column(
@@ -169,7 +180,7 @@ class _ComposePageState extends State<ComposePage> {
                               child: Text(value, style: TextStyle(color: Colors.white)),
                             );
                           }).toList(),
-                          icon: Icon(Icons.keyboard_arrow_down, color: Colors.white),
+                          icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
                           underline: Container(
                             height: 2,
                             color: Colors.orange,
@@ -185,86 +196,12 @@ class _ComposePageState extends State<ComposePage> {
                       height : 0.5,
                       decoration: BoxDecoration(
                         color : Colors.grey,
-=======
-                SizedBox(height: 50),
-                Padding(
-                  padding: EdgeInsets.only(left: 26.0),
-                  child: Row(
-                    children: [
-                      Icon(Icons.location_on, color: Colors.white),
-                      SizedBox(width: 8),
-                      Text(
-                        'Location',
-                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
->>>>>>> safefile
                       ),
-
-
-
-                    ],
-
-                  ),
-                ),
-
-                Padding(
-                  padding: EdgeInsets.only(left: 16.0),
-                  child: Row(
-                    children: [
-
-                      SizedBox(width: 18),
-                      Text(
-                        liveLocation.isNotEmpty ? liveLocation : 'Fetching Location...',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 30),
-                Padding(
-                  padding: EdgeInsets.only(left: 26.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Differentiate this experience as ',
-                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                      ),
-                      DropdownButton<String>(
-                        value: selectedLabel,
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedLabel = newValue!;
-                          });
-                        },
-                        items: <String>['Regular Story', 'Business Product']
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value, style: TextStyle(color: Colors.white)),
-                          );
-                        }).toList(),
-                        icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
-                        underline: Container(
-                          height: 2,
-                          color: Colors.orange,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Padding(
-                  padding : EdgeInsets.all(26.0),
-                  child : Container(
-                    height : 0.5,
-                    decoration: BoxDecoration(
-                      color : Colors.grey,
                     ),
+
                   ),
 
-                ),
-
-              ],),
+                ],),
 
               //for regular story
 
@@ -808,7 +745,7 @@ class _ComposePageState extends State<ComposePage> {
                                   });
                                 },
                                 fillColor: MaterialStateColor.resolveWith((states) => Colors.orange),
-                               // Background color when selected
+                                // Background color when selected
                               ),
                               Text('Yes',style : TextStyle(color : Colors.white)),
                               Radio<String>(
@@ -838,9 +775,9 @@ class _ComposePageState extends State<ComposePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                              'Offered price of your product or Service',
-                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                            ),
+                            'Offered price of your product or Service',
+                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
 
 
                           Container(
