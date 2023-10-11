@@ -16,6 +16,7 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
           Padding(
             padding: EdgeInsets.only(left: 16.0), // Adjust margin as needed
             child: TextButton(
+
               onPressed: () {
                 _showExitConfirmationDialog(context); // Show the exit confirmation dialog
               },
@@ -44,7 +45,7 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
             ),
           ),
           Container(
-            width: 80,
+            width: 50,
           ),
           // You can add more buttons or widgets here
         ],
@@ -57,16 +58,21 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          backgroundColor: Color(0xFF263238),
+
 
           content: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
+              SizedBox(height: 56),
               Center(
-                child: Image.asset('your_image_path_here'), // Replace with your image path
+                child: Image.asset('assets/images/remove.png'), // Replace with your image path
+
               ),
-              SizedBox(height: 16),
-              Text('Are You Sure?'),
-              Text('Before going back you need to save your story as draft..'),
+              SizedBox(height: 36),
+              Text('Are You Sure?', style : TextStyle(fontWeight: FontWeight.bold, color:Colors.white, fontSize:30)),
+              SizedBox(height : 5),
+              Text('Before going back you need to save your story as draft..',style : TextStyle(fontWeight: FontWeight.bold,fontSize:15, color:Colors.white) ),
             ],
           ),
           actions: [
@@ -75,14 +81,14 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
                 // Add your save to draft functionality here
                 Navigator.of(context).pop();
               },
-              child: Text('Save to Draft'),
+              child: Text('Draft',style:TextStyle(fontWeight: FontWeight.bold, color : Colors.orange)),
             ),
             TextButton(
               onPressed: () {
                 Navigator.of(context).pop(); // Close the dialog
                 Navigator.of(context).pop(); // Close the screen
               },
-              child: Text('Back'),
+              child: Text('Back',style:TextStyle(fontWeight: FontWeight.bold, color : Colors.orange,) ),
             ),
           ],
         );
