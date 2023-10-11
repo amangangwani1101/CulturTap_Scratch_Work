@@ -76,29 +76,9 @@ class _ComposePageState extends State<ComposePage> {
         setState(() {});
       });
 
-    fetchUserLocation();
+
   }
 
-
-
-
-  // Function to fetch the user's location and update liveLocation
-  Future<void> fetchUserLocation() async {
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-        desiredAccuracy: LocationAccuracy.best,
-      );
-
-      // Format the user's location into a string
-      String location = 'Lat: ${position.latitude}, Long: ${position.longitude}';
-
-      setState(() {
-        liveLocation = location;
-      });
-    } catch (e) {
-      print('Error fetching location: $e');
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

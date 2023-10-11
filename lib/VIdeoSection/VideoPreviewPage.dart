@@ -1,24 +1,46 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
-import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
-import 'package:learn_flutter/SignUp/FourthPage.dart';
-import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
+import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 
 void main() {
   runApp(MaterialApp(
     home: VideoPreviewPage(
-      videoPaths: ['video1.mp4', 'video2.mp4', 'video3.mp4'], // Example video paths
+      videoPaths: [],
+      userLocation: '',
+      latitude: 0.0,
+      longitude: 0.0,
     ),
   ));
 }
 
+Map<String, List<VideoInfo>> videoData = {};
+
+class VideoInfo {
+  final String videoUrl;
+  final double latitude;
+  final double longitude;
+
+  VideoInfo({
+    required this.videoUrl,
+    required this.latitude,
+    required this.longitude,
+  });
+}
+
 class VideoPreviewPage extends StatefulWidget {
   final List<String> videoPaths;
+  final String userLocation;
+  final double latitude;
+  final double longitude;
 
-  VideoPreviewPage({required this.videoPaths});
+  VideoPreviewPage({
+    required this.videoPaths,
+    required this.userLocation,
+    required this.latitude,
+    required this.longitude,
+  });
 
   @override
   _VideoPreviewPageState createState() => _VideoPreviewPageState();
@@ -26,14 +48,85 @@ class VideoPreviewPage extends StatefulWidget {
 
 class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
+  void initState() {
+    super.initState();
+
+    // Add videos to videoData when the page loads
+
+    for (int i = 0; i < widget.videoPaths.length; i++) {
+      addVideo(widget.userLocation, widget.videoPaths[i], widget.latitude, widget.longitude);
+      print("this is the given data");
+
+    }
+  }
+
+  void addVideo(String location, String videoUrl, double latitude, double longitude) {
+    final videoInfo = VideoInfo(
+      videoUrl: videoUrl,
+      latitude: latitude,
+      longitude: longitude,
+    );
+
+    // Check if the location already exists in the map
+    if (videoData.containsKey(location)) {
+      // If the location exists, add the video info to the existing list
+      videoData[location]!.add(videoInfo);
+    } else {
+      // If the location doesn't exist, create a new list with the video info
+      videoData[location] = [videoInfo];
+    }
+  }
+
+  void removeVideo(String videoPath) {
+    setState(() {
+      // Find the location associated with the videoPath
+      String location = widget.userLocation;
+
+      if (videoData.containsKey(location)) {
+        // Find the index of the video with the given path within the location
+        int index = videoData[location]!.indexWhere((videoInfo) => videoInfo.videoUrl == videoPath);
+
+        if (index != -1) {
+          // Remove the video info from videoData
+          videoData[location]!.removeAt(index);
+
+          // If there are no videos left for that location, remove the location key
+          if (videoData[location]!.isEmpty) {
+            videoData.remove(location);
+          }
+        }
+      }
+
+      // Remove the video path from widget.videoPaths
+      int pathIndex = widget.videoPaths.indexOf(videoPath);
+      if (pathIndex != -1) {
+        widget.videoPaths.removeAt(pathIndex);
+      }
+    });
+
+    // Force an immediate update of the UI by pushing and popping a new instance of the current page
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (context) => VideoPreviewPage(
+          videoPaths: widget.videoPaths,
+          userLocation: widget.userLocation,
+          latitude: widget.latitude,
+          longitude: widget.longitude,
+        ),
+      ),
+    );
+  }
+
+
+
+
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar:VideoAppBar(),
-
+      appBar: VideoAppBar(),
       body: Container(
         color: Color(0xFF263238),
         child: Column(
-
           children: [
             Expanded(
               child: GridView.builder(
@@ -45,13 +138,12 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                 itemBuilder: (context, index) {
                   return VideoItem(
                     videoPath: widget.videoPaths[index],
-                    videoNumber: index + 1, // Add the video number
+                    videoNumber: index + 1,
                     onClosePressed: () {
                       showDialog(
                         context: context,
                         builder: (context) {
                           Color myHexColor = Color(0xFF263238);
-
                           return AlertDialog(
                             backgroundColor: myHexColor,
                             icon: Center(child: Image.asset('assets/images/remove.png')),
@@ -70,7 +162,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                               TextButton(
                                 onPressed: () {
                                   // Remove video logic here
-                                  removeVideo(index);
+                                  removeVideo(widget.videoPaths[index]);
                                   Navigator.of(context).pop();
                                 },
                                 child: Text('Remove', style: TextStyle(color: Colors.orange)),
@@ -173,16 +265,11 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       ),
     );
   }
-
-  void removeVideo(int index) {
-    setState(() {
-      widget.videoPaths.removeAt(index);
-    });
-  }
 }
+
 class VideoItem extends StatefulWidget {
   final String videoPath;
-  final int videoNumber; // Add a video number property
+  final int videoNumber;
   final VoidCallback? onClosePressed;
 
   VideoItem({required this.videoPath, required this.videoNumber, this.onClosePressed});
@@ -262,32 +349,29 @@ class _VideoItemState extends State<VideoItem> {
                   ),
                 ),
               ),
-              // Add the video number on the left side
               Positioned(
                 top: 8.0,
                 left: 8.0,
                 child: Container(
                   decoration: BoxDecoration(
-                    shape: BoxShape.circle, // This makes the container circular
+                    shape: BoxShape.circle,
                     border: Border.all(
-                      color: Colors.white, // Border color
-                      width: 2.0, // Border width
+                      color: Colors.white,
+                      width: 2.0,
                     ),
                   ),
                   child: CircleAvatar(
-                    backgroundColor: Colors.transparent, // Background color of the CircleAvatar
+                    backgroundColor: Colors.transparent,
                     child: Text(
                       widget.videoNumber.toString(),
                       style: TextStyle(
-                        color: Colors.white, // Text color
+                        color: Colors.white,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                )
-
+                ),
               ),
-              // Add the remove button (position unchanged)
               Positioned(
                 top: 8.0,
                 right: 8.0,
@@ -311,20 +395,5 @@ class _VideoItemState extends State<VideoItem> {
   void dispose() {
     super.dispose();
     _controller.dispose();
-  }
-}
-
-
-class FourthPage extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Fourth Page'),
-      ),
-      body: Center(
-        child: Text('This is the Fourth Page.'),
-      ),
-    );
   }
 }

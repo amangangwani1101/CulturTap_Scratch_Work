@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewPage.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'dart:io';
 
@@ -32,6 +33,10 @@ class CameraApp extends StatefulWidget {
 }
 
 class _CameraAppState extends State<CameraApp> {
+
+  Geolocator _geolocator = Geolocator();
+  Position? _startPosition;
+
   late CameraController _controller;
   bool isRecording = false;
   bool _isRecording = false;
@@ -39,6 +44,9 @@ class _CameraAppState extends State<CameraApp> {
   int _recordDurationInSeconds = 60;
   double _currentProgress = 0.0;
   List<String> recordedVideoPaths = [];
+  String liveLocation = '';
+  double liveLatitude = 0.0;
+  double liveLongitude = 0.0;
 
   @override
   void initState() {
@@ -58,6 +66,29 @@ class _CameraAppState extends State<CameraApp> {
     super.dispose();
   }
 
+  Future<void> fetchUserLocation() async {
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+      );
+
+      // Format the user's location into a string
+      String location = 'Lat: ${position.latitude}, Long: ${position.longitude}';
+      double latitude = position.latitude; // Get the latitude from the user's location
+      double longitude = position.longitude; // Get the longitude from the user's location
+
+
+
+      setState(() {
+        liveLocation = location;
+        liveLatitude = latitude;
+        liveLongitude = longitude;
+      });
+    } catch (e) {
+      print('Error fetching location: $e');
+    }
+  }
+
   Future<void> saveVideo(File videoFile) async {
     final Directory appDirectory = await getApplicationDocumentsDirectory();
     final String videoPath = '${appDirectory.path}/recorded_video.mp4';
@@ -65,6 +96,7 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void startRecording() async {
+    fetchUserLocation();
     await _controller.startVideoRecording();
     setState(() {
       _isRecording = true;
@@ -100,7 +132,7 @@ class _CameraAppState extends State<CameraApp> {
       // Navigate to the Video Preview page using the navigatorKey
       navigatorKey.currentState?.push(
         MaterialPageRoute(
-          builder: (context) => VideoPreviewPage(videoPaths: recordedVideoPaths),
+          builder: (context) => VideoPreviewPage(videoPaths: recordedVideoPaths,userLocation: liveLocation,latitude : liveLatitude,longitude : liveLongitude),
         ),
       );
     }
@@ -125,6 +157,7 @@ class _CameraAppState extends State<CameraApp> {
     if (_controller.value.isStreamingImages) {
       await _controller.stopImageStream();
     }
+
 
     await _controller.dispose();
     _controller = CameraController(
