@@ -36,10 +36,14 @@ class _CameraAppState extends State<CameraApp> {
 
   Geolocator _geolocator = Geolocator();
   Position? _startPosition;
+  bool hasRecordedVideos = false; // Add this variable
 
   late CameraController _controller;
-  bool isRecording = false;
   bool _isRecording = false;
+  int _remainingRecordingTime = 60;
+  bool _showRecordingMessage = false;
+  late Timer? _countdownTimer;
+
   double _progressValue = 0.0;
   int _recordDurationInSeconds = 60;
   double _currentProgress = 0.0;
@@ -51,6 +55,10 @@ class _CameraAppState extends State<CameraApp> {
   @override
   void initState() {
     super.initState();
+
+    // Check if at least one video has been recorded
+
+
     _controller = CameraController(widget.camera, ResolutionPreset.high);
     _controller.initialize().then((_) {
       if (!mounted) {
@@ -64,6 +72,16 @@ class _CameraAppState extends State<CameraApp> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void updateCloseButtonVisibility() {
+    setState(() {
+      if (recordedVideoPaths.isNotEmpty) {
+        hasRecordedVideos = true;
+      } else {
+        hasRecordedVideos = false;
+      }
+    });
   }
 
   Future<void> fetchUserLocation() async {
@@ -98,9 +116,33 @@ class _CameraAppState extends State<CameraApp> {
   void startRecording() async {
     fetchUserLocation();
     await _controller.startVideoRecording();
+
     setState(() {
       _isRecording = true;
       _currentProgress = 0.0;
+    });
+
+
+
+
+    _showRecordingMessage = true;
+    Timer(Duration(seconds: 1), () {
+      if (mounted) {
+        setState(() {
+          _showRecordingMessage = false;
+        });
+      }
+    });
+
+    _remainingRecordingTime = 60;
+    _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      if (_remainingRecordingTime > 0) {
+        setState(() {
+          _remainingRecordingTime--;
+        });
+      } else {
+        timer.cancel();
+      }
     });
 
     Timer.periodic(Duration(milliseconds: 100), (timer) {
@@ -115,6 +157,22 @@ class _CameraAppState extends State<CameraApp> {
     });
   }
 
+  // Function to navigate to the video preview page
+  void navigateToPreviewPage() {
+    navigatorKey.currentState?.push(
+      MaterialPageRoute(
+        builder: (context) => VideoPreviewPage(
+          videoPaths: recordedVideoPaths,
+          userLocation: liveLocation,
+          latitude: liveLatitude,
+          longitude: liveLongitude,
+        ),
+      ),
+    );
+  }
+
+
+
   void stopRecording() async {
     XFile? videoFile = await _controller.stopVideoRecording();
     setState(() {
@@ -123,6 +181,7 @@ class _CameraAppState extends State<CameraApp> {
     });
 
     if (videoFile != null) {
+      updateCloseButtonVisibility();
       String videoPath = videoFile.path;
       print("path of video file has to be printed" + videoPath);
       saveVideo(File(videoPath));
@@ -132,7 +191,13 @@ class _CameraAppState extends State<CameraApp> {
       // Navigate to the Video Preview page using the navigatorKey
       navigatorKey.currentState?.push(
         MaterialPageRoute(
-          builder: (context) => VideoPreviewPage(videoPaths: recordedVideoPaths,userLocation: liveLocation,latitude : liveLatitude,longitude : liveLongitude),
+          builder: (context) => VideoPreviewPage(
+            videoPaths: recordedVideoPaths,
+            userLocation: liveLocation,
+            latitude : liveLatitude,
+            longitude : liveLongitude ,
+
+          ),
         ),
       );
     }
@@ -168,6 +233,7 @@ class _CameraAppState extends State<CameraApp> {
 
     await _controller.initialize();
     setState(() {});
+
   }
 
   @override
@@ -181,14 +247,58 @@ class _CameraAppState extends State<CameraApp> {
         fit: StackFit.expand,
         children: <Widget>[
           CameraPreview(_controller),
-          Text(
-            _isRecording ? 'Recording...' : '',
-            style: TextStyle(
-              color : Colors.white60,
-              fontSize: 24.0,
-              fontWeight: FontWeight.bold,
+
+          if (hasRecordedVideos)
+            Positioned(
+              top: 50,
+              right: 30,
+              child: GestureDetector(
+                onTap: navigateToPreviewPage,
+                child: Icon(
+                  Icons.close,
+                  color: Colors.white,
+                  size: 30,
+                ),
+              ),
+            ),
+
+
+          Positioned(
+            bottom : 190,
+            left: 10,
+            right: 0,
+            child: Column(
+              children: <Widget>[
+                Text(
+                  _showRecordingMessage ? 'Recording Started' : '',
+                  style: TextStyle(
+                    color: Colors.white54,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                Text(
+                  _isRecording ? 'Time Remaining: $_remainingRecordingTime' : '',
+                  style: TextStyle(
+                    color: Colors.white54,
+                    fontSize: 18.0,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ],
             ),
           ),
+          Positioned(
+            bottom: 30,
+            left: 0,
+            right: 0,
+            child: Container(
+              // ... rest of your code for the "Start Filming" button and flip camera button
+            ),
+          ),
+
+
+
           Positioned(
             bottom: 30,
             left: 0,
