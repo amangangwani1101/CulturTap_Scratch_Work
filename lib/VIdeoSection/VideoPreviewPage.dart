@@ -1,19 +1,12 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 
-void main() {
-  runApp(MaterialApp(
-    home: VideoPreviewPage(
-      videoPaths: [],
-      userLocation: '',
-      latitude: 0.0,
-      longitude: 0.0,
-    ),
-  ));
-}
+
+
 
 Map<String, List<VideoInfo>> videoData = {};
 
@@ -35,6 +28,7 @@ class VideoPreviewPage extends StatefulWidget {
   final double latitude;
   final double longitude;
 
+
   VideoPreviewPage({
     required this.videoPaths,
     required this.userLocation,
@@ -47,6 +41,8 @@ class VideoPreviewPage extends StatefulWidget {
 }
 
 class _VideoPreviewPageState extends State<VideoPreviewPage> {
+  double? firstVideoLatitude;
+  double? firstVideoLongitude;
   @override
   void initState() {
     super.initState();
@@ -55,9 +51,19 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
     for (int i = 0; i < widget.videoPaths.length; i++) {
       addVideo(widget.userLocation, widget.videoPaths[i], widget.latitude, widget.longitude);
-      print("this is the given data");
+
+      // Save the latitude and longitude of the first video
+      if (i == 0) {
+        firstVideoLatitude = widget.latitude;
+        firstVideoLongitude = widget.longitude;
+      }
+
+
+
 
     }
+
+
   }
 
   void addVideo(String location, String videoUrl, double latitude, double longitude) {
@@ -67,14 +73,9 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       longitude: longitude,
     );
 
-    // Check if the location already exists in the map
-    if (videoData.containsKey(location)) {
-      // If the location exists, add the video info to the existing list
-      videoData[location]!.add(videoInfo);
-    } else {
-      // If the location doesn't exist, create a new list with the video info
-      videoData[location] = [videoInfo];
-    }
+    videoData[location] = [videoInfo];
+
+
   }
 
   void removeVideo(String videoPath) {
@@ -104,17 +105,12 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       }
     });
 
-    // Force an immediate update of the UI by pushing and popping a new instance of the current page
-    Navigator.of(context).pushReplacement(
-      MaterialPageRoute(
-        builder: (context) => VideoPreviewPage(
-          videoPaths: widget.videoPaths,
-          userLocation: widget.userLocation,
-          latitude: widget.latitude,
-          longitude: widget.longitude,
-        ),
-      ),
-    );
+    if (widget.videoPaths.isEmpty) {
+      Navigator.pop(context);
+    }
+
+
+
   }
 
 
@@ -239,10 +235,20 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                             icon: Image.asset("assets/images/next_button.png"),
                             onPressed: () {
                               // Navigate to the next page
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => ComposePage(videoPaths: widget.videoPaths)),
-                              );
+                              if (firstVideoLatitude != null && firstVideoLongitude != null) {
+                                // Navigate to the custom page with latitude and longitude
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => ComposePage(
+                                      latitude: firstVideoLatitude!,
+                                      longitude: firstVideoLongitude!,
+                                      videoPaths: widget.videoPaths,
+                                      videoData: videoData,
+                                    ),
+                                  ),
+                                );
+                              }
                             },
                           ),
                         ),

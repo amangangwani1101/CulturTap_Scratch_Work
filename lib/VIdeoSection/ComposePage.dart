@@ -2,14 +2,26 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
-import 'package:geolocator/geolocator.dart';
-
+import 'package:geocoding/geocoding.dart';
 import 'dart:math';
+import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
+import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewPage.dart';
+
+
 
 class ComposePage extends StatefulWidget {
   final List<String> videoPaths;
+  final double latitude;
+  final double longitude;
+  final Map<String, List<VideoInfo>> videoData;
 
-  ComposePage({required this.videoPaths});
+  ComposePage({
+    required this.latitude,
+    required this.longitude,
+    required this.videoPaths,
+    required this.videoData,
+  });
 
   @override
   _ComposePageState createState() => _ComposePageState();
@@ -30,7 +42,12 @@ class _ComposePageState extends State<ComposePage> {
   String reviewText = ''; // New input for "Review This Place"
   int starRating = 0; // New input for star rating
   String selectedVisibility = 'Public';
-  String liveLocation = '';
+  String liveLocation = " ";
+  late DatabaseHelper _databaseHelper;
+
+
+
+
 
 
   String storyTitle = '';
@@ -41,6 +58,61 @@ class _ComposePageState extends State<ComposePage> {
 
   String transportationPricing = "";
 
+<<<<<<< HEAD
+=======
+
+
+  Future<void> saveDraft() async {
+    final database = await DatabaseHelper.instance.database;
+    final draft = Draft(
+      latitude: widget.latitude,
+      longitude: widget.longitude,
+      videoPaths: widget.videoPaths.join(','),
+      selectedLabel: selectedLabel,
+      selectedCategory: selectedCategory,
+      selectedGenre: selectedGenre,
+      experienceDescription: experienceDescription,
+      selectedLoveAboutHere: selectedLoveAboutHere.join(','),
+      dontLikeAboutHere: dontLikeAboutHere,
+      selectedaCategory: selectedaCategory,
+      reviewText: reviewText,
+      starRating: starRating,
+      selectedVisibility: selectedVisibility,
+      storyTitle: storyTitle,
+      productDescription: productDescription,
+    );
+
+    final id = await database.insert('drafts', draft.toMap());
+    print('Saved draft with ID: $id');
+  }
+
+
+
+
+  //to get and print location name
+  Future<void> getAndPrintLocationName(double latitude, double longitude) async {
+    try {
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
+      if (placemarks.isNotEmpty) {
+        Placemark first = placemarks.first;
+        String locationName = "${first.name}, ${first.locality}, ${first.administrativeArea}";
+        setState(() {
+          liveLocation = locationName;
+        });
+      } else {
+        setState(() {
+          liveLocation = 'Location not found';
+        });
+      }
+    } catch (e) {
+      print("Error: $e");
+      setState(() {
+        liveLocation = 'Error fetching location';
+      });
+    }
+  }
+
+>>>>>>> workingbranch
   List<String> currencyCode = [
     '₪', // Israeli New Shekel
     '¥', // Japanese Yen
@@ -70,6 +142,21 @@ class _ComposePageState extends State<ComposePage> {
   @override
   void initState() {
     super.initState();
+    _databaseHelper = DatabaseHelper.instance;
+    print("Video Data in initState: ${widget.videoData}");
+
+    if (videoData.isNotEmpty) {
+      final location = videoData.keys.first; // Get the first location in the map
+      final firstVideoInfo = videoData[location]![0];
+// Get the first VideoInfo in the list
+
+      print("Video Data in initState: ${firstVideoInfo.videoUrl}");
+
+    }
+
+
+
+    getAndPrintLocationName(widget.latitude, widget.longitude);
     randomIndex = Random().nextInt(widget.videoPaths.length);
     _thumbnailController = VideoPlayerController.file(File(widget.videoPaths[randomIndex]))
       ..initialize().then((_) {
@@ -78,6 +165,8 @@ class _ComposePageState extends State<ComposePage> {
 
 
   }
+
+
 
 
   @override
@@ -124,6 +213,7 @@ class _ComposePageState extends State<ComposePage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
+<<<<<<< HEAD
                   SizedBox(height: 50),
                   Padding(
                     padding: EdgeInsets.only(left: 26.0),
@@ -134,6 +224,79 @@ class _ComposePageState extends State<ComposePage> {
                         Text(
                           'Location',
                           style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+=======
+                SizedBox(height: 50),
+                Padding(
+                  padding: EdgeInsets.only(left: 26.0),
+                  child: Row(
+                    children: [
+                      Icon(Icons.location_on, color: Colors.white),
+                      SizedBox(width: 8),
+                      Text(
+                        'Location',
+                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
+                      ),
+
+
+
+                    ],
+
+                  ),
+                ),
+
+                Padding(
+                  padding: EdgeInsets.only(left: 16.0),
+                  child: Row(
+                    children: [
+
+                      SizedBox(width: 18),
+                      Text(
+                        liveLocation.isNotEmpty ? liveLocation : 'Fetching Location...',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 30),
+                Padding(
+                  padding: EdgeInsets.only(left: 26.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Differentiate this experience as ',
+                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                      Theme(
+                        data: Theme.of(context).copyWith(
+                          canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                        ),
+
+                        child: Theme(
+                          data: Theme.of(context).copyWith(
+                            canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                          ),
+                          child: DropdownButton<String>(
+                            value: selectedLabel,
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                selectedLabel = newValue!;
+                              });
+                            },
+                            items: <String>['Regular Story', 'Business Product']
+                                .map<DropdownMenuItem<String>>((String value) {
+                              return DropdownMenuItem<String>(
+                                value: value,
+                                child: Text(value, style: TextStyle(color: Colors.white)),
+                              );
+                            }).toList(),
+                            icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                            underline: Container(
+                              height: 2,
+                              color: Colors.orange,
+                            ),
+                          ),
+>>>>>>> workingbranch
                         ),
 
 
@@ -212,7 +375,6 @@ class _ComposePageState extends State<ComposePage> {
                   children: [
 
 
-
                     //category for regular stories
                     // Padding(
                     //   padding: EdgeInsets.only(left: 26.0),
@@ -246,6 +408,8 @@ class _ComposePageState extends State<ComposePage> {
                     //     ],
                     //   ),
                     // ),
+
+
                     SizedBox(height: 20),
 
                     //genre for regular story
@@ -258,24 +422,29 @@ class _ComposePageState extends State<ComposePage> {
                             'Genre',
                             style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                           ),
-                          DropdownButton<String>(
-                            value: selectedGenre,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedGenre = newValue!;
-                              });
-                            },
-                            items: <String>['Genre 1', 'Genre 2', 'Genre 3']
-                                .map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value, style: TextStyle(color: Colors.white)),
-                              );
-                            }).toList(),
-                            icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
-                            underline: Container(
-                              height: 2,
-                              color: Colors.orange,
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                            ),
+                            child: DropdownButton<String>(
+                              value: selectedGenre,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedGenre = newValue!;
+                                });
+                              },
+                              items: <String>['Genre 1', 'Genre 2', 'Genre 3']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value, style: TextStyle(color: Colors.white)),
+                                );
+                              }).toList(),
+                              icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                              underline: Container(
+                                height: 2,
+                                color: Colors.orange,
+                              ),
                             ),
                           ),
                         ],
@@ -547,37 +716,43 @@ class _ComposePageState extends State<ComposePage> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Make this story' , style: TextStyle(fontSize: 18, color : Colors.white),),
+                          SizedBox(height : 10),
                           Container(
 
 
                             child: Row(
                               children: [
-                                DropdownButton<String>(
-                                  value: selectedVisibility,
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedVisibility = newValue!;
-                                    });
-                                  },
-                                  items: <String>['Public', 'Private']
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Row(
-                                        children: [
-                                          // Icons for "Public" and "Private"
-                                          value == 'Public'
-                                              ? Icon(Icons.public, color: Colors.black)
-                                              : Icon(Icons.lock, color: Colors.black),
-                                          SizedBox(width: 5),
-                                          Text(value, style: TextStyle(color: Colors.black)),
-                                          SizedBox(width: 10),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                  icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                    canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: selectedVisibility,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedVisibility = newValue!;
+                                      });
+                                    },
+                                    items: <String>['Public', 'Private']
+                                        .map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Row(
+                                          children: [
+                                            // Icons for "Public" and "Private"
+                                            value == 'Public'
+                                                ? Icon(Icons.public, color: Colors.white)
+                                                : Icon(Icons.lock, color: Colors.white),
+                                            SizedBox(width: 5),
+                                            Text(value, style: TextStyle(color: Colors.white)),
+                                            SizedBox(width: 10),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                    icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
 
+                                  ),
                                 ),
                               ],
                             ),
@@ -594,6 +769,8 @@ class _ComposePageState extends State<ComposePage> {
 
                 ),
               ),
+
+
 
               //for business development
 
@@ -615,28 +792,33 @@ class _ComposePageState extends State<ComposePage> {
                             'Category',
                             style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                           ),
-                          DropdownButton<String>(
-                            value: selectedaCategory,
-                            onChanged: (String? newValue) {
-                              setState(() {
-                                selectedaCategory = newValue!;
-                              });
-                            },
-                            items: <String>[
-                              'Select', // Ensure there's exactly one 'Select' item
-                              'Option 1',
-                              'Option 2',
-                              'Option 3',
-                            ].map<DropdownMenuItem<String>>((String value) {
-                              return DropdownMenuItem<String>(
-                                value: value,
-                                child: Text(value, style: TextStyle(color: Colors.white)),
-                              );
-                            }).toList(),
-                            icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
-                            underline: Container(
-                              height: 2,
-                              color: Colors.orange,
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                            ),
+                            child: DropdownButton<String>(
+                              value: selectedaCategory,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedaCategory = newValue!;
+                                });
+                              },
+                              items: <String>[
+                                'Select', // Ensure there's exactly one 'Select' item
+                                'Option 1',
+                                'Option 2',
+                                'Option 3',
+                              ].map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value, style: TextStyle(color: Colors.white)),
+                                );
+                              }).toList(),
+                              icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                              underline: Container(
+                                height: 2,
+                                color: Colors.orange,
+                              ),
                             ),
                           ),
                         ],
@@ -786,23 +968,28 @@ class _ComposePageState extends State<ComposePage> {
                               children: [
                                 // Country code dropdown
                                 SizedBox(width : 5),
-                                DropdownButton<String>(
-                                  value: _selectedCurrencyCode,
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      _selectedCurrencyCode = newValue!;
-                                    });
-                                  },
-                                  items: currencyCode.map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Text(
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                    canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: _selectedCurrencyCode,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        _selectedCurrencyCode = newValue!;
+                                      });
+                                    },
+                                    items: currencyCode.map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(
 
-                                        value,
-                                        style: TextStyle(color: Colors.white), // Set text color to white
-                                      ),
-                                    );
-                                  }).toList(),
+                                          value,
+                                          style: TextStyle(color: Colors.white), // Set text color to white
+                                        ),
+                                      );
+                                    }).toList(),
+                                  ),
                                 ),
                                 SizedBox(width: 5), // Add spacing between the dropdown and input field
                                 // Phone number input field
@@ -888,32 +1075,37 @@ class _ComposePageState extends State<ComposePage> {
 
                             child: Row(
                               children: [
-                                DropdownButton<String>(
-                                  value: selectedVisibility,
-                                  onChanged: (String? newValue) {
-                                    setState(() {
-                                      selectedVisibility = newValue!;
-                                    });
-                                  },
-                                  items: <String>['Public', 'Private']
-                                      .map<DropdownMenuItem<String>>((String value) {
-                                    return DropdownMenuItem<String>(
-                                      value: value,
-                                      child: Row(
-                                        children: [
-                                          // Icons for "Public" and "Private"
-                                          value == 'Public'
-                                              ? Icon(Icons.public, color: Colors.white)
-                                              : Icon(Icons.lock, color: Colors.white),
-                                          SizedBox(width: 5),
-                                          Text(value, style: TextStyle(color: Colors.white)),
-                                          SizedBox(width: 10),
-                                        ],
-                                      ),
-                                    );
-                                  }).toList(),
-                                  icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                Theme(
+                                  data: Theme.of(context).copyWith(
+                                    canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                  ),
+                                  child: DropdownButton<String>(
+                                    value: selectedVisibility,
+                                    onChanged: (String? newValue) {
+                                      setState(() {
+                                        selectedVisibility = newValue!;
+                                      });
+                                    },
+                                    items: <String>['Public', 'Private']
+                                        .map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Row(
+                                          children: [
+                                            // Icons for "Public" and "Private"
+                                            value == 'Public'
+                                                ? Icon(Icons.public, color: Colors.white)
+                                                : Icon(Icons.lock, color: Colors.white),
+                                            SizedBox(width: 5),
+                                            Text(value, style: TextStyle(color: Colors.white)),
+                                            SizedBox(width: 10),
+                                          ],
+                                        ),
+                                      );
+                                    }).toList(),
+                                    icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
 
+                                  ),
                                 ),
                               ],
                             ),
@@ -938,6 +1130,8 @@ class _ComposePageState extends State<ComposePage> {
                 ),
               ),
 
+
+
               //save draft or publish button
               Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -950,8 +1144,8 @@ class _ComposePageState extends State<ComposePage> {
                           width: 156,
                           height: 63,
                           child: ElevatedButton(
-                            onPressed: () {
-                              // Implement the functionality for saving draft here
+                            onPressed: () async{
+                              await saveDraft();
                               setState(() {
                                 isSaveDraftClicked = !isSaveDraftClicked;
                                 isPublishClicked = false; // Reset the other button's state
@@ -1039,7 +1233,7 @@ class _ComposePageState extends State<ComposePage> {
 void main() {
   runApp(MaterialApp(
     home: Scaffold(
-      body: ComposePage(videoPaths: ['video1.mp4', 'video2.mp4']),
+      body: ComposePage(videoPaths: ['video1.mp4', 'video2.mp4'], latitude: 0.0, longitude: 0.0,videoData: {},),
     ),
   ));
 }
