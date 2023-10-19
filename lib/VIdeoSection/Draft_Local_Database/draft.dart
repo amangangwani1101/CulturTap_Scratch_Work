@@ -15,6 +15,7 @@ class Draft {
   String selectedVisibility;
   String storyTitle;
   String productDescription;
+  String liveLocation;
 
   Draft({
     this.id,
@@ -33,6 +34,7 @@ class Draft {
     required this.selectedVisibility,
     required this.storyTitle,
     required this.productDescription,
+    required this.liveLocation,
   });
 
   // Named constructor to create a Draft object from a map
@@ -54,6 +56,7 @@ class Draft {
       selectedVisibility: map['selectedVisibility'],
       storyTitle: map['storyTitle'],
       productDescription: map['productDescription'],
+      liveLocation: map['liveLocation'],
     );
   }
 
@@ -76,6 +79,7 @@ class Draft {
       'selectedVisibility': selectedVisibility,
       'storyTitle': storyTitle,
       'productDescription': productDescription,
+      'liveLocation' : liveLocation,
     };
   }
 }

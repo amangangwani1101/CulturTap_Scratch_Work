@@ -58,6 +58,7 @@ class _CameraAppState extends State<CameraApp> {
   void initState() {
     super.initState();
 
+
     // Check if at least one video has been recorded
 
 
@@ -86,7 +87,19 @@ class _CameraAppState extends State<CameraApp> {
     });
   }
 
+  Future<void> requestLocationPermission() async {
+    var status = await Permission.location.request();
+    if (status.isGranted) {
+      // Location permission granted, you can now fetch the user's location.
+      fetchUserLocation();
+    } else if (status.isDenied) {
+      // The user denied the location permission. You should handle this case.
+      // You might want to display a message to the user explaining why location access is needed.
+    }
+  }
+
   Future<void> fetchUserLocation() async {
+    print('location fetching started');
     try {
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best,
@@ -116,8 +129,9 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void startRecording() async {
-    fetchUserLocation();
+
     await _controller.startVideoRecording();
+    requestLocationPermission();
 
     setState(() {
       _isRecording = true;
@@ -168,6 +182,7 @@ class _CameraAppState extends State<CameraApp> {
           userLocation: liveLocation,
           latitude: liveLatitude,
           longitude: liveLongitude,
+
         ),
       ),
     );

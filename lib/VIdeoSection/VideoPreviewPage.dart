@@ -5,7 +5,7 @@ import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 
-
+import 'package:geolocator/geolocator.dart';
 
 
 Map<String, List<VideoInfo>> videoData = {};
@@ -29,11 +29,13 @@ class VideoPreviewPage extends StatefulWidget {
   final double longitude;
 
 
+
   VideoPreviewPage({
     required this.videoPaths,
     required this.userLocation,
     required this.latitude,
     required this.longitude,
+
   });
 
   @override
@@ -65,6 +67,60 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
 
   }
+
+
+  bool isWithinRadius(double firstLatitude, double firstLongitude, double newLatitude, double newLongitude, double radius) {
+    double distance = Geolocator.distanceBetween(firstLatitude, firstLongitude, newLatitude, newLongitude);
+    return distance <= radius;
+  }
+
+
+
+  void handleAddNewVideoButton() {
+    if (firstVideoLatitude != null && firstVideoLongitude != null) {
+      double radiusInMeters = 500.0;
+      if (isWithinRadius(
+
+          firstVideoLatitude!,
+          firstVideoLongitude!,
+          widget.latitude,
+          widget.longitude,
+          radiusInMeters)) {
+        print('location checked');
+        print(radiusInMeters);
+        print("firstVideoLatitude");
+        print(firstVideoLatitude);
+        print(firstVideoLongitude);
+        // User is within the radius; they can proceed to create a new video
+        Navigator.pop(context);
+      } else {
+        // User is outside the radius; show a dialog
+        showDialog(
+          context: context,
+          builder: (context) {
+            return AlertDialog(
+              title: Text('Out of Range'),
+              content: Text(
+                  'You are out of the allowed range. Please return within the 500-meter radius to create a new video.'
+              ),
+              actions: [
+                TextButton(
+                  onPressed: () {
+                    Navigator.of(context).pop();
+                  },
+                  child: Text('OK'),
+                ),
+              ],
+            );
+          },
+        );
+      }
+    }
+  }
+
+
+
+
 
   void addVideo(String location, String videoUrl, double latitude, double longitude) {
     final videoInfo = VideoInfo(
@@ -206,9 +262,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                                 height: 80,
                                 child: IconButton(
                                   icon: Image.asset("assets/images/addNewButton.png"),
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
+                                  onPressed: handleAddNewVideoButton,
                                 ),
                               ),
                             ],

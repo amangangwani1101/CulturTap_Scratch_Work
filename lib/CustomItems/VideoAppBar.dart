@@ -14,7 +14,7 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
         children: [
           // Back Button with margin
           Padding(
-            padding: EdgeInsets.only(left: 16.0), // Adjust margin as needed
+            padding: EdgeInsets.only( left:5.0), // Adjust margin as needed
             child: TextButton(
 
               onPressed: () {
@@ -33,7 +33,7 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
           // Edit Button in the center
           TextButton(
             onPressed: () {
-              // Add your edit button functionality here
+              
             },
             child: Text(
               'Edit',
