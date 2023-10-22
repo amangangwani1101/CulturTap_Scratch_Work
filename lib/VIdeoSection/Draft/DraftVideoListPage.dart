@@ -115,6 +115,11 @@ class _DraftVideoListPageState extends State<DraftVideoListPage> {
     }
   }
 
+  Future<void> _refreshPage() async {
+    // Implement your logic to refresh the drafts.
+    // For example, you can re-fetch the drafts from the database.
+
+  }
   @override
   void dispose() {
     for (var controller in videoControllers) {
@@ -127,65 +132,70 @@ class _DraftVideoListPageState extends State<DraftVideoListPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: VideoAppBar(),
-      body: Stack(
-        children: [
-          Container(
-            color: Color(0xFF263238), // Set the background color
-            child: GridView.builder(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                childAspectRatio: 2 / 3.15, // Adjust the aspect ratio
-              ),
-              itemCount: videoControllers.length,
-              itemBuilder: (context, index) {
-                return VideoGridItem(
-                  controller: videoControllers[index],
-                  onRemovePressed: () {
-                    showDialog(
-                      context: context,
-                      builder: (context) {
-                        return AlertDialog(
-                          title: Text('Are you sure?'),
-                          content: Text('You are removing a video.'),
-                          actions: [
-                            TextButton(
-                              onPressed: () {
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('Cancel'),
-                            ),
-                            TextButton(
-                              onPressed: () {
-                                removeVideo(index);
-                                Navigator.of(context).pop();
-                              },
-                              child: Text('Remove'),
-                            ),
-                          ],
-                        );
-                      },
-                    );
-                  },
-                );
-              },
-            ),
-          ),
-          Positioned(
-            right: 20.0,
-            bottom: 20.0,
-            child: Container(
-              height: 100,
-              width: 80,
-              child: IconButton(
-                icon: Image.asset("assets/images/next_button.png"),
-                onPressed: () {
-                  navigateToEditDraftPage(context, widget.draft);
-
+      body:  RefreshIndicator(
+        backgroundColor: Color(0xFF263238),
+        color : Colors.orange,
+        onRefresh: _refreshPage,
+        child: Stack(
+          children: [
+            Container(
+              color: Color(0xFF263238), // Set the background color
+              child: GridView.builder(
+                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                  crossAxisCount: 2,
+                  childAspectRatio: 2 / 3.15, // Adjust the aspect ratio
+                ),
+                itemCount: videoControllers.length,
+                itemBuilder: (context, index) {
+                  return VideoGridItem(
+                    controller: videoControllers[index],
+                    onRemovePressed: () {
+                      showDialog(
+                        context: context,
+                        builder: (context) {
+                          return AlertDialog(
+                            title: Text('Are you sure?'),
+                            content: Text('You are removing a video.'),
+                            actions: [
+                              TextButton(
+                                onPressed: () {
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Cancel'),
+                              ),
+                              TextButton(
+                                onPressed: () {
+                                  removeVideo(index);
+                                  Navigator.of(context).pop();
+                                },
+                                child: Text('Remove'),
+                              ),
+                            ],
+                          );
+                        },
+                      );
+                    },
+                  );
                 },
               ),
             ),
-          ),
-        ],
+            Positioned(
+              right: 20.0,
+              bottom: 20.0,
+              child: Container(
+                height: 100,
+                width: 80,
+                child: IconButton(
+                  icon: Image.asset("assets/images/next_button.png"),
+                  onPressed: () {
+                    navigateToEditDraftPage(context, widget.draft);
+
+                  },
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

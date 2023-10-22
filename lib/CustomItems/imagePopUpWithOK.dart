@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 
 
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
 
@@ -47,9 +48,14 @@ class ImagePopUpWithOK extends StatelessWidget {
               SizedBox(height: 26),
               TextButton(
                 onPressed: () {
-                  Navigator.of(context).pop(); // Close the current dialog
+                  // Navigate to the CameraApp page when OK is clicked
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => CameraApp()),
+                  );
 
-                },
+
+                  },
                 child: Text(
                   'OK',
                   style: TextStyle(
