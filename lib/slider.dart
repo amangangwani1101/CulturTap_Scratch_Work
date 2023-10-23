@@ -1,15 +1,18 @@
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/userProfile1.dart';
+import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
+
+import 'UserProfile/ProfileHeader.dart';
+import './widgets/hexColor.dart';
 // import 'package:video_player/video_player.dart';
 
 
-class HexColor extends Color {
-  static int _getColor(String hex) {
-    String formattedHex =  "FF" + hex.toUpperCase().replaceAll("#", "");
-    return int.parse(formattedHex, radix: 16);
-  }
-  HexColor(final String hex) : super(_getColor(hex));
-}
+// class HexColor extends Color {
+//   static int _getColor(String hex) {
+//     String formattedHex =  "FF" + hex.toUpperCase().replaceAll("#", "");
+//     return int.parse(formattedHex, radix: 16);
+//   }
+//   HexColor(final String hex) : super(_getColor(hex));
+// }
 
 class CardItem {
   final String image;

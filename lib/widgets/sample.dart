@@ -4,7 +4,8 @@ import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/main.dart';
 
-import '../userProfile1.dart';
+import '../UserProfile/ProfileHeader.dart';
+import '../UserProfile/UserProfileEntry.dart';
 
 
 void main() {

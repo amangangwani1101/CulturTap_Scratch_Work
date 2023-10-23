@@ -4,138 +4,15 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'dart:ffi';
 
-
+import './widgets/hexColor.dart';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/userProfile1.dart';
+import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
+
+import 'BackendStore/BackendStore.dart';
 typedef void SetQuote(String? image);
 //
 //
-class SignIn extends StatefulWidget{
-  @override
-  _SignInState createState() => _SignInState();
-}
-
-class _SignInState extends State<SignIn>{
-
-  final FirebaseAuth _auth = FirebaseAuth.instance;
-  final GoogleSignIn googleSignIn = GoogleSignIn();
-
-  TextEditingController _namecontroller = TextEditingController();
-  bool isSignedIn = false;
-
-  Future<User?> handleSignIn() async{
-    try {
-      final GoogleSignInAccount? googleSignInAccount = await googleSignIn
-          .signIn();
-      final GoogleSignInAuthentication googleSignInAuthentication =
-      await googleSignInAccount!.authentication;
-      final AuthCredential credential = GoogleAuthProvider.credential(
-        accessToken: googleSignInAuthentication.accessToken,
-        idToken: googleSignInAuthentication.idToken,
-      );
-      final UserCredential authResult = await _auth.signInWithCredential(
-          credential);
-      final User? user = authResult.user;
-
-      if (user != null) {
-        setState(() {
-          isSignedIn = true;
-          _namecontroller.text = user.displayName ?? "";
-        });
-        return user;
-       }
-      }catch(e){
-        print('Error SignIn With Google: $e');
-        return null;
-    }
-  }
-
-  @override
-  void handleManualEntry(){
-    setState(() {
-      isSignedIn = false;
-      _namecontroller.text = "";
-    });
-  }
-
-
-  @override
-  void dispose(){
-    _namecontroller.dispose();
-    super.dispose();
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-        height: 120,
-        child: Center(
-          child: Container(
-            width: 360,
-            height: 120,
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black,
-                width: 1,
-              ),
-            ),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text('Fetch Details From',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                Container(
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(
-                  //     color: Colors.black,
-                  //     width: 1,
-                  //   ),
-                  // ),
-                  // width: 40,
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        InkWell(
-                          onTap:(){
-                            print('Do it');
-                            handleSignIn();
-                          },
-                          child: Column(
-                            children: [
-                              Container(
-                                child: Image.asset('assets/images/gmail_icon.png',width: 27,height: 20,),
-                              ),
-                              SizedBox(height: 10,),
-                              Text('Google',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),)
-                            ],
-                          ),
-                        ),
-                        SizedBox(width: 25,),
-                        InkWell(
-                          onTap:(){print('Do it');},
-                          child: Column(
-                            children: [
-                              Container(
-                                child: Image.asset('assets/images/facebook_icon.jpg',width: 22,height: 22,),
-                              ),
-                              SizedBox(height: 10,),
-                              Text('Facebook',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),)
-                            ],
-                          ),
-                        ),
-                      ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      );
-  }
-
-}
-
 
 
 // void main() async {
@@ -246,13 +123,13 @@ class _SignInState extends State<SignIn>{
 //   }
 // }
 
-class HexColor extends Color {
-  static int _getColor(String hex) {
-    String formattedHex =  "FF" + hex.toUpperCase().replaceAll("#", "");
-    return int.parse(formattedHex, radix: 16);
-  }
-  HexColor(final String hex) : super(_getColor(hex));
-}
+// class HexColor extends Color {
+//   static int _getColor(String hex) {
+//     String formattedHex =  "FF" + hex.toUpperCase().replaceAll("#", "");
+//     return int.parse(formattedHex, radix: 16);
+//   }
+//   HexColor(final String hex) : super(_getColor(hex));
+// }
 
 
 //
@@ -391,7 +268,8 @@ class FilledButton extends StatelessWidget {
 // }
 class ConcentricCircles extends StatefulWidget{
   bool isToggled = false;
-
+  final ProfileDataProvider? profileDataProvider;
+  ConcentricCircles({this.profileDataProvider});
   final animationDuration = Duration(milliseconds: 500);
   @override
   _ConcentricCirclesState createState() => _ConcentricCirclesState();
@@ -402,7 +280,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
   void onPressedHandler() {
     if (widget.isToggled) {
       showDialog(context: context, builder: (BuildContext context){
-        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/clock_icon.jpg',serviceSettings: true,),);
+        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/clock_icon.jpg',serviceSettings: true,profileDataProvider:widget.profileDataProvider),);
       },
     );
     }else {

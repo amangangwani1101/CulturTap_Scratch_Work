@@ -21,6 +21,7 @@ app.get('/userStoredData/:id',async(req,res)=>{
     try {
         const data = await ProfileData.findOne({ _id: id });
         if (data) {
+//            console.log(data);
           res.status(200).json(data);
         } else {
           res.status(404).json({ message: 'Data not found' });
@@ -48,6 +49,46 @@ app.post('/profileSection', async (req, res) => {
     console.log(error);
     res.status(501).json({ error: 'Failed to save user data' });
   }
+});
+
+app.post('/checkMeetingTime',async(req,res)=>{
+    try{
+        let { userId, chosenDate, chosenStartTime, chosenEndTime } = req.body;
+        const user =  await ProfileData.findById(userId);
+        console.log(chosenDate);
+        if(!user){
+            return res.status(404).json({error:'User Not Found'});
+        }
+        const key = user.userServiceTripCallingData['_doc'];
+        console.log(Object.keys(user.userServiceTripCallingData['_doc'].dayPlans['15/Nov']));
+
+        if(!user.userServiceTripCallingData['_doc'].dayPlans[chosenDate]){
+            return res.status(200).json({ isOverlap: false });
+        }
+         console.log(1);
+        // Extract existing meetStartTimes and meetEndTimes for the chosen date
+        const meetStartTimes = user.userServiceTripCallingData['_doc'].dayPlans[chosenDate].meetStartTime;
+        console.log(meetStartTimes);
+        const meetEndTimes = user.userServiceTripCallingData['_doc'].dayPlans[chosenDate].meetEndTime;
+        console.log(meetEndTimes);
+        // Check for time overlap
+        for (let i = 0; i < meetStartTimes.length; i++) {
+          const existingStartTime = meetStartTimes[i];
+          const existingEndTime = meetEndTimes[i];
+          if (
+            (chosenStartTime < existingEndTime && chosenStartTime >= existingStartTime) ||
+            (chosenEndTime > existingStartTime && chosenEndTime <= existingEndTime)
+          ) {
+            return res.status(200).json({ isOverlap: true });
+          }
+          console.log(2);
+        }
+        // No overlap found, return true
+        res.status(200).json({ isOverlap: false });
+    }catch(error){
+        console.error(error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
 });
 
 app.listen(port, '0.0.0.0', () => {

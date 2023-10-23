@@ -1,23 +1,21 @@
+import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/slider.dart';
-import 'package:learn_flutter/userProfile1.dart';
+import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
+import '../BackendStore/BackendStore.dart';
+import 'hexColor.dart';
+import '../UserProfile/ProfileHeader.dart';
 
 
-class HexColor extends Color {
-  static int _getColor(String hex) {
-    String formattedHex =  "FF" + hex.toUpperCase().replaceAll("#", "");
-    return int.parse(formattedHex, radix: 16);
-  }
-  HexColor(final String hex) : super(_getColor(hex));
-}
 
 class CustomHelpOverlay extends StatelessWidget {
 
   final String imagePath;
   bool? serviceSettings=false;
-  CustomHelpOverlay({required this.imagePath,this.serviceSettings});
+  final ProfileDataProvider? profileDataProvider;
+  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider});
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -65,7 +63,7 @@ class CustomHelpOverlay extends StatelessWidget {
                           alignment: Alignment.bottomCenter,
                           child: GestureDetector(
                               onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage()));
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(profileDataProvider:profileDataProvider)));
                               },
                               child: Text('Continue',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
                         ),
@@ -83,6 +81,8 @@ class CustomHelpOverlay extends StatelessWidget {
   }
 }
 class ServicePage extends StatefulWidget{
+  final ProfileDataProvider? profileDataProvider;
+  ServicePage({this.profileDataProvider});
   @override
   _ServicePageState createState() => _ServicePageState();
 }
@@ -134,11 +134,11 @@ class _ServicePageState extends State<ServicePage>{
                             ],
                           ),
                         ),
-                        TimePicker(),
+                        TimePicker(profileDataProvider:widget.profileDataProvider),
                       ],
                     ),
                   ),
-                  BandWidthSelect(),
+                  BandWidthSelect(profileDataProvider:widget.profileDataProvider),
                 ],
               ),
             ),
@@ -150,6 +150,8 @@ class _ServicePageState extends State<ServicePage>{
 }
 
 class TimePicker extends StatefulWidget{
+  final ProfileDataProvider? profileDataProvider;
+  TimePicker({this.profileDataProvider});
   @override
   _TimePickerState createState() => _TimePickerState();
 }
@@ -172,7 +174,9 @@ class _TimePickerState extends State<TimePicker>{
     if(pickedTime!=null){
       setState(() {
         _startTime = pickedTime;
-        print("Start Time: ${_startTime.format(context)}");
+        widget.profileDataProvider?.setStartTime(_formatTime(pickedTime));
+        print(pickedTime);
+        print("Start Time: ${_formatTime(_startTime)}");
       });
     }
   }
@@ -205,6 +209,7 @@ class _TimePickerState extends State<TimePicker>{
     if(pickedTime!=null){
       setState(() {
         _endTime = pickedTime;
+        widget.profileDataProvider?.setEndTime(_formatTime(pickedTime));
         print("End Time: ${_endTime.format(context)}");
       });
     }
@@ -295,6 +300,8 @@ class _TimePickerState extends State<TimePicker>{
 }
 
 class BandWidthSelect extends StatefulWidget{
+  final ProfileDataProvider? profileDataProvider;
+  BandWidthSelect({this.profileDataProvider});
   @override
   _BandWidthSelectState createState() => _BandWidthSelectState();
 }
@@ -342,6 +349,8 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                     onChanged: (String? value) {
                       setState(() {
                         _radioValue = value!;
+                        print('Path is : $_radioValue');
+                        widget.profileDataProvider?.setSlots(_radioValue);
                       });
                     },
                   ),
@@ -358,6 +367,8 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                     onChanged: (String? value) {
                       setState(() {
                         _radioValue = value!;
+                        print('Path is : $_radioValue');
+                        widget.profileDataProvider?.setSlots(_radioValue);
                       });
                     },
                   ),

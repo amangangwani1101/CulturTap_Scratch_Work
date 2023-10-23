@@ -5,6 +5,8 @@ import 'package:image_picker/image_picker.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:learn_flutter/camera.dart';
 
+import 'hexColor.dart';
+
 class ImageUtil{
   static Future<File?> pickAndCropImage() async{
     final pickedFile = await ImagePicker().pickImage(source :ImageSource.gallery);
