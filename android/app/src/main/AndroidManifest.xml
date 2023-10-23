@@ -1,15 +1,9 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
-    <uses-permission android:name="android.permission.INTERNET"/>
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
     <application
         android:label="learn_flutter"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
-        <activity
-            android:name="com.yalantis.ucrop.UCropActivity"
-            android:screenOrientation="portrait"
-            android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -18,7 +12,6 @@
             android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
             android:hardwareAccelerated="true"
             android:windowSoftInputMode="adjustResize">
-
             <!-- Specifies an Android theme to apply to this Activity as soon as
                  the Android process has started. This theme is visible to the user
                  while the Flutter UI initializes. After that, this theme continues
@@ -38,4 +31,22 @@
             android:name="flutterEmbedding"
             android:value="2" />
     </application>
+    <!-- ... other manifest elements ... -->
+
+    <uses-feature android:name="android.hardware.camera" android:required="false" /> <!-- Add this line for camera hardware feature -->
+
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Add CAMERA permission here -->
+
+    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" /> <!-- Add this line for autofocus feature if needed -->
+
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- Add WRITE_EXTERNAL_STORAGE permission here -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- Add READ_EXTERNAL_STORAGE permission here -->
+
+    <!-- ... other manifest elements ... -->
+
+    <!-- Add location permission -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
+    <!-- ... other manifest elements ... -->
+
 </manifest>
