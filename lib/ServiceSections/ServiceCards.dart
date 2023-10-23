@@ -3,7 +3,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../BackendStore/BackendStore.dart';
-import '../camera.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
 import '../widgets/hexColor.dart';
 

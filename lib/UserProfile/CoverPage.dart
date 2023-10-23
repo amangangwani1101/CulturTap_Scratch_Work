@@ -5,7 +5,6 @@ import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:learn_flutter/camera.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
 import 'package:firebase_core/firebase_core.dart';

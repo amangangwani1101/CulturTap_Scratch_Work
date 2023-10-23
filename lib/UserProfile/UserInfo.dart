@@ -4,7 +4,6 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
-import 'package:learn_flutter/camera.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import '../widgets/CustomButton.dart';
 import '../widgets/CustomDropDowns.dart';
@@ -13,6 +12,8 @@ import '../BackendStore/BackendStore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
+// raw data variable
+typedef void SetQuote(String? image);
 
 // Motivational Quote Section
 class MotivationalQuote extends StatefulWidget{
