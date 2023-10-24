@@ -1,5 +1,6 @@
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
 
 class DatabaseHelper {
   DatabaseHelper._privateConstructor();
@@ -43,6 +44,16 @@ class DatabaseHelper {
       version: 1,
     );
   }
+  Future<void> updateDraft(Draft draft) async {
+    final db = await database;
+    await db.update(
+      'drafts',
+      draft.toMap(),
+      where: 'id = ?',
+      whereArgs: [draft.id],
+    );
+  }
+
 
   // Add this method to get all drafts from the database
   Future<List<Map<String, dynamic>>?> getAllDrafts() async {

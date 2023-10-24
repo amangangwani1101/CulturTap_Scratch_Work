@@ -17,14 +17,43 @@ class _EditDraftPageState extends State<EditDraftPage> {
   late VideoPlayerController _thumbnailController;
 
   String selectedLabel = '';
+  String selectedCategory = '';
+  String selectedGenre = '';
   String storyTitle = '';
+  String productDescription = '';
+  String experienceDescription = '';
+  String dontLikeAboutHere = '';
+  String reviewText = '';
+  int starRating = 0;
+
+  List<String> selectedLoveAboutHere = [];
+  bool showOtherLoveAboutHereInput = false;
+
+
+
   TextEditingController storyTitleController = TextEditingController();
+  TextEditingController productDescriptionController = TextEditingController();
+  TextEditingController experienceDescriptionController = TextEditingController();
+  TextEditingController dontLikeAboutHereController = TextEditingController();
+  TextEditingController reviewTextController = TextEditingController();
+  TextEditingController loveAboutHereInputController = TextEditingController();
+
 
   bool isSaveDraftClicked = false;
   bool isPublishClicked = false;
 
+  final List<String> loveAboutHereOptions = [
+    'Beautiful',
+    'Calm',
+    'Party Place',
+    'Pubs',
+    'Restaurant',
+    'Others',
+  ];
+
   @override
   void initState() {
+
     super.initState();
     // Initialize the VideoPlayerController with the first video of the draft
 
@@ -38,19 +67,28 @@ class _EditDraftPageState extends State<EditDraftPage> {
 
     // Populate the fields with data from the draft
     selectedLabel = widget.draft.selectedLabel;
-    storyTitle = widget.draft.storyTitle;
+    selectedGenre = widget.draft.selectedGenre;
+    selectedCategory = widget.draft.selectedCategory;
+    storyTitleController.text = widget.draft.storyTitle;
+    productDescriptionController.text = widget.draft.productDescription;
+    experienceDescriptionController.text = widget.draft.experienceDescription;
+    dontLikeAboutHereController.text = widget.draft.dontLikeAboutHere;
+    reviewTextController.text = widget.draft.reviewText;
+    starRating = widget.draft.starRating;
+    selectedLoveAboutHere = widget.draft.selectedLoveAboutHere.split(',');
 
-    // selectedCategory = widget.draft.selectedCategory;
+
+
     // selectedGenre = widget.draft.selectedGenre;
     // experienceDescription = widget.draft.experienceDescription;
     // selectedLoveAboutHere = widget.draft.selectedLoveAboutHere;
     // dontLikeAboutHere = widget.dontLikeAboutHere;
     // selectedaCategory = widget.draft.selectedaCategory;
-    // reviewText = widget.draft.reviewText;
-    // starRating = widget.draft.starRating;
+
+
     // selectedVisibility = widget.draft.selectedVisibility;
 
-    // productDescription = widget.draft.productDescription;
+
 
     // Initialize the draft copy with the values from the provided draft
 
@@ -59,9 +97,19 @@ class _EditDraftPageState extends State<EditDraftPage> {
   Future<void> updateDraft(Draft draft) async {
     final database = await DatabaseHelper.instance.database;
     draft.selectedLabel = selectedLabel;
+    draft.selectedCategory = selectedCategory;
+    draft.selectedGenre = selectedGenre;
     draft.storyTitle = storyTitleController.text;
+    draft.productDescription = productDescriptionController.text;
+    draft.experienceDescription = experienceDescriptionController.text;
+    draft.dontLikeAboutHere = dontLikeAboutHereController.text;
+    draft.selectedLoveAboutHere = selectedLoveAboutHere.join(',');
+
+
+
 
     final updatedDraft = Draft(
+
       id: draft.id,
       latitude: draft.latitude,
       longitude: draft.longitude,
@@ -206,10 +254,460 @@ class _EditDraftPageState extends State<EditDraftPage> {
                           ],
                         ),
                       ),
+                      Padding(
+                        padding : EdgeInsets.all(26.0),
+                        child : Container(
+                          height : 0.5,
+                          decoration: BoxDecoration(
+                            color : Colors.grey,
+                          ),
+                        ),
+
+                      ),
                     ],
                   ),
 
+                  //for regular story
+                  Visibility(
+                    visible: selectedLabel == 'Regular Story',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
+
+
+                        // category dropdown here
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Category',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                ),
+
+                                child: Theme(
+                                    data: Theme.of(context).copyWith(
+                                      canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                    ),
+                                    child: DropdownButton<String>(
+                                      key: UniqueKey(),
+                                      value: selectedCategory,
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          selectedCategory = newValue!;
+                                        });
+                                      },
+                                      items: <String>['Category 1', 'Category 2', 'Category 3']
+                                          .map<DropdownMenuItem<String>>((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value, style: TextStyle(color: Colors.white)),
+                                        );
+                                      }).toList(),
+                                      icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                      underline: Container(
+                                        height: 2,
+                                        color: Colors.orange,
+                                      ),
+                                    )
+
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 50),
+
+                       //genre dropdown here
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Genre',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Theme(
+                                data: Theme.of(context).copyWith(
+                                  canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                ),
+
+                                child: Theme(
+                                    data: Theme.of(context).copyWith(
+                                      canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                    ),
+                                    child: DropdownButton<String>(
+                                      key: UniqueKey(),
+                                      value: selectedGenre,
+                                      onChanged: (String? newValue) {
+                                        setState(() {
+                                          selectedGenre = newValue!;
+                                        });
+                                      },
+                                      items: <String>['Genre 1', 'Genre 2', 'Genre 3']
+                                          .map<DropdownMenuItem<String>>((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value, style: TextStyle(color: Colors.white)),
+                                        );
+                                      }).toList(),
+                                      icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                      underline: Container(
+                                        height: 2,
+                                        color: Colors.orange,
+                                      ),
+                                    )
+
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 50),
+
+                        //story title here
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Story Title ',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Container(
+                                  width: 300,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                    ),
+                                  ),
+                                  child: TextField(
+                                    controller: storyTitleController,
+                                    onChanged: (text) {
+                                      setState(() {
+                                        storyTitle = text;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'type here ...',
+                                      hintStyle: TextStyle(color: Colors.white),
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    style: TextStyle(color: Colors.white),
+                                    maxLines: null,
+                                  )
+
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 50),
+
+
+
+
+                        //Describe your experience
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Describe your Experience ',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Container(
+                                width: 300,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                  ),
+                                ),
+                                child: TextField(
+                                  controller: experienceDescriptionController,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      experienceDescription = text;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'type here ...',
+                                    hintStyle: TextStyle(color: Colors.white),
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                  ),
+                                  style: TextStyle(color: Colors.white),
+                                  maxLines: null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+
+                        SizedBox(height: 50),
+
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                              'What You Love Here ?',
+                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+
+                              SizedBox(height : 20),
+                              Wrap(
+                                spacing: 16.0, // Horizontal spacing between buttons
+                                runSpacing: 8.0, // Vertical spacing between rows of buttons
+                                children: loveAboutHereOptions.map((option) {
+                                  return ElevatedButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        if (selectedLoveAboutHere.contains(option)) {
+                                          selectedLoveAboutHere.remove(option);
+                                        } else {
+                                          selectedLoveAboutHere.add(option);
+                                        }
+                                        if (option == 'Others') {
+                                          showOtherLoveAboutHereInput = true;
+                                        } else {
+                                          showOtherLoveAboutHereInput = false;
+                                        }
+                                      });
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      primary: selectedLoveAboutHere.contains(option) ? Colors.orange : Color(0xFF263238),
+                                      elevation: 0, // No shadow
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(18.0),
+                                        side: BorderSide(color: Colors.orange, width: 2.0),
+                                      ),
+                                    ),
+                                    child: Text(
+                                      option,
+                                      style: TextStyle(color: Colors.white),
+                                    ),
+                                  );
+                                }).toList(),
+                              ),
+                            ],
+                          ),
+                        ),
+                        if (showOtherLoveAboutHereInput)
+                          Padding(
+                            padding: EdgeInsets.only(left: 26.0),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 200,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                    ),
+                                  ),
+                                  child: TextField(
+                                    controller: loveAboutHereInputController,
+                                    onChanged: (text) {
+                                      setState(() {
+                                        // No need to update experienceDescription in this case
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'Other Reasons',
+                                      hintStyle: TextStyle(color: Colors.white),
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    style: TextStyle(color: Colors.white),
+                                    maxLines: null,
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    final newReason = loveAboutHereInputController.text;
+                                    if (newReason.isNotEmpty) {
+                                      setState(() {
+                                        // Append the new option to loveAboutHereOptions
+                                        loveAboutHereOptions.add(newReason);
+                                        // Update the selected option to the newly added one
+                                        selectedLoveAboutHere.add(newReason);
+                                        loveAboutHereInputController.clear();
+                                        showOtherLoveAboutHereInput = false; // Hide the input field
+                                      });
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Colors.orange,
+                                    elevation: 0, // No shadow
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Add',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+
+
+                        SizedBox(height: 50),
+
+                        //what you dont like about this place
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'What you dont like about this place',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Container(
+                                width: 300,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                  ),
+                                ),
+                                child: TextField(
+                                  controller: dontLikeAboutHereController,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      dontLikeAboutHere = text;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'type here ...',
+                                    hintStyle: TextStyle(color: Colors.white),
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                  ),
+                                  style: TextStyle(color: Colors.white),
+                                  maxLines: null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+
+                        SizedBox(height: 50),
+
+                        //Review this place
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Review This Place',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Container(
+                                width: 300,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                  ),
+                                ),
+                                child: TextField(
+                                  controller: reviewTextController,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      reviewText = text;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'type here ...',
+                                    hintStyle: TextStyle(color: Colors.white),
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                  ),
+                                  style: TextStyle(color: Colors.white),
+                                  maxLines: null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+
+                        SizedBox(height: 50),
+
+                        //RATE YOUR EXPERIENCE HERE
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+
+                              Text(
+                                'Rate your experience here :',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              SizedBox( height: 13,),
+                              // Display stars based on the selected starRating
+                              Row(
+                                children: List.generate(5, (index) {
+                                  return IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        // Set the starRating to the current index + 1
+                                        starRating = index + 1;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      index < starRating ? Icons.star : Icons.star_border,
+                                      color: Colors.orange,
+                                      size: 35,
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 20),
+
+
+
+
+                        SizedBox(height: 20),
+
+
+
+
+
+
+                      ],
+
+                    ),
+                  ),
+
+
+
+
+
+
+                  //for business products
                   Visibility(
                     visible: selectedLabel == 'Business Product',
                     child: Column(
@@ -261,7 +759,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                           ),
                         ),
 
-                        SizedBox(height: 30),
+                        SizedBox(height: 50),
 
                         //story title here
                         Padding(
@@ -284,7 +782,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                   controller: storyTitleController,
                                   onChanged: (text) {
                                     setState(() {
-                                      storyTitle = storyTitle;
+                                      storyTitle = text;
                                     });
                                   },
                                   decoration: InputDecoration(
@@ -301,9 +799,91 @@ class _EditDraftPageState extends State<EditDraftPage> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 30),
+                        SizedBox(height: 50),
 
                         //product description here
+                        Padding(
+                          padding: EdgeInsets.only(left: 26.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Describe your product or service ',
+                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              ),
+                              Container(
+                                width: 300,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                  ),
+                                ),
+                                child: TextField(
+                                  controller: productDescriptionController,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      productDescription = text;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'type here ...',
+                                    hintStyle: TextStyle(color: Colors.white),
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                  ),
+                                  style: TextStyle(color: Colors.white),
+                                  maxLines: null,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+
+                        //Do you provide service at local's doorstep
+                        // Padding(
+                        //   padding: EdgeInsets.only(left : 26.0),
+                        //   child: Column(
+                        //     mainAxisAlignment: MainAxisAlignment.start,
+                        //     children: [
+                        //       Text(
+                        //         'Do you provide service / product at local’s door steps ?',
+                        //         style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        //       ),
+                        //       SizedBox(height : 20),
+                        //       Row(
+                        //         mainAxisAlignment: MainAxisAlignment.start,
+                        //         children: [
+                        //           // Radio button for "Yes"
+                        //           Radio<String>(
+                        //             value: 'Yes',
+                        //             groupValue: selectedOption,
+                        //             onChanged: (value) {
+                        //               setState(() {
+                        //                 selectedOption = value!;
+                        //               });
+                        //             },
+                        //             fillColor: MaterialStateColor.resolveWith((states) => Colors.orange),
+                        //             // Background color when selected
+                        //           ),
+                        //           Text('Yes',style : TextStyle(color : Colors.white)),
+                        //           Radio<String>(
+                        //             value: 'No',
+                        //             groupValue: selectedOption,
+                        //             onChanged: (value) {
+                        //               setState(() {
+                        //                 selectedOption = value!;
+                        //               });
+                        //             },
+                        //
+                        //             fillColor: MaterialStateColor.resolveWith((states) => Colors.orange),// Background color when selected
+                        //           ),
+                        //           Text('No',style : TextStyle(color : Colors.white)),
+                        //         ],
+                        //       ),
+                        //
+                        //     ],
+                        //   ),
+                        // ),
 
 
 
@@ -315,7 +895,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                     ),
                   ),
 
-                  SizedBox(height : 100),
+                  SizedBox(height : 40),
                   // Save draft or update draft button
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -330,7 +910,16 @@ class _EditDraftPageState extends State<EditDraftPage> {
                               onPressed: () async {
                                 // Update the draft's selectedLabel in the database
                                 widget.draft.selectedLabel = selectedLabel;
+                                widget.draft.selectedCategory = selectedCategory;
+                                widget.draft.selectedGenre = selectedGenre;
                                 widget.draft.storyTitle = storyTitleController.text;
+                                widget.draft.productDescription = productDescriptionController.text;
+                                widget.draft.experienceDescription = experienceDescriptionController.text;
+                                widget.draft.dontLikeAboutHere = dontLikeAboutHereController.text;
+                                widget.draft.reviewText = reviewTextController.text;
+                                widget.draft.starRating = starRating;
+                                widget.draft.selectedLoveAboutHere = selectedLoveAboutHere.join(',');
+
                                 await updateDraft(widget.draft);
                                 setState(() {
                                   isSaveDraftClicked = !isSaveDraftClicked;

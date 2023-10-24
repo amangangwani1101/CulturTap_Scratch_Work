@@ -114,11 +114,15 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void startRecording() async {
+
+
+
     await _controller!.startVideoRecording();
 
     setState(() {
       _isRecording = true;
       _currentProgress = 0.0;
+      _remainingRecordingTime = 60;
     });
 
     _showRecordingMessage = true;
@@ -130,27 +134,30 @@ class _CameraAppState extends State<CameraApp> {
       }
     });
 
-    _remainingRecordingTime = 60;
+
     _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       if (_remainingRecordingTime > 0) {
         setState(() {
           _remainingRecordingTime--;
+          _currentProgress = (60 - _remainingRecordingTime) / 60;
         });
       } else {
-        timer.cancel();
-      }
-    });
-
-    Timer.periodic(Duration(milliseconds: 100), (timer) {
-      setState(() {
-        _currentProgress += 0.00166666667;
-      });
-
-      if (_currentProgress >= 1.0) {
         stopRecording();
         timer.cancel();
       }
     });
+
+    //for smooth timing
+    // Timer.periodic(Duration(milliseconds: 100), (timer) {
+    //   setState(() {
+    //     _currentProgress += 0.00166666667;
+    //   });
+    //
+    //   if (_currentProgress >= 1.0) {
+    //     stopRecording();
+    //     timer.cancel();
+    //   }
+    // });
   }
 
   void navigateToPreviewPage() {
@@ -167,11 +174,20 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void stopRecording() async {
+    _countdownTimer?.cancel();
     XFile? videoFile = await _controller!.stopVideoRecording();
 
+
+
     setState(() {
+
       _isRecording = false;
       _currentProgress = 0.0;
+      _remainingRecordingTime = 60;
+
+
+
+
     });
 
     if (videoFile != null) {

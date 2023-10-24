@@ -3,7 +3,7 @@ import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/EditDraftPage.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
-
+import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
 class VideoGridItem extends StatefulWidget {
   final VideoPlayerController controller;
   final Function()? onRemovePressed;
@@ -27,7 +27,7 @@ class _VideoGridItemState extends State<VideoGridItem> {
 
   @override
   void dispose() {
-    _videoController.dispose();
+
     super.dispose();
   }
 
@@ -212,11 +212,11 @@ class _DraftVideoListPageState extends State<DraftVideoListPage> {
       updatedVideoPaths.removeAt(index);
       widget.draft.videoPaths = updatedVideoPaths.join(',');
 
-      // You may want to update your database or storage here if applicable.
-
-      // You can also update any other relevant data or UI to reflect the removal.
+      // Update the database
+      DatabaseHelper.instance.updateDraft(widget.draft);
     });
   }
+
 }
 
 void navigateToEditDraftPage(BuildContext context, Draft draft) {
