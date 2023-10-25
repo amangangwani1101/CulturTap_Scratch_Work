@@ -37,21 +37,29 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
     setState(() {
       drafts = draftList.map((e) => Draft.fromMap(e)).toList().cast<Draft>();
 
-      drafts.removeWhere((draft) => draft.videoPaths.isEmpty); // Remove drafts with no videos
-
       for (var draft in drafts) {
         var videoPaths = draft.videoPaths.split(',');
         if (videoPaths.isNotEmpty) {
+          print('Video Paths for Draft "${draft.storyTitle}":');
+          for (var videoPath in videoPaths) {
+            print(videoPath);
+          }
           var controller = VideoPlayerController.file(File(videoPaths[0]));
           videoControllers.add(controller);
           isPlaying.add(false);
           controller.initialize().then((_) {
             setState(() {});
           });
+        } else {
+          if (draft.id != null) {
+            DatabaseHelper.instance.deleteDraft(draft.id!);
+          }
+
         }
       }
     });
   }
+
 
 
   Future<void> _refreshDrafts() async {
@@ -63,7 +71,9 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: VideoAppBar(),
+      appBar: VideoAppBar(
+        title:'Your Drafts',
+      ),
       backgroundColor: Color(0xFF263238),
       body: RefreshIndicator(
         backgroundColor: Color(0xFF263238),
@@ -186,6 +196,7 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
       return AspectRatio(
         aspectRatio: 9 / 16,
         child: Stack(
+
           children: [
             VideoPlayer(controller),
             AnimatedSwitcher(

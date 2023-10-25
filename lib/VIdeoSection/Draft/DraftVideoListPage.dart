@@ -108,10 +108,14 @@ class _DraftVideoListPageState extends State<DraftVideoListPage> {
     // Initialize video controllers for each video in the draft
     var videoPaths = widget.draft.videoPaths.split(',');
     for (var path in videoPaths) {
-      videoControllers.add(VideoPlayerController.network(path)
+      final controller = VideoPlayerController.network(path)
         ..initialize().then((_) {
+          if (!mounted) {
+            return;
+          }
           setState(() {});
-        }));
+        });
+      videoControllers.add(controller);
     }
   }
 
@@ -131,7 +135,9 @@ class _DraftVideoListPageState extends State<DraftVideoListPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: VideoAppBar(),
+      appBar: VideoAppBar(
+        title:'Edit Story',
+      ),
       body:  RefreshIndicator(
         backgroundColor: Color(0xFF263238),
         color : Colors.orange,
@@ -154,26 +160,87 @@ class _DraftVideoListPageState extends State<DraftVideoListPage> {
                         context: context,
                         builder: (context) {
                           return AlertDialog(
-                            title: Text('Are you sure?'),
-                            content: Text('You are removing a video.'),
+                            backgroundColor: Color(0xFF263238),
+                            content: Container(
+                              height: 269,
+                              width: 300,
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 30),
+                                  Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Center(
+                                      child: Image.asset('assets/images/saveDraftLogo.png'),
+                                    ),
+                                  ),
+                                  SizedBox(height: 30),
+                                  Text(
+                                    'Are You Sure?',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            'You are removing a video.',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                             actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Cancel'),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+                                  TextButton(
+                                    onPressed: () {
+                                      removeVideo(index); // Perform the remove functionality here
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Remove',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.orange,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.orange,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  removeVideo(index);
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Remove'),
-                              ),
+                              SizedBox(height: 20),
                             ],
                           );
                         },
                       );
+
                     },
                   );
                 },
@@ -213,9 +280,51 @@ class _DraftVideoListPageState extends State<DraftVideoListPage> {
       widget.draft.videoPaths = updatedVideoPaths.join(',');
 
       // Update the database
-      DatabaseHelper.instance.updateDraft(widget.draft);
+      if (updatedVideoPaths.isEmpty) {
+        // If there are no video paths left, delete the entire draft
+        DatabaseHelper.instance.deleteDraft(widget.draft.id);
+      } else {
+        // Otherwise, update the draft in the database
+        DatabaseHelper.instance.updateDraft(widget.draft);
+      }
     });
   }
+
+
+  // void _showDeleteConfirmationDialog() {
+  //   showDialog(
+  //     context: context,
+  //     builder: (context) {
+  //       return AlertDialog(
+  //         title: Text('Delete Draft?'),
+  //         content: Text('You are about to delete the entire draft.'),
+  //         actions: [
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //             },
+  //             child: Text('Cancel'),
+  //           ),
+  //           TextButton(
+  //             onPressed: () {
+  //               Navigator.of(context).pop();
+  //               _deleteDraft();
+  //             },
+  //             child: Text('Delete'),
+  //           ),
+  //         ],
+  //       );
+  //     },
+  //   );
+  // }
+
+  // void _deleteDraft() {
+  //   // Delete the draft from the database
+  //   DatabaseHelper.instance.deleteDraft(widget.draft.id);
+  //   // Close the current page
+  //   Navigator.of(context).pop();
+  // }
+
 
 }
 

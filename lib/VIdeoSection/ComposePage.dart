@@ -42,7 +42,7 @@ class _ComposePageState extends State<ComposePage> {
   bool showOtherLoveAboutHereInput = false;
   TextEditingController loveAboutHereInputController = TextEditingController();
   String dontLikeAboutHere = ''; // New input for "What You Don't Like About This Place"
-  String selectedaCategory = "Select";
+  String selectedaCategory = "Select1";
   String reviewText = ''; // New input for "Review This Place"
   int starRating = 0; // New input for star rating
   String selectedVisibility = 'Public';
@@ -61,6 +61,7 @@ class _ComposePageState extends State<ComposePage> {
   bool isSaveDraftClicked = false;
   bool isPublishClicked = false;
   String selectedOption = '';
+  String productPrice = '';
 
   String transportationPricing = "";
 
@@ -87,6 +88,9 @@ class _ComposePageState extends State<ComposePage> {
         selectedVisibility: selectedVisibility,
         storyTitle: storyTitle,
         productDescription: productDescription,
+        selectedOption: selectedOption,
+        transportationPricing: transportationPricing,
+        productPrice: productPrice,
 
       );
 
@@ -103,7 +107,7 @@ class _ComposePageState extends State<ComposePage> {
         barrierDismissible: false,
         builder: (context) {
           return ImagePopUpWithOK(
-            imagePath: "assets/images/saveDraftLogo.png",
+            imagePath: "assets/images/savedraft.svg",
             textField: "Your Draft is saved , you can check your drafts on settings." ,
 
 
@@ -210,7 +214,10 @@ class _ComposePageState extends State<ComposePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: VideoAppBar(),
+      appBar: VideoAppBar(
+        title : 'Compose Story',
+        exit : 'b',
+      ),
       body: Container(
         color: Color(0xFF263238),
         width: double.infinity,
@@ -293,7 +300,7 @@ class _ComposePageState extends State<ComposePage> {
                       children: [
                         Text(
                           'Differentiate this experience as ',
-                          style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                          style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold,fontFamily: 'poppins'),
                         ),
                         Theme(
                           data: Theme.of(context).copyWith(
@@ -352,39 +359,46 @@ class _ComposePageState extends State<ComposePage> {
                   children: [
 
 
-                    //category for regular stories
-                    // Padding(
-                    //   padding: EdgeInsets.only(left: 26.0),
-                    //   child: Column(
-                    //     crossAxisAlignment: CrossAxisAlignment.start,
-                    //     children: [
-                    //       Text(
-                    //         'Category',
-                    //         style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
-                    //       ),
-                    //       DropdownButton<String>(
-                    //         value: selectedCategory,
-                    //         onChanged: (String? newValue) {
-                    //           setState(() {
-                    //             selectedCategory = newValue!;
-                    //           });
-                    //         },
-                    //         items: <String>['Category 1', 'Category 2', 'Category 3']
-                    //             .map<DropdownMenuItem<String>>((String value) {
-                    //           return DropdownMenuItem<String>(
-                    //             value: value,
-                    //             child: Text(value, style: TextStyle(color: Colors.white)),
-                    //           );
-                    //         }).toList(),
-                    //         icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
-                    //         underline: Container(
-                    //           height: 2,
-                    //           color: Colors.orange,
-                    //         ),
-                    //       ),
-                    //     ],
-                    //   ),
-                    // ),
+                    // category for regular stories
+                    Padding(
+                      padding: EdgeInsets.only(left: 26.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Category',
+                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                          ),
+
+
+                          Theme(
+                            data: Theme.of(context).copyWith(
+                              canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                            ),
+                            child: DropdownButton<String>(
+                              value: selectedCategory,
+                              onChanged: (String? newValue) {
+                                setState(() {
+                                  selectedCategory = newValue!;
+                                });
+                              },
+                              items: <String>['Category 1','Solo trip', 'Trip With Friends', 'Trip With Family', 'Office Trip', 'School Trip', 'Picnic']
+                                  .map<DropdownMenuItem<String>>((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value, style: TextStyle(color: Colors.white)),
+                                );
+                              }).toList(),
+                              icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                              underline: Container(
+                                height: 2,
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
 
 
                     SizedBox(height: 35),
@@ -410,7 +424,7 @@ class _ComposePageState extends State<ComposePage> {
                                   selectedGenre = newValue!;
                                 });
                               },
-                              items: <String>['Genre 1', 'Genre 2', 'Genre 3']
+                              items: <String>['Genre 1', 'Lifestyle', 'Food & Restaurant',  'Party - Clubs & Bars',  'Fashion',  'Historical / Heritage',  'Festivals',  'Art & Culture', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem',    ]
                                   .map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,
@@ -818,10 +832,10 @@ class _ComposePageState extends State<ComposePage> {
                                 });
                               },
                               items: <String>[
-                                'Select', // Ensure there's exactly one 'Select' item
-                                'Option 1',
-                                'Option 2',
-                                'Option 3',
+                                'Select1', // Ensure there's exactly one 'Select' item
+                                'Furniture',
+                                'Handicraft',
+                                'Other',
                               ].map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,

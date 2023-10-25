@@ -14,6 +14,15 @@ class DatabaseHelper {
     return _database!;
   }
 
+
+  Future<void> deleteDraft(int? draftId) async {
+    final db = await database;
+    if (draftId != null) {
+      await db.delete('drafts', where: 'id = ?', whereArgs: [draftId]);
+    }
+  }
+
+
   Future<Database> _initDatabase() async {
     final String path = join(await getDatabasesPath(), 'drafts.db');
     return await openDatabase(
@@ -37,13 +46,17 @@ class DatabaseHelper {
             starRating INTEGER,
             selectedVisibility TEXT,
             storyTitle TEXT,
-            productDescription TEXT
+            productDescription TEXT,
+            selectedOption TEXT,
+            productPrice TEXT,
+            transportationPricing TEXT
           )
         ''');
       },
       version: 1,
     );
   }
+
   Future<void> updateDraft(Draft draft) async {
     final db = await database;
     await db.update(

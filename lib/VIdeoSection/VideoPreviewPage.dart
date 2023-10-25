@@ -175,7 +175,10 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: VideoAppBar(),
+      appBar: VideoAppBar(
+        title:'Edit Story',
+        exit : 'a',
+      ),
       body: Container(
         color: Color(0xFF263238),
         child: Column(
@@ -195,34 +198,90 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                       showDialog(
                         context: context,
                         builder: (context) {
-                          Color myHexColor = Color(0xFF263238);
                           return AlertDialog(
-                            backgroundColor: myHexColor,
-                            icon: Center(child: Image.asset('assets/images/remove.png')),
-                            title: Text('Are You Sure ?', style: TextStyle(color: Colors.white)),
+                            backgroundColor: Color(0xFF263238),
                             content: Container(
-                              height: 15,
-                              child: Center(child: Text('you are removing a film shoot.', style: TextStyle(color: Colors.white))),
+                              height: 269,
+                              width: 300,
+                              child: Column(
+                                children: [
+                                  SizedBox(height: 30),
+                                  Padding(
+                                    padding: EdgeInsets.all(20),
+                                    child: Center(
+                                      child: Image.asset('assets/images/remove.png'),
+                                    ),
+                                  ),
+                                  SizedBox(height: 30),
+                                  Text(
+                                    'Are You Sure?',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 25,
+                                    ),
+                                  ),
+                                  SizedBox(height: 20),
+                                  Center(
+                                    child: Padding(
+                                      padding: const EdgeInsets.only(),
+                                      child: Column(
+                                        children: [
+                                          Text(
+                                            'You are removing a film shoot',
+                                            style: TextStyle(
+                                              fontSize: 16,
+                                              color: Colors.white,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
                             actions: [
-                              TextButton(
-                                onPressed: () {
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Cancel', style: TextStyle(color: Colors.orange)),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                children: [
+
+                                  TextButton(
+                                    onPressed: () {
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Cancel',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.orange,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                  TextButton(
+                                    onPressed: () {
+                                      // Remove video logic here
+                                      removeVideo(widget.videoPaths[index]);
+                                      Navigator.of(context).pop();
+                                    },
+                                    child: Text(
+                                      'Remove',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.orange,
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ),
+                                ],
                               ),
-                              TextButton(
-                                onPressed: () {
-                                  // Remove video logic here
-                                  removeVideo(widget.videoPaths[index]);
-                                  Navigator.of(context).pop();
-                                },
-                                child: Text('Remove', style: TextStyle(color: Colors.orange)),
-                              ),
+                              SizedBox(height: 20),
                             ],
                           );
                         },
                       );
+
                     },
                   );
                 },

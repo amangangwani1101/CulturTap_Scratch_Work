@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
@@ -23,14 +25,14 @@ class ImagePopUpWithOK extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        height: 380,
+        height: 410,
         width: 377,
         child: AlertDialog(
           content: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               SizedBox(height: 66),
-              Image.asset(
+              SvgPicture.asset(
                 imagePath,
                 height: 66,
                 width: 66,

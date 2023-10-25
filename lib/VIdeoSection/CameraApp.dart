@@ -17,6 +17,11 @@ void main() async {
     MaterialApp(
       navigatorKey: navigatorKey,
       debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+        primaryColor: Colors.orange, // Set your primary color
+
+      ),
       home: CameraApp(),
     ),
   );
