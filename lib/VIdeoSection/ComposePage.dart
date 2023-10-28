@@ -11,6 +11,8 @@ import 'package:learn_flutter/VIdeoSection/VideoPreviewPage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 
 
@@ -32,8 +34,10 @@ class ComposePage extends StatefulWidget {
 }
 
 class _ComposePageState extends State<ComposePage> {
+
   late VideoPlayerController _thumbnailController;
   late int randomIndex;
+
   String selectedLabel = 'Regular Story';
   String selectedCategory = 'Category 1';
   String selectedGenre = 'Genre 1'; // Default selected genre
@@ -47,26 +51,67 @@ class _ComposePageState extends State<ComposePage> {
   int starRating = 0; // New input for star rating
   String selectedVisibility = 'Public';
   String liveLocation = "";
-  late DatabaseHelper _databaseHelper;
-
-
-
-
-
-
-
-
   String storyTitle = '';
   String productDescription = '';
   bool isSaveDraftClicked = false;
   bool isPublishClicked = false;
   String selectedOption = '';
   String productPrice = '';
-
   String transportationPricing = "";
 
 
+  Future<void> sendDataToBackend() async {
 
+    print('publish button clicked');
+    try{
+      const String url = 'http://0.0.0.0:8080/main/api/publish';
+
+      final data = {
+        "singleStoryData" : {
+          'videoPath': widget.videoPaths.join(','),
+          'latitude': widget.latitude,
+          'longitude': widget.longitude,
+          'location': liveLocation,
+          'expDescription': experienceDescription,
+          'placeLoveDesc': selectedLoveAboutHere.join(','),
+          'dontLikeDesc': dontLikeAboutHere,
+          'review': reviewText,
+          'starRating': starRating,
+          'selectedVisibility': selectedVisibility,
+          'storyTitle': storyTitle,
+          'productDescription': productDescription,
+          'selectedOption': selectedOption,
+          'transportationPricing': transportationPricing,
+          'productPrice': productPrice,
+
+        },
+        'label': selectedLabel,
+        'category': selectedCategory,
+        'genre': selectedGenre,
+
+      };
+
+
+
+      final http.Response response = await http.post(
+        Uri.parse(url),
+        headers: {'Content-Type': 'application/json'},
+        body: json.encode(data),
+      );
+
+      if (response.statusCode == 200) {
+        print('Data sent successfully');
+        print('Response Data: ${response.body}');
+      } else {
+        print('Failed to send data. Error: ${response.reasonPhrase}');
+      }
+    }catch(error){
+      print("Error: $error");
+    }
+
+  }
+
+  late DatabaseHelper _databaseHelper;
   Future<void> saveDraft() async {
     final status = await Permission.storage.request();
     if(status.isGranted){
@@ -109,6 +154,7 @@ class _ComposePageState extends State<ComposePage> {
           return ImagePopUpWithOK(
             imagePath: "assets/images/savedraft.svg",
             textField: "Your Draft is saved , you can check your drafts on settings." ,
+            what:'camera',
 
 
           );
@@ -116,6 +162,8 @@ class _ComposePageState extends State<ComposePage> {
       );
     }
   }
+
+
 
   Future<void> _saveVideoToLocalStorage(String videoPath) async {
     final localPath = (await getApplicationDocumentsDirectory()).path;
@@ -1203,12 +1251,14 @@ class _ComposePageState extends State<ComposePage> {
                           width: 156,
                           height: 63,
                           child: ElevatedButton(
+                            // onPressed: () {
+                            //   Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(builder: (context) => SavedDraftsPage()),
+                            //   );
                             onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(builder: (context) => SavedDraftsPage()),
-                              );
 
+                              sendDataToBackend();
 
                               // Implement the functionality for publishing here
                               setState(() {
@@ -1273,3 +1323,6 @@ void main() {
     ),
   ));
 }
+
+
+

@@ -65,7 +65,7 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
   Future<void> _refreshDrafts() async {
     // Implement your logic to refresh the drafts.
     // For example, you can re-fetch the drafts from the database.
-    await _loadDrafts();
+    // await _loadDrafts();
   }
 
   @override

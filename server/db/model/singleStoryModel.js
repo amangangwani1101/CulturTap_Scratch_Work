@@ -19,3 +19,4 @@ const singleStorySchema = new mongoose.Schema({
 const SingleStoryModel = mongoose.model('SingleStory', singleStorySchema);
 
 module.exports = SingleStoryModel;
+

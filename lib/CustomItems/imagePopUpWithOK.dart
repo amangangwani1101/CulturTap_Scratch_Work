@@ -12,12 +12,16 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 class ImagePopUpWithOK extends StatelessWidget {
   final String imagePath;
   final String textField;
+  final String what;
+  final String? extraText;
 
 
 
   ImagePopUpWithOK({
     required this.imagePath,
     required this.textField,
+    required this.what,
+    this.extraText,
 
   });
 
@@ -25,7 +29,8 @@ class ImagePopUpWithOK extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        height: 410,
+
+        height: 440,
         width: 377,
         child: AlertDialog(
           content: Column(
@@ -33,7 +38,9 @@ class ImagePopUpWithOK extends StatelessWidget {
             children: [
               SizedBox(height: 66),
               SvgPicture.asset(
+
                 imagePath,
+
                 height: 66,
                 width: 66,
               ),
@@ -47,15 +54,31 @@ class ImagePopUpWithOK extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
+
+              if (extraText != null) // Check if extraText is not null
+                Text(
+                  extraText!,
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.red,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
               SizedBox(height: 26),
+
               TextButton(
                 onPressed: () {
                   // Navigate to the CameraApp page when OK is clicked
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => CameraApp()),
-                  );
-
+                  if(what == 'camera'){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => CameraApp()),
+                    );
+                  }
+                  if(what == 'ok'){
+                    Navigator.of(context).pop();
+                  }
 
                   },
                 child: Text(
@@ -75,4 +98,11 @@ class ImagePopUpWithOK extends StatelessWidget {
     );
   }
 
+}
+
+void gotocameraapp(BuildContext context) {
+  Navigator.push(
+    context,
+    MaterialPageRoute(builder: (context) => CameraApp()),
+  );
 }

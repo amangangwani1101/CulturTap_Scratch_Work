@@ -147,9 +147,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
     showDialog(
       context: context,
       builder: (context) {
-        return ImagePopUpWithOK(imagePath: 'assets/images/done.svg', textField: 'Your draft has been updated successfully 👌');
+        return ImagePopUpWithOK(
+            imagePath: 'assets/images/done.svg',
+            textField: 'Your draft has been updated successfully 👌',
+            what:'camera');
       },
     );
+
   }
 
   @override

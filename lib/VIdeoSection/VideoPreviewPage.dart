@@ -4,7 +4,7 @@ import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
-
+import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'package:geolocator/geolocator.dart';
 
 
@@ -45,6 +45,9 @@ class VideoPreviewPage extends StatefulWidget {
 class _VideoPreviewPageState extends State<VideoPreviewPage> {
   double? firstVideoLatitude;
   double? firstVideoLongitude;
+  double? userLatitude;
+  double? userLongitude;
+
   @override
   void initState() {
     super.initState();
@@ -74,49 +77,64 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
     return distance <= radius;
   }
 
+  Future<void> fetchUserLocation() async {
+    final Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.medium,
+    );
+
+    setState(() {
+      userLatitude = position.latitude;
+      userLongitude = position.longitude;
+    });
+
+    handleAddNewVideoButton();
+  }
 
 
   void handleAddNewVideoButton() {
-    if (firstVideoLatitude != null && firstVideoLongitude != null) {
-      double radiusInMeters = 500.0;
-      if (isWithinRadius(
+    if (userLatitude != null && userLongitude != null) {
+      double radiusInMeters = 200.0;
+      double distance = Geolocator.distanceBetween(
+        userLatitude!,
+        userLongitude!,
+        firstVideoLatitude!,
+        firstVideoLongitude!,
 
-          firstVideoLatitude!,
-          firstVideoLongitude!,
-          widget.latitude,
-          widget.longitude,
-          radiusInMeters)) {
+      );
+   print('distance');
+   print(distance);
+
+
+      if (distance <= radiusInMeters) {
+        // User is within the radius; they can proceed to create a new video
+        print('Location checked - User is within 500 meters.');
+        Navigator.pop(context);
         print('location checked');
         print(radiusInMeters);
         print("firstVideoLatitude");
         print(firstVideoLatitude);
         print(firstVideoLongitude);
-        // User is within the radius; they can proceed to create a new video
-        Navigator.pop(context);
+        print('location right now');
+        print(widget.latitude);
+        print(widget.longitude);
+        print('distance');
+        print(distance);
       } else {
         // User is outside the radius; show a dialog
         showDialog(
           context: context,
           builder: (context) {
-            return AlertDialog(
-              title: Text('Out of Range'),
-              content: Text(
-                  'You are out of the allowed range. Please return within the 500-meter radius to create a new video.'
-              ),
-              actions: [
-                TextButton(
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  child: Text('OK'),
-                ),
-              ],
-            );
+            return ImagePopUpWithOK(
+                imagePath: 'assets/images/range.svg',
+                textField: 'Your range is getting extended Please upload or save your last recordings before the next shoot, ',
+                extraText:'*Your draft will be available under thesettings option.',
+                what:'ok');
           },
         );
       }
     }
   }
+
 
 
 
@@ -321,7 +339,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                                 height: 80,
                                 child: IconButton(
                                   icon: Image.asset("assets/images/addNewButton.png"),
-                                  onPressed: handleAddNewVideoButton,
+                                  onPressed: fetchUserLocation,
                                 ),
                               ),
                             ],
