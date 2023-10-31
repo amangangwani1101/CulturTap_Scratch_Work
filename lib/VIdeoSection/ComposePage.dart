@@ -64,7 +64,6 @@ class _ComposePageState extends State<ComposePage> {
 
     print('publish button clicked');
     try{
-      const String url = 'http://0.0.0.0:8080/main/api/publish';
 
       final data = {
         "singleStoryData" : {
@@ -91,16 +90,20 @@ class _ComposePageState extends State<ComposePage> {
 
       };
 
-
+      const String serverUrl = 'http://192.168.1.175:8080/main/api/publish';
 
       final http.Response response = await http.post(
-        Uri.parse(url),
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
+        Uri.parse('$serverUrl'),
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: jsonEncode(data),
       );
 
+      print('Response: ${response.statusCode} ${response.reasonPhrase}');
+
       if (response.statusCode == 200) {
-        print('Data sent successfully');
+        print('Data sent successfully yes yes');
         print('Response Data: ${response.body}');
       } else {
         print('Failed to send data. Error: ${response.reasonPhrase}');

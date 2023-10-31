@@ -43,10 +43,10 @@ router.post('/api/publish', async (req, res) => {
     // Save the single story and associate it with the genre
     genreDoc.stories.push(newStory);
 
-    // Save all the data
-    await genreDoc.save(); // Save genre
-    await categoryDoc.save(); // Save category
-    await labelDoc.save(); // Save label
+
+    await genreDoc.save();
+    await categoryDoc.save();
+    await labelDoc.save();
     await newStory.save();
 
     res.status(201).send('Story published successfully');
@@ -58,20 +58,20 @@ router.post('/api/publish', async (req, res) => {
 
 
 
-// router.get('/api/videos', async (req, res) => {
-//   try {
-//     // Use the `find` method to search for stories with a starRating of 5
-//     const videos = await SingleStoryModel.find().sort({starRating: 1});
+ router.get('/api/videos', async (req, res) => {
+   try {
+     // Use the `find` method to search for stories with a starRating of 5
+     const videos = await SingleStoryModel.find().sort({starRating: 1});
 
-//     // Send the results as a JSON response
-//     res.json(videos);
-//   } catch (err) {
-//     console.error(err);
-//     res.status(500).send('Server error');
-//   }
-// });
-
-module.exports = router;
-
+     // Send the results as a JSON response
+     res.json(videos);
+   } catch (err) {
+     console.error(err);
+     res.status(500).send('Server error');
+   }
+ });
 
 module.exports = router;
+
+
+

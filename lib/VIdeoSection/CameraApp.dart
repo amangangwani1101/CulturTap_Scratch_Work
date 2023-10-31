@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:learn_flutter/CulturTap/HomePage.dart';
+import "package:learn_flutter/Utils/BackButtonHandler.dart";
+import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewPage.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
@@ -49,12 +52,14 @@ class _CameraAppState extends State<CameraApp> {
   String liveLocation = '';
   double liveLatitude = 0.0;
   double liveLongitude = 0.0;
+  bool locationgranted = false;
 
   @override
   void initState() {
     super.initState();
     initializeCamera();
     requestLocationPermission();
+
 
     // Check if at least one video has been recorded
     updateCloseButtonVisibility();
@@ -87,8 +92,18 @@ class _CameraAppState extends State<CameraApp> {
     var status = await Permission.location.request();
     if (status.isGranted) {
       fetchUserLocation();
-    } else if (status.isDenied) {
+      locationgranted=true;
+    } else {
+
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => HomePage()),
+      // );
+
+
+      stopRecording;
       // Handle denied location permission
+
     }
   }
 
@@ -118,39 +133,44 @@ class _CameraAppState extends State<CameraApp> {
     await videoFile.copy(videoPath);
   }
 
+
   void startRecording() async {
 
 
+    requestLocationPermission();
 
-    await _controller!.startVideoRecording();
+      await _controller!.startVideoRecording();
 
-    setState(() {
-      _isRecording = true;
-      _currentProgress = 0.0;
-      _remainingRecordingTime = 60;
-    });
+      setState(() {
+        _isRecording = true;
+        _currentProgress = 0.0;
+        _remainingRecordingTime = 60;
+      });
 
-    _showRecordingMessage = true;
-    Timer(Duration(seconds: 1), () {
-      if (mounted) {
-        setState(() {
-          _showRecordingMessage = false;
-        });
-      }
-    });
+      _showRecordingMessage = true;
+      Timer(Duration(seconds: 1), () {
+        if (mounted) {
+          setState(() {
+            _showRecordingMessage = false;
+          });
+        }
+      });
 
 
-    _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
-      if (_remainingRecordingTime > 0) {
-        setState(() {
-          _remainingRecordingTime--;
-          _currentProgress = (60 - _remainingRecordingTime) / 60;
-        });
-      } else {
-        stopRecording();
-        timer.cancel();
-      }
-    });
+      _countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+        if (_remainingRecordingTime > 0) {
+          setState(() {
+            _remainingRecordingTime--;
+            _currentProgress = (60 - _remainingRecordingTime) / 60;
+          });
+        } else {
+          stopRecording();
+          timer.cancel();
+        }
+      });
+
+
+
 
     //for smooth timing
     // Timer.periodic(Duration(milliseconds: 100), (timer) {
@@ -165,8 +185,8 @@ class _CameraAppState extends State<CameraApp> {
     // });
   }
 
-  void navigateToPreviewPage() {
-    navigatorKey.currentState?.push(
+  void navigateToPreviewPage(BuildContext context) {
+    Navigator.of(context).push(
       MaterialPageRoute(
         builder: (context) => VideoPreviewPage(
           videoPaths: recordedVideoPaths,
@@ -177,6 +197,7 @@ class _CameraAppState extends State<CameraApp> {
       ),
     );
   }
+
 
   void stopRecording() async {
     _countdownTimer?.cancel();
@@ -200,8 +221,9 @@ class _CameraAppState extends State<CameraApp> {
       String videoPath = videoFile.path;
       saveVideo(File(videoPath));
       recordedVideoPaths.add(videoPath);
-
-      navigateToPreviewPage();
+      print('navigating to preview page');
+      navigateToPreviewPage(context);
+      print('navigated to preview page');
     }
   }
 
@@ -262,153 +284,164 @@ class _CameraAppState extends State<CameraApp> {
     }
   }
 
+  BackButtonHandler backButtonHandler = BackButtonHandler(
+    imagePath: 'assets/images/exit.svg',
+    textField: 'homepage,',
+    what: 'back',
+  );
+
 
   @override
   Widget build(BuildContext context) {
     if (_controller == null || !_controller!.value.isInitialized) {
       return Scaffold(
-        body: Container(
-          color: Color(0xFF263238),
-          child: Center(
-            child: CircularProgressIndicator(
+          body: Container(
+            color: Color(0xFF263238),
+            child: Center(
+              child: CircularProgressIndicator(
 
-              valueColor: AlwaysStoppedAnimation<Color>(
-                Colors.orange,
+                valueColor: AlwaysStoppedAnimation<Color>(
+                  Colors.orange,
 
+                ),
               ),
             ),
           ),
-        ),
-      );
+        );
     } else {
-      return Scaffold(
-        body: Stack(
-          fit: StackFit.expand,
-          children: <Widget>[
-            CameraPreview(_controller!),
-            if (hasRecordedVideos)
-              Positioned(
-                top: 50,
-                right: 30,
-                child: GestureDetector(
-                  onTap: navigateToPreviewPage,
-                  child: Icon(
-                    Icons.close,
-                    color: Colors.white,
-                    size: 30,
+      return WillPopScope(
+        onWillPop: () => backButtonHandler.onWillPop(context, true),
+        child: Scaffold(
+          body: Stack(
+            fit: StackFit.expand,
+            children: <Widget>[
+              CameraPreview(_controller!),
+              if (hasRecordedVideos)
+                Positioned(
+                  top: 50,
+                  right: 30,
+                  child: GestureDetector(
+                    onTap: (){
+                      navigateToPreviewPage(context);
+                    } ,
+                    child: Icon(
+                      Icons.close,
+                      color: Colors.white,
+                      size: 30,
+                    ),
                   ),
                 ),
-              ),
-            Positioned(
-              bottom: 190,
-              left: 10,
-              right: 0,
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    _showRecordingMessage ? 'Recording Started' : '',
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
+              Positioned(
+                bottom: 190,
+                left: 10,
+                right: 0,
+                child: Column(
+                  children: <Widget>[
+                    Text(
+                      _showRecordingMessage ? 'Recording Started' : '',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                  Text(
-                    _isRecording ? 'Time Remaining: $_remainingRecordingTime' : '',
-                    style: TextStyle(
-                      color: Colors.white54,
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
+                    Text(
+                      _isRecording ? 'Time Remaining: $_remainingRecordingTime' : '',
+                      style: TextStyle(
+                        color: Colors.white54,
+                        fontSize: 18.0,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
-            ),
-            Positioned(
-              bottom: 30,
-              left: 0,
-              right: 0,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Container(
-                    width: 90,
-                    height: 80,
-                  ),
-                  Column(
-                    children: [
-                      GestureDetector(
-                        onTap: _isRecording ? stopRecording : startRecording,
-                        child: Container(
-                          margin: EdgeInsets.all(10.0),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox(
-                                width: 80,
-                                height: 80,
-                                child: CircularProgressIndicator(
-                                  value: _isRecording ? _currentProgress : 0.0,
-                                  backgroundColor: Colors.transparent,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.orange,
+              Positioned(
+                bottom: 30,
+                left: 0,
+                right: 0,
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Container(
+                      width: 90,
+                      height: 80,
+                    ),
+                    Column(
+                      children: [
+                        GestureDetector(
+                          onTap: _isRecording ? stopRecording : startRecording,
+                          child: Container(
+                            margin: EdgeInsets.all(10.0),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 80,
+                                  height: 80,
+                                  child: CircularProgressIndicator(
+                                    value: _isRecording ? _currentProgress : 0.0,
+                                    backgroundColor: Colors.transparent,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.orange,
+                                    ),
+                                    strokeWidth: 10.0,
                                   ),
-                                  strokeWidth: 10.0,
                                 ),
-                              ),
-                              SizedBox(
-                                width: 80,
-                                height: 80,
-                                child: Icon(
-                                  _isRecording
-                                      ? Icons.pause_circle
-                                      : Icons.circle,
-                                  size: 69,
-                                  color: _isRecording
-                                      ? Colors.white60
-                                      : Colors.white,
+                                SizedBox(
+                                  width: 80,
+                                  height: 80,
+                                  child: Icon(
+                                    _isRecording
+                                        ? Icons.pause_circle
+                                        : Icons.circle,
+                                    size: 69,
+                                    color: _isRecording
+                                        ? Colors.white60
+                                        : Colors.white,
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
-                      Text(
-                        'Start Filming',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      SizedBox(
-                        child: Container(
-                          height: 100,
-                          width: 80,
-                          child: IconButton(
-                            icon: Image.asset("assets/images/flip_camera.png"),
-                            onPressed: toggleCamera,
+                        Text(
+                          'Start Filming',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 18,
                           ),
                         ),
-                      ),
-                      Text(
-                        'Flip',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 18,
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        SizedBox(
+                          child: Container(
+                            height: 100,
+                            width: 80,
+                            child: IconButton(
+                              icon: Image.asset("assets/images/flip_camera.png"),
+                              onPressed: toggleCamera,
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        Text(
+                          'Flip',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       );
     }
