@@ -22,79 +22,79 @@ class MeetTimings{
   // }
 }
 
-void printAllData(CalendarPlansData data) {
-  data.date!.forEach((key, meetTimings) {
-    print("Date: $key");
-    if (meetTimings != null) {
-      print("Meeting Start Times:");
-      for (var startTime in meetTimings.meetStartTime!) {
-        print(startTime);
-      }
-
-      print("Meeting End Times:");
-      for (var endTime in meetTimings.meetEndTime!) {
-        print(endTime);
-      }
-    } else {
-      print("No data available for $key.");
-    }
-    print("");
-  });
-}
-
-class CalendarPlansData{
-  Map<String, MeetTimings>? date;
-
-
-  CalendarPlansData({this.date});
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> serializedData = {};
-    date?.forEach((d, meetTimings) {
-      serializedData[d] = meetTimings.toJson();
-    });
-    return serializedData;
-  }
-
-  // factory CalendarPlansData.fromJson(Map<String, dynamic> json) {
-  //   final Map<String, MeetTimings> deserializedData = {};
-  //   json.forEach((date, data) {
-  //     deserializedData[date] = MeetTimings.fromJson(data);
-  //   });
-  //
-  //   return CalendarPlansData()..date = deserializedData;
-  // }
-  factory CalendarPlansData.fromJson(Map<String, dynamic>? json) {
-    print(json);
-    final CalendarPlansData data = CalendarPlansData(date: {});
-
-    json?.forEach((date, meetTimingsData) {
-      List<List<String>> l = [];
-      meetTimingsData.forEach((day, meetings) {
-        l.add((meetings as List<dynamic>).map((dynamic item) => item.toString()).toList());
-      });
-
-      // final List<String>? meetStartTime = (meetTimingsData['meetStartTime'] as List<String>?)
-      //     ?.map((String item) => item.toString())
-      //     .toList();
-      // final List<String>? meetEndTime = (meetTimingsData['meetEndTime'] as List<dynamic>?)
-      //     ?.map((dynamic item) => item.toString())
-      //     .toList();
-      // print(meetStartTime);
-
-      if (l[0] != null && l[1] != null) {
-        final MeetTimings meetTimings = MeetTimings()
-          ..meetStartTime = l[0]
-          ..meetEndTime = l[1];
-        data.date![date] = meetTimings;
-      } else {
-        print("No meetStartTime or meetEndTime data found for date: $date");
-      }
-    });
-
-    return data;
-  }
-}
+// void printAllData(CalendarPlansData data) {
+//   data.date!.forEach((key, meetTimings) {
+//     print("Date: $key");
+//     if (meetTimings != null) {
+//       print("Meeting Start Times:");
+//       for (var startTime in meetTimings.meetStartTime!) {
+//         print(startTime);
+//       }
+//
+//       print("Meeting End Times:");
+//       for (var endTime in meetTimings.meetEndTime!) {
+//         print(endTime);
+//       }
+//     } else {
+//       print("No data available for $key.");
+//     }
+//     print("");
+//   });
+// }
+//
+// class CalendarPlansData{
+//   Map<String, MeetTimings>? date;
+//
+//
+//   CalendarPlansData({this.date});
+//
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> serializedData = {};
+//     date?.forEach((d, meetTimings) {
+//       serializedData[d] = meetTimings.toJson();
+//     });
+//     return serializedData;
+//   }
+//
+//   // factory CalendarPlansData.fromJson(Map<String, dynamic> json) {
+//   //   final Map<String, MeetTimings> deserializedData = {};
+//   //   json.forEach((date, data) {
+//   //     deserializedData[date] = MeetTimings.fromJson(data);
+//   //   });
+//   //
+//   //   return CalendarPlansData()..date = deserializedData;
+//   // }
+//   factory CalendarPlansData.fromJson(Map<String, dynamic>? json) {
+//     print(json);
+//     final CalendarPlansData data = CalendarPlansData(date: {});
+//
+//     json?.forEach((date, meetTimingsData) {
+//       List<List<String>> l = [];
+//       meetTimingsData.forEach((day, meetings) {
+//         l.add((meetings as List<dynamic>).map((dynamic item) => item.toString()).toList());
+//       });
+//
+//       // final List<String>? meetStartTime = (meetTimingsData['meetStartTime'] as List<String>?)
+//       //     ?.map((String item) => item.toString())
+//       //     .toList();
+//       // final List<String>? meetEndTime = (meetTimingsData['meetEndTime'] as List<dynamic>?)
+//       //     ?.map((dynamic item) => item.toString())
+//       //     .toList();
+//       // print(meetStartTime);
+//
+//       if (l[0] != null && l[1] != null) {
+//         final MeetTimings meetTimings = MeetTimings()
+//           ..meetStartTime = l[0]
+//           ..meetEndTime = l[1];
+//         data.date![date] = meetTimings;
+//       } else {
+//         print("No meetStartTime or meetEndTime data found for date: $date");
+//       }
+//     });
+//
+//     return data;
+//   }
+// }
 
 
 // Trip Calling Schema - Frontend

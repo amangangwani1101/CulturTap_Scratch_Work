@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 
 import 'UserProfile/ProfileHeader.dart';
@@ -13,6 +14,7 @@ import './widgets/hexColor.dart';
 //   }
 //   HexColor(final String hex) : super(_getColor(hex));
 // }
+
 
 class CardItem {
   final String image;
@@ -36,6 +38,23 @@ class CardItem {
   });
 }
 
+void main() async{
+  runApp(MyApp());
+}
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          title: Text('My App'),
+        ),
+        body: PaymentSection(), // Your custom widget here
+      ),
+    );
+  }
+}
 class PaymentSection extends StatelessWidget{
   List<CardDetails> cards = [
     // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
@@ -45,6 +64,7 @@ class PaymentSection extends StatelessWidget{
   ];
   bool cardform=false;
   @override
+
   Widget build(BuildContext context){
     return Scaffold(
       body: SingleChildScrollView(
@@ -118,7 +138,35 @@ class _PaymentCardState extends State<PaymentCard> {
   TextEditingController expMonthController = TextEditingController();
   TextEditingController expYearController = TextEditingController();
   TextEditingController cvvController = TextEditingController();
-  @override
+
+  // @override
+  // void initState() {
+  //   super.initState();
+  //
+  //   // Initialize the Stripe SDK with your publishable key
+  //   Stripe.publishableKey = 'pk_test_51O1mwsSBFjpzQSTJYIRROzWlVlSlOL4ysCytD2icFn57ISGbDUDaVLyLgFJABlFaHDPgMmmOpvRKxE99x3w90HRf00ZwzrVv0R';
+  // }
+  //
+  // Future<void> _handlePayment() async {
+  //   final card = PaymentMethodParams.cardFromMethod(PaymentMethod.card);
+  //
+  //   // Replace with your actual card details
+  //   card.number = '4242424242424242';
+  //   card.expMonth = 12;
+  //   card.expYear = 25;
+  //   card.cvc = '123';
+  //
+  //   final token = await Stripe.instance.createToken(card);
+  //
+  //   // Handle the token, you can send it to your server for processing
+  //   if (token != null) {
+  //     print('Token ID: ${token.tokenId}');
+  //     // You can now send this token to your backend for further processing.
+  //   } else {
+  //     print('Token creation failed.');
+  //     // Handle the error
+  //   }
+  // }
   Widget build (BuildContext context){
     List<CardDetails> cards = widget.paymentCards;
     return SingleChildScrollView(
@@ -463,111 +511,4 @@ class _PaymentCardState extends State<PaymentCard> {
     );
   }
 }
-
-// class _PaymentCardState extends State<PaymentCard>{
-//   TextEditingController nameController = TextEditingController();
-//   TextEditingController emailController = TextEditingController();
-//   bool isFormVisible = false;
-//   bool isEditing = false;
-//   String savedName = '';
-//   String savedEmail = '';
-//
-//   void saveForm() {
-//     // Handle form submission and save responses
-//     // You can store these responses in variables or a data structure
-//     // For simplicity, we'll print them to the console
-//     setState(() {
-//       savedName = nameController.text;
-//       savedEmail = emailController.text;
-//       isFormVisible = false;
-//       isEditing = false;
-//     });
-//   }
-//
-//   void editForm() {
-//     // Allow the user to edit the form
-//     setState(() {
-//       isEditing = true;
-//       isFormVisible = true;
-//     });
-//   }
-//
-//   void resetForm() {
-//     // Reset all form fields
-//     nameController.clear();
-//     emailController.clear();
-//     setState(() {
-//       isEditing = false;
-//       isFormVisible = false;
-//       savedName = '';
-//       savedEmail = '';
-//     });
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return Column(
-//       children: [
-//         GestureDetector(
-//           onTap: () {
-//             if (!isEditing) {
-//               editForm();
-//             }
-//           },
-//           child: isFormVisible
-//               ? AnimatedContainer(
-//             // Slide down animation properties
-//             duration: Duration(milliseconds: 300),
-//             height: isFormVisible ? 200 : 0,
-//             child: Column(
-//               children: [
-//                 TextField(
-//                   controller: nameController,
-//                   decoration: InputDecoration(labelText: 'Name'),
-//                 ),
-//                 TextField(
-//                   controller: emailController,
-//                   decoration: InputDecoration(labelText: 'Email'),
-//                 ),
-//                 ElevatedButton(
-//                   onPressed: saveForm,
-//                   child: Text('Save'),
-//                 ),
-//               ],
-//             ),
-//           )
-//               : savedName.isNotEmpty || savedEmail.isNotEmpty
-//               ? Card(
-//             // Display concise card with entered details
-//             child: Column(
-//               children: [
-//                 Text('Name: $savedName'),
-//                 Text('Email: $savedEmail'),
-//                 ElevatedButton(
-//                   onPressed: editForm,
-//                   child: Text('Edit'),
-//                 ),
-//               ],
-//             ),
-//           )
-//               : Card(
-//             child: Column(
-//               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),),
-//                 Text('This payment method will help you to pay & receive money',style: TextStyle(fontSize: 14,),),
-//               ],
-//             ),
-//           ),
-//         ),
-//         if (isEditing)
-//           ElevatedButton(
-//             onPressed: resetForm,
-//             child: Text('Reset'),
-//           ),
-//       ],
-//     );
-//   }
-// }
 

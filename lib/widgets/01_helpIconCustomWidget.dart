@@ -1,6 +1,8 @@
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/CalendarHelper.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/Pings.dart';
 import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
@@ -14,8 +16,10 @@ class CustomHelpOverlay extends StatelessWidget {
 
   final String imagePath;
   bool? serviceSettings=false;
+  String?text,navigate;
+  final helper;
   final ProfileDataProvider? profileDataProvider;
-  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider});
+  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.helper});
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -50,14 +54,31 @@ class CustomHelpOverlay extends StatelessWidget {
                     Positioned(
                       top: 15,
                       right: 15,
-                      child:IconButton(
+                      child:navigate=='pings'
+                        ?SizedBox(width: 0,)
+                        : IconButton(
                         icon: Icon(Icons.close),
                         onPressed: (){
                           Navigator.of(context).pop();
                         },
                       ),
                     ),
-                    if (serviceSettings!) Container(
+                    if (text!=null) Container(
+                      height: 250,
+                      child: Align(
+                        alignment: Alignment.bottomCenter,
+                        child: GestureDetector(
+                            onTap: (){
+                              if(navigate=='calendarhelper')
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=> CalendarHelper(plans:helper!)));
+                              else if(navigate=='pings')
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=> PingsSection(userId: helper!,)));
+
+                            },
+                            child: Text(text!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
+                      ),
+                    ) else SizedBox(width: 0,),
+                    if (serviceSettings!=null) Container(
                         height: 250,
                         child: Align(
                           alignment: Alignment.bottomCenter,

@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/Pings.dart';
 
 import '../widgets/01_helpIconCustomWidget.dart';
 import '../widgets/hexColor.dart';
@@ -12,7 +13,8 @@ import '../widgets/hexColor.dart';
 class ProfileHeader extends StatefulWidget {
   final int reqPage;
   final String? imagePath;
-  ProfileHeader({required this.reqPage,this.imagePath});
+  final String? userId;
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -91,41 +93,53 @@ class _ProfileHeaderState extends State<ProfileHeader> {
           widget.reqPage<=1?
           Column(
             children: [
-              Container(
-                width: 55,
-                height: 35,
-                // decoration: BoxDecoration(
-                //   border: Border.all(
-                //     color: Colors.orange,
-                //     width: 2,
-                //   ),
-                // ),
-                child: Stack(
-                  alignment: Alignment.topRight,
-                  children: [
-                    Padding(
-                      padding: EdgeInsets.only(top: 6.0,right: 4.0),
-                      child: Image.asset('assets/images/ping_image.png',height: 28 ,fit: BoxFit.cover,
+              InkWell(
+                onTap: (){
+                  if(widget.userId!=null){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PingsSection(userId: widget.userId!,),
                       ),
-                    ),
-                    if(notificationCount>0)
-                      Positioned(
-                        top: -6,
-                        right: 0,
-                        // height: 20,
-                        child: Container(
-                          padding: EdgeInsets.all(4),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            shape: BoxShape.circle,
-                          ),
-                          child: Text(
-                            notificationCount.toString(),
-                            style: TextStyle(fontSize: 14,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
-                          ),
+                    );
+                  }
+                },
+                child: Container(
+                  width: 55,
+                  height: 35,
+                  // decoration: BoxDecoration(
+                  //   border: Border.all(
+                  //     color: Colors.orange,
+                  //     width: 2,
+                  //   ),
+                  // ),
+                  child: Stack(
+                    alignment: Alignment.topRight,
+                    children: [
+                      Padding(
+                        padding: EdgeInsets.only(top: 6.0,right: 4.0),
+                        child: Image.asset('assets/images/ping_image.png',height: 28 ,fit: BoxFit.cover,
                         ),
                       ),
-                  ],
+                      if(notificationCount>0)
+                        Positioned(
+                          top: -6,
+                          right: 0,
+                          // height: 20,
+                          child: Container(
+                            padding: EdgeInsets.all(4),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              shape: BoxShape.circle,
+                            ),
+                            child: Text(
+                              notificationCount.toString(),
+                              style: TextStyle(fontSize: 14,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
                 ),
               ),
               Text('Pings',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
@@ -142,7 +156,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             height: 45,
             child: Align(
               alignment: Alignment.topCenter,
-              child: GestureDetector(
+              child: widget.reqPage==4?GestureDetector(
                 onTap: (){
                   showDialog(context: context, builder: (BuildContext context){
                     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/icon.jpg',serviceSettings: false,),);
@@ -150,7 +164,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   );
                 },
                 child: Image.asset('assets/images/skip.png',width: 60,height: 30,),
-              ),
+              ):SizedBox(width: 0,),
             ),
           ),
         ],
