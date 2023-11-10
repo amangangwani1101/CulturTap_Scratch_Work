@@ -57,7 +57,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               Text('Profile',style: TextStyle(fontSize: 14,color:HexColor("#FB8C00"),fontWeight: FontWeight.w900,fontFamily: 'Poppins',),),
             ],
           ):
-          Container(
+          widget.reqPage!=6
+          ? Container(
             // decoration: BoxDecoration(
             //   border: Border.all(
             //     color: Colors.black,
@@ -75,7 +76,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 child: Image.asset('assets/images/back.png',width: 60,height: 30,),
               ),
             ),
-          ),
+          )
+          :SizedBox(height: 0,),
           widget.reqPage>=1?
           Padding(
             padding:EdgeInsets.only(top: 13.0),

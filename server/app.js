@@ -13,7 +13,7 @@ const mongoose = require("mongoose");
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-
+const stripe = require('stripe')('sk_test_51O1mwsSBFjpzQSTJcZbPFYDAWpuV5idzEE62s6n7QHEswXShSp8rJqmWZcejO5jvcTZWcBZHh063PDu2AgTKpneT00sISTulAG');
 const server = app.listen(port, "0.0.0.0", () => {
   console.log(`Server is running at port ${port}`);
 });
@@ -134,10 +134,10 @@ app.post("/scheduleMeeting", async (req, res) => {
 //require some modification
 app.post("/updateUserDayPlans", async (req, res) => {
   try {
-    const { userId, date, startTime, endTime, meetingId,meetingStatus,meetingTitle,id,meetingType } = req.body;
+    const { userId, date, startTime, endTime, meetingId,meetingStatus,meetingTitle,id,meetingType,userName,userPhoto } = req.body;
 
     const user = await ProfileData.findById(userId).lean();
-
+    console.log(user);
     if (!user) {
       return res.status(404).json({ message: "User Not Found" });
     }
@@ -160,6 +160,8 @@ app.post("/updateUserDayPlans", async (req, res) => {
         meetingTitle:[meetingTitle],
         userId:[id],
         meetingType:[meetingType],
+        userName:[userName],
+        userPhoto:[userPhoto],
       };
       console.log(user.userServiceTripCallingData.dayPlans[date]);
     } else {
@@ -172,6 +174,8 @@ app.post("/updateUserDayPlans", async (req, res) => {
       user.userServiceTripCallingData.dayPlans[date].meetingTitle.push(meetingTitle);
       user.userServiceTripCallingData.dayPlans[date].userId.push(id);
       user.userServiceTripCallingData.dayPlans[date].meetingType.push(meetingType);
+      user.userServiceTripCallingData.dayPlans[date].userName.push(userName);
+      user.userServiceTripCallingData.dayPlans[date].userPhoto.push(userPhoto);
     }
 
     // Sort the dates in decreasing order before saving
@@ -248,6 +252,28 @@ app.patch("/updateMeetingChats", async (req, res) => {
      return res.status(500).json({ message: "Internal Server Error" });
    }
 });
+
+app.patch('/storeMeetingConversation', async (req, res) => {
+  try {
+    const { meetId, conversation } = req.body;
+    console.log('Am', req.body);
+    const meet = await MeetingsData.findById(meetId);
+    console.log(meet);
+    if (!meet) {
+      return res.status(404).json({ message: "Meeting Not Found" });
+    }
+    console.log(meet.conversation);
+    if (meet.conversation.length===0) {
+      meet.conversation = conversation;
+    }
+    await meet.save();
+    res.status(200).json({ message: "Conversation stored successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 
 // socket connection and chat functions and features
 io.on("connection", (socket) => {
@@ -357,5 +383,61 @@ io.on("connection", (socket) => {
       });
   } catch (e) {
     console.log(e);
+  }
+});
+
+
+// stripe payment routes
+
+//app.post('/createCustomerToken', async (req, res) => {
+//  const cardDetails = req.body; // Assuming you receive card details in the format {number, exp_month, exp_year, cvc, name}
+//
+//  try {
+//    const token = await stripe.tokens.create({
+//      card: {
+//        number: cardDetails.number,
+//        exp_month: cardDetails.expMonth,
+//        exp_year: cardDetails.expYear,
+//        cvc: cardDetails.cvc,
+//        name: cardDetails.name,
+//      },
+//    });
+//
+//    console.log(token);
+//
+//    // You might want to associate this token with a dealer and save it securely in your database
+//
+//    res.status(200).json({ token: token.id });
+//  } catch (err) {
+//    res.status(500).json({ error: err.message });
+//  }
+//});
+
+app.post('/createCustomerToken', async (req, res) => {
+  const { name,number,expYear,expMonth,cvc } = req.body;
+  console.log(req.body);
+  try {
+    // Create a token from the dealer's card details
+    const token = await stripe.tokens.create({
+      card: {
+        number: number,
+        exp_month: expMonth,
+        exp_year: expYear,
+        cvc: cvc,
+      },
+    });
+
+    // Create a customer object in Stripe and associate the token
+    const customer = await stripe.customers.create({
+      source: token,
+    });
+
+    // Save dealer information and Stripe customer ID in your database
+    await saveDealer(name, customer.id);
+
+    res.status(200).json({ message: 'Dealer created successfully' });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
   }
 });

@@ -33,7 +33,7 @@ class _ChatAppsState extends State<ChatApps> {
   late IO.Socket socket;
   List<List<String>> messages = [];
   List<String>sender=[],receiver=[];
-  final String serverUrl = 'http://192.168.57.54:8080'; // Replace with your server's URL
+  final String serverUrl = 'http://192.168.86.37:8080'; // Replace with your server's URL
   late Timer meetingTimer;
   String senderNavigatorId = 'sender';
   String receiverNavigatorId = 'receiver';
@@ -56,7 +56,7 @@ class _ChatAppsState extends State<ChatApps> {
       'transports': ['websocket'],
       'autoConnect': true,
     });
-    // startMeetingTimer();
+    startMeetingTimer();
     // startTimer();
     if(widget.senderId!='')
       fetchDataFromSharedPreferences(senderNavigatorId);
@@ -192,18 +192,16 @@ class _ChatAppsState extends State<ChatApps> {
     }
   }
 
-  void updateMeetingChats(String meetId,List<String>sender,List<String>receiver)async{
+  void updateMeetingChats(String meetId)async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
         'meetId':meetId,
-        'sender':sender,
-        'receiver':receiver
+        'conversation':messages,
       };
       print('PPPPP::$data');
-      return;
       final http.Response response = await http.patch(
-        Uri.parse('$serverUrl/updateMeetingChats'), // Adjust the endpoint as needed
+        Uri.parse('$serverUrl/storeMeetingConversation'), // Adjust the endpoint as needed
         headers: {
           "Content-Type": "application/json",
         },
@@ -315,7 +313,7 @@ class _ChatAppsState extends State<ChatApps> {
 
   void navigateToEndScreen() {
     // Navigate to the end screen after the meeting ends
-    updateMeetingChats(widget.meetingId,sender,receiver);
+    updateMeetingChats(widget.meetingId);
     cancelMeeting(widget.date!,widget.index!,'close',widget.receiverId==''?widget.senderId:widget.receiverId,'close');
     showMeetingEndedAlert();
     Navigator.pushReplacement(
@@ -326,6 +324,7 @@ class _ChatAppsState extends State<ChatApps> {
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     int minutes = remainingTime.inMinutes;
     return MaterialApp(
       theme: ThemeData(
@@ -347,27 +346,33 @@ class _ChatAppsState extends State<ChatApps> {
               SizedBox(height: 20,),
               Container(
                 height: 120,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                child: Row(
                   children: [
-                    Row(
+                    SizedBox(width: 35,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        SizedBox(width: 35,),
-                        Text('Get Connected With \nCustomer',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,),),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(width: 35,),
-                        Text('You Can Chat or Talk',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
-                      ],
-                    ),
-                    Row(
-                      children: [
-                        SizedBox(width: 35,),
-                        Image.asset('assets/images/clock.png',width: 22,height: 22,color: Colors.green,),
-                        SizedBox(width: 10,),
-                        Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text('Get Connected With \nCustomer',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,),),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text('You Can Chat or Talk',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Image.asset('assets/images/clock.png',width: 22,height: 22,color: Colors.green,),
+                            SizedBox(width: 10,),
+                            Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                          ],
+                        ),
                       ],
                     ),
                   ],
@@ -376,7 +381,7 @@ class _ChatAppsState extends State<ChatApps> {
             SizedBox(height: 20,),
             messages.length==0
             ?Container(
-              width: 336,
+              width: screenWidth<400?screenWidth*0.85:336,
               height: 134,
               decoration: BoxDecoration(
                 color: Colors.white, // Container background color
@@ -400,56 +405,74 @@ class _ChatAppsState extends State<ChatApps> {
               ),
             )
             : Expanded(
-              child: ListView.builder(
-                itemCount: messages.length,
-                itemBuilder: (context, index) {
-                  return ListTile(
-                    title:messages[index][1]=='sender'
-                            ?widget.senderId!=''
-                            ?Align(alignment: Alignment.centerRight, child: Container(padding:EdgeInsets.all(10),color: Colors.white60,  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,),)))
-                            :Align(alignment: Alignment.centerLeft, child: Container(padding:EdgeInsets.all(10),color: Colors.white60, child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,),)))
-                            :widget.senderId==''
-                         ?Align(alignment: Alignment.centerRight, child: Container(padding:EdgeInsets.all(10),color: Colors.white60, child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,),)))
-                         :Align(alignment: Alignment.centerLeft, child: Container(padding:EdgeInsets.all(10),color: Colors.white60,  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,),))),
-                  );
-                },
+              child: Row(
+                children: [
+                  SizedBox(width: 20,),
+                  Container(
+                    width: screenWidth<400?screenWidth*0.92:400,
+                    // decoration: BoxDecoration(border:Border.all(width: 1)),
+                    child: ListView.builder(
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          title:messages[index][1]=='sender'
+                                  ?widget.senderId!=''
+                                  ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#FB8C00').withOpacity(0.8)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.white),)))
+                                  :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#FB8C00').withOpacity(0.8)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.white),)))
+                                  :widget.senderId==''
+                               ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#FB8C00').withOpacity(0.8)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.white),)))
+                               :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#FB8C00').withOpacity(0.8)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.white),))),
+                        );
+                      },
+                    ),
+                  ),
+                ],
               ),
             ),
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Container(
-                width: 305,
-                height: 58  ,
-                // decoration: BoxDecoration(borderRadius: BorderRadius.circular(10)),
-                color: HexColor('#F2F2F2'),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  children: <Widget>[
-                    SizedBox(width: 30,),
-                    Expanded(
-                      child: TextField(
-                        controller: _controller,
-                        decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Container(
+                  width: screenWidth<400?screenWidth*0.70:320,
+                  height: 58,
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#F2F2F2'),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: <Widget>[
+                      SizedBox(width: 30,),
+                      Expanded(
+                        child: TextField(
+                          controller: _controller,
+                          decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
+                        ),
                       ),
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.send),
-                      onPressed: _handleSend,
-                    ),
-
-                    IconButton(
-                      icon: Icon(Icons.call),
-                      // onPressed:initiateVideoCall,
-                      onPressed: startCall,
-                    ),
-                    IconButton(
-                      icon: Icon(Icons.video_call_outlined),
-                      // onPressed:initiateVideoCall,
-                      onPressed: (){},
-                    ),
-                  ],
+                      IconButton(
+                        icon: Icon(Icons.send),
+                        onPressed: _handleSend,
+                      ),
+                    ],
+                  ),
                 ),
-              ),
+                SizedBox(width: 5,),
+                Container(
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: HexColor('#F2F2F2')),
+                  child: IconButton(
+                    icon: Icon(Icons.call),
+                    // onPressed:initiateVideoCall,
+                    onPressed: startCall,
+                  ),
+                ),
+                SizedBox(width: 5,),
+                Container(
+                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: HexColor('#F2F2F2')),
+                  child: IconButton(
+                    icon: Icon(Icons.videocam),
+                    // onPressed:initiateVideoCall,
+                    onPressed: (){},
+                  ),
+                ),
+              ],
             ),
           ],
         ),

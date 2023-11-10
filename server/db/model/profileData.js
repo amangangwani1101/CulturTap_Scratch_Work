@@ -85,7 +85,6 @@ const labelSchema = new mongoose.Schema({
 // --------------
 
 // trip calling service section complete schema
-
 const dayPlansSchema = new mongoose.Schema({
   meetStartTime: [String],
   meetEndTime: [String],
@@ -94,6 +93,8 @@ const dayPlansSchema = new mongoose.Schema({
   meetingTitle:[String],
   userId:[String],
   meetingType:[String],
+  userName:[String],
+  userPhoto:[String],
 });
 
 const userTripCallingSchema = new mongoose.Schema({

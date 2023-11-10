@@ -169,6 +169,7 @@ class _PingSectionState extends State<PingsSection>{
       print("Error: $err");
     }
   }
+
   String convertToDate(String dateStr) {
     final Map<String, String> months = {
       'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
@@ -326,7 +327,7 @@ class _PingSectionState extends State<PingsSection>{
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Total requests : 21',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                      Text('Total requests : 1',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
                       Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: <Widget>[
@@ -386,22 +387,9 @@ class _PingSectionState extends State<PingsSection>{
                         String meetTitle = meetDetails['meetingTitle'][index];
                         String userId = meetDetails['userId'][index];
                         String meetType = meetDetails['meetingType'][index];
+                        String userName = meetDetails['userName'][index];
+                        String userPhoto = meetDetails['userPhoto'][index];
                         return Container(
-                          // width: screenWidth*0.85,
-                          margin: EdgeInsets.only(bottom: 40),
-                          decoration: BoxDecoration(
-                            color: Colors.white, // Container background color
-                            borderRadius: BorderRadius.circular(10),
-                            boxShadow: [
-                              BoxShadow(
-                                color: Colors.grey.withOpacity(0.5), // Shadow color
-                                spreadRadius: 4, // Spread radius
-                                blurRadius: 7, // Blur radius
-                                offset: Offset(0, 3), // Changes the position of the shadow
-                              ),
-                            ],
-                          ),
-                          padding: EdgeInsets.only(top:10,bottom:20),
                           child:
                           ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
                           (_selectedValue == 'Accepted' && meetStatus =='accept')||
@@ -409,273 +397,304 @@ class _PingSectionState extends State<PingsSection>{
                           (_selectedValue == 'Closed' && meetStatus =='close')||
                           (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
                           _selectedValue =='All')
-                          ? Column(
-                            children: [
-                              SizedBox(height: 10,),
-                              Center(
-                                child: Container(
-                                  width:screenWidth*0.70,
-                                  height: 36,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween ,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: [
-                                      Row(
-                                        children: [
-                                          meetType=='sender'
-                                              ? CircleAvatar(
-                                            radius: 20.0,
-                                            backgroundImage: pingsDataStore.userPhotoPath != null
-                                              ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                            )
-                                            :CircleAvatar(
-                                            radius: 20.0,
-                                            backgroundImage: pingsDataStore.userPhotoPath != null
+                          ? Container(
+                            padding: EdgeInsets.only(top:10,bottom:20),
+
+                            margin: EdgeInsets.only(bottom: 40),
+                            decoration: BoxDecoration(
+                              color: Colors.white, // Container background color
+                              borderRadius: BorderRadius.circular(10),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5), // Shadow color
+                                  spreadRadius: 4, // Spread radius
+                                  blurRadius: 7, // Blur radius
+                                  offset: Offset(0, 3), // Changes the position of the shadow
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                SizedBox(height: 10,),
+                                Center(
+                                  child: Container(
+                                    width:screenWidth*0.73,
+                                    height: 36,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                                      crossAxisAlignment: CrossAxisAlignment.center,
+                                      children: [
+                                        Row(
+                                          children: [
+                                            meetType=='sender'
+                                                ? CircleAvatar(
+                                              radius: 20.0,
+                                              backgroundImage: pingsDataStore.userPhotoPath != null
                                                 ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
                                                 : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                          ),
-                                          SizedBox(width: 6,),
-                                          Image.asset('assets/images/arrow_dir.png'),
-                                          SizedBox(width: 6,),
-                                          meetType=='sender'
-                                              ? CircleAvatar(
-                                            radius: 20.0,
-                                            backgroundImage: pingsDataStore.userPhotoPath != null
-                                                ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                                : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                          )
+                                              )
                                               :CircleAvatar(
-                                            radius: 20.0,
-                                            backgroundImage: pingsDataStore.userPhotoPath != null
-                                                ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                                : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                              radius: 20.0,
+                                              backgroundImage: userPhoto != null
+                                                  ? FileImage(File(userPhoto)) as ImageProvider<Object>?
+                                                  : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                            ),
+                                            SizedBox(width: 6,),
+                                            Image.asset('assets/images/arrow_dir.png'),
+                                            SizedBox(width: 6,),
+                                            meetType=='sender'
+                                                ? CircleAvatar(
+                                              radius: 20.0,
+                                              backgroundImage: userPhoto!= null
+                                                  ? FileImage(File(userPhoto)) as ImageProvider<Object>?
+                                                  : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                            )
+                                                :CircleAvatar(
+                                              radius: 20.0,
+                                              backgroundImage: pingsDataStore.userPhotoPath != null
+                                                  ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
+                                                  : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(width: 20,),
+                                        meetStatus=='pending' || meetStatus=='cancel'?
+                                        Container(
+                                          color: Colors.red, // Background color red
+                                          height: 16  , // Height set to 16
+                                          constraints: BoxConstraints(
+                                            minWidth: 0,
+                                            maxWidth: double.infinity, // Adjust width according to text
                                           ),
-                                        ],
-                                      ),
-                                      SizedBox(width: 20,),
-                                      meetStatus=='pending' || meetStatus=='cancel'?
-                                      Container(
-                                        color: Colors.red, // Background color red
-                                        height: 16  , // Height set to 16
-                                        constraints: BoxConstraints(
-                                          minWidth: 0,
-                                          maxWidth: double.infinity, // Adjust width according to text
+                                          child: Text('   '+
+                                              (meetStatus=='pending'?'Request Pending':'Cancelled')+'   ',
+                                            style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                          ),
+                                        )
+                                        : meetStatus=='accept'
+                                        ? Container(
+                                          color: HexColor('FB8C00'), // Background color red
+                                          height: 16  , // Height set to 16
+                                          constraints: BoxConstraints(
+                                            minWidth: 0,
+                                            maxWidth: double.infinity, // Adjust width according to text
+                                          ),
+                                          child: Text('   '+
+                                              'Accepted'+'   ',
+                                            style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                          ),
+                                        )
+                                        : meetStatus=='schedule'
+                                        ? Container(
+                                          color: HexColor('0A8100'), // Background color red
+                                          height: 16  , // Height set to 16
+                                          constraints: BoxConstraints(
+                                            minWidth: 0,
+                                            maxWidth: double.infinity, // Adjust width according to text
+                                          ),
+                                          child: Text('   '+
+                                              'Scheduled'+'   ',
+                                            style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                          ),
+                                        )
+                                        :meetStatus=='choose'
+                                        ?SizedBox(height: 0,)
+                                        : Container(
+                                          color: HexColor('FB8C00'), // Background color red
+                                          height: 16  , // Height set to 16
+                                          constraints: BoxConstraints(
+                                            minWidth: 0,
+                                            maxWidth: double.infinity, // Adjust width according to text
+                                          ),
+                                          child: Text('   '+
+                                              'Closed'+'   ',
+                                            style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                          ),
                                         ),
-                                        child: Text('   '+
-                                            (meetStatus=='pending'?'Request Pending':'Cancelled')+'   ',
-                                          style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
-                                        ),
-                                      )
-                                      : meetStatus=='accept'
-                                      ? Container(
-                                        color: HexColor('FB8C00'), // Background color red
-                                        height: 16  , // Height set to 16
-                                        constraints: BoxConstraints(
-                                          minWidth: 0,
-                                          maxWidth: double.infinity, // Adjust width according to text
-                                        ),
-                                        child: Text('   '+
-                                            'Accepted'+'   ',
-                                          style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
-                                        ),
-                                      )
-                                      : meetStatus=='schedule'
-                                      ? Container(
-                                        color: HexColor('0A8100'), // Background color red
-                                        height: 16  , // Height set to 16
-                                        constraints: BoxConstraints(
-                                          minWidth: 0,
-                                          maxWidth: double.infinity, // Adjust width according to text
-                                        ),
-                                        child: Text('   '+
-                                            'Scheduled'+'   ',
-                                          style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
-                                        ),
-                                      )
-                                      :meetStatus=='choose'
-                                      ?SizedBox(height: 0,)
-                                      : Container(
-                                        color: HexColor('FB8C00'), // Background color red
-                                        height: 16  , // Height set to 16
-                                        constraints: BoxConstraints(
-                                          minWidth: 0,
-                                          maxWidth: double.infinity, // Adjust width according to text
-                                        ),
-                                        child: Text('   '+
-                                            'Closed'+'   ',
-                                          style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
-                                        ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
                                 ),
-                              ),
-                              SizedBox(height: 15,),
-                              meetType=='sender'
-                              ?Center(
-                                child: Container(
+                                SizedBox(height: 15,),
+                                meetType=='sender'
+                                ?Center(
+                                  child: Container(
+                                    width: screenWidth*0.71,
+                                    height:21,
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                      children: [
+                                        Text('Trip planning Call with',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w500),),
+                                        Text('${userName}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
+                                      ],
+                                    ),
+                                  ),
+                                )
+                                :Container(
                                   width: screenWidth*0.70,
                                   height:21,
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      Text('Trip planning Call with',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w500),),
-                                      Text('${pingsDataStore.userName}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
+                                      Text('Call requested by',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w500),),
+                                      Text('${userName}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
                                     ],
                                   ),
                                 ),
-                              )
-                              :Container(
-                                width: screenWidth*0.70,
-                                height:21,
-                                child: Row(
-                                  children: [
-                                    SizedBox(width:25),
-                                    Text('Call requested by',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w500),),
-                                    SizedBox(width:35),
-                                    Text('${pingsDataStore.userName}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
-                                  ],
+                                SizedBox(height: 15,),
+                                Center(
+                                  child: Container(
+                                    width:screenWidth*0.72 ,
+                                    height: 22,
+                                    child: Row(
+                                      // mainAxisAlignment: MainAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          child: Image.asset('assets/images/time_icon.png',width: 22,height: 22,),
+                                        ),
+                                        Text(' ${startTime} - ${endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                        Text('India',style: TextStyle(fontSize:14,fontFamily: 'Poppins'),)
+                                      ],
+                                    ),
+                                  ),
                                 ),
-                              ),
-                              SizedBox(height: 15,),
-                              Center(
-                                child: Container(
-                                  width:screenWidth*0.73,
-                                  height: 22,
+                                SizedBox(height: 4,),
+                                Container(
+                                  width: screenWidth*0.72,
+                                  // decoration: BoxDecoration(border:Border.all(width: 1)),
                                   child: Row(
-                                    // mainAxisAlignment: MainAxisAlignment.start,
                                     children: [
                                       Container(
-                                        child: Image.asset('assets/images/time_icon.png',width: 35,height: 35,),
+                                        child: Image.asset('assets/images/calendar.png',width: 22,height: 22,),
                                       ),
-                                      Text('${startTime} - ${endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                      Text('India',style: TextStyle(fontSize:14,fontFamily: 'Poppins'),)
+                                      Text(' Date ${date} "${convertToDate(date)}"',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
                                     ],
                                   ),
                                 ),
-                              ),
-                              Row(
-                                children: [
-                                  SizedBox(width: 27,),
-                                  Container(
-                                    child: Image.asset('assets/images/calendar.png',width: 35,height: 35,),
+                                SizedBox(height: 7,),
+                                Container(
+                                  width: screenWidth*0.71,
+                                  // decoration: BoxDecoration(border:Border.all(width: 1)),
+                                  height: 24,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    children: [
+                                      Container(
+                                        child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                      ),
+                                      // InkWell(
+                                      //   onTap:(){
+                                      //     setState(() {
+                                      //
+                                      //   });},
+                                      //   child: Container(
+                                      //     child: Image.asset('assets/images/arrow_down.png',width: 35,height: 35,),
+                                      //   ),
+                                      // ),
+                                    ],
                                   ),
-                                  Text('Date ${date} "${convertToDate(date)}"',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                ],
-                              ),
-                              SizedBox(height: 7,),
-                              Container(
-                                width: 277,
-                                height: 24,
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Container(
-                                      child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                                    ),
-                                    // InkWell(
-                                    //   onTap:(){
-                                    //     setState(() {
-                                    //
-                                    //   });},
-                                    //   child: Container(
-                                    //     child: Image.asset('assets/images/arrow_down.png',width: 35,height: 35,),
-                                    //   ),
-                                    // ),
-                                  ],
                                 ),
-                              ),
-                              (meetStatus=='pending' && meetType=='sender')
-                              ?InkWell(
+                                (meetStatus=='pending' && meetType=='sender')
+                                ?InkWell(
+                                    onTap: (){
+                                      cancelMeeting(date,index,'close',userId,'close');
+                                      print('$date,$index');
+                                    },
+                                    child: Container(width:screenWidth*0.72,child: Center(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)),))
+                                :(meetStatus=='pending' && meetType=='receiver')
+                                ?Container(width:screenWidth*0.72,child: Text('*User need to unlock calendar before complete \n call scheduled.Please wait for event. ',style: TextStyle(fontSize: 12,fontWeight: FontWeight.w300,fontFamily: 'Poppins',color: HexColor('#FF0000')),),)
+                                :(meetStatus=='choose')
+                                ? Container(
+                                  width:screenWidth*0.70,
+                                  // decoration: BoxDecoration(border:Border.all(width:1)),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      InkWell(
+                                          onTap: (){
+                                            cancelMeeting(date,index,'close',userId,'close');
+                                            print('$date,$index');
+                                          },
+                                          child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
+                                      SizedBox(width: screenWidth*0.17,),
+                                      InkWell(
+                                          onTap: (){
+                                            cancelMeeting(date,index,'pending',userId,'accept');
+                                            print('$date,$index');
+                                          },
+                                          child: Container(child: Text('Accept',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
+                                    ],
+                                  ),
+                                )
+                                :(meetStatus=='accept')
+                                ?Container(
+                                  width: screenWidth*0.73,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.end,
+                                    children: [
+                                      InkWell(
+                                          onTap: (){
+                                            cancelMeeting(date,index,'close',userId,'close');
+                                            print('$date,$index');
+                                          },
+                                          child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
+                                      SizedBox(width: screenWidth*0.08,),
+                                      InkWell(
+                                          onTap: (){
+                                            print('Payment Successful');
+                                            cancelMeeting(date,index,'schedule',userId,'schedule');
+                                            print('$date,$index');
+                                          },
+                                          child: Container(child: Text('Unlock Calendar',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
+                                    ],
+                                  ),
+                                )
+                                :(meetStatus=='schedule')
+                                ?InkWell(
                                   onTap: (){
-                                    cancelMeeting(date,index,'close',userId,'close');
-                                    print('$date,$index');
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ScheduledCalendar(date:date,userId:widget.userId,meetDetails:meetDetails,index:index),
+                                      ),
+                                    );
                                   },
-                                  child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),))
-                              :(meetStatus=='pending' && meetType=='receiver')
-                              ?Container(child: Text('*User need to unlock calendar before complete \n call scheduled.Please wait for event. ',style: TextStyle(fontSize: 12,fontWeight: FontWeight.w300,fontFamily: 'Poppins',color: HexColor('#FF0000')),),)
-                              :(meetStatus=='choose')
-                              ? Row(
-                                children: [
-                                  SizedBox(width: 140,),
-                                  InkWell(
-                                      onTap: (){
-                                        cancelMeeting(date,index,'close',userId,'close');
-                                        print('$date,$index');
-                                      },
-                                      child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
-                                  SizedBox(width: 50,),
-                                  InkWell(
-                                      onTap: (){
-                                        cancelMeeting(date,index,'pending',userId,'accept');
-                                        print('$date,$index');
-                                      },
-                                      child: Container(child: Text('Accept',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
-                                ],
-                              )
-                              :(meetStatus=='accept')
-                              ?Row(
-                                children: [
-                                  SizedBox(width: 100,),
-                                  InkWell(
-                                      onTap: (){
-                                        cancelMeeting(date,index,'close',userId,'close');
-                                        print('$date,$index');
-                                      },
-                                      child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
-                                  SizedBox(width: 50,),
-                                  InkWell(
-                                      onTap: (){
-                                        print('Payment Successful');
-                                        cancelMeeting(date,index,'schedule',userId,'schedule');
-                                        print('$date,$index');
-                                      },
-                                      child: Container(child: Text('Unlock Calendar',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
-                                ],
-                              )
-                              :(meetStatus=='schedule')
-                              ?InkWell(
-                                onTap: (){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ScheduledCalendar(date:date,userId:widget.userId,meetDetails:meetDetails,index:index),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  child: Text('Go To Calendar',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
+                                  child: Container(
+                                    width: screenWidth*0.70,
+                                    child: Center(child: Text('Go To Calendar',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
+                                  ),
+                                )
+                                :(meetStatus=='close' && meetType=='receiver')
+                                ?InkWell(
+                                  onTap: (){
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RateFeedBack(userPhoto:pingsDataStore.userPhotoPath,userName:pingsDataStore.userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: screenWidth*0.70,
+                                    child: Center(child: Text('Rate & Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
+                                  ),
+                                )
+                                : InkWell(
+                                  onTap: (){
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => RateFeedBack(userPhoto: pingsDataStore.userPhotoPath,userName:pingsDataStore.userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle),
+                                      ),
+                                    );
+                                  },
+                                  child: Container(
+                                    width: screenWidth*0.70,
+                                    child: Center(child: Text('Give Us A Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
+                                  ),
                                 ),
-                              )
-                              :(meetStatus=='close' && meetType=='receiver')
-                              ?InkWell(
-                                onTap: (){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => RateFeedBack(userPhoto:pingsDataStore.userPhotoPath,userName:pingsDataStore.userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  child: Text('Rate & Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
-                                ),
-                              )
-                              : InkWell(
-                                onTap: (){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => RateFeedBack(userPhoto: pingsDataStore.userPhotoPath,userName:pingsDataStore.userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle),
-                                    ),
-                                  );
-                                },
-                                child: Container(
-                                  child: Text('Give Us A Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
-                                ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ):SizedBox(height:0),
                           );
                        }),
@@ -751,6 +770,7 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
 
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     List<String> parts = widget.date.split('/'); // Split the string by '/'
     String useDate = '${parts[0]}/${parts[1]}'; // Concatenate the parts as needed
     String date=widget.date,userId=widget.userId;
@@ -770,109 +790,115 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
         body: SingleChildScrollView(
           child: Row(
             children: [
-              SizedBox(width: 40,),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 25,),
-                  Text('Scheduled Calendar',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,fontFamily: 'Poppins'),),
-                  SizedBox(height: 30,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('  Date',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,fontFamily: 'Poppins')),
-                      Container(
-                        width:130,
-                        height: 35,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
-                          border: Border.all(
-                            color: HexColor('#FB8C00')
-                          ),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Image.asset('assets/images/calendar.png',color: HexColor('#FB8C00'),),
-                            Text('${useDate}',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 30,),
-                  Column(
-                    children: [
-                      Text('Planned Call',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,fontFamily: 'Poppins')),
-                    ],
-                  ),
-                  SizedBox(height: 20,),
-                  Column(
-                      children:[
+              SizedBox(width: 35,),
+              Container(
+                width: screenWidth*0.90,
+                // decoration: BoxDecoration(border:Border.all(width: 1)),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SizedBox(height: 25,),
+                    Text('Scheduled Calendar',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,fontFamily: 'Poppins'),),
+                    SizedBox(height: 30,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Date',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,fontFamily: 'Poppins')),
                         Container(
-                            width: 340,
-                            child: Column(
-                              children:[Container(
-                                height: 100,
-                              decoration: BoxDecoration(
-                                color: Colors.white, // Container background color
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5), // Shadow color
-                                    spreadRadius: 5, // Spread radius
-                                    blurRadius: 7, // Blur radius
-                                    offset: Offset(0, 3), // Changes the position of the shadow
-                                  ),
-                                ],
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: InkWell(
-                                onTap: (){
-                                  meetType=='sender'
-                                      ? Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatApps(senderId:userId,receiverId:'',meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
-                                    ),
-                                  )
-                                      :Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => ChatApps(senderId:'',receiverId:userId,meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
-                                    ),
-                                  );
-                                },
-                                child: Row(
-                                  children: [
-                                    SizedBox(width: 10,),
-                                    Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                      children: [
-                                        Container(
-                                          width:320,
-                                          child: Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                            children: [
-                                              Text('${startTime} - ${endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                              Container(
-                                                child: Image.asset('assets/images/arrow_fwd.png',width: 25,height: 25,),
-                                              ),
-                                            ],
-                                          ),
-                                        ),
-                                        Text('Trip Planning call with customer',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                                      ],
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),],
+                          width:120,
+                          height: 35,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(
+                              color: HexColor('#FB8C00')
                             ),
                           ),
-                        ],),
-                    ],
-                  ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              SizedBox(width: 10,),
+                              Image.asset('assets/images/calendar.png',color: HexColor('#FB8C00'),),
+                              SizedBox(width: 10,),
+                              Text('${useDate}',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: 30,),
+                    Column(
+                      children: [
+                        Text('Planned Call',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 16,fontFamily: 'Poppins')),
+                      ],
+                    ),
+                    SizedBox(height: 20,),
+                    Column(
+                        children:[
+                          Container(
+                              width: screenWidth<400?screenWidth*0.80:340,
+                              child: Column(
+                                children:[Container(
+                                  height: 100,
+                                decoration: BoxDecoration(
+                                  color: Colors.white, // Container background color
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5), // Shadow color
+                                      spreadRadius: 5, // Spread radius
+                                      blurRadius: 7, // Blur radius
+                                      offset: Offset(0, 3), // Changes the position of the shadow
+                                    ),
+                                  ],
+                                  borderRadius: BorderRadius.circular(10),
+                                ),
+                                child: InkWell(
+                                  onTap: (){
+                                    meetType=='sender'
+                                        ? Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatApps(senderId:userId,receiverId:'',meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
+                                      ),
+                                    )
+                                        :Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ChatApps(senderId:'',receiverId:userId,meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
+                                      ),
+                                    );
+                                  },
+                                  child: Row(
+                                    children: [
+                                      SizedBox(width: 10,),
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                        children: [
+                                          Container(
+                                            width:screenWidth<400?screenWidth*0.75:320,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                              children: [
+                                                Text('${startTime} - ${endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                                Container(
+                                                  child: Image.asset('assets/images/arrow_fwd.png',width: 25,height: 25,),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                          Text('Trip Planning call with customer',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),],
+                              ),
+                            ),
+                          ],),
+                      ],
+                    ),
+              ),
             ],
           ),
           ),
@@ -912,155 +938,237 @@ class _RateFeedBackState extends State<RateFeedBack>{
   String textValue = '';
   @override
   Widget build(BuildContext context) {
+    final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       appBar: AppBar(
-        title: Text('\nRate & Feedback.',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+        title: Row(
+          children: [
+            SizedBox(width: 10,),
+            Container(
+              width: screenWidth<400?screenWidth*0.80:360,
+              height:50,
+              // decoration: BoxDecoration(border:Border.all(width: 1)),
+              // padding: EdgeInsets.only(left:10,right:10),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.end,
+                children: [
+                  Container(
+                      height:50,child: Text('\nRate & Feedback.',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)),
+                  Container(
+                    height: 35,
+                    child: IconButton(onPressed: (){
+                      Navigator.of(context).pop();
+                    }, icon: Icon(Icons.close)),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
         automaticallyImplyLeading: false,
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Column(
-              children: [
-                SizedBox(height:50),
-                Container(
-                  width: 370,
-                  height: 40,
-                  // decoration: BoxDecoration(
-                  //   border:Border.all(
-                  //     width: 1,
-                  //     color: Colors.lightBlue
-                  //   ),
-                  // ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      widget.meetType=='sender'
-                          ? CircleAvatar(
-                        radius: 20.0,
-                        backgroundImage: widget.userPhoto != null
-                            ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
-                            : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                      )
-                          :CircleAvatar(
-                        radius: 20.0,
-                        backgroundImage: (widget.userPhoto!) != null
-                            ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
-                            : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                      ),
-                      SizedBox(width: 10,),
-                      Image.asset('assets/images/arrow_dir.png'),
-                      SizedBox(width: 10,),
-                      widget.meetType=='sender'
-                          ? CircleAvatar(
-                        radius: 20.0,
-                        backgroundImage: (widget.userPhoto) != null
-                            ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
-                            : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                      )
-                          :CircleAvatar(
-                        radius: 20.0,
-                        backgroundImage: (widget.userPhoto) != null
-                            ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
-                            : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                      ),
-                    ],
+            Container(
+              width: screenWidth<400?screenWidth*0.85:360,
+              height: 180,
+              margin: EdgeInsets.only(top:75),
+              decoration: BoxDecoration(border:Border.all(width: 1)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Container(
+                    width: screenWidth<400?screenWidth*0.80:370,
+                    height: 40,
+                    // decoration: BoxDecoration(
+                    //   border:Border.all(
+                    //     width: 1,
+                    //     color: Colors.lightBlue
+                    //   ),
+                    // ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        widget.meetType=='sender'
+                            ? CircleAvatar(
+                          radius: 20.0,
+                          backgroundImage: widget.userPhoto != null
+                              ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
+                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                        )
+                            :CircleAvatar(
+                          radius: 20.0,
+                          backgroundImage: (widget.userPhoto!) != null
+                              ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
+                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                        ),
+                        SizedBox(width: 10,),
+                        Image.asset('assets/images/arrow_dir.png'),
+                        SizedBox(width: 10,),
+                        widget.meetType=='sender'
+                            ? CircleAvatar(
+                          radius: 20.0,
+                          backgroundImage: (widget.userPhoto) != null
+                              ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
+                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                        )
+                            :CircleAvatar(
+                          radius: 20.0,
+                          backgroundImage: (widget.userPhoto) != null
+                              ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
+                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                        ),
+                      ],
+                    ),
                   ),
-                ),
 
-                widget.meetType=='sender'
-                    ?Row(
-                  children: [
-                    Text('Trip planning Call with',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                    Text('${widget.userName!}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
-                  ],
-                )
-                    :Row(
-                  children: [
-                    Text('Call requested by',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                    Text('${widget.userName!}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
-                  ],
-                ),
-                Row(
-                  children: [
-                    Container(
-                      child: Image.asset('assets/images/time_icon.png',width: 35,height: 35,),
-                    ),
-                    Text('${widget.startTime!} - ${widget.endTime!} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                    Text('India',style: TextStyle(fontWeight: FontWeight.bold,fontSize:14,fontFamily: 'Poppins'),)
-                  ],
-                ), 
-                Row(
-                  children: [
-                    Container(
-                      child: Image.asset('assets/images/calendar.png',width: 35,height: 35,),
-                    ),
-                    Text('Date ${widget.date!} "${convertToDate(widget.date!)}"',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                  ],
-                ),
-                Container(
-                  child: Text(widget.meetTitle==''?'Please Enter Tile Next Time':widget.meetTitle!,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                ),
-              ],
-            ),
-            Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Rate your Experience ',
-                  style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),
-                ),
-                SizedBox(height: 20),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.start  ,
-                  children: List.generate(5, (index) {
-                    return GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          rating = index + 1;
-                        });
-                      },
-                      child: Icon(
-                        Icons.star,
-                        color: (index < rating) ? HexColor('#FB8C00') : Colors.grey,
-                        size: 42,
-                      ),
-                    );
-                  }),
-                ),
-                SizedBox(height: 20),
-                Center(
-                  child: SizedBox(
-                    width: 343,
+
+                  Container(
+                    height: 85,
                     child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                        Text(' Additional Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                        SizedBox(
-                          width: 343,
-                          child: TextField(
-                            onChanged: (value) {
-                            textValue = value;
-                          },
-                          decoration: InputDecoration(
-                          hintText: 'Type your feedback here',
-                          border: OutlineInputBorder(),
-                          ),
-                          maxLines: 5, // Increase the maxLines for a larger text area
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        widget.meetType=='sender'
+                            ?Container(
+
+                              child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                              Text('Trip planning Call with',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w600),),
+                              Text('${widget.userName!}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
+                          ],
+                        ),
+                            )
+                            :Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Call requested by',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w600),),
+                            Text('${widget.userName!}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
+                          ],
+                        ),
+                        Container(
+                          height: 50,
+                          // decoration: BoxDecoration(border:Border.all(width: 1)),
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Row(
+                                children: [
+                                  Container(
+                                    child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,),
+                                  ),
+                                  SizedBox(width: 5,),
+                                  Text('${widget.startTime!} - ${widget.endTime!} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                  Text('India',style: TextStyle(fontWeight: FontWeight.bold,fontSize:14,fontFamily: 'Poppins'),)
+                                ],
+                              ),
+                              Row(
+                                children: [
+                                  Container(
+                                    child: Image.asset('assets/images/calendar.png',width: 20,height: 20,),
+                                  ),
+                                  SizedBox(width: 5,),
+                                  Text('Date ${widget.date!} "${convertToDate(widget.date!)}"',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                ],
+                              ),
+                            ],
                           ),
                         ),
-                    ],
+                      ],
                     ),
+                  ),
+                  Container(
+                    width: screenWidth<400?screenWidth*0.80:370,
+                    child: Text(widget.meetTitle==''?'Please Enter Tile Next Time':widget.meetTitle!,style: TextStyle(fontSize: 16,fontFamily: 'Poppins'),),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 40,),
+            Row(
+              children: [
+                SizedBox(width: 26,),
+                Container(
+                  // decoration: BoxDecoration(border:Border.all(width: 1)),
+                  width: screenWidth<400?screenWidth*0.80:370,
+                  height: 309,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        height:64,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Container(
+                              width: screenWidth<400?screenWidth*0.80:370,
+                              child: Text(
+                                'Rate your Experience',
+                                style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                            Container(
+                              // decoration: BoxDecoration(border:Border.all(width: 1)),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: List.generate(5, (index) {
+                                  return GestureDetector(
+                                    onTap: () {
+                                      setState(() {
+                                        rating = index + 1;
+                                      });
+                                    },
+                                    child: Icon(
+                                      Icons.star,
+                                      color: (index < rating) ? HexColor('#FB8C00') : Colors.grey,
+                                      size: 32,
+                                    ),
+                                  );
+                                }),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Container(
+                        height: 185,
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                            Container(
+                                width: screenWidth<400?screenWidth*0.80:370,
+                                child: Text('Additional Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)),
+                            SizedBox(
+                              width: screenWidth<400?screenWidth*0.80:370,
+                              height: 152,
+                              child: TextField(
+                                style: TextStyle(fontSize: 16,),
+                                onChanged: (value) {
+                                textValue = value;
+                              },
+                              decoration: InputDecoration(
+                              hintText: 'Type here........',
+                              border: OutlineInputBorder(),
+                              ),
+                              maxLines: 5, // Increase the maxLines for a larger text area
+                              ),
+                            ),
+                        ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height:60),
+            SizedBox(height:90),
             Container(
-              width: 335,
+              width: screenWidth<400?screenWidth*0.80:370,
               height: 55,
               child: FiledButton(
                   backgroundColor: HexColor('#FB8C00'),

@@ -19,12 +19,9 @@ const chatDetailsSchema = new mongoose.Schema({
     chosenEndTime:{
         type:String,
     },
-    sendersMsg : {
-        type : [String],
-    },
-    receiversMsg : {
-        type : [String],
-    },
+    conversation:{
+        type:[[String]],
+    }
 });
 
 const chatHistory = new mongoose.model('chatHistory',chatDetailsSchema);

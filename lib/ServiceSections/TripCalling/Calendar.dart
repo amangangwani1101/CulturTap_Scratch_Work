@@ -45,8 +45,7 @@ class CalendarPage extends StatefulWidget{
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
-
-class _CalendarPageState extends State<CalendarPage>{
+ class _CalendarPageState extends State<CalendarPage>{
   Map<String, dynamic>? clickedUserDataSet,currentUserDataSet;
   @override
   void initState() {
@@ -63,7 +62,7 @@ class _CalendarPageState extends State<CalendarPage>{
       final data = json.decode(response.body);
       print('DataSet :::  ${data['_id']}');
       setState(() {
-        if(dataset==clickedUserDataSet)
+        if(data['_id']==widget.clickedUser)
             clickedUserDataSet = data;
         else
           currentUserDataSet = data;
@@ -94,7 +93,8 @@ class _CalendarPageState extends State<CalendarPage>{
                   ,slotChoosen:clickedUserDataSet?['userServiceTripCallingData']['slotsChossen']
                   ,userStartTime:clickedUserDataSet?['userServiceTripCallingData']['startTimeFrom']
                   ,userEndTime:clickedUserDataSet?['userServiceTripCallingData']['endTimeTo'],
-              id:widget.currentUser),
+                   id:widget.currentUser,userName:clickedUserDataSet?['userName'],userPhoto:clickedUserDataSet?['userPhoto']
+                  ,uName:currentUserDataSet?['userName'],uPhoto:currentUserDataSet?['userPhoto']),
             ],
           ),
         ),
@@ -182,8 +182,8 @@ class CalendarCheck extends StatefulWidget{
   Map<String,dynamic>? plans;
   String?slotChoosen;
   String ?id;
-  String ?userStartTime,userEndTime;
-  CalendarCheck({this.plans,this.slotChoosen,this.userEndTime,this.userStartTime,this.id});
+  String ?userStartTime,userEndTime,userName,userPhoto,uName,uPhoto;
+  CalendarCheck({this.plans,this.slotChoosen,this.userEndTime,this.userStartTime,this.id,this.userName,this.userPhoto,this.uName,this.uPhoto});
 
   @override
   _CalendarCheckState createState() => _CalendarCheckState();
@@ -225,7 +225,7 @@ class _CalendarCheckState extends State<CalendarCheck>{
                 label: 'Select Date',
                 selectedDate: selectedDate,
                 deviceWidth: screenWidth*0.60,
-                onDateSelected: widget.slotChoosen=='choice_2'?((DateTime? newDate) {
+                onDateSelected: widget.slotChoosen=='choice_1'?((DateTime? newDate) {
                   setState(() {
                     String cmp = getThreeLetterMonth(newDate!.month);
                     selectedDate = ('${newDate?.day}/${cmp.toUpperCase()}');
@@ -298,7 +298,7 @@ class _CalendarCheckState extends State<CalendarCheck>{
             )
             :SizedBox(height: 0,),
             SizedBox(height: 20,),
-            TimeSet(setDate:sendDate,userStartTime:widget.userStartTime,userEndTime:widget.userEndTime,plans:widget.plans,id:widget.id),
+            TimeSet(setDate:sendDate,userStartTime:widget.userStartTime,userEndTime:widget.userEndTime,plans:widget.plans,id:widget.id,userName:widget.userName,userPhoto:widget.userPhoto,user2Name:widget.uName,user2Photo:widget.uPhoto),
         ],
       ),
     );
@@ -373,10 +373,10 @@ class CustomDOBDropDown extends StatelessWidget{
 
 
 class TimeSet extends StatefulWidget{
-  String? setDate,userStartTime,userEndTime;
+  String? setDate,userStartTime,userEndTime,userName,userPhoto,user2Name,user2Photo;
   Map<String,dynamic>? plans;
   String?id;
-  TimeSet({this.setDate,this.userEndTime,this.userStartTime,this.plans,this.id});
+  TimeSet({this.setDate,this.userEndTime,this.userStartTime,this.plans,this.id,this.userName,this.userPhoto,this.user2Name,this.user2Photo});
   @override
   _TimeSetState createState() => _TimeSetState();
 }
@@ -443,6 +443,7 @@ class _TimeSetState extends State<TimeSet>{
         'chosenStartTime':startTime,
         'chosenEndTime':endTime,
         'meetingTitle':_meetingEditingController.text,
+        'conversation':[],
       };
       print('22::${data}');
       print('Aman ${_meetingEditingController.text}');
@@ -476,8 +477,10 @@ class _TimeSetState extends State<TimeSet>{
         'meetingStatus' : 'pending',
         'meetingTitle':_meetingEditingController.text,
         'id':Constant().receiversId ,
-        'meetingType' : 'sender'
-      };
+        'meetingType' : 'sender',
+        'userName':widget.userName,
+        'userPhoto':widget.userPhoto,
+    };
       print('33::${data}');
       final http.Response response = await http.post(
         Uri.parse('$serverUrl/updateUserDayPlans'), // Adjust the endpoint as needed
@@ -508,7 +511,9 @@ class _TimeSetState extends State<TimeSet>{
         'meetingStatus' : 'choose',
         'meetingTitle':_meetingEditingController.text,
         'id':Constant().sendersId ,
-        'meetingType' : 'receiver'
+        'meetingType' : 'receiver',
+        'userName':widget.user2Name,
+        'userPhoto':widget.user2Photo,
       };
       print('44::${data}');
       final http.Response response = await http.post(
