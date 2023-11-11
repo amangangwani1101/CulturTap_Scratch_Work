@@ -115,7 +115,7 @@ class _CustomFooterState extends State<CustomFooter> {
                           primary: Colors.white,
                           shape: CircleBorder(),
                         ),
-                        child: Icon(Icons.add, color: addIconColor, size:33),
+                        child: Icon(Icons.add, color: addIconColor, size:42,),
                       ),
                     ),
                   ),

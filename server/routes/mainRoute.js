@@ -4,10 +4,35 @@ const CategoryModel = require('../db/model/categoryModel');
 const GenreModel = require('../db/model/genreModel');
 const LabelModel = require('../db/model/labelModel');
 const SingleStoryModel = require('../db/model/singleStoryModel');
+const multer = require('multer');
+const path = require('path');
+
+
+
+
 
 router.post('/api/publish', async (req, res) => {
+
+// Configure multer for video uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, '/root/videos');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage: storage });
+console.log(upload);
+console.log(storage);
+
+
+
+
   try {
     const { singleStoryData, label, category, genre } = req.body;
+
 
     // Create a new single story with the received data
     const newStory = new SingleStoryModel(singleStoryData);
@@ -58,18 +83,74 @@ router.post('/api/publish', async (req, res) => {
 
 
 
- router.get('/api/videos', async (req, res) => {
-   try {
-     // Use the `find` method to search for stories with a starRating of 5
-     const videos = await SingleStoryModel.find().sort({starRating: 1});
 
-     // Send the results as a JSON response
-     res.json(videos);
-   } catch (err) {
-     console.error(err);
-     res.status(500).send('Server error');
-   }
- });
+
+
+
+
+
+// Function to calculate the distance between two sets of latitude and longitude coordinates
+function calculateDistance(lat1, lon1, lat2, lon2) {
+  const earthRadius = 6371; // Radius of the Earth in kilometers
+
+  // Convert latitude and longitude from degrees to radians
+  const radLat1 = (Math.PI * lat1) / 180;
+  const radLon1 = (Math.PI * lon1) / 180;
+  const radLat2 = (Math.PI * lat2) / 180;
+  const radLon2 = (Math.PI * lon2) / 180;
+
+  // Haversine formula
+  const dLat = radLat2 - radLat1;
+  const dLon = radLon2 - radLon1;
+
+  const a =
+    Math.sin(dLat / 2) ** 2 +
+    Math.cos(radLat1) * Math.cos(radLat2) * Math.sin(dLon / 2) ** 2;
+
+  const c = 2 * Math.asin(Math.sqrt(a));
+
+  // Calculate the distance
+  const distance = earthRadius * c;
+  return distance;
+}
+
+// Function to calculate the average star rating
+function calculateAverageRating(starRatings) {
+  if (starRatings.length === 0) {
+    return 0; // Return 0 if there are no ratings
+  }
+
+  const sum = starRatings.reduce((total, rating) => total + rating, 0);
+  return sum / starRatings.length;
+}
+
+
+router.get('/api/trending-nearby-places', async (req, res) => {
+  try {
+    const userLatitude = parseFloat(req.query.latitude);
+    const userLongitude = parseFloat(req.query.longitude);
+
+    console.log('user aya hai');
+    console.log(`lat : ${userLatitude} longi : ${userLongitude}`);
+
+    const maxDistanceDegrees = 20 / 111;
+
+    const nearbyPlaces = await SingleStoryModel.find({
+      latitude: { $gte: userLatitude - maxDistanceDegrees, $lte: userLatitude + maxDistanceDegrees },
+      longitude: { $gte: userLongitude - maxDistanceDegrees, $lte: userLongitude + maxDistanceDegrees },
+    });
+
+    // Sort the places by individual star ratings in descending order
+    nearbyPlaces.sort((a, b) => b.starRating - a.starRating);
+    console.log(nearbyPlaces);
+    res.json(nearbyPlaces);
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+
 
 module.exports = router;
 

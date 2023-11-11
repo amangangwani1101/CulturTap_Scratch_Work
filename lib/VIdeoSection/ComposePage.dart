@@ -60,51 +60,108 @@ class _ComposePageState extends State<ComposePage> {
   String transportationPricing = "";
 
 
+  Future<void> publishVideos(List<File> videoPaths) async {
+    try {
+      final String serverUrl = 'http://192.168.223.23:8080/main/api/publish';
+
+      final request = http.MultipartRequest('POST', Uri.parse(serverUrl));
+
+      for (int i = 0; i < videoPaths.length; i++) {
+        request.files.add(
+          await http.MultipartFile.fromPath('videos[$i]', videoPaths[i].path),
+        );
+      }
+
+      final response = await request.send();
+
+      if (response.statusCode == 201) {
+        // Successfully uploaded all videos. You can now save their URLs to MongoDB.
+        // Add the logic to save video URLs to your MongoDB database here.
+        print('Videos successfully added to the server');
+      } else {
+        print('Failed to upload videos. Error: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  List<File> convertPathsToFiles(List<String> videoPaths) {
+    List<File> videoFiles = [];
+    for (String path in videoPaths) {
+      videoFiles.add(File(path));
+    }
+    return videoFiles;
+  }
+
+
   Future<void> sendDataToBackend() async {
+
+    List<File> videoFiles = convertPathsToFiles(widget.videoPaths);
+    publishVideos(videoFiles);
+
 
     print('publish button clicked');
     try{
 
       final data = {
-        "singleStoryData" : {
-          'videoPath': widget.videoPaths.join(','),
-          'latitude': widget.latitude,
-          'longitude': widget.longitude,
-          'location': liveLocation,
-          'expDescription': experienceDescription,
-          'placeLoveDesc': selectedLoveAboutHere.join(','),
-          'dontLikeDesc': dontLikeAboutHere,
-          'review': reviewText,
-          'starRating': starRating,
-          'selectedVisibility': selectedVisibility,
-          'storyTitle': storyTitle,
-          'productDescription': productDescription,
-          'selectedOption': selectedOption,
-          'transportationPricing': transportationPricing,
-          'productPrice': productPrice,
-
+        "singleStoryData": {
+          "videoPath": '"${widget.videoPaths.join('","')}"',
+          "latitude": widget.latitude,
+          "longitude": widget.longitude,
+          "location": liveLocation,
+          "expDescription": experienceDescription,
+          "placeLoveDesc": selectedLoveAboutHere.join(','),
+          "dontLikeDesc": dontLikeAboutHere,
+          "review": reviewText,
+          "starRating": starRating,
+          "selectedVisibility": selectedVisibility,
+          "storyTitle": storyTitle,
+          "productDescription": productDescription,
+          "liveLocation" : liveLocation,
+          "selectedOption": selectedOption,
+          "productPrice": productPrice,
+          "transportationPricing": transportationPricing,
         },
-        'label': selectedLabel,
-        'category': selectedCategory,
-        'genre': selectedGenre,
-
+        "label": selectedLabel,
+        "category": selectedCategory,
+        "genre": selectedGenre
       };
 
-      const String serverUrl = 'http://192.168.1.175:8080/main/api/publish';
+
+      print('printing data $data');
+
+      final String serverUrl = 'http://192.168.223.23:8080/main/api/publish';
 
       final http.Response response = await http.post(
-        Uri.parse('$serverUrl'),
+        Uri.parse(serverUrl),
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json"
         },
         body: jsonEncode(data),
       );
 
       print('Response: ${response.statusCode} ${response.reasonPhrase}');
 
-      if (response.statusCode == 200) {
+      if (response.statusCode == 201) {
         print('Data sent successfully yes yes');
         print('Response Data: ${response.body}');
+
+
+
+
+        showDialog(
+          context: context,
+          barrierDismissible: false,
+          builder: (context) {
+            return ImagePopUpWithOK(
+              imagePath: "assets/images/storyUploaded.svg",
+              textField: "Your Story is Successfully Uploaded",
+              what:"home",
+            );
+          },
+        );
+
       } else {
         print('Failed to send data. Error: ${response.reasonPhrase}');
       }
@@ -475,7 +532,7 @@ class _ComposePageState extends State<ComposePage> {
                                   selectedGenre = newValue!;
                                 });
                               },
-                              items: <String>['Genre 1', 'Lifestyle', 'Food & Restaurant',  'Party - Clubs & Bars',  'Fashion',  'Historical / Heritage',  'Festivals',  'Art & Culture', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem',    ]
+                              items: <String>['Genre 1', 'Lifestyle', 'Street Foods', 'Restaurants' , 'Party - Clubs & Bars',  'Fashion',  'Historical / Heritage',  'Festivals',  'Art & Culture', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem',    ]
                                   .map<DropdownMenuItem<String>>((String value) {
                                 return DropdownMenuItem<String>(
                                   value: value,

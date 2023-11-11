@@ -71,6 +71,12 @@ class ImagePopUpWithOK extends StatelessWidget {
               TextButton(
                 onPressed: () {
                   // Navigate to the CameraApp page when OK is clicked
+                  if(what == 'home'){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                  }
                   if(what == 'camera'){
                     Navigator.push(
                       context,

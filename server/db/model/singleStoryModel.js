@@ -1,4 +1,3 @@
-// models/singleStoryModel.js
 const mongoose = require('mongoose');
 
 const singleStorySchema = new mongoose.Schema({
