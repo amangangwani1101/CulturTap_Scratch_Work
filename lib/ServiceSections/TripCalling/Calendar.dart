@@ -443,7 +443,9 @@ class _TimeSetState extends State<TimeSet>{
         'chosenStartTime':startTime,
         'chosenEndTime':endTime,
         'meetingTitle':_meetingEditingController.text,
-        'conversation':[],
+        'conversation':null,
+        'sendersFeedback':null,
+        'receiversFeedback':null,
       };
       print('22::${data}');
       print('Aman ${_meetingEditingController.text}');

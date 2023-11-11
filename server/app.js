@@ -236,22 +236,6 @@ app.patch("/cancelMeeting", async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 });
-app.patch("/updateMeetingChats", async (req, res) => {
-    try{
-        const { meetId, sender, receiver} = req.body;
-        console.log('Am',req.body);
-        const meet = await MeetingsData.findById(meetId);
-        console.log(meet);
-        meet.sendersMsg = sender;
-        meet.receiversMsg = receiver;
-
-        await meet.save();
-        res.status(200).json({ message: "Meeting status updated successfully" });
-    }catch (error) {
-     console.log(error);
-     return res.status(500).json({ message: "Internal Server Error" });
-   }
-});
 
 app.patch('/storeMeetingConversation', async (req, res) => {
   try {
@@ -263,10 +247,11 @@ app.patch('/storeMeetingConversation', async (req, res) => {
       return res.status(404).json({ message: "Meeting Not Found" });
     }
     console.log(meet.conversation);
-    if (meet.conversation.length===0) {
+    if (!meet.conversation) {
       meet.conversation = conversation;
     }
     await meet.save();
+    console.log(meet);
     res.status(200).json({ message: "Conversation stored successfully" });
   } catch (err) {
     console.log(err);
@@ -274,6 +259,39 @@ app.patch('/storeMeetingConversation', async (req, res) => {
   }
 });
 
+app.patch("/updateMeetingFeedback", async (req, res) => {
+    try{
+        const { meetId,rating,info,type} = req.body;
+        console.log('Am',req.body);
+        const meet = await MeetingsData.findById(meetId);
+        console.log(meet);
+        if(type=='sender'){
+            if(!meet.sendersFeedback){
+                meet.sendersFeedback = {
+                    rating:null,
+                    info:null,
+                }
+            }
+            meet.sendersFeedback.rating = rating;
+            meet.sendersFeedback.info = info;
+        }
+        else{
+            if(!meet.receiversFeedback){
+                meet.receiversFeedback = {
+                    rating:null,
+                    info:null,
+                }
+            }
+            meet.receiversFeedback.rating = rating;
+            meet.receiversFeedback.info = info;
+        }
+        await meet.save();
+        res.status(200).json({ message: "Meeting status updated successfully" });
+    }catch (error) {
+     console.log(error);
+     return res.status(500).json({ message: "Internal Server Error" });
+   }
+});
 
 // socket connection and chat functions and features
 io.on("connection", (socket) => {
@@ -413,31 +431,56 @@ io.on("connection", (socket) => {
 //  }
 //});
 
-app.post('/createCustomerToken', async (req, res) => {
-  const { name,number,expYear,expMonth,cvc } = req.body;
-  console.log(req.body);
+app.post('/customerPayment', async (req, res) => {
   try {
-    // Create a token from the dealer's card details
-    const token = await stripe.tokens.create({
-      card: {
-        number: number,
-        exp_month: expMonth,
-        exp_year: expYear,
-        cvc: cvc,
-      },
-    });
+      let customerId;
+        console.log(req.body);
+      //Gets the customer who's email id matches the one sent by the client
+      const customerList = await stripe.customers.list({
+          limit: 100,
+      });
+        console.log(customerList);
+      const matchingCustomers = customerList.data.filter(customer => {
+        return (
+          customer.name === req.body.name &&
+          customer.phone === req.body.phone
+        );
+      });
+       console.log(matchingCustomers);
+      //Checks the if the customer exists, if not creates a new customer
+      if (matchingCustomers.length) {
+          customerId = matchingCustomers[0].id;
+      }
+      else {
+          const customer = await stripe.customers.create({
+              name:req.body.name,
+              phone:req.body.phone,
+          });
+          console.log('Am,',customer);
+          customerId = customer.id;
+      }
 
-    // Create a customer object in Stripe and associate the token
-    const customer = await stripe.customers.create({
-      source: token,
-    });
+      //Creates a temporary secret key linked with the customer
+      const ephemeralKey = await stripe.ephemeralKeys.create(
+          { customer: customerId },
+          { apiVersion: '2023-08-16' }
+      );
 
-    // Save dealer information and Stripe customer ID in your database
-    await saveDealer(name, customer.id);
+      //Creates a new payment intent with amount passed in from the client
+      const paymentIntent = await stripe.paymentIntents.create({
+          amount: parseInt(req.body.amount),
+          currency: 'INR',
+          customer: customerId,
+      })
 
-    res.status(200).json({ message: 'Dealer created successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+      res.status(200).send({
+          paymentIntent: paymentIntent.client_secret,
+          ephemeralKey: ephemeralKey.secret,
+          customer: customerId,
+          success: true,
+      })
+
+  } catch (error) {
+      res.status(404).send({ success: false, error: error.message })
   }
 });

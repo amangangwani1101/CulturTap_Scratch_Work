@@ -5,6 +5,7 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 
 void main() {
+
   runApp(MyApp());
 }
 
@@ -24,7 +25,9 @@ class CustomerCardForm extends StatefulWidget {
 
 class _CustomerCardFormState extends State<CustomerCardForm> {
   void _init() {
+    WidgetsFlutterBinding.ensureInitialized();
     Stripe.publishableKey = 'pk_test_51O1mwsSBFjpzQSTJYIRROzWlVlSlOL4ysCytD2icFn57ISGbDUDaVLyLgFJABlFaHDPgMmmOpvRKxE99x3w90HRf00ZwzrVv0R';
+    Stripe.instance.applySettings();
   }
 
   Future<void> _createCustomerAndAttachCard() async {

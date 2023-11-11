@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:math';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/widgets/Constant.dart';
 
@@ -63,9 +65,16 @@ class _PingSectionState extends State<PingsSection>{
   late PingsDataStore pingsDataStore;
   bool isLoading = true; // Add a boolean flag to indicate loading state
   @override
-  void initState(){
+  void initState() {
     super.initState();
     fetchDatasets(widget.userId);
+    initialHandler();
+  }
+
+  Future<void> initialHandler() async{
+    WidgetsFlutterBinding.ensureInitialized();
+    Stripe.publishableKey = Constant().publishableKey;
+    Stripe.instance.applySettings();
   }
 
   Future<void> fetchDatasets(userId) async {
@@ -198,6 +207,65 @@ class _PingSectionState extends State<PingsSection>{
     });
   }
   bool toggle = true;
+
+  Future<void> paymentHandler(String name,String merchantName,double amount,String phone) async {
+    try {
+      // 1. Create a payment intent on the server
+      final response = await http.post(Uri.parse('${Constant().serverUrl}/customerPayment'),
+          body: {
+            'phone':'6971833439',
+            'amount': amount.toString(),
+            'name':name
+          });
+
+      final jsonResponse = jsonDecode(response.body);
+      print(jsonResponse);
+      // 2. Initialize the payment sheet
+      await Stripe.instance.initPaymentSheet(
+          paymentSheetParameters: SetupPaymentSheetParameters(
+            paymentIntentClientSecret: jsonResponse['paymentIntent'],
+            merchantDisplayName: merchantName,
+            customerId: jsonResponse['customer'],
+            customerEphemeralKeySecret: jsonResponse['ephemeralKey'],
+          ));
+      final res = await Stripe.instance.presentPaymentSheet();
+      print('wlhfaui $res');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Payment is successful'),
+        ),
+      );
+    } catch (errorr) {
+      print(errorr);
+      if (errorr is StripeException) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occured ${errorr.error.localizedMessage}'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occured $errorr'),
+          ),
+        );
+      }
+    }
+  }
+
+  String generateRandomPhoneNumber() {
+    // Generate 10 random digits for the phone number
+    String randomDigits = '';
+    for (int i = 0; i < 10; i++) {
+      randomDigits += Random().nextInt(10).toString();
+    }
+
+    // Combine country code and random digits
+    String phoneNumber =  randomDigits;
+
+    return phoneNumber;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -641,7 +709,7 @@ class _PingSectionState extends State<PingsSection>{
                                       SizedBox(width: screenWidth*0.08,),
                                       InkWell(
                                           onTap: (){
-                                            print('Payment Successful');
+                                            paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
                                             cancelMeeting(date,index,'schedule',userId,'schedule');
                                             print('$date,$index');
                                           },
@@ -684,7 +752,7 @@ class _PingSectionState extends State<PingsSection>{
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => RateFeedBack(userPhoto: pingsDataStore.userPhotoPath,userName:pingsDataStore.userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle),
+                                        builder: (context) => RateFeedBack(userPhoto: pingsDataStore.userPhotoPath,userName:pingsDataStore.userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId),
                                       ),
                                     );
                                   },
@@ -934,6 +1002,37 @@ class _RateFeedBackState extends State<RateFeedBack>{
 
     return days[dayName - 1]; // Adjust to index of days array (0 for Monday, 6 for Sunday)
   }
+
+
+  void updateMeetingFeedback(String meetingId,int rating,String info,String type)async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'meetId': meetingId,
+        'rating':rating,
+        'info':info,
+        'type':type,
+      };
+      print('PPPPP::$data');
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/updateMeetingFeedback'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+      } else {
+        print('Failed to save data: ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error: $err");
+    }
+  }
+
   int rating = 0;
   String textValue = '';
   @override
@@ -971,121 +1070,126 @@ class _RateFeedBackState extends State<RateFeedBack>{
       body: SingleChildScrollView(
         child: Column(
           children: [
-            Container(
-              width: screenWidth<400?screenWidth*0.85:360,
-              height: 180,
-              margin: EdgeInsets.only(top:75),
-              decoration: BoxDecoration(border:Border.all(width: 1)),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Container(
-                    width: screenWidth<400?screenWidth*0.80:370,
-                    height: 40,
-                    // decoration: BoxDecoration(
-                    //   border:Border.all(
-                    //     width: 1,
-                    //     color: Colors.lightBlue
-                    //   ),
-                    // ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        widget.meetType=='sender'
-                            ? CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage: widget.userPhoto != null
-                              ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
-                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                        )
-                            :CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage: (widget.userPhoto!) != null
-                              ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
-                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                        ),
-                        SizedBox(width: 10,),
-                        Image.asset('assets/images/arrow_dir.png'),
-                        SizedBox(width: 10,),
-                        widget.meetType=='sender'
-                            ? CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage: (widget.userPhoto) != null
-                              ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
-                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                        )
-                            :CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage: (widget.userPhoto) != null
-                              ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
-                              : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                        ),
-                      ],
-                    ),
-                  ),
-
-
-                  Container(
-                    height: 85,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        widget.meetType=='sender'
-                            ?Container(
-
-                              child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            Row(
+              children: [
+                SizedBox(width: 25,),
+                Container(
+                  width: screenWidth<400?screenWidth*0.85:360,
+                  height: 180,
+                  margin: EdgeInsets.only(top:75),
+                  // decoration: BoxDecoration(border:Border.all(width: 1)),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Container(
+                        width: screenWidth<400?screenWidth*0.80:370,
+                        height: 40,
+                        // decoration: BoxDecoration(
+                        //   border:Border.all(
+                        //     width: 1,
+                        //     color: Colors.lightBlue
+                        //   ),
+                        // ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
-                              Text('Trip planning Call with',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w600),),
-                              Text('${widget.userName!}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
-                          ],
-                        ),
+                            widget.meetType=='sender'
+                                ? CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: widget.userPhoto != null
+                                  ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
+                                  : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
                             )
-                            :Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Call requested by',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w600),),
-                            Text('${widget.userName!}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
+                                :CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: (widget.userPhoto!) != null
+                                  ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
+                                  : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                            ),
+                            SizedBox(width: 10,),
+                            Image.asset('assets/images/arrow_dir.png'),
+                            SizedBox(width: 10,),
+                            widget.meetType=='sender'
+                                ? CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: (widget.userPhoto) != null
+                                  ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
+                                  : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                            )
+                                :CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: (widget.userPhoto) != null
+                                  ? FileImage(File(widget.userPhoto!)) as ImageProvider<Object>?
+                                  : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                            ),
                           ],
                         ),
-                        Container(
-                          height: 50,
-                          // decoration: BoxDecoration(border:Border.all(width: 1)),
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Row(
+                      ),
+
+
+                      Container(
+                        height: 85,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            widget.meetType=='sender'
+                                ?Container(
+
+                                  child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                  Text('Trip planning Call with',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w600),),
+                                  Text('${widget.userName!}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
+                              ],
+                            ),
+                                )
+                                :Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Call requested by',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w600),),
+                                Text('${widget.userName!}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
+                              ],
+                            ),
+                            Container(
+                              height: 50,
+                              // decoration: BoxDecoration(border:Border.all(width: 1)),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
-                                  Container(
-                                    child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,),
+                                  Row(
+                                    children: [
+                                      Container(
+                                        child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,),
+                                      ),
+                                      SizedBox(width: 5,),
+                                      Text('${widget.startTime!} - ${widget.endTime!} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                      Text('India',style: TextStyle(fontWeight: FontWeight.bold,fontSize:14,fontFamily: 'Poppins'),)
+                                    ],
                                   ),
-                                  SizedBox(width: 5,),
-                                  Text('${widget.startTime!} - ${widget.endTime!} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                  Text('India',style: TextStyle(fontWeight: FontWeight.bold,fontSize:14,fontFamily: 'Poppins'),)
+                                  Row(
+                                    children: [
+                                      Container(
+                                        child: Image.asset('assets/images/calendar.png',width: 20,height: 20,),
+                                      ),
+                                      SizedBox(width: 5,),
+                                      Text('Date ${widget.date!} "${convertToDate(widget.date!)}"',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                    ],
+                                  ),
                                 ],
                               ),
-                              Row(
-                                children: [
-                                  Container(
-                                    child: Image.asset('assets/images/calendar.png',width: 20,height: 20,),
-                                  ),
-                                  SizedBox(width: 5,),
-                                  Text('Date ${widget.date!} "${convertToDate(widget.date!)}"',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                ],
-                              ),
-                            ],
-                          ),
+                            ),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                      Container(
+                        width: screenWidth<400?screenWidth*0.80:370,
+                        child: Text(widget.meetTitle==''?'Please Enter Tile Next Time':widget.meetTitle!,style: TextStyle(fontSize: 16,fontFamily: 'Poppins'),),
+                      ),
+                    ],
                   ),
-                  Container(
-                    width: screenWidth<400?screenWidth*0.80:370,
-                    child: Text(widget.meetTitle==''?'Please Enter Tile Next Time':widget.meetTitle!,style: TextStyle(fontSize: 16,fontFamily: 'Poppins'),),
-                  ),
-                ],
-              ),
+                ),
+              ],
             ),
             SizedBox(height: 40,),
             Row(
@@ -1120,6 +1224,7 @@ class _RateFeedBackState extends State<RateFeedBack>{
                                     onTap: () {
                                       setState(() {
                                         rating = index + 1;
+                                        print('Rating is$rating');
                                       });
                                     },
                                     child: Icon(
@@ -1173,6 +1278,8 @@ class _RateFeedBackState extends State<RateFeedBack>{
               child: FiledButton(
                   backgroundColor: HexColor('#FB8C00'),
                   onPressed: () {
+                    print('${widget.meetId},${widget.meetType}');
+                    updateMeetingFeedback(widget.meetId!,rating,textValue,widget.meetType!);
                   },
                   child: Center(
                       child: Text('SUBMIT',
@@ -1186,5 +1293,67 @@ class _RateFeedBackState extends State<RateFeedBack>{
       ),
     );
   }
-  
+}
+
+
+class PaymentDemo extends StatelessWidget {
+  String name,merchantName,phone;
+  double amount;
+  PaymentDemo({required this.name,required this.amount,required this.merchantName,required this.phone});
+  Future<void> initPayment({required BuildContext context}) async {
+    try {
+      // 1. Create a payment intent on the server
+      final response = await http.post(Uri.parse('${Constant().serverUrl}/customerPayment'),
+          body: {
+            'phone':'6971833439',
+            'amount': amount.toString(),
+            'name':name
+          });
+
+      final jsonResponse = jsonDecode(response.body);
+      print(jsonResponse);
+      // 2. Initialize the payment sheet
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: jsonResponse['paymentIntent'],
+          merchantDisplayName: merchantName,
+          customerId: jsonResponse['customer'],
+          customerEphemeralKeySecret: jsonResponse['ephemeralKey'],
+        ));
+      await Stripe.instance.presentPaymentSheet();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Payment is successful'),
+        ),
+      );
+    } catch (errorr) {
+      print(errorr);
+      if (errorr is StripeException) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occured ${errorr.error.localizedMessage}'),
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('An error occured $errorr'),
+          ),
+        );
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+          child: ElevatedButton(
+            child: const Text('Pay 20\$'),
+            onPressed: () async {
+              await initPayment(context: context);
+            },
+          )),
+    );
+  }
 }

@@ -11,6 +11,7 @@ import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -286,7 +287,7 @@ class ProfielStatusAndButton  extends StatelessWidget{
       try {
         final profileData = profileDataProvider.profileData.toJson();
         print('Path is $profileData');
-        final String serverUrl = 'http://192.168.53.54:8080'; // Replace with your server's URL
+        final String serverUrl = Constant().serverUrl; // Replace with your server's URL
         final http.Response response = await http.post(
           Uri.parse('$serverUrl/profileSection'), // Adjust the endpoint as needed
           headers: {

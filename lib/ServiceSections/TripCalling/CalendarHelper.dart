@@ -154,7 +154,7 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: List.generate(
                         meetStartTimes.length,
-                            (index) => Padding(
+                            (index) =>  Padding(
                           padding: const EdgeInsets.only(bottom: 20.0),
                           child: Container(
                             width: 369,

@@ -1,4 +1,5 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/ChatSection/Receiver.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/Pings.dart';
 // import 'package:learn_flutter/ServiceSections/TripCalling/ChatSection/TestReceiver.dart';
@@ -14,7 +15,10 @@ import '../../UserProfile/ProfileHeader.dart';
 import '../../rating.dart';
 import 'ChatSection/Receiver.dart';
 import '../../UserProfile/ProfileHeader.dart';
-void main() {
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  Stripe.publishableKey = Constant().publishableKey;
+  Stripe.instance.applySettings();
   runApp(Receiver());
 }
 

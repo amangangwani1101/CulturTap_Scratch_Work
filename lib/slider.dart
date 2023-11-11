@@ -2,8 +2,8 @@
   
   import 'package:flutter/material.dart';
   import 'package:flutter_stripe/flutter_stripe.dart';
-  import 'package:stripe_platform_interface/src/models/payment_methods.dart' as stripe;
   import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
+  import 'package:flutter/material.dart';
   import 'package:http/http.dart' as http;
   import 'package:learn_flutter/widgets/Constant.dart';
   import 'UserProfile/ProfileHeader.dart';
@@ -186,7 +186,24 @@
     //   print('Token $token');
     // }
 
-
+    // Future<void> tokenizeCard(BuildContext context) async {
+    //   try {
+    //     final token = await Stripe.instance.createToken(
+    //       Card(
+    //         number: '4242424242424242',
+    //         expMonth: 12,
+    //         expYear: 25,
+    //         cvc: '123',
+    //       ),
+    //     );
+    //
+    //     // Send the token to your backend for further processing
+    //     print('Token: ${token.id}');
+    //   } catch (e) {
+    //     // Handle errors
+    //     print('Error: $e');
+    //   }
+    // }
 
 
     void tokenizeDealerCard(String cardNumber, String expMonth, String expYear, String cvc, String cardholderName) async {

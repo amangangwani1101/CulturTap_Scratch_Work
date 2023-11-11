@@ -33,7 +33,7 @@ class _ChatAppsState extends State<ChatApps> {
   late IO.Socket socket;
   List<List<String>> messages = [];
   List<String>sender=[],receiver=[];
-  final String serverUrl = 'http://192.168.86.37:8080'; // Replace with your server's URL
+  final String serverUrl = Constant().serverUrl;  // Replace with your server's URL
   late Timer meetingTimer;
   String senderNavigatorId = 'sender';
   String receiverNavigatorId = 'receiver';
@@ -51,6 +51,7 @@ class _ChatAppsState extends State<ChatApps> {
   @override
   void initState() {
     super.initState();
+    print('inti');
     // Connect to your server
     socket = IO.io(serverUrl, <String, dynamic>{
       'transports': ['websocket'],
