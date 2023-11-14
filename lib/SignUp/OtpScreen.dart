@@ -5,8 +5,10 @@ import '../CustomItems/CostumAppbar.dart';
 
 
 class OtpScreen extends StatefulWidget {
-  final String otp;
-  OtpScreen({required this.otp});
+  String? otp;
+  final String userName,phoneNumber;
+
+  OtpScreen({this.otp,required this.userName,required this.phoneNumber});
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
@@ -14,10 +16,7 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen>{
   List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
-  List<TextEditingController> _controllers = List.generate(
-    6,
-        (index) => TextEditingController(),
-  );
+  List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController(),);
 
   @override
   void dispose() {
@@ -177,32 +176,45 @@ class _OtpScreenState extends State<OtpScreen>{
   }
 
 
+  late final dynamic authCredential;
+  late String userCredId;  // Declare userCredId here
+  Future<void> verifyCode() async {
 
-  void verifyCode() async {
     print('Received OTP: ${widget.otp}');
     print('User-Entered OTP: ${_controllers.map((controller) => controller.text).join('')}');
-    String OTPP = widget.otp; // Access the OTP passed from the previous page
+    String OTPP = widget.otp!; // Access the OTP passed from the previous page
 
     // Now you can compare it with the OTP entered by the user
-    if (OTPP == _controllers.map((controller) => controller.text).join('')) {
       // OTPs match, proceed with verification
+    try{
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: OTPP,
         smsCode: _controllers.map((controller) => controller.text).join(''),
       );
 
-      await auth.signInWithCredential(credential).then((value) {
-        print("you are logged in successfully");
+      authCredential = await auth.signInWithCredential(credential);
 
-        // Navigate to the FourthPage
+      print("You are logged in successfully");
+      if (authCredential.user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Credentials Error'),
+          ),
+        );
+        return;
+      }
+      userCredId = authCredential.user.uid;
+      print(userCredId);
+
+      // await auth.signInWithCredential(credential).then((value) {
+      //   print("you are logged in successfully");
+      //   // Navigate to the FourthPage
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FourthPage()),
+          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
         );
-      });
-    } else {
-      // OTPs do not match, handle the error
-      print("OTP does not match");
+    } catch(err){
+        print('Error is$err');
     }
   }
 

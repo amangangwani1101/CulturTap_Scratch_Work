@@ -157,7 +157,7 @@ class RatingEntry {
 
 // Provider : Profile Data Class - Storing Database  fields
 class ProfileData{
-  String? userId;
+  String? userId,userSetId;
   String? imagePath;
   String? name;
   String? quote;
@@ -179,6 +179,7 @@ class ProfileData{
 
   Map<String,dynamic> toJson(){
     return {
+      'userId':userSetId,
       'userPhoto':imagePath,
       'userName':name,
       'userQuote':quote,
@@ -209,6 +210,7 @@ class ProfileDataProvider extends ChangeNotifier {
   String? retUserId(){
     return _profileData.userId;
   }
+
 
   void updateImagePath(String path) {
     _profileData.imagePath = path!;

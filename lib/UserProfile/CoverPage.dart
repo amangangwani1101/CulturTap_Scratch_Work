@@ -224,7 +224,7 @@ class _UserImageState extends State<UserImage>{
                     fontWeight: FontWeight.w900,
                     fontFamily: 'Poppins',
                   ),
-                ):EditNameForm(profileDataProvider:widget.profileDataProvider!),
+                ):EditNameForm(profileDataProvider:widget.profileDataProvider!,name:widget.name!),
               ],
             ),
           ),
@@ -353,20 +353,21 @@ class _UploadMethodsState extends State<UploadMethods> {
 // Edit Name
 class EditNameForm extends StatefulWidget {
   final ProfileDataProvider profileDataProvider;
-  EditNameForm({required this.profileDataProvider});
+  final String name;
+  EditNameForm({required this.profileDataProvider,required this.name});
   @override
   _EditNameFormState createState() => _EditNameFormState();
 }
 class _EditNameFormState extends State<EditNameForm> {
   TextEditingController nameController = TextEditingController();
-  String userName = "Hemant Singh"; // Initial static name
   // String editedName = ""; // Stores the edited name
   bool isEditing = false;
-
+  String userName='';
   @override
   void initState() {
     super.initState();
-    nameController.text = userName;
+    nameController.text = widget.name;
+    userName = widget.name;
   }
 
   void toggleEdit() {

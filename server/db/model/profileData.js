@@ -122,6 +122,18 @@ const userProfileSchema = new mongoose.Schema({
     userName : {
         type : String,
     },
+    phoneNumber : {
+        type : Number,
+    },
+    latitude:{
+        type: String,
+    },
+    longitude:{
+        type: String,
+    },
+    uniqueToken:{
+        type:String,
+    },
     userQuote : {
         type : String,
     },

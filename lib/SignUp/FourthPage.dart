@@ -1,65 +1,211 @@
+import 'dart:convert';
+import 'dart:io';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
+import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
+import 'package:provider/provider.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
-
+import '../BackendStore/BackendStore.dart';
 import '../CustomItems/CostumAppbar.dart';
 
 class FourthPage extends StatefulWidget {
+  final String userName,phoneNumber,userCredId;
+  FourthPage({required this.userName,required this.phoneNumber,required this.userCredId});
   @override
   _FourthPageState createState() => _FourthPageState();
+}
+
+
+// firebase cloudstore user model
+class UserModel{
+  final String uid;
+  final String name;
+  final int phoneNo;
+  final String token;
+  final String createdAt;
+  final String latitude;
+  final String longitude;
+
+  const UserModel({
+    required this.name,
+    required this.token,
+    required this.createdAt,
+    required this.phoneNo,
+    required this.uid,
+    required this.latitude,
+    required this.longitude,
+  });
+
+  factory UserModel.fromJson(Map<String,dynamic>json)=>UserModel(
+    uid:json['uid'],
+    name:json['name'],
+    token:json['token'],
+    phoneNo:json['phoneNo'],
+    createdAt:json['createdAt'],
+    latitude: json['latitude'],
+    longitude:json['longitude']
+  );
+
+  Map<String,dynamic> toJson()=>{
+    'uid':uid,
+    'name':name,
+    'token':token,
+    'phoneNo':phoneNo,
+    'createdAt':createdAt,
+    'latitude':latitude,
+    'longitude':longitude
+  };
 }
 
 class _FourthPageState extends State<FourthPage> {
   var _locationController = TextEditingController();
   bool _isLoading = false;
-
+  String?latitude,longitude,token,userId;
   @override
   void initState() {
     super.initState();
     _fetchLocation();
   }
 
+  void registerUser() async {
+
+    try{
+      final FirebaseFirestore _db = FirebaseFirestore.instance;
+      print(widget.phoneNumber);
+      print(widget.userCredId);
+      print(widget.userName);
+      var userRef = _db.collection('users').doc(widget.userCredId);
+      final current = DateTime.now();
+
+      final String createdAt = '${current.day}/${current.month}/${current.year}';
+      token = await FirebaseMessaging.instance.getToken();
+      print(token);
+      if(token==null) return;
+      final userModel = UserModel(name: widget.userName, token: token!, createdAt: createdAt, phoneNo: int.parse(widget.phoneNumber), uid: widget.userCredId,latitude: latitude!,longitude: longitude!);
+
+      await userRef.set(userModel.toJson());
+    }catch(err){
+      print('Error:$err');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(err.toString()),),
+      );
+    }
+    try {
+      final String userName = widget.userName; // Access the userName from the widget
+      final String phoneNumber = widget.phoneNumber; // Assuming you have a phoneNumberController
+
+      final Map<String, String> regBody = {
+        "userName": userName,
+        "phoneNumber": phoneNumber,
+        "latitude":latitude!,
+        "longitude":longitude!,
+        "uniqueToken":token==null?'':token!,
+      };
+
+      print('Request Body: $regBody');
+
+
+      final String serverUrl = 'http://192.168.65.54:8080'; // Replace with your server's URL
+
+
+      final http.Response response = await http.post(
+        Uri.parse('$serverUrl/SignUp'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(regBody),
+      );
+
+      print('Response: ${response.statusCode} ${response.reasonPhrase}');
+
+      if (response.statusCode == 200) {
+        // Request was successful
+
+        final Map<String, dynamic> responseData = jsonDecode(response.body);
+        print('Response Data: ${responseData}');
+        userId = responseData['id'];
+        // You can handle the response here as needed, e.g., show a success message or navigate to a new page.
+      } else {
+        // Request failed with a non-200 status code
+        print('Request failed with status: ${response.statusCode}');
+        print('Response Data: ${response.body}');
+
+        // Handle the error here, e.g., show an error message.
+      }
+    } catch (error) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error.toString()),),
+      );
+      // Handle network or other errors
+      print("Error: $error");
+    }
+  }
+
+
+
   Future<void> _fetchLocation() async {
     setState(() {
       _isLoading = true;
     });
-
     LocationPermission permission = await Geolocator.checkPermission();
 
-    if (permission == LocationPermission.deniedForever) {
-      setState(() {
-        _locationController.text = "Location permission denied forever.";
-        _isLoading = false;
-      });
-      return;
-    } else if (permission == LocationPermission.denied) {
-      permission = await Geolocator.requestPermission();
-    }
+    // if (permission == LocationPermission.deniedForever) {
+    //   setState(() {
+    //     _locationController.text = "Location permission denied forever.";
+    //     _isLoading = false;
+    //   });
+    //   return;
+    // } else if (permission == LocationPermission.denied) {
+    //   permission = await Geolocator.requestPermission();
+    // }
 
-    if (permission == LocationPermission.denied) {
-      setState(() {
-        _locationController.text = "Location permission denied.";
-        _isLoading = false;
-      });
-      return;
-    }
+    // if (permission == LocationPermission.denied) {
+    //   setState(() {
+    //     _locationController.text = "Location permission denied.";
+    //     _isLoading = false;
+    //   });
+    //   return;
+    // }
 
-    try {
+    try{
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
 
+      // List<Placemark> placemarks = await placemarkFromCoordinates(
+      //   position.latitude,
+      //   position.longitude,
+      // );
+      //
+      // print(placemarks);
+      //
+      // String fullAddress = "${placemarks.first.name}, ${placemarks.first.subLocality}, ${placemarks.first.locality}, ${placemarks.first.administrativeArea} ${placemarks.first.postalCode}, ${placemarks.first.country}";
+      // print(fullAddress);
       setState(() {
-        _locationController.text =
-        "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+        _locationController.text = '${position.latitude}/${position.longitude}';
         _isLoading = false;
+        latitude = position.latitude.toString();
+        longitude = position.longitude.toString();
       });
-    } catch (e) {
+
+
+
+      print("Latitude: ${latitude}");
+      print("Longitude: ${longitude}");
+      // print('Address: $fullAddress');
+
+    }catch(err){
       setState(() {
-        _locationController.text = "Error fetching location: ${e.toString()}";
+        _locationController.text = "Error fetching location: ${err.toString()}";
         _isLoading = false;
       });
     }
+    registerUser();
   }
 
   @override
@@ -136,7 +282,10 @@ class _FourthPageState extends State<FourthPage> {
                         print('Location: $fetchedLocation');
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => FourthPage()),
+                          MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                            create:(context) => ProfileDataProvider(),
+                            child: ProfileApp(userId: userId,userName:widget.userName),
+                          ),),
                         );
                       },
                       child: Center(
@@ -189,8 +338,8 @@ class FilledButton extends StatelessWidget {
   }
 }
 
-void main() {
-  runApp(MaterialApp(
-    home: FourthPage(),
-  ));
-}
+// void main() {
+//   runApp(MaterialApp(
+//     home: FourthPage(),
+//   ));
+// }

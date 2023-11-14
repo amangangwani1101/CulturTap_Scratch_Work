@@ -42,15 +42,18 @@ void main() async{
 
 // start of profile page
 class ProfileApp extends StatelessWidget {
+  String?userId,userName;
+  ProfileApp({this.userId,this.userName});
   @override
   Widget build(BuildContext context) {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
+    // final profileDataProvider = context.watch<ProfileDataProvider>();
     return MaterialApp(
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
         useMaterial3: true,
       ),
-      home: ProfilePage(reqPage:0,profileDataProvider: profileDataProvider,),
+      home: ProfilePage(reqPage:0,profileDataProvider: profileDataProvider,userId:userId,userName:userName),
       debugShowCheckedModeBanner: false,
     );
   }
@@ -58,9 +61,12 @@ class ProfileApp extends StatelessWidget {
 class ProfilePage extends StatelessWidget {
   final int reqPage;
   final ProfileDataProvider? profileDataProvider;
-  ProfilePage({required this.reqPage, this.profileDataProvider});
+  final String?userId,userName;
+  ProfilePage({required this.reqPage, this.profileDataProvider,this.userId,this.userName});
+
   @override
   Widget build(BuildContext context) {
+    profileDataProvider?.setUserId(userId!);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(0), // Set the preferred height to 0
@@ -76,7 +82,7 @@ class ProfilePage extends StatelessWidget {
             ProfileHeader(reqPage: reqPage),
             reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
             SizedBox(height: 17,),
-            CoverPage(reqPage:reqPage,profileDataProvider: profileDataProvider,),
+            CoverPage(reqPage:reqPage,profileDataProvider: profileDataProvider,name:userName),
             UserInformationSection(reqPage:reqPage,profileDataProvider:profileDataProvider),
           ],
         ),
@@ -285,7 +291,7 @@ class ProfielStatusAndButton  extends StatelessWidget{
       try {
         final profileData = profileDataProvider.profileData.toJson();
         print('Path is $profileData');
-        final String serverUrl = 'http://192.168.53.54:8080'; // Replace with your server's URL
+        final String serverUrl = 'http://192.168.43.119:8080'; // Replace with your server's URL
         final http.Response response = await http.post(
           Uri.parse('$serverUrl/profileSection'), // Adjust the endpoint as needed
           headers: {
@@ -295,9 +301,6 @@ class ProfielStatusAndButton  extends StatelessWidget{
         );
 
         if (response.statusCode == 200) {
-          final responseData = json.decode(response.body);
-          print('User Id : ${responseData}');
-          profileDataProvider.setUserId(responseData['_id']);
           print('Data saved successfully');
         } else {
           print('Failed to save data: ${response.statusCode}');
@@ -344,6 +347,6 @@ class CompleteProfilePage extends StatelessWidget {
 
   Widget build(BuildContext context) {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
-    return ProfilePage(reqPage: 1, profileDataProvider: profileDataProvider,);
+    return ProfilePage(reqPage: 1, profileDataProvider: profileDataProvider,userId: profileDataProvider.retUserId());
   }
 }
