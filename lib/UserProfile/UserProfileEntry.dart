@@ -31,10 +31,19 @@ typedef void SetQuote(String? image);
 
 void main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyD_Q30r4nDBH0HOpvpclE4U4V8ny6QPJj4",
+      authDomain: "culturtap-19340.web.app",
+      projectId: "culturtap-19340",
+      storageBucket: "culturtap-19340.appspot.com",
+      messagingSenderId: "268794997426",
+      appId: "1:268794997426:android:694506cda12a213f13f7ab ",
+    ),
+  );
   runApp(ChangeNotifierProvider(
       create:(context) => ProfileDataProvider(),
-      child: ProfileApp(),
+      child: ProfileApp(userId: '6554e17668098ef95538006c',userName: 'Aman',),
     ),
   );
 }
@@ -66,7 +75,7 @@ class ProfilePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    profileDataProvider?.setUserId(userId!);
+    // profileDataProvider?.setUserId(userId!);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(0), // Set the preferred height to 0
@@ -82,7 +91,7 @@ class ProfilePage extends StatelessWidget {
             ProfileHeader(reqPage: reqPage),
             reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
             SizedBox(height: 17,),
-            CoverPage(reqPage:reqPage,profileDataProvider: profileDataProvider,name:userName),
+            CoverPage(reqPage:reqPage,profileDataProvider: profileDataProvider),
             UserInformationSection(reqPage:reqPage,profileDataProvider:profileDataProvider),
           ],
         ),
@@ -347,6 +356,6 @@ class CompleteProfilePage extends StatelessWidget {
 
   Widget build(BuildContext context) {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
-    return ProfilePage(reqPage: 1, profileDataProvider: profileDataProvider,userId: profileDataProvider.retUserId());
+    return ProfilePage(reqPage: 1, profileDataProvider: profileDataProvider);
   }
 }

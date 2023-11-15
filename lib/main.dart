@@ -1,5 +1,6 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/splashScreen.dart';
 
 
@@ -33,7 +34,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
         useMaterial3: true,
       ),
-      home: splashScreen(),
+      home: HomePage(),
     );
   }
 }

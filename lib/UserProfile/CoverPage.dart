@@ -31,7 +31,7 @@ class CoverPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider!,imagePath:imagePath,name:name);
+    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider!,imagePath:imagePath);
   }
 }
 
@@ -224,7 +224,7 @@ class _UserImageState extends State<UserImage>{
                     fontWeight: FontWeight.w900,
                     fontFamily: 'Poppins',
                   ),
-                ):EditNameForm(profileDataProvider:widget.profileDataProvider!,name:widget.name!),
+                ):EditNameForm(profileDataProvider:widget.profileDataProvider!,name:widget.name==null?'Hemant Singh':widget.name!),
               ],
             ),
           ),

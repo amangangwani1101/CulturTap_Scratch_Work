@@ -83,10 +83,9 @@ class _FourthPageState extends State<FourthPage> {
       final current = DateTime.now();
 
       final String createdAt = '${current.day}/${current.month}/${current.year}';
-      token = await FirebaseMessaging.instance.getToken();
+      token = '';
       print(token);
-      if(token==null) return;
-      final userModel = UserModel(name: widget.userName, token: token!, createdAt: createdAt, phoneNo: int.parse(widget.phoneNumber), uid: widget.userCredId,latitude: latitude!,longitude: longitude!);
+      final userModel = UserModel(name: widget.userName, token: token==null?'':token!, createdAt: createdAt, phoneNo: int.parse(widget.phoneNumber), uid: widget.userCredId,latitude: latitude!,longitude: longitude!);
 
       await userRef.set(userModel.toJson());
     }catch(err){
@@ -110,7 +109,7 @@ class _FourthPageState extends State<FourthPage> {
       print('Request Body: $regBody');
 
 
-      final String serverUrl = 'http://192.168.65.54:8080'; // Replace with your server's URL
+      final String serverUrl = 'http://192.168.171.54:8080'; // Replace with your server's URL
 
 
       final http.Response response = await http.post(
