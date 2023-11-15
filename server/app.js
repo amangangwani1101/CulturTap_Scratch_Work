@@ -61,6 +61,29 @@ app.post("/profileSection", async (req, res) => {
   }
 });
 
+app.put("/updateUserTime",async (req,res)=>{
+    try{
+        let { userId, startTime, endTime, slot } = req.body;
+        const user = await ProfileData.findById(userId).lean();
+        if (!user) {
+          return res.status(404).json({ error: "User Not Found" });
+        }
+        if(!user.userServiceTripCallingData){
+            user.userServiceTripCallingData = {};
+        }
+        user.userServiceTripCallingData.startTimeFrom = startTime;
+        user.userServiceTripCallingData.endTimeTo = endTime;
+        user.userServiceTripCallingData.slotsChossen = slot;
+
+        // Save the updated user timings
+        await ProfileData.findByIdAndUpdate(userId, user);
+        res.status(200).json({ message: "User timing updated successfully" });
+    }catch(err){
+        console.log('Error:',err);
+        res.status(501).json({ error: "Failed to update user time" });
+    }
+});
+
 app.post("/checkMeetingTime", async (req, res) => {
   try {
     let { userId, chosenDate, chosenStartTime, chosenEndTime } = req.body;

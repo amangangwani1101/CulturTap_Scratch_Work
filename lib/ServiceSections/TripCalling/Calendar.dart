@@ -34,14 +34,15 @@ class ProfileApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
         useMaterial3: true,
       ),
-      home: CalendarPage(),
+      home: CalendarPage(clickedUser: Constant().senderId,currentUser: Constant().receiversId,),
       debugShowCheckedModeBanner: false,
     );
   }
 }
 
 class CalendarPage extends StatefulWidget{
-  String currentUser = Constant().sendersId , clickedUser = Constant().receiversId;
+  String currentUser,clickedUser;
+  CalendarPage({required this.clickedUser,required this.currentUser});
   @override
   _CalendarPageState createState() => _CalendarPageState();
 }
@@ -652,9 +653,9 @@ class _TimeSetState extends State<TimeSet>{
     // Format the new time as a string in the desired format
     String newTimeString = '${newTime.hour>12?newTime.hour-12:newTime.hour}:${newTime.minute.toString().padLeft(2, '0')}';
     if (newTime.hour >= 12) {
-      newTimeString += 'PM';
+      newTimeString += ' PM';
     } else {
-      newTimeString += 'AM';
+      newTimeString += ' AM';
     }
 
     return newTimeString;
@@ -739,7 +740,6 @@ class _TimeSetState extends State<TimeSet>{
                               onTap: (){
                                 _selectStartTime(context);
                                 print(_startTime);
-
                               },
                               child: Text('${_formatTime(_startTime)}',style: TextStyle(fontSize: 27,fontFamily: 'Poppins'),)),
                         ),

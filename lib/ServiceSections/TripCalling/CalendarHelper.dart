@@ -104,7 +104,7 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                         ),
                       ),
                       CustomDOBDropDown(
-                        initData: widget.date,
+                        initData: widget.date==null?'15 NOV':widget.date,
                         label: 'Select Date',
                         selectedDate: selectedDate,
                         deviceWidth: screenWidth*0.60,
@@ -125,6 +125,7 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                               selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
                               sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
                               print('Selected: ${newDate}');
+                              printMeetTimes(sendDate!);
                             });
                           } else if(newDate!=null) {
                             ScaffoldMessenger.of(context).showSnackBar(

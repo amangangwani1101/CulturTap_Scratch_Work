@@ -277,12 +277,17 @@ class ProfileDataProvider extends ChangeNotifier {
   }
 
   void setStartTime(String startTime) {
+    print('sf $startTime');
     if (_profileData.tripCallingData == null) {
       _profileData.tripCallingData = ServiceTripCallingData(); // Initialize if null
     }
     _profileData.tripCallingData!.setStartTime = startTime!;
     print('Path is $startTime');
     notifyListeners();
+  }
+
+  String? retStartTime(){
+    return _profileData.tripCallingData!.setStartTime;
   }
 
   void setEndTime(String endTime) {
@@ -294,6 +299,10 @@ class ProfileDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? retEndTime(){
+    return _profileData.tripCallingData!.setEndTime;
+  }
+
   void setSlots(String slot){
     if (_profileData.tripCallingData == null) {
       _profileData.tripCallingData = ServiceTripCallingData(); // Initialize if null
@@ -301,6 +310,10 @@ class ProfileDataProvider extends ChangeNotifier {
     _profileData.tripCallingData!.slots = slot!;
     print('Path is $slot');
     notifyListeners();
+  }
+
+  String? retSlots(){
+    return _profileData.tripCallingData!.slots;
   }
 
   void setGuideId(String id){
