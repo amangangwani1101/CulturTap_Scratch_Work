@@ -5,11 +5,13 @@ import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:provider/provider.dart';
 import 'package:http/http.dart' as http;
 
@@ -43,7 +45,7 @@ void main() async{
   );
   runApp(ChangeNotifierProvider(
       create:(context) => ProfileDataProvider(),
-      child: ProfileApp(userId: '6554e17668098ef95538006c',userName: 'Aman',),
+      child: ProfileApp(),
     ),
   );
 }
@@ -67,15 +69,29 @@ class ProfileApp extends StatelessWidget {
     );
   }
 }
-class ProfilePage extends StatelessWidget {
+class ProfilePage extends StatefulWidget {
   final int reqPage;
   final ProfileDataProvider? profileDataProvider;
   final String?userId,userName;
   ProfilePage({required this.reqPage, this.profileDataProvider,this.userId,this.userName});
 
   @override
+  State<ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<ProfilePage> {
+  @override
+  void initState(){
+    super.initState();
+    if(widget.userName!=null){
+      print('UserName ${widget.userName}');
+      widget.profileDataProvider?.setUserId(widget.userId!);
+      widget.profileDataProvider?.updateName(widget.userName!);
+    }
+  }
+
+  @override
   Widget build(BuildContext context) {
-    // profileDataProvider?.setUserId(userId!);
     return Scaffold(
       appBar: PreferredSize(
         preferredSize: Size.fromHeight(0), // Set the preferred height to 0
@@ -88,11 +104,11 @@ class ProfilePage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ProfileHeader(reqPage: reqPage),
-            reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
+            ProfileHeader(reqPage: widget.reqPage),
+            widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
             SizedBox(height: 17,),
-            CoverPage(reqPage:reqPage,profileDataProvider: profileDataProvider),
-            UserInformationSection(reqPage:reqPage,profileDataProvider:profileDataProvider),
+            CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,name:widget.userName),
+            UserInformationSection(reqPage:widget.reqPage,profileDataProvider:widget.profileDataProvider,userName:widget.userName,userId:widget.userId),
           ],
         ),
       ),
@@ -199,13 +215,14 @@ class UserInformationSection extends StatelessWidget {
   final int reqPage;
   bool videoUploaded =  false;
   final ProfileDataProvider? profileDataProvider;
+  String ?userId,userName;
   final ratings = [
     RatingEntry(name: 'Aishwary Shrivastava', count: 3, comment: 'Good in communication... Not the explorer'),
     RatingEntry(name: 'Pushpit Kant', count: 4, comment: 'Funny!Helpful! if you are a girl then. '),
     RatingEntry(name: 'Anonomus', count: 5, comment: 'Good Services.'),
   ];
   final currentReview = 0;
-  UserInformationSection({required this.reqPage,this.profileDataProvider});
+  UserInformationSection({required this.reqPage,this.profileDataProvider,this.userId,this.userName});
 
   @override
   Widget build(BuildContext context) {
@@ -277,7 +294,7 @@ class UserInformationSection extends StatelessWidget {
                 :VisitsSection(),
           SizedBox(height: 20,),
 
-          ProfielStatusAndButton(reqPages: reqPage,),
+          ProfielStatusAndButton(reqPages: reqPage,userId:userId,userName:userName),
         ],
       ),
     );
@@ -288,8 +305,8 @@ class UserInformationSection extends StatelessWidget {
 // saving all user data in databse and submit section
 class ProfielStatusAndButton  extends StatelessWidget{
   final int reqPages;
-
-  ProfielStatusAndButton({required this.reqPages});
+  String?userId,userName;
+  ProfielStatusAndButton({required this.reqPages,this.userName,this.userId});
 
   @override
   Widget build(BuildContext context) {
@@ -300,8 +317,8 @@ class ProfielStatusAndButton  extends StatelessWidget{
       try {
         final profileData = profileDataProvider.profileData.toJson();
         print('Path is $profileData');
-        final String serverUrl = 'http://192.168.43.119:8080'; // Replace with your server's URL
-        final http.Response response = await http.post(
+        final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+        final http.Response response = await http.put(
           Uri.parse('$serverUrl/profileSection'), // Adjust the endpoint as needed
           headers: {
             "Content-Type": "application/json",
@@ -310,6 +327,8 @@ class ProfielStatusAndButton  extends StatelessWidget{
         );
 
         if (response.statusCode == 200) {
+          final responseData = json.decode(response.body);
+          print('User Id : ${responseData}');
           print('Data saved successfully');
         } else {
           print('Failed to save data: ${response.statusCode}');
@@ -332,8 +351,8 @@ class ProfielStatusAndButton  extends StatelessWidget{
                   print('Reqpages is $reqPages');
                   reqPages==1?sendDataToBackend():null;
                   reqPages<1
-                    ?Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(),))
-                    :Navigator.push(context, MaterialPageRoute(builder: (context) => FinalProfile(userId:profileDataProvider.retUserId()!),));
+                    ?Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(userId:userId,userName:userName),))
+                    :Navigator.push(context, MaterialPageRoute(builder: (context) => FinalProfile(userId:profileDataProvider.retUserId()!,clickedId:profileDataProvider.retUserId()!,),));
                 },
                 child: Center(
                     child: Text(reqPages<1?'COMPLETE PROFILE':'SET PROFILE',
@@ -352,10 +371,11 @@ class ProfielStatusAndButton  extends StatelessWidget{
 
 // showing edit profile section
 class CompleteProfilePage extends StatelessWidget {
+  String ?userId,userName;
+  CompleteProfilePage({this.userName,this.userId});
   @override
-
   Widget build(BuildContext context) {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
-    return ProfilePage(reqPage: 1, profileDataProvider: profileDataProvider);
+    return ProfilePage(reqPage: 1, profileDataProvider: profileDataProvider,userName: userName,userId: userId,);
   }
 }

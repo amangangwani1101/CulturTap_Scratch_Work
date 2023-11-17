@@ -31,7 +31,7 @@ class CoverPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider!,imagePath:imagePath);
+    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider!,imagePath:imagePath,name: name,);
   }
 }
 

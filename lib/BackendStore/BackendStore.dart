@@ -22,79 +22,79 @@ class MeetTimings{
   // }
 }
 
-void printAllData(CalendarPlansData data) {
-  data.date!.forEach((key, meetTimings) {
-    print("Date: $key");
-    if (meetTimings != null) {
-      print("Meeting Start Times:");
-      for (var startTime in meetTimings.meetStartTime!) {
-        print(startTime);
-      }
-
-      print("Meeting End Times:");
-      for (var endTime in meetTimings.meetEndTime!) {
-        print(endTime);
-      }
-    } else {
-      print("No data available for $key.");
-    }
-    print("");
-  });
-}
-
-class CalendarPlansData{
-  Map<String, MeetTimings>? date;
-
-
-  CalendarPlansData({this.date});
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> serializedData = {};
-    date?.forEach((d, meetTimings) {
-      serializedData[d] = meetTimings.toJson();
-    });
-    return serializedData;
-  }
-
-  // factory CalendarPlansData.fromJson(Map<String, dynamic> json) {
-  //   final Map<String, MeetTimings> deserializedData = {};
-  //   json.forEach((date, data) {
-  //     deserializedData[date] = MeetTimings.fromJson(data);
-  //   });
-  //
-  //   return CalendarPlansData()..date = deserializedData;
-  // }
-  factory CalendarPlansData.fromJson(Map<String, dynamic>? json) {
-    print(json);
-    final CalendarPlansData data = CalendarPlansData(date: {});
-
-    json?.forEach((date, meetTimingsData) {
-      List<List<String>> l = [];
-      meetTimingsData.forEach((day, meetings) {
-        l.add((meetings as List<dynamic>).map((dynamic item) => item.toString()).toList());
-      });
-
-      // final List<String>? meetStartTime = (meetTimingsData['meetStartTime'] as List<String>?)
-      //     ?.map((String item) => item.toString())
-      //     .toList();
-      // final List<String>? meetEndTime = (meetTimingsData['meetEndTime'] as List<dynamic>?)
-      //     ?.map((dynamic item) => item.toString())
-      //     .toList();
-      // print(meetStartTime);
-
-      if (l[0] != null && l[1] != null) {
-        final MeetTimings meetTimings = MeetTimings()
-          ..meetStartTime = l[0]
-          ..meetEndTime = l[1];
-        data.date![date] = meetTimings;
-      } else {
-        print("No meetStartTime or meetEndTime data found for date: $date");
-      }
-    });
-
-    return data;
-  }
-}
+// void printAllData(CalendarPlansData data) {
+//   data.date!.forEach((key, meetTimings) {
+//     print("Date: $key");
+//     if (meetTimings != null) {
+//       print("Meeting Start Times:");
+//       for (var startTime in meetTimings.meetStartTime!) {
+//         print(startTime);
+//       }
+//
+//       print("Meeting End Times:");
+//       for (var endTime in meetTimings.meetEndTime!) {
+//         print(endTime);
+//       }
+//     } else {
+//       print("No data available for $key.");
+//     }
+//     print("");
+//   });
+// }
+//
+// class CalendarPlansData{
+//   Map<String, MeetTimings>? date;
+//
+//
+//   CalendarPlansData({this.date});
+//
+//   Map<String, dynamic> toJson() {
+//     final Map<String, dynamic> serializedData = {};
+//     date?.forEach((d, meetTimings) {
+//       serializedData[d] = meetTimings.toJson();
+//     });
+//     return serializedData;
+//   }
+//
+//   // factory CalendarPlansData.fromJson(Map<String, dynamic> json) {
+//   //   final Map<String, MeetTimings> deserializedData = {};
+//   //   json.forEach((date, data) {
+//   //     deserializedData[date] = MeetTimings.fromJson(data);
+//   //   });
+//   //
+//   //   return CalendarPlansData()..date = deserializedData;
+//   // }
+//   factory CalendarPlansData.fromJson(Map<String, dynamic>? json) {
+//     print(json);
+//     final CalendarPlansData data = CalendarPlansData(date: {});
+//
+//     json?.forEach((date, meetTimingsData) {
+//       List<List<String>> l = [];
+//       meetTimingsData.forEach((day, meetings) {
+//         l.add((meetings as List<dynamic>).map((dynamic item) => item.toString()).toList());
+//       });
+//
+//       // final List<String>? meetStartTime = (meetTimingsData['meetStartTime'] as List<String>?)
+//       //     ?.map((String item) => item.toString())
+//       //     .toList();
+//       // final List<String>? meetEndTime = (meetTimingsData['meetEndTime'] as List<dynamic>?)
+//       //     ?.map((dynamic item) => item.toString())
+//       //     .toList();
+//       // print(meetStartTime);
+//
+//       if (l[0] != null && l[1] != null) {
+//         final MeetTimings meetTimings = MeetTimings()
+//           ..meetStartTime = l[0]
+//           ..meetEndTime = l[1];
+//         data.date![date] = meetTimings;
+//       } else {
+//         print("No meetStartTime or meetEndTime data found for date: $date");
+//       }
+//     });
+//
+//     return data;
+//   }
+// }
 
 
 // Trip Calling Schema - Frontend
@@ -152,7 +152,30 @@ class RatingEntry {
       'ratersComment' : comment,
     };
   }
+}
 
+
+// Payment Section
+class PaymentDetails {
+  String? name,cardNo,month,year,cvv;
+
+  PaymentDetails({
+    this.name,
+    this.month,
+    this.year,
+    this.cardNo,
+    this.cvv
+  });
+
+  Map<String,dynamic> toJson(){
+    return {
+      'name' : name,
+      'month' : month,
+      'year' : year,
+      'cardNo':cardNo,
+      'cvv':cvv,
+    };
+  }
 }
 
 // Provider : Profile Data Class - Storing Database  fields
@@ -172,6 +195,7 @@ class ProfileData{
   ServiceTripCallingData? tripCallingData;
   ServiceTripAssistantData? tripAssistantData;
   List<RatingEntry>? reviewSection;
+  List<PaymentDetails>? paymentDetail;
 
   ProfileData({this.userId,this.name,this.imagePath,this.quote,this.followerCnt,this.locations,this.followingCnt,
     this.place,this.profession,this.age,this.languages,this.gender,
@@ -194,6 +218,7 @@ class ProfileData{
       'userServiceTripCallingData':tripCallingData?.toJson(),
       'userServiceTripAssistantData':tripAssistantData?.toJson(),
       'userReviewsData' : reviewSection?.map((entry)=>entry.toJson()).toList(),
+      'userPaymentData' : paymentDetail?.map((entry)=>entry.toJson()).toList(),
     };
   }
 }
@@ -203,12 +228,12 @@ class ProfileDataProvider extends ChangeNotifier {
 
 
   void setUserId(String id) {
-    _profileData.userId = id!;
+    _profileData.userSetId = id;
     print('Path is $id');
     notifyListeners();
   }
   String? retUserId(){
-    return _profileData.userId;
+    return _profileData.userSetId;
   }
 
 
@@ -279,12 +304,17 @@ class ProfileDataProvider extends ChangeNotifier {
   }
 
   void setStartTime(String startTime) {
+    print('sf $startTime');
     if (_profileData.tripCallingData == null) {
       _profileData.tripCallingData = ServiceTripCallingData(); // Initialize if null
     }
     _profileData.tripCallingData!.setStartTime = startTime!;
     print('Path is $startTime');
     notifyListeners();
+  }
+
+  String? retStartTime(){
+    return _profileData.tripCallingData!.setStartTime;
   }
 
   void setEndTime(String endTime) {
@@ -296,6 +326,10 @@ class ProfileDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
+  String? retEndTime(){
+    return _profileData.tripCallingData!.setEndTime;
+  }
+
   void setSlots(String slot){
     if (_profileData.tripCallingData == null) {
       _profileData.tripCallingData = ServiceTripCallingData(); // Initialize if null
@@ -303,6 +337,10 @@ class ProfileDataProvider extends ChangeNotifier {
     _profileData.tripCallingData!.slots = slot!;
     print('Path is $slot');
     notifyListeners();
+  }
+
+  String? retSlots(){
+    return _profileData.tripCallingData!.slots;
   }
 
   void setGuideId(String id){
@@ -330,6 +368,14 @@ class ProfileDataProvider extends ChangeNotifier {
     }
     _profileData.reviewSection!.add(rating);
     print('Path is ${rating.name}');
+    notifyListeners();
+  }
+  void addCardDetails(PaymentDetails details){
+    if (_profileData.paymentDetail == null) {
+      _profileData.paymentDetail = []; // Initialize if null
+    }
+    _profileData.paymentDetail!.add(details);
+    print('Path is ${details}');
     notifyListeners();
   }
 }

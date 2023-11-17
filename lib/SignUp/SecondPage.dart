@@ -252,10 +252,6 @@ class _SecondPageState extends State<SecondPage> {
                           // For verifying the number using Firebase
                           verifyNumber();
                         }
-
-                        print('Valid $isValid || verificationId:$verificationIDReceived');
-
-
                       },
                       child: Center(
                         child: Text(
