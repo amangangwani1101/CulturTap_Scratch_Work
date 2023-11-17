@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
@@ -30,13 +31,14 @@ class UserModel{
   final int phoneNo;
   final String token;
   final String createdAt;
-
+  final String userMongoId;
   const UserModel({
     required this.name,
     required this.token,
     required this.createdAt,
     required this.phoneNo,
     required this.uid,
+    required this.userMongoId
   });
 
   factory UserModel.fromJson(Map<String,dynamic>json)=>UserModel(
@@ -45,6 +47,7 @@ class UserModel{
     token:json['token'],
     phoneNo:json['phoneNo'],
     createdAt:json['createdAt'],
+    userMongoId: json['userMongoId']
   );
 
   Map<String,dynamic> toJson()=>{
@@ -53,6 +56,7 @@ class UserModel{
     'token':token,
     'phoneNo':phoneNo,
     'createdAt':createdAt,
+    'userMongoId':userMongoId,
   };
 }
 
@@ -68,26 +72,7 @@ class _FourthPageState extends State<FourthPage> {
 
   void registerUser() async {
 
-    try{
-      final FirebaseFirestore _db = FirebaseFirestore.instance;
-      print(widget.phoneNumber);
-      print(widget.userCredId);
-      print(widget.userName);
-      var userRef = _db.collection('users').doc(widget.userCredId);
-      final current = DateTime.now();
 
-      final String createdAt = '${current.day}/${current.month}/${current.year}';
-      token = '';
-      print(token);
-      final userModel = UserModel(name: widget.userName, token: token==null?'':token!, createdAt: createdAt, phoneNo: int.parse(widget.phoneNumber), uid: widget.userCredId);
-
-      await userRef.set(userModel.toJson());
-    }catch(err){
-      print('Error:$err');
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(err.toString()),),
-      );
-    }
     try {
       final String userName = widget.userName; // Access the userName from the widget
       final String phoneNumber = widget.phoneNumber; // Assuming you have a phoneNumberController
@@ -139,50 +124,109 @@ class _FourthPageState extends State<FourthPage> {
       // Handle network or other errors
       print("Error: $error");
     }
+
+    try{
+      final FirebaseFirestore _db = FirebaseFirestore.instance;
+      print(widget.phoneNumber);
+      print(widget.userCredId);
+      print(widget.userName);
+      var userRef = _db.collection('users').doc(widget.userCredId);
+      final current = DateTime.now();
+
+      final String createdAt = '${current.day}/${current.month}/${current.year}';
+      token = '';
+      print(token);
+      final userModel = UserModel(name: widget.userName, token: token==null?'':token!, createdAt: createdAt, phoneNo: int.parse(widget.phoneNumber), uid: widget.userCredId,userMongoId:userId!);
+
+      await userRef.set(userModel.toJson());
+    }catch(err){
+      print('Error:$err');
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(err.toString()),),
+      );
+    }
   }
 
 
-
+  String? fullAddress;
   Future<void> _fetchLocation() async {
     setState(() {
       _isLoading = true;
     });
     LocationPermission permission = await Geolocator.checkPermission();
 
-    // if (permission == LocationPermission.deniedForever) {
-    //   setState(() {
-    //     _locationController.text = "Location permission denied forever.";
-    //     _isLoading = false;
-    //   });
-    //   return;
-    // } else if (permission == LocationPermission.denied) {
-    //   permission = await Geolocator.requestPermission();
-    // }
+    if (permission == LocationPermission.deniedForever) {
+      setState(() {
+        _locationController.text = "Location permission denied forever.";
+        _isLoading = false;
+      });
+      return;
+    } else if (permission == LocationPermission.denied) {
+      permission = await Geolocator.requestPermission();
+    }
 
-    // if (permission == LocationPermission.denied) {
-    //   setState(() {
-    //     _locationController.text = "Location permission denied.";
-    //     _isLoading = false;
-    //   });
-    //   return;
-    // }
+    if (permission == LocationPermission.denied) {
+      setState(() {
+        _locationController.text = "Location permission denied.";
+        _isLoading = false;
+      });
+      return;
+    }
+
+
+    Future<String?> fetchAddressFromCoordinates(double latitude, double longitude) async {
+      final String apiUrl = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude';
+
+      try {
+        final response = await http.get(Uri.parse(apiUrl));
+        if (response.statusCode == 200) {
+          final decoded = jsonDecode(response.body);
+          final String address = decoded['display_name'];
+          print('Address: $address');
+          return address;
+        } else {
+          print('Failed to fetch address. Status code: ${response.statusCode}');
+          return null;
+        }
+      } catch (e) {
+        print('Error: $e');
+        return null;
+      }
+    }
+
 
     try{
       Position position = await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );
+      if (kIsWeb) {
+        fullAddress = await fetchAddressFromCoordinates(26.4470615,80.3092354);
+        print('Running on the web');
+      } else if (Platform.isAndroid) {
+        List<Placemark> placemarks = await placemarkFromCoordinates(
+          position.latitude,
+          position.longitude,
+        );
 
-      // List<Placemark> placemarks = await placemarkFromCoordinates(
-      //   position.latitude,
-      //   position.longitude,
-      // );
-      //
-      // print(placemarks);
-      //
-      // String fullAddress = "${placemarks.first.name}, ${placemarks.first.subLocality}, ${placemarks.first.locality}, ${placemarks.first.administrativeArea} ${placemarks.first.postalCode}, ${placemarks.first.country}";
-      // print(fullAddress);
+        if (placemarks.isNotEmpty) {
+          Placemark place = placemarks.first;
+          fullAddress = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+          print('AAA::$fullAddress');
+        }
+        else{
+          print('None');
+        }
+        print('Running on Android');
+        // Your Android-specific code here
+      } else if (Platform.isIOS) {
+        print('Running on iOS');
+        // Your iOS-specific code here
+      } else {
+        print('Running on another platform');
+        // Handle other platforms (like macOS, Windows, Linux) if needed
+      }
       setState(() {
-        _locationController.text = '${position.latitude}/${position.longitude}';
+        _locationController.text = fullAddress!;
         _isLoading = false;
         latitude = position.latitude.toString();
         longitude = position.longitude.toString();

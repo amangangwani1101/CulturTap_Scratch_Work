@@ -1,7 +1,9 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
+import 'package:learn_flutter/SignUp/FirstPage.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:provider/provider.dart';
@@ -30,8 +32,22 @@ class HomePage extends StatelessWidget{
 class HomePageWidget extends StatelessWidget {
   String ?userName,userId,phoneNumber,latitude,longitude,token;
   HomePageWidget({this.longitude,this.latitude,this.phoneNumber,this.userId,this.userName,this.token});
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+
   @override
   Widget build(BuildContext context) {
+    Future<void> _signOut() async {
+      try {
+        await _auth.signOut();
+        // Redirect to the login or splash screen after logout
+        // For example:
+        Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FirstPage()));
+       } catch (e) {
+        print('Error while logging out: $e');
+        // Handle the error as needed
+      }
+    }
     return Scaffold(
       appBar:AppBar(title: ProfileHeader(reqPage: 0,userId: userId,),),
       body: Container(
@@ -82,6 +98,12 @@ class HomePageWidget extends StatelessWidget {
                 );
               },
                 child: Text('Avail Trip Calling Services From Hemant')
+            ),
+            InkWell(
+              onTap: (){
+                _signOut();
+              },
+              child: Text('LogOut'),
             ),
           ],
         ),

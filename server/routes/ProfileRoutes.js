@@ -21,9 +21,11 @@ router.put("/profileSection", async (req, res) => {
       // Update existing fields with new values
       Object.keys(dataset).forEach((key) => {
       if(key=='userServiceTripCallingData' && user[key]!==null && user[key].dayPlans!==null){
-            user[key]['startTimeFrom'] = dataset[key]['startTimeFrom'];
-            user[key]['endTimeTo'] = dataset[key]['endTimeTo'];
-            user[key]['slotsChossen'] = dataset[key]['slotsChossen'];
+            if(dataset[key]!==null){
+                user[key]['startTimeFrom'] = dataset[key]['startTimeFrom'];
+                user[key]['endTimeTo'] = dataset[key]['endTimeTo'];
+                user[key]['slotsChossen'] = dataset[key]['slotsChossen'];
+            }
       }
       else{
           user[key] = dataset[key];
