@@ -68,6 +68,8 @@ router.get('/api/nearby-street-foods', async (req, res) => {
         selectedVisibility: story.selectedVisibility,
         storyTitle: story.storyTitle,
         productDescription: story.productDescription,
+        category: story.category,
+        genre:story.genre,
         __v: story.__v,
       }));
     });

@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-mongoose.connect('mongodb://localhost:27017/homepaheculturtapDatabase',{
+mongoose.connect('mongodb://localhost:27017/culturTapKaDatabase',{
     useNewUrlParser : true,
     useUnifiedTopology : true,
 }).then(()=>{

@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
+import 'package:learn_flutter/CulturTap/HomePage.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:geocoding/geocoding.dart';
@@ -12,7 +12,35 @@ import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'dart:convert';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:http/http.dart' as http;
+
+
+class UploadPopup extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Color(0xFF263238),
+      content: Container(
+        height : 300,
+        width : 300,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            SizedBox(height: 30),
+            Icon(Icons.cloud_upload, color: Colors.white, size:100),
+            SizedBox(height: 30),
+            CircularProgressIndicator(
+              color : Colors.orange,
+            ),
+            SizedBox(height: 40),
+            Text('Uploading Story...',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 
 
@@ -60,31 +88,81 @@ class _ComposePageState extends State<ComposePage> {
   String transportationPricing = "";
 
 
-  Future<void> publishVideos(List<File> videoPaths) async {
-    try {
-      final String serverUrl = 'http://192.168.223.23:8080/main/api/publish';
 
+  Future<void> uploadCompressedVideos(List<File> videoPaths, BuildContext context) async {
+    try {
+      // Show loading popup
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (BuildContext context) {
+          return UploadPopup();
+        },
+      );
+
+      List<String> compressedPaths = [];
+
+      // Compress videos
+      for (int i = 0; i < videoPaths.length; i++) {
+        String compressedVideoPath = await compressVideo(videoPaths[i]);
+        compressedPaths.add(compressedVideoPath);
+      }
+
+      // Upload compressed videos
+      final String serverUrl = 'http://173.212.193.109:8080/main/api/uploadVideos';
       final request = http.MultipartRequest('POST', Uri.parse(serverUrl));
 
-      for (int i = 0; i < videoPaths.length; i++) {
+      for (int i = 0; i < compressedPaths.length; i++) {
         request.files.add(
-          await http.MultipartFile.fromPath('videos[$i]', videoPaths[i].path),
+          await http.MultipartFile.fromPath('videos', compressedPaths[i]),
         );
       }
 
       final response = await request.send();
 
+      // Close loading popup
+      Navigator.of(context).pop();
+
       if (response.statusCode == 201) {
-        // Successfully uploaded all videos. You can now save their URLs to MongoDB.
+        // Successfully uploaded all compressed videos.
+        // You can now save their URLs to MongoDB.
         // Add the logic to save video URLs to your MongoDB database here.
-        print('Videos successfully added to the server');
+        print('Compressed videos successfully uploaded to the server');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
       } else {
-        print('Failed to upload videos. Error: ${response.reasonPhrase}');
+        print('Failed to upload compressed videos. Error: ${response.reasonPhrase}');
       }
     } catch (e) {
       print('Error: $e');
     }
   }
+
+  Future<String> compressVideo(File videoFile) async {
+    String outputDirectory = '/root/videos'; // Change to the correct server directory
+    String outputFileName = 'compressed_video.mp4';
+
+    String outputPath = '$outputDirectory/$outputFileName';
+
+    FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
+
+    // Run FFmpeg command to compress the video
+    int rc = await flutterFFmpeg.execute(
+        '-i ${videoFile.path} -b:v 1500k -max_muxing_queue_size 1024 $outputPath');
+
+    if (rc == 0) {
+      // Compression successful
+      return outputPath;
+    } else {
+      // Compression failed
+      return videoFile.path;
+    }
+  }
+
+
+
 
   List<File> convertPathsToFiles(List<String> videoPaths) {
     List<File> videoFiles = [];
@@ -98,7 +176,7 @@ class _ComposePageState extends State<ComposePage> {
   Future<void> sendDataToBackend() async {
 
     List<File> videoFiles = convertPathsToFiles(widget.videoPaths);
-    publishVideos(videoFiles);
+    await uploadCompressedVideos(videoFiles,context);
 
 
     print('publish button clicked');
@@ -106,7 +184,7 @@ class _ComposePageState extends State<ComposePage> {
 
       final data = {
         "singleStoryData": {
-          "videoPath": '"${widget.videoPaths.join('","')}"',
+          "videoPath": "culturTap.com${widget.videoPaths.join(",")}",
           "latitude": widget.latitude,
           "longitude": widget.longitude,
           "location": liveLocation,
@@ -122,6 +200,9 @@ class _ComposePageState extends State<ComposePage> {
           "selectedOption": selectedOption,
           "productPrice": productPrice,
           "transportationPricing": transportationPricing,
+          "label": selectedLabel,
+          "category": selectedCategory,
+          "genre": selectedGenre,
         },
         "label": selectedLabel,
         "category": selectedCategory,
@@ -131,7 +212,7 @@ class _ComposePageState extends State<ComposePage> {
 
       print('printing data $data');
 
-      final String serverUrl = 'http://192.168.223.23:8080/main/api/publish';
+      final String serverUrl = 'http://173.212.193.109:8080/main/api/publish';
 
       final http.Response response = await http.post(
         Uri.parse(serverUrl),
@@ -170,6 +251,9 @@ class _ComposePageState extends State<ComposePage> {
     }
 
   }
+
+
+
 
   late DatabaseHelper _databaseHelper;
   Future<void> saveDraft() async {
@@ -246,7 +330,7 @@ class _ComposePageState extends State<ComposePage> {
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       if (placemarks.isNotEmpty) {
         Placemark first = placemarks.first;
-        String locationName = "${first.name}, ${first.locality}, ${first.administrativeArea}";
+        String locationName = "${first.name}, ${first.locality}, ${first.administrativeArea}, ${first.country}";
         setState(() {
           liveLocation = locationName;
         });
@@ -1383,6 +1467,8 @@ void main() {
     ),
   ));
 }
+
+
 
 
 

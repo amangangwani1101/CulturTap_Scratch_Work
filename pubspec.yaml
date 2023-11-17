@@ -53,6 +53,8 @@ dependencies:
   video_thumbnail: ^0.5.3
   provider: ^6.0.5
   flutter_svg: ^2.0.7
+  chewie: ^1.7.1
+  flutter_ffmpeg: ^0.4.2
 
 
 

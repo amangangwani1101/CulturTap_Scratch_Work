@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CulturTap/StoryDetailPage.dart';
 import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -15,8 +16,9 @@ void main() {
   runApp(MyApp());
 }
 
+
 Future<List<dynamic>> fetchDataForStories(double latitude, double longitude, String apiEndpoint) async {
-  final uri = Uri.http('192.168.223.23:8080', apiEndpoint, {
+  final uri = Uri.http('173.212.193.109:8080', apiEndpoint, {
     'latitude': latitude.toString(),
     'longitude': longitude.toString(),
   });
@@ -29,7 +31,7 @@ Future<List<dynamic>> fetchDataForStories(double latitude, double longitude, Str
     // Calculate distances for each story
 
 
-    print('Fetched data: $data');
+    // print('Fetched data: $data');
     return data;
   } else {
     print('failure');
@@ -85,6 +87,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   bool isLoading = true;
+  List<Map<String, dynamic>> storyDetailsList = [];
 
   @override
   void initState() {
@@ -102,9 +105,12 @@ class _HomePageState extends State<HomePage> {
       final fetchedStoryList = await fetchDataForStories(latitude, longitude, apiEndpoint);
 
 
+
       List<String> totalVideoPaths = [];
       List<String> totalVideoCounts = [];
       List<String> storyDistances = [];
+      List<String> storyLocations = [];
+      List<String> storyCategories = [];
 
 
 
@@ -113,11 +119,29 @@ class _HomePageState extends State<HomePage> {
         double storyLat = story['latitude'];
         double storyLng = story['longitude'];
 
+        String location = story['location'];
+        String storyLocation = location?.split(',')?.first ?? '';
+
+        String expDescription = story['expDescription'];
+        List<String> placeLoveDesc = List.from(story['placeLoveDesc'] ?? []);
+        String dontLikeDesc = story['dontLikeDesc'];
+        String review = story['review'];
+        int starRating = story['starRating'];
+        String selectedVisibility = story['selectedVisibility'];
+        String storyTitle = story['storyTitle'];
+        String productDescription = story['productDescription'];
+        String category = story['category'];
+        String genre = story['genre'];
+        // Add more details as needed
+
+
+        String storyCategory = story['category'];
+
         double douDistance = calculateDistance(latitude, longitude, storyLat, storyLng);
         String distance = '${douDistance.toStringAsFixed(2)}';
         print(distance);
 
-        print('Distance to story: $distance km');
+        // print('Distance to story: $distance km');
 
 
         if (videoPathData is List) {
@@ -125,9 +149,35 @@ class _HomePageState extends State<HomePage> {
               .whereType<String>() // Filter out non-string elements
               .toList();
 
+          Map<String, dynamic> storyDetails = {
+            'videoPaths': videoPaths,
+            'storyDistance': distance,
+            'storyLocation': storyLocation,
+            'storyCategory': storyCategory,
+            'expDescription': expDescription,
+            'placeLoveDesc': placeLoveDesc,
+            'dontLikeDesc': dontLikeDesc,
+            'review': review,
+            'starRating': starRating,
+            'selectedVisibility': selectedVisibility,
+            'storyTitle': storyTitle,
+            'productDescription': productDescription,
+            'category': category,
+            'genre': genre,
+            // Add more details to the map
+          };
+
+          // print(storyDetails);
           totalVideoCounts.add('${videoPaths.length}');
           totalVideoPaths.addAll(videoPaths);
           storyDistances.add(distance);
+          storyLocations.add(storyLocation);
+          storyCategories.add(storyCategory);
+
+
+          categoryData[categoryIndex]['storyDetailsList'].add(storyDetails);
+          // print('printing story details');
+          // print(categoryData[categoryIndex]['storyDetailsList']);
 
         } else {
           print('Unsupported videoPath format');
@@ -139,6 +189,9 @@ class _HomePageState extends State<HomePage> {
       categoryData[categoryIndex]['storyUrls'] = totalVideoPaths;
       categoryData[categoryIndex]['videoCounts'] = totalVideoCounts;
       categoryData[categoryIndex]['storyDistance'] = storyDistances;
+      categoryData[categoryIndex]['storyLocation'] = storyLocations;
+      categoryData[categoryIndex]['storyCategory'] = storyCategories;
+      categoryData[categoryIndex]['storyDetailsList'] = storyDetailsList;
 
       // Refresh the UI to reflect the changes
       setState(() {
@@ -180,7 +233,7 @@ class _HomePageState extends State<HomePage> {
 
 
 
-  Widget buildCategorySection(String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance) {
+  Widget buildCategorySection(String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyCategory) {
     // Check if the category has videos
     if (storyUrls.isEmpty || storyDistance.isEmpty) {
       // Don't display anything for categories with no videos
@@ -191,13 +244,13 @@ class _HomePageState extends State<HomePage> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
         Padding(
-          padding: EdgeInsets.all(18.0),
+          padding: EdgeInsets.only(left:18.0,right:18,top:18,bottom:10),
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: <Widget>[
               Text(
                 categoryName,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF263238),),
               ),
               TextButton(
                 onPressed: () {
@@ -216,24 +269,39 @@ class _HomePageState extends State<HomePage> {
           ),
         ),
         Container(
-          height: 550,
+          height: 590,
           child: ListView.builder(
             scrollDirection: Axis.horizontal,
             itemCount: storyUrls.length,
             itemBuilder: (context, index) {
+
               return GestureDetector(
                 onTap: () {
-                  // Handle tapping on a story in the sfpecific category
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StoryDetailPage(
+                        storyUrls: storyUrls,
+                        storyDetailsList: storyDetailsList, // Add this line
+                        initialIndex: index,
+                      ),
+                    ),
+                  );
+
                 },
                 child: VideoStoryCard(
                   videoUrl: storyUrls[index],
                   distance: storyDistance[index], // Pass the calculated distance
-                  videoCount: videoCounts[index], // You can customize this as needed
+                  videoCount: videoCounts[index],
+                  location : storyLocation[index],
+                  category : storyCategory[index],
+                  // You can customize this as needed
                 ),
               );
             },
           ),
         ),
+
       ],
     );
   }
@@ -249,6 +317,9 @@ class _HomePageState extends State<HomePage> {
       'storyUrls': <String>[],
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
       'name': 'Street Foods Nearby',
@@ -256,8 +327,11 @@ class _HomePageState extends State<HomePage> {
       'storyUrls': <String>[],
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
     },
-    // Add more categories as needed
+
   ];
 
 
@@ -299,8 +373,10 @@ class _HomePageState extends State<HomePage> {
                 final List<String> storyUrls = category['storyUrls'];
                 final List<String> videoCounts = category['videoCounts'];
                 final List<String> storyDistance = category['storyDistance'];
+                final List<String> storyLocation = category['storyLocation'];
+                final List<String> storyCategory = category['storyCategory'];
 
-                return buildCategorySection(categoryName, storyUrls, videoCounts, storyDistance);
+                return buildCategorySection(categoryName, storyUrls, videoCounts, storyDistance, storyLocation, storyCategory);
               }).toList(),
             ),
             ]
@@ -321,86 +397,154 @@ class _HomePageState extends State<HomePage> {
 
 
 
-
 class VideoStoryCard extends StatelessWidget {
   final String videoUrl;
   final String distance; // Change the type to String for distance
   final String videoCount;
+  final String location;
+  final String category;
 
 
-  VideoStoryCard({required this.videoUrl, required this.distance, required this.videoCount});
+  VideoStoryCard({required this.videoUrl, required this.distance, required this.videoCount, required this.location, required this.category});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      height: 500,
-      width: 280,
-      margin: EdgeInsets.all(8),
-      child: Stack(
-        clipBehavior: Clip.none, // Allow children to overflow the container
-        children: [
-          Positioned.fill(
-            child: AspectRatio(
-              aspectRatio: 9 / 16,
-              child: ClipRRect(
-                borderRadius: BorderRadius.circular(10),
-                child: Image(
-                  image: AssetImage('assets/images/homeimage.png'),
-                  fit: BoxFit.cover,
+    return Column(
+      children: [
+        Container(
+          height: 500,
+          width: 280,
+          margin: EdgeInsets.all(8),
+          child: Stack(
+            clipBehavior: Clip.none, // Allow children to overflow the container
+            children: [
+              Positioned.fill(
+                child: AspectRatio(
+                  aspectRatio: 9 / 16,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(10),
+                    child: Image(
+                      image: AssetImage('assets/images/homeimage.png'),
+                      fit: BoxFit.cover,
+                    ),
+                  ),
                 ),
               ),
-            ),
+              Positioned(
+                top: -8, // Adjust this value to control vertical positioning
+                right: 10, // Adjust this value to control horizontal positioning
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF263238),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.fork_right_rounded,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      Text(
+                        '${distance} km',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                bottom: -5, // Adjust this value to control vertical positioning
+                right: 10, // Adjust this value to control horizontal positioning
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: Color(0xFF263238),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.video_library,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      Text(
+                        ' +$videoCount',
+                        style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
           ),
-          Positioned(
-            top: -8, // Adjust this value to control vertical positioning
-            right: 10, // Adjust this value to control horizontal positioning
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(
-                color: Color(0xFF263238),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.fork_right_rounded,
-                    color: Colors.white,
-                    size: 24,
+        ),
+        Container(
+          height:70,
+          width:280,
+          padding:EdgeInsets.all(10),
+          child:Column(children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+              children: [
+                Row(
+                  children: [
+                    Text('Location ',style: TextStyle(fontWeight: FontWeight.bold,  color: Color(0xFF263238),),),
+                    Text(' ${location}',style: TextStyle(color: Color(0xFF263238),),),
+
+                  ],
+                ),
+                Container(
+                  width : 65,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Icon(
+                        Icons.remove_red_eye_sharp,
+                        color: Colors.grey,
+                        size: 24,
+                      ),
+                      Text('89.0K',style: TextStyle(color: Color(0xFF263238),),),
+                    ],
                   ),
-                  Text(
-                    '${distance} km',
-                    style: TextStyle(color: Colors.white),
+                ),
+
+
+            ],),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+              children: [
+                Row(
+                  children: [
+                    Text('Category ',style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF263238),),),
+                    Text(' ${category}',style: TextStyle(color: Color(0xFF263238),),),
+                  ],
+                ),
+                Container(
+                  width:65,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                    children: [
+                      Icon(
+                        Icons.heart_broken,
+                        color : Colors.grey,
+                        size: 24,
+                      ),
+                      Text('700.5k',style: TextStyle(color: Color(0xFF263238),),),
+                    ],
                   ),
-                ],
-              ),
-            ),
-          ),
-          Positioned(
-            bottom: -5, // Adjust this value to control vertical positioning
-            right: 10, // Adjust this value to control horizontal positioning
-            child: Container(
-              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-              decoration: BoxDecoration(
-                color: Color(0xFF263238),
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Row(
-                children: [
-                  Icon(
-                    Icons.video_library,
-                    color: Colors.white,
-                    size: 24,
-                  ),
-                  Text(
-                    ' +$videoCount',
-                    style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-                  ),
-                ],
-              ),
-            ),
-          ),
-        ],
-      ),
+                ),
+
+
+              ],),
+          ],)
+        ),
+      ],
     );
   }
 }

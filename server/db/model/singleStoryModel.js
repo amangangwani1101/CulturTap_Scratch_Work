@@ -13,6 +13,8 @@ const singleStorySchema = new mongoose.Schema({
     selectedVisibility: String,
     storyTitle: String,
     productDescription: String,
+    category:String,
+    genre: String,
 });
 
 const SingleStoryModel = mongoose.model('SingleStory', singleStorySchema);

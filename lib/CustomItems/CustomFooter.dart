@@ -13,19 +13,19 @@ class CustomFooter extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CustomFooterState extends State<CustomFooter> {
-  Color homeIconColor = Colors.black;
-  Color searchIconColor = Colors.black;
-  Color airplaneIconColor = Colors.black;
-  Color settingsIconColor = Colors.black;
-  Color addIconColor = Colors.black;
+  Color homeIconColor = Color(0xFF263238);
+  Color searchIconColor = Color(0xFF263238);
+  Color airplaneIconColor = Color(0xFF263238);
+  Color settingsIconColor = Color(0xFF263238);
+  Color addIconColor = Color(0xFF263238);
 
   void _changeIconColor(String iconName) {
     setState(() {
-      homeIconColor = Colors.black;
-      searchIconColor = Colors.black;
-      airplaneIconColor = Colors.black;
-      settingsIconColor = Colors.black;
-      addIconColor = Colors.black;
+      homeIconColor = Color(0xFF263238);
+      searchIconColor = Color(0xFF263238);
+      airplaneIconColor = Color(0xFF263238);
+      settingsIconColor = Color(0xFF263238);
+      addIconColor = Color(0xFF263238);
 
       switch (iconName) {
         case 'home':
@@ -71,7 +71,7 @@ class _CustomFooterState extends State<CustomFooter> {
                     Text(
                       'Home',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Color(0xFF263238),
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
@@ -89,7 +89,7 @@ class _CustomFooterState extends State<CustomFooter> {
                     Text(
                       'Search',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Color(0xFF263238),
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
@@ -131,7 +131,7 @@ class _CustomFooterState extends State<CustomFooter> {
                     Text(
                       'Airplane',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Color(0xFF263238),
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
@@ -154,7 +154,7 @@ class _CustomFooterState extends State<CustomFooter> {
                     Text(
                       'Settings',
                       style: TextStyle(
-                        color: Colors.black,
+                        color: Color(0xFF263238),
                         fontWeight: FontWeight.w600,
                         fontSize: 16,
                       ),
