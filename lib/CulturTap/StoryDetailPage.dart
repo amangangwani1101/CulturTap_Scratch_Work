@@ -27,6 +27,13 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   @override
   void initState() {
     super.initState();
+
+    _initializeData();
+
+  }
+
+  Future<void> _initializeData() async {
+
     _pageController = PageController(initialPage: widget.initialIndex);
     _currentIndex = widget.initialIndex;
 

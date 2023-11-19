@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:geocoding/geocoding.dart';
 
 
 import '../CustomItems/CostumAppbar.dart';
@@ -49,9 +50,16 @@ class _FourthPageState extends State<FourthPage> {
         desiredAccuracy: LocationAccuracy.high,
       );
 
+      List<Placemark> placemarks = await placemarkFromCoordinates(
+        position.latitude,
+        position.longitude,
+      );
+
+      Placemark place = placemarks.first;
+
       setState(() {
         _locationController.text =
-        "Latitude: ${position.latitude}, Longitude: ${position.longitude}";
+        "Location: ${place.locality}, ${place.administrativeArea}, ${place.country}";
         _isLoading = false;
       });
     } catch (e) {

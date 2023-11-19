@@ -14,6 +14,8 @@ import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'dart:convert';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
 import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
 
 
 class UploadPopup extends StatelessWidget {
@@ -86,6 +88,8 @@ class _ComposePageState extends State<ComposePage> {
   String selectedOption = '';
   String productPrice = '';
   String transportationPricing = "";
+  List<String> finalVideoPaths = [];
+
 
 
 
@@ -106,15 +110,26 @@ class _ComposePageState extends State<ComposePage> {
       for (int i = 0; i < videoPaths.length; i++) {
         String compressedVideoPath = await compressVideo(videoPaths[i]);
         compressedPaths.add(compressedVideoPath);
+        print('videopaths after compression $compressedPaths');
       }
 
       // Upload compressed videos
       final String serverUrl = 'http://173.212.193.109:8080/main/api/uploadVideos';
       final request = http.MultipartRequest('POST', Uri.parse(serverUrl));
 
+      print('compressedPaths.length ${compressedPaths.length}');
       for (int i = 0; i < compressedPaths.length; i++) {
+        // Extract filename and extension from the path
+        String filename = 'culturTap.com_${path.basename(compressedPaths[i])}';
+        String extension = path.extension(compressedPaths[i]);
+        finalVideoPaths.add(filename);
+        print('filename is : $filename');
+        print('extension is : $extension');
+
+        // Append filename and extension to the request
         request.files.add(
-          await http.MultipartFile.fromPath('videos', compressedPaths[i]),
+          await http.MultipartFile.fromPath('videos', compressedPaths[i],
+              filename: filename, contentType: MediaType('video', extension)),
         );
       }
 
@@ -141,8 +156,8 @@ class _ComposePageState extends State<ComposePage> {
   }
 
   Future<String> compressVideo(File videoFile) async {
-    String outputDirectory = '/root/videos'; // Change to the correct server directory
-    String outputFileName = 'compressed_video.mp4';
+    String outputDirectory = '/root/videos';
+    String outputFileName = 'video.mp4';
 
     String outputPath = '$outputDirectory/$outputFileName';
 
@@ -156,6 +171,7 @@ class _ComposePageState extends State<ComposePage> {
       // Compression successful
       return outputPath;
     } else {
+      print('compression failed');
       // Compression failed
       return videoFile.path;
     }
@@ -179,12 +195,13 @@ class _ComposePageState extends State<ComposePage> {
     await uploadCompressedVideos(videoFiles,context);
 
 
+    print('final video paths $finalVideoPaths');
     print('publish button clicked');
     try{
 
       final data = {
         "singleStoryData": {
-          "videoPath": "culturTap.com${widget.videoPaths.join(",")}",
+          "videoPath": finalVideoPaths,
           "latitude": widget.latitude,
           "longitude": widget.longitude,
           "location": liveLocation,

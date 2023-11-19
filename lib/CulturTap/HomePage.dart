@@ -17,6 +17,39 @@ void main() {
 }
 
 
+class ImageScroll extends StatelessWidget {
+  final List<String> imageUrls = [
+    'assets/images/home_one.png',
+    'assets/images/home_two.png',
+    'assets/images/home_three.png',
+    'assets/images/home_four.png',
+    'assets/images/home_five.png',
+
+  ];
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 200.0, // Adjust the height as needed
+      child: ListView.builder(
+        scrollDirection: Axis.horizontal,
+        itemCount: imageUrls.length,
+        itemBuilder: (context, index) {
+          return Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Image.network(
+              imageUrls[index],
+              width: 150.0, // Adjust the width as needed
+              height: 150.0, // Adjust the height as needed
+              fit: BoxFit.cover,
+            ),
+          );
+        },
+      ),
+    );
+  }
+}
+
 Future<List<dynamic>> fetchDataForStories(double latitude, double longitude, String apiEndpoint) async {
   final uri = Uri.http('173.212.193.109:8080', apiEndpoint, {
     'latitude': latitude.toString(),
@@ -89,15 +122,14 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   List<Map<String, dynamic>> storyDetailsList = [];
 
-  @override
-  void initState() {
-    super.initState();
-    requestLocationPermission();
-    fetchUserLocationAndData();
-  }
+
 
   Future<void> fetchDataForCategory(double latitude, double longitude, int categoryIndex) async {
     try {
+
+
+
+
 
       final Map<String, dynamic> category = categoryData[categoryIndex];
       final String apiEndpoint = category['apiEndpoint'];
@@ -169,7 +201,7 @@ class _HomePageState extends State<HomePage> {
 
           // print(storyDetails);
           totalVideoCounts.add('${videoPaths.length}');
-          totalVideoPaths.addAll(videoPaths);
+          totalVideoPaths.add(genre);
           storyDistances.add(distance);
           storyLocations.add(storyLocation);
           storyCategories.add(storyCategory);
@@ -233,11 +265,28 @@ class _HomePageState extends State<HomePage> {
 
 
 
-  Widget buildCategorySection(String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyCategory) {
+  @override
+  void initState() {
+    super.initState();
+    requestLocationPermission();
+    fetchUserLocationAndData();
+  }
+
+  Future<void> fetchUserLocationAndDataasync() async {
+    await fetchUserLocationAndData();
+    // Any other asynchronous initialization tasks can be added here
+  }
+
+
+
+  Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyCategory) {
     // Check if the category has videos
     if (storyUrls.isEmpty || storyDistance.isEmpty) {
       // Don't display anything for categories with no videos
-      return Container();
+      return Column(children: [
+
+
+      ],);
     }
 
     return Column(
@@ -245,25 +294,35 @@ class _HomePageState extends State<HomePage> {
       children: <Widget>[
         Padding(
           padding: EdgeInsets.only(left:18.0,right:18,top:18,bottom:10),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: <Widget>[
+          child: Column(
+            children: [
+              if (specificCategoryName != null && specificCategoryName.isNotEmpty)
               Text(
-                categoryName,
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF263238),),
+                specificCategoryName,
+                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF263238),),
               ),
-              TextButton(
-                onPressed: () {
-                  // Handle button press for "View All" in the specific category
-                },
-                child: Text(
-                  'View All >',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.orange,
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    categoryName,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF263238),),
                   ),
-                ),
+                  TextButton(
+                    onPressed: () {
+                      // Handle button press for "View All" in the specific category
+                    },
+                    child: Text(
+                      'View All >',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
+                    ),
+                  ),
+                ],
               ),
             ],
           ),
@@ -282,7 +341,7 @@ class _HomePageState extends State<HomePage> {
                     MaterialPageRoute(
                       builder: (context) => StoryDetailPage(
                         storyUrls: storyUrls,
-                        storyDetailsList: storyDetailsList, // Add this line
+                        storyDetailsList: storyDetailsList,
                         initialIndex: index,
                       ),
                     ),
@@ -291,11 +350,11 @@ class _HomePageState extends State<HomePage> {
                 },
                 child: VideoStoryCard(
                   videoUrl: storyUrls[index],
-                  distance: storyDistance[index], // Pass the calculated distance
+                  distance: storyDistance[index],
                   videoCount: videoCounts[index],
                   location : storyLocation[index],
                   category : storyCategory[index],
-                  // You can customize this as needed
+
                 ),
               );
             },
@@ -312,6 +371,7 @@ class _HomePageState extends State<HomePage> {
 
   List<Map<String, dynamic>> categoryData = [
     {
+      'specificCategoryName': '',
       'name': 'Trending NearBy',
       'apiEndpoint': '/main/api/trending-nearby-places',
       'storyUrls': <String>[],
@@ -322,8 +382,86 @@ class _HomePageState extends State<HomePage> {
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
+      'specificCategoryName': 'vTrending NearBy',
+      'name': 'Festivals Around You',
+      'apiEndpoint': '/festival/api/trending-nearby-places',
+      'storyUrls': <String>[],
+      'videoCounts': <String>[],
+      'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
+    },
+    {
+      'specificCategoryName': '',
       'name': 'Street Foods Nearby',
       'apiEndpoint': '/food/api/nearby-street-foods',
+      'storyUrls': <String>[],
+      'videoCounts': <String>[],
+      'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
+    },
+    {
+      'specificCategoryName': '',
+      'name': 'Fashion Nearby',
+      'apiEndpoint': '/fashion/api/nearby-fashion-places',
+      'storyUrls': <String>[],
+      'videoCounts': <String>[],
+      'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
+    },
+    {
+      'specificCategoryName': '',
+      'name': 'National Parks Here',
+      'apiEndpoint': '/parks/api/nearby-national-parks',
+      'storyUrls': <String>[],
+      'videoCounts': <String>[],
+      'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
+    },
+    {
+      'specificCategoryName': '',
+      'name': 'Forests Here',
+      'apiEndpoint': '/forest/api/nearby-forests',
+      'storyUrls': <String>[],
+      'videoCounts': <String>[],
+      'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
+    },
+    {
+      'specificCategoryName': '',
+      'name': 'Famous RiverSides Here',
+      'apiEndpoint': '/riverside/api/nearby-riverside-places',
+      'storyUrls': <String>[],
+      'videoCounts': <String>[],
+      'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
+    },
+    {
+      'specificCategoryName': '',
+      'name': 'Islands Here',
+      'apiEndpoint': '/island/api/nearby-island-places',
+      'storyUrls': <String>[],
+      'videoCounts': <String>[],
+      'storyDistance' : <String>[],
+      'storyLocation' : <String>[],
+      'storyCategory' : <String>[],
+      'storyDetailsList': <Map<String, dynamic>>[],
+    },
+    {
+      'specificCategoryName': '',
+      'name': 'EcoSystem NearBy',
+      'apiEndpoint': '/ecosystem/api/nearby-aquatic-ecosystem-places',
       'storyUrls': <String>[],
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
@@ -351,7 +489,7 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
-        appBar: VideoAppBar(),
+        appBar:CustomAppBar(title: ""),
         body: RefreshIndicator(
           backgroundColor: Color(0xFF263238),
           color: Colors.orange,
@@ -369,6 +507,7 @@ class _HomePageState extends State<HomePage> {
                 final int categoryIndex = entry.key;
                 final Map<String, dynamic> category = entry.value;
 
+                final String specificCategoryName = category['specificCategoryName'];
                 final String categoryName = category['name'];
                 final List<String> storyUrls = category['storyUrls'];
                 final List<String> videoCounts = category['videoCounts'];
@@ -376,7 +515,9 @@ class _HomePageState extends State<HomePage> {
                 final List<String> storyLocation = category['storyLocation'];
                 final List<String> storyCategory = category['storyCategory'];
 
-                return buildCategorySection(categoryName, storyUrls, videoCounts, storyDistance, storyLocation, storyCategory);
+
+
+                return buildCategorySection(specificCategoryName, categoryName, storyUrls, videoCounts, storyDistance, storyLocation, storyCategory);
               }).toList(),
             ),
             ]

@@ -2,6 +2,13 @@ const express = require('express');
 const app = express();
 const mainRoute = require('./routes/mainRoute.js');
 const homePageRoute = require('./routes/homePageRoute.js');
+const nationalParks = require('./routes/nearByNationalParks.js');
+const riverSide = require('./routes/nearByRiverside.js');
+const aquaticEcosystem = require('./routes/nearByAquaticEcosystem.js');
+const festival = require('./routes/FestivalNearYou.js');
+const island = require('./routes/nearByIsland.js');
+
+
 
 const streetFoods = require('./routes/streetFoods.js');
 const port = 8080;
@@ -14,10 +21,13 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 app.use('/main', mainRoute);
-
-
-
 app.use('/food',streetFoods);
+app.use('/parks',nationalParks);
+app.use('/riverside', riverSide);
+app.use('/ecosystem',aquaticEcosystem);
+app.use('/festival',festival);
+app.use('/island',island);
+app.use('/festival',festival);
 
 
 
