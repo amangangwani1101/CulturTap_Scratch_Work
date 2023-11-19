@@ -115,6 +115,25 @@ const userTripCallingSchema = new mongoose.Schema({
 // ------------------
 
 // rating schema
+const userPaymentSchema = new mongoose.Schema({
+    name : {
+        type : String,
+    },
+    cardNo : {
+        type: String,
+    },
+    month : {
+        type: String,
+    },
+    year : {
+        type : String,
+    },
+    cvv : {
+        type : String,
+    },
+});
+
+
 const userReviewsSchema = new mongoose.Schema({
     ratersName : {
         type : String,
@@ -135,6 +154,9 @@ const userProfileSchema = new mongoose.Schema({
     },
     userName : {
         type : String,
+    },
+    userEmailId:{
+        type:String,
     },
     phoneNumber : {
         type : Number,
@@ -186,6 +208,9 @@ const userProfileSchema = new mongoose.Schema({
     },
     userReviewsData : {
         type : [userReviewsSchema],
+    },
+    userPaymentData : {
+        type : [userPaymentSchema],
     },
     userVideos : {
         type : [labelSchema],

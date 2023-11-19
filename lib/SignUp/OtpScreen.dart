@@ -51,6 +51,7 @@ class _OtpScreenState extends State<OtpScreen>{
         );
       }
       else{
+        print('${widget.userName} , ${widget.phoneNumber} , ${userCredId}');
         Navigator.push(
           context,
           MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName,phoneNumber:widget.phoneNumber,userCredId:userCredId)),

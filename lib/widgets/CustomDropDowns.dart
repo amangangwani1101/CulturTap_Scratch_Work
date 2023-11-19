@@ -112,3 +112,155 @@ class CustomDOBDropDown extends StatelessWidget{
     );
   }
 }
+
+
+
+// // rest fields of user
+// class CustomMultiDropdown extends StatefulWidget {
+//   final String label;
+//   final List<String> items;
+//   final ValueChanged<String?> onChanged;
+//   final Function(String?) setSelectedValue;
+//   final String? selectedValue;
+//   final List<String>? selectedFields;
+//   final double deviceWidth;
+//
+//   CustomMultiDropdown({
+//     required this.label,
+//     required this.items,
+//     required this.onChanged,
+//     required this.setSelectedValue,
+//     required this.selectedValue,
+//     required this.selectedFields,
+//     required this.deviceWidth,
+//   });
+//
+//   @override
+//   _CustomMultiDropdownState createState() => _CustomMultiDropdownState();
+// }
+//
+// class _CustomMultiDropdownState extends State<CustomMultiDropdown> {
+//   String? _selectedValue;
+//
+//   @override
+//   Widget build(BuildContext context) {
+//     return Column(
+//       crossAxisAlignment: CrossAxisAlignment.start,
+//       children: [
+//         Text(
+//           widget.label,
+//           style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Poppins'),
+//         ),
+//         SizedBox(height: 10),
+//         Container(
+//           width: widget.deviceWidth * 0.90,
+//           height: 60,
+//           child: DropdownButtonFormField<String>(
+//             value: _selectedValue,
+//             icon: Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
+//             hint: Text('Select'),
+//             decoration: InputDecoration(
+//               focusedBorder: OutlineInputBorder(
+//                 borderSide: BorderSide(color: Colors.orange),
+//               ),
+//               enabledBorder: OutlineInputBorder(
+//                 borderSide: BorderSide(color: Colors.grey),
+//               ),
+//             ),
+//             onChanged: (String? newValue) {
+//               setState(() {
+//                 _selectedValue = null; // Clear the selected value
+//                 widget.selectedFields!.add(newValue!);
+//                 widget.items.remove(newValue);
+//                 widget.onChanged(newValue);
+//               });
+//               widget.setSelectedValue(newValue);
+//             },
+//             items: (widget.items + [_selectedValue!]).map((String field) {
+//               return DropdownMenuItem<String>(
+//                 value: field,
+//                 child: Text(field),
+//               );
+//             }).toList(),
+//           ),
+//         ),
+//       ],
+//     );
+//   }
+// }
+
+
+
+class CustomMultiDropdown extends StatefulWidget {
+  final String label;
+  final List<String> items;
+  final ValueChanged<String?> onChanged;
+  final Function(String?) setSelectedValue;
+  final String? selectedValue;
+  final List<String>? selectedFields;
+  final double deviceWidth;
+
+  CustomMultiDropdown({
+    required this.label,
+    required this.items,
+    required this.onChanged,
+    required this.setSelectedValue,
+    required this.selectedValue,
+    required this.selectedFields,
+    required this.deviceWidth,
+  });
+
+  @override
+  _CustomMultiDropdownState createState() => _CustomMultiDropdownState();
+}
+
+class _CustomMultiDropdownState extends State<CustomMultiDropdown> {
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          widget.label,
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Poppins'),
+        ),
+        SizedBox(height: 10),
+        Container(
+          width: widget.deviceWidth * 0.90,
+          height: 60,
+          child: DropdownButtonFormField<String>(
+            value: widget.selectedValue,
+            icon: Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
+            hint: Text('Select'),
+            decoration: InputDecoration(
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.orange),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+              ),
+            ),
+            onChanged: (String? newValue) {
+              setState(() {
+                if (newValue != null && !widget.selectedFields!.contains(newValue)) {
+                  if (widget.selectedFields!.isNotEmpty) {
+                    widget.selectedFields!.add(',');
+                  }
+                  widget.selectedFields!.add(newValue);
+                }
+                widget.onChanged(newValue);
+                widget.setSelectedValue(widget.selectedFields!.join(''));
+              });
+            },
+            items: widget.items.map((String field) {
+              return DropdownMenuItem<String>(
+                value: field,
+                child: Text(field),
+              );
+            }).toList(),
+          ),
+        ),
+      ],
+    );
+  }
+}

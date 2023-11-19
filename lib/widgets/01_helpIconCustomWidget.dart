@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/slider.dart';
@@ -10,6 +11,8 @@ import 'package:learn_flutter/widgets/sample.dart';
 import '../BackendStore/BackendStore.dart';
 import 'Constant.dart';
 import 'package:http/http.dart' as http;
+import 'CustomButton.dart';
+import 'CustomDialogBox.dart';
 import 'hexColor.dart';
 import '../UserProfile/ProfileHeader.dart';
 
@@ -19,13 +22,13 @@ String? globalEndTime;
 String? globalSlots;
 
 class CustomHelpOverlay extends StatelessWidget {
-
+  final VoidCallback? onButtonPressed;
   final String imagePath;
   bool? serviceSettings=false;
   String?text,navigate;
   final helper;
   final ProfileDataProvider? profileDataProvider;
-  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.helper});
+  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.helper,this.onButtonPressed});
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
@@ -79,12 +82,15 @@ class CustomHelpOverlay extends StatelessWidget {
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=> CalendarHelper(plans:helper!)));
                               else if(navigate=='pings')
                                 Navigator.push(context, MaterialPageRoute(builder: (context)=> PingsSection(userId: helper!,)));
-
+                              else if(navigate=='pop'){
+                                  print(1);
+                                  onButtonPressed!();
+                              }
                             },
                             child: Text(text!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
                       ),
                     ) else SizedBox(width: 0,),
-                    if (serviceSettings!=null) Container(
+                    if (serviceSettings==true) Container(
                         height: 250,
                         child: Align(
                           alignment: Alignment.bottomCenter,
@@ -127,60 +133,77 @@ class _ServicePageState extends State<ServicePage>{
       startTime = widget.data?.setStartTime;
       endTime = widget.data?.setEndTime;
       slots = widget.data?.slots;
+      globalStartTime = startTime;
+      globalEndTime = endTime;
+      globalSlots = slots;
     }
     final screenHeight = MediaQuery.of(context).size.height;
-    return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(0), // Set the preferred height to 0
-        child: AppBar(
-          elevation: 0, // Remove the shadow
-          backgroundColor: Colors.transparent, // Make the background transparent
+    return WillPopScope(
+      onWillPop: ()async{
+        if(widget.profileDataProvider==null){
+          print(1);
+          Navigator.of(context).pop();
+        }
+        else{
+          print(2);
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: PreferredSize(
+          preferredSize: Size.fromHeight(0), // Set the preferred height to 0
+          child: AppBar(
+            elevation: 0, // Remove the shadow
+            backgroundColor: Colors.transparent, // Make the background transparent
+          ),
         ),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: [
-            ProfileHeader(reqPage: 1),
-            Container(
-              height:screenHeight*0.85,
-              // decoration: BoxDecoration(
-              //   border: Border.all(
-              //     color: Colors.black,
-              //     width: 1,
-              //   ),
-              // ),
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children:[
-                  Container(
-                    height: 361,
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //     color: Colors.orange,
-                    //     width: 2,
-                    //   )
-                    // ),
-                    child: Column(
-                      children: [
-                        Container(
-                          width:318,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text('Timing for interaction calls',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                              Text('Select Your Time',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
-                            ],
+        body: SingleChildScrollView(
+          child: Column(
+            children: [
+              ProfileHeader(reqPage: 3,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),
+              Container(
+                height:screenHeight*0.85,
+                // decoration: BoxDecoration(
+                //   border: Border.all(
+                //     color: Colors.black,
+                //     width: 1,
+                //   ),
+                // ),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children:[
+                    Container(
+                      height: 361,
+                      // decoration: BoxDecoration(
+                      //   border: Border.all(
+                      //     color: Colors.orange,
+                      //     width: 2,
+                      //   )
+                      // ),
+                      child: Column(
+                        children: [
+                          Container(
+                            width:318,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text('Timing for interaction calls',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                                Text('Select Your Time',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                              ],
+                            ),
                           ),
-                        ),
-                        TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
-                      ],
+                          TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
+                        ],
+                      ),
                     ),
-                  ),
-                  BandWidthSelect(profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId),
-                ],
+                    BandWidthSelect(profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -231,7 +254,9 @@ class _TimePickerState extends State<TimePicker>{
       setState(() {
         _startTime = pickedTime;
         if(widget.startTime==null)
-          widget.profileDataProvider?.setStartTime(_formatTime(pickedTime));
+          {
+            globalStartTime = _formatTime(_startTime);
+          }
         else{
           globalStartTime = _formatTime(_startTime);
         }
@@ -269,8 +294,9 @@ class _TimePickerState extends State<TimePicker>{
     if(pickedTime!=null){
       setState(() {
         _endTime = pickedTime;
-        if(widget.endTime==null)
-          widget.profileDataProvider?.setEndTime(_formatTime(pickedTime));
+        if(widget.endTime==null){
+          globalEndTime = _formatTime(_endTime);
+        }
         else{
           globalEndTime = _formatTime(_endTime);
         }
@@ -338,7 +364,6 @@ class _TimePickerState extends State<TimePicker>{
                             onTap: (){
                               _selectStartTime(context);
                               print(_startTime);
-
                             },
                             child: Text('${_formatTime(_startTime)}',style: TextStyle(fontSize: 27,fontFamily: 'Poppins'),)),
                       ),
@@ -409,7 +434,7 @@ class BandWidthSelect extends StatefulWidget{
 }
 
 class _BandWidthSelectState extends State<BandWidthSelect>{
-  String _radioValue = "choice_1";
+  String _radioValue='';
 
   @override
   void initState(){
@@ -437,18 +462,19 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
       );
 
       if (response.statusCode == 200) {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: Text('Your Time Is Set :) '),
-        //   ),
-        // );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Your Time Is Set :) '),
+          ),
+        );
+        Navigator.of(context).pop();
         print('Data saved successfully');
       } else {
-        // ScaffoldMessenger.of(context).showSnackBar(
-        //   SnackBar(
-        //     content: Text('Try Again!!'),
-        //   ),
-        // );
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Try Again!!'),
+          ),
+        );
         print('Failed to update time: ${response.statusCode}');
       }
     }catch(err){
@@ -456,7 +482,67 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
     }
   }
 
+  bool isStartTimeBeforeEndTime(String startTime, String endTime) {
+    // Parse time strings manually
+    DateTime startDateTime = _parseTime(startTime);
+    DateTime endDateTime = _parseTime(endTime);
 
+    // Compare the DateTime objects
+    return startDateTime.isBefore(endDateTime);
+  }
+
+  DateTime _parseTime(String time) {
+    // Split the time string into parts
+    List<String> parts = time.split(' ');
+    String timePart = parts[0];
+    String amPmPart = parts[1];
+
+    // Split the time part into hours and minutes
+    List<String> timeParts = timePart.split(':');
+    int hours = int.parse(timeParts[0]);
+    int minutes = int.parse(timeParts[1]);
+
+    // Adjust hours for PM
+    if (amPmPart.toLowerCase() == 'pm' && hours < 12) {
+      hours += 12;
+    }
+
+    return DateTime(2023, 1, 1, hours, minutes);
+  }
+
+
+
+  bool validator(){
+    if((globalStartTime)==null || (globalEndTime)==null){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select your timing!'),
+        ),
+      );
+      return false;
+    }
+    if(globalSlots==null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please select your slots!'),
+        ),
+      );
+      return false;
+    }
+    if(isStartTimeBeforeEndTime(globalStartTime!,globalEndTime!) ==false){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Time Set Is Invalid!'),
+        ),
+      );
+      return false;
+    }
+    widget.profileDataProvider?.setStartTime(globalStartTime!);
+    widget.profileDataProvider?.setEndTime(globalEndTime!);
+    widget.profileDataProvider?.setSlots(globalSlots!);
+    widget.profileDataProvider?.setServide1();
+    return true;
+  }
   @override
   Widget build(BuildContext context){
 
@@ -500,8 +586,10 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                       setState(() {
                         _radioValue = value!;
                         print('Path is : $_radioValue');
-                        if(widget.slots==null)
+                        if(widget.slots==null){
                           widget.profileDataProvider?.setSlots(_radioValue);
+                          globalSlots = _radioValue;
+                        }
                         else {
                           globalSlots = _radioValue;
                         }
@@ -522,8 +610,10 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                       setState(() {
                         _radioValue = value!;
                         print('Path is : $_radioValue');
-                        if(widget.slots==null)
+                        if(widget.slots==null){
                           widget.profileDataProvider?.setSlots(_radioValue);
+                          globalSlots = _radioValue;
+                        }
                         else {
                           globalSlots = _radioValue;
                         }
@@ -541,14 +631,18 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
             child: FilledButton(
                 backgroundColor: HexColor('#FB8C00'),
                 onPressed: () {
-                  if(widget.userId==null){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection()));
-                  }else{
-                    print(1);
-                    print(widget.userId!);
-                    updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
-                    // Navigator.of(context).pop();
-                  }
+                  if(validator()){
+                    if(widget.userId==null){
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(profileDataProvider:widget.profileDataProvider)));
+                    }else{
+                      print(1);
+                      print(widget.userId!);
+                      updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
+
+                      // Navigator.of(context).pop();
+                    }
+                  }else{}
+
                 },
                 child: Center(
                     child: Text('SET TIME',
@@ -586,6 +680,8 @@ class CardItem {
 }
 
 class PaymentSection extends StatelessWidget{
+  ProfileDataProvider?profileDataProvider;
+  PaymentSection({this.profileDataProvider});
   List<CardDetails> cards = [
     // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
     // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
@@ -595,21 +691,64 @@ class PaymentSection extends StatelessWidget{
   bool cardform=false;
   @override
   Widget build(BuildContext context){
-    return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            SizedBox(height: 30,),
-            ProfileHeader(reqPage: 2),
-            Container(
-                width: 357,
-                height: 25,
-                child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
-            SizedBox(height: 30,),
-            PaymentCard(paymentCards:cards,cardForm: cardform,),
+    return WillPopScope(
+      onWillPop: () async {
+        cards.length>0
+        ? showDialog(
+          context: context,
+          builder: (BuildContext context) {
+            return ConfirmationDialog(
+              message:'Cards Are Not Save.',
+              onCancel: () {
+                // Perform action on confirmation
+                Navigator.of(context).pop(); // Close the dialog
+                // Add your action here
+                print('Action confirmed');
+              },
+              onConfirm: () {
+                // Perform action on cancellation
+                profileDataProvider?.removeAllCards();
+                showDialog(context: context, builder: (BuildContext context){
+                  return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },),);
+                },
+                );
+                // Add your action here
+                print('Action cancelled');
+              },
+            );
+          },
+        ):showDialog(context: context, builder: (BuildContext context){
+          return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+            Navigator.of(context).pop();
+          },),);
+        },
+        );
+        return true;
+      },
+      child: Scaffold(
+        body: SingleChildScrollView(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ProfileHeader(reqPage: 4,text:'You are all set',profileDataProvider:profileDataProvider),
+              Container(
+                  width: 357,
+                  height: 25,
+                  child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
+              SizedBox(height: 30,),
+              PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:profileDataProvider),
 
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -620,23 +759,31 @@ class CardDetails{
   final String name;
   final String cardNo;
   final int cardChoosen;
+  final String month,year,cvv;
+  bool options;
 
   CardDetails({
     required this.name,
     required this.cardChoosen,
     required this.cardNo,
+    required this.month,
+    required this.year,
+    required this.cvv,
+    required this.options
   });
 }
 
 class PaymentCard extends StatefulWidget{
   final List<CardDetails> paymentCards;
+  ProfileDataProvider? profileDataProvider;
   bool cardForm;
 
-  PaymentCard({required this.paymentCards,required this.cardForm});
+  PaymentCard({required this.paymentCards,required this.cardForm,this.profileDataProvider});
 
   @override
   _PaymentCardState createState() => _PaymentCardState();
 }
+
 
 class _PaymentCardState extends State<PaymentCard> {
   TextEditingController nameController = TextEditingController();
@@ -644,9 +791,101 @@ class _PaymentCardState extends State<PaymentCard> {
   TextEditingController expMonthController = TextEditingController();
   TextEditingController expYearController = TextEditingController();
   TextEditingController cvvController = TextEditingController();
+
+
+
+  bool isCreditCardNumberValid(String creditCardNumber) {
+    // Remove any spaces or non-digit characters
+    creditCardNumber = creditCardNumber.replaceAll(RegExp(r'\D'), '');
+
+    if (creditCardNumber.isEmpty) {
+      return false; // Invalid if the number is empty after removing non-digits
+    }
+
+    int sum = 0;
+    bool alternate = false;
+
+    for (int i = creditCardNumber.length - 1; i >= 0; i--) {
+      int digit = int.parse(creditCardNumber[i]);
+
+      if (alternate) {
+        digit *= 2;
+        if (digit > 9) {
+          digit -= 9;
+        }
+      }
+
+      sum += digit;
+      alternate = !alternate;
+    }
+
+    return sum % 10 == 0;
+  }
+
+  bool cardValidator(){
+    if((nameController.text.length==0)){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Name Field Is Empty!'),
+        ),
+      );
+      return false;
+    }
+    if(!(int.parse(expMonthController.text)>=1 && int.parse(expMonthController.text)<=12)){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Month Is Invalid! Kindly Choose Value Between 1 to 12'),
+        ),
+      );
+      return false;
+    }
+    if(!(int.parse(expYearController.text)>=1 && int.parse(expYearController.text)<=99)){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Year Is Invalid!'),
+        ),
+      );
+      return false;
+    }
+    if(!(cvvController.text.length==3 || cvvController.text.length==4)){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('CVV Number Is Invalid'),
+        ),
+      );
+      return false;
+    }
+    if(!isCreditCardNumberValid(cardNoController.text)){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Card Number Is Invalid!'),
+        ),
+      );
+      return false;
+    }
+    return true;
+  }
+
+  String formatNumber(String number) {
+    if (number.length != 16) {
+      // Ensure that the number has 16 digits
+      return 'Invalid number';
+    }
+
+    // Split the number into chunks of 4 digits
+    List<String> chunks = [];
+    for (int i = 0; i < number.length; i += 4) {
+      int endIndex = i + 4;
+      chunks.add(number.substring(i, endIndex));
+    }
+
+    // Join the chunks with spaces
+    return chunks.join(' ');
+  }
   @override
   Widget build (BuildContext context){
     List<CardDetails> cards = widget.paymentCards;
+    double screenHeight = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       child: Column(
         children: [
@@ -654,54 +893,95 @@ class _PaymentCardState extends State<PaymentCard> {
             child: Column(
                 children:List.generate(cards.length, (index) {
                   return GestureDetector(
-                    onLongPress: (){
+                    onTap: (){
                       print('1');
-                      widget.paymentCards.removeAt(index);
                       setState(() {
+                        cards[index].options = !cards[index].options;
                       });
                     },
                     child: Container(
                       width: 357,
-                      height: 102,
+                      height: cards[index].options?192:102,
                       margin: EdgeInsets.all(10),
                       decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
                         border:Border.all(
-                          color: Colors.white60,width: 2,
+                          color: HexColor('#F5F5F5'),width: 2,
                         ),
                       ),
-                      child: Row(
+                      child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          Container(
-                            width:215,
-                            height: 50,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text(cards[index].cardNo,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                                Text(cards[index].name,style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
-                              ],
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              Container(
+                                width:215,
+                                height: 50,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Text(formatNumber(cards[index].cardNo),style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                                    Text(cards[index].name,style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                                  ],
+                                ),
+                              ),
+                              Container(
+                                width: 48,
+                                height: 59,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children:[
+                                    cards[index].cardChoosen==1?
+                                    Image.asset('assets/images/mastercard.png',width: 40,height: 30,)
+                                        :cards[index].cardChoosen==2?
+                                    Image.asset('assets/images/visa.png',width: 40,height: 30,)
+                                        :Image.asset('assets/images/visa.png',width: 40,height: 30,),
+                                    index==0?
+                                    Text('Primary',style: TextStyle(fontSize: 12,fontFamily: 'Poppnis'),)
+                                        :Icon(Icons.arrow_forward_ios,color:HexColor('#00559B'),size: 12,),
+                                  ],
+                                ),
+                              ),
+                            ],
                           ),
-                          Container(
-                            width: 48,
-                            height: 59,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.center,
-                              children:[
-                                cards[index].cardChoosen==1?
-                                Image.asset('assets/images/mastercard.png',width: 40,height: 30,)
-                                    :cards[index].cardChoosen==2?
-                                Image.asset('assets/images/visa.png',width: 40,height: 30,)
-                                    :Image.asset('assets/images/visa.png',width: 40,height: 30,),
-                                index==0?
-                                Text('Primary',style: TextStyle(fontSize: 12,fontFamily: 'Poppnis'),)
-                                    :Icon(Icons.arrow_forward_ios,color:HexColor('#00559B'),size: 12,),
-                              ],
-                            ),
+                          cards[index].options
+                              ?Container(
+                                  height: 27,
+                                width: 357,
+                                child: Row(
+                                  mainAxisAlignment:MainAxisAlignment.spaceEvenly ,
+                            children: [
+                                GestureDetector(
+                                  child: Text('Edit',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
+                                  onTap: (){
+                                    setState(() {
+                                      nameController.text = cards[index].name;
+                                      cardNoController.text = cards[index].cardNo;
+                                      expMonthController.text = cards[index].month;
+                                      expYearController.text = cards[index].year;
+                                      cvvController.text = cards[index].cvv;
+                                      widget.cardForm = !widget.cardForm;
+                                    });
+                                    widget.profileDataProvider!.removeCard(index);
+                                    widget.paymentCards.removeAt(index);
+                                  },
+                                ),
+                                Text('|',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'))),
+                                GestureDetector(
+                                    onTap: (){
+                                      widget.profileDataProvider!.removeCard(index);
+                                      setState(() {
+                                        widget.paymentCards.removeAt(index);
+                                      });
+                                    },
+                                    child: Text('Remove',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00')))),
+                            ],
                           ),
+                              )
+                              :SizedBox(width: 0,),
                         ],
                       ),
                     ),
@@ -791,6 +1071,10 @@ class _PaymentCardState extends State<PaymentCard> {
                             Text('Card Number'),
                             TextFormField(
                               controller: cardNoController,
+                              inputFormatters: [
+                                CreditCardFormatter(),
+                              ],
+                              keyboardType: TextInputType.number,
                               decoration: InputDecoration(
                                 hintText: '0000 0000 0000 0000',
                                 focusedBorder: OutlineInputBorder(
@@ -823,6 +1107,7 @@ class _PaymentCardState extends State<PaymentCard> {
                                     width:72,
                                     height: 53,
                                     child: TextFormField(
+                                      keyboardType: TextInputType.number,
                                       controller: expMonthController,
                                       decoration: InputDecoration(
                                         hintText: 'MM',
@@ -845,6 +1130,7 @@ class _PaymentCardState extends State<PaymentCard> {
                                     width: 72,
                                     height: 53,
                                     child: TextFormField(
+                                      keyboardType: TextInputType.number,
                                       controller: expYearController,
                                       decoration: InputDecoration(
                                         hintText: 'YY',
@@ -876,6 +1162,7 @@ class _PaymentCardState extends State<PaymentCard> {
                               height:53,
                               child: TextFormField(
                                 controller: cvvController,
+                                keyboardType: TextInputType.number,
                                 decoration: InputDecoration(
                                   hintText: '000   or   0000',
                                   focusedBorder: OutlineInputBorder(
@@ -917,14 +1204,26 @@ class _PaymentCardState extends State<PaymentCard> {
                             ),
                             GestureDetector(
                               onTap: (){
-                                setState(() {
-                                  widget.paymentCards.add(CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text));
-                                  nameController.text = '';
-                                  cardNoController.text = '';
-                                  expMonthController.text = '';
-                                  expYearController.text = '';
-                                  cvvController.text = '';
-                                });
+                                if(cardValidator()){
+                                  PaymentDetails newPayment = PaymentDetails(
+                                    name: nameController.text, // Get this from user input
+                                    month: expMonthController.text, // Get this from user input
+                                    year: expYearController.text, // Get this from user input
+                                    cardNo: cardNoController.text, // Get this from user input
+                                    cvv: cvvController.text, // Get this from user input
+                                  );
+                                  widget.profileDataProvider!.addCardDetails(newPayment);
+                                  setState(() {
+                                    widget.paymentCards.add(CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text,month:expMonthController.text,year: expYearController.text,cvv:cvvController.text,options: false));
+                                    nameController.text = '';
+                                    cardNoController.text = '';
+                                    expMonthController.text = '';
+                                    expYearController.text = '';
+                                    cvvController.text = '';
+                                    widget.cardForm = !widget.cardForm;
+                                  });
+                                }
+
                               },
                               child: Container(
                                   width: 156,
@@ -984,12 +1283,52 @@ class _PaymentCardState extends State<PaymentCard> {
               ),
             ),
           ),
+          widget.paymentCards.length>0
+          ? Container(
+              width: 326,
+              height: 53,
+              margin: EdgeInsets.only(top: screenHeight * 0.7),
+              child: FiledButton(
+              backgroundColor: HexColor('#FB8C00'),
+              onPressed: () {
+                  showDialog(context: context, builder: (BuildContext context){
+                    return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    },),);
+                  },
+                );
+              },
+              child: Center(
+                child: Text('Set Cards',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 18)))),
+            )
+          :SizedBox(height: 0,),
         ],
       ),
     );
   }
 }
 
+
+class CreditCardFormatter extends TextInputFormatter {
+  @override
+  TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
+    // Remove any non-digit characters
+    String newText = newValue.text.replaceAll(RegExp(r'\D'), '');
+
+    // Insert a space after every 4 digits
+    if (newText.length > 4 && newText.length % 4 == 1) {
+      newText = newText.substring(0, newText.length - 1) + ' ' + newText.substring(newText.length - 1);
+    }
+
+    return newValue.copyWith(
+      text: newText,
+      selection: TextSelection.collapsed(offset: newText.length),
+    );
+  }
+}
 class FilledButton extends StatelessWidget {
   final void Function() onPressed;
   final Widget child;

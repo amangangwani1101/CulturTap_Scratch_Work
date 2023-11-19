@@ -27,11 +27,12 @@ class CoverPage extends StatelessWidget {
   final String? imagePath;
   final String? name;
   final ProfileDataProvider? profileDataProvider;
-  CoverPage({required this.reqPage,this.profileDataProvider,this.imagePath,this.name});
+  String ?image;
+  CoverPage({required this.reqPage,this.profileDataProvider,this.imagePath,this.name,this.image});
 
   @override
   Widget build(BuildContext context) {
-    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider!,imagePath:imagePath,name: name,);
+    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider!,imagePath:imagePath,name: name,image:image);
   }
 }
 
@@ -42,8 +43,8 @@ class UserImage extends StatefulWidget {
   final int reqPages;
   final ProfileDataProvider? profileDataProvider;
   final String? name;// Pass the profileDataProvider here
-  final String? imagePath;
-  UserImage({required this.reqPages, this.profileDataProvider,this.imagePath,this.name});
+  final String? imagePath,image;
+  UserImage({required this.reqPages, this.profileDataProvider,this.imagePath,this.name,this.image});
   @override
   _UserImageState createState() => _UserImageState();
 }
@@ -175,7 +176,12 @@ class _UserImageState extends State<UserImage>{
                           ),
                         ),
                         child: widget.imagePath!=null?
-                        CircleAvatar(
+                        widget.image=='network'
+                        ?CircleAvatar(
+                          radius: 60,
+                          backgroundImage: NetworkImage(widget.imagePath!), // Replace with the actual image URL
+                        )
+                        : CircleAvatar(
                           radius: 60,
                           backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>,
                         )

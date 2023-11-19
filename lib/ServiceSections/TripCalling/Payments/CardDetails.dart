@@ -1,4 +1,6 @@
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/slider.dart';
 
 
@@ -14,7 +16,12 @@ class CardDetails extends StatefulWidget{
 class _CardDetailsState extends State<CardDetails>{
   @override
   Widget build(BuildContext context) {
-    return PaymentSection();
+    return MaterialApp(
+        home: Scaffold(
+
+          appBar:AppBar(title: ProfileHeader(reqPage: 4,),),
+        body:PaymentSection(),
+    ),);
   }
 
 }

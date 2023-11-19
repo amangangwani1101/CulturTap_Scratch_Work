@@ -119,23 +119,28 @@ class ConcentricCircles extends StatefulWidget{
 }
 class _ConcentricCirclesState extends State<ConcentricCircles> {
 
+  @override
+  void initState(){
+    super.initState();
+    setState(() {
+      widget.isToggled  =widget.profileDataProvider!.retServide1();
+    });
+  }
   void onPressedHandler() {
-    if (widget.isToggled) {
       showDialog(context: context, builder: (BuildContext context){
         return Container(child: CustomHelpOverlay(imagePath: 'assets/images/clock_icon.jpg',serviceSettings: true,profileDataProvider:widget.profileDataProvider),);
-      },
-      );
-    }else {
-          (){};
-    }
-  }
+      },);
+      widget.isToggled  =widget.profileDataProvider!.retServide1();
+   }
+
+
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: (){
         setState(() {
-          widget.isToggled = !widget.isToggled;
+          widget.isToggled = widget.profileDataProvider!.retServide1();
         });
         onPressedHandler();
       },

@@ -1,9 +1,12 @@
 import 'dart:core';
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:learn_flutter/UserProfile/CoverPage.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import '../widgets/CustomButton.dart';
 import '../widgets/CustomDropDowns.dart';
@@ -11,15 +14,16 @@ import '../widgets/hexColor.dart';
 import '../BackendStore/BackendStore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 // raw data variable
 typedef void SetQuote(String? image);
 
 // Motivational Quote Section
 class MotivationalQuote extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
-  final String? quote;
-  MotivationalQuote({this.profileDataProvider,this.quote});
+  final String? quote,state;
+  MotivationalQuote({this.profileDataProvider,this.quote,this.state});
   @override
   _MotivationalQuoteState createState() => _MotivationalQuoteState();
 }
@@ -46,7 +50,11 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
             children: [
               Container(
                 width: widget.quote!=null?320:260,
-                child: GestureDetector(
+                child: widget.state=='final'
+                  ?Center(
+                    child: Text('${widget.quote==null?'':'" ${widget.quote}"'} ' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',),maxLines: 2,overflow: TextOverflow.visible,
+                  ))
+                  :GestureDetector(
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote)));
                   },
@@ -65,7 +73,7 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
                   ),
                 ),
               ),
-              widget.quote!=null
+              widget.quote!=null || widget.state=='final'
                   ?SizedBox(width: 0,)
                   :!isQuoteSet?
               IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
@@ -236,6 +244,8 @@ class InfoWidget extends StatelessWidget {
 
 // Authentication Section
 class SignIn extends StatefulWidget{
+  ProfileDataProvider? profileDataProvider;
+  SignIn({this.profileDataProvider});
   @override
   _SignInState createState() => _SignInState();
 }
@@ -246,7 +256,8 @@ class _SignInState extends State<SignIn>{
 
   TextEditingController _namecontroller = TextEditingController();
   bool isSignedIn = false;
-
+  String? emailId,gName,gPhotoUrl;
+  // void Function(String,String) onDataChanged;
   Future<User?> handleSignIn() async{
     try {
       final GoogleSignInAccount? googleSignInAccount = await googleSignIn.signIn();
@@ -261,9 +272,14 @@ class _SignInState extends State<SignIn>{
       print('User$user');
       if (user != null) {
         setState(() {
+          emailId = user.email;
+          gPhotoUrl = user.photoURL;
+          gName = user.displayName;
           isSignedIn = true;
-          _namecontroller.text = user.displayName ?? "";
+          CoverPage(reqPage: 1,imagePath: gPhotoUrl,name: gName,profileDataProvider: widget.profileDataProvider,image:'network');
         });
+        widget.profileDataProvider!.updateEmail(emailId!);
+        // onDataChanged(gPhotoUrl!,gName!);
         return user;
       }
     }catch(e){
@@ -401,6 +417,8 @@ class _LocationEditorState extends State<LocationEditor> {
     print("City: $city");
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -472,29 +490,28 @@ class UserDetailsTable extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Place - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
+              Text('Place -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 96,),
-
               Text(place==null?'NA':'${place}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
-              Text('Profession - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
+              Text('Profession -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 58,),
               Text(profession==null?'NA':'${profession}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
-              Text('Age/Gender - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
+              Text('Age/Gender -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 42,),
               Text(age ==null?'NA':'${age} Yr / ${gender}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
-              Text('Language - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
+              Text('Language -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 60,),
               Container(
                 child: languageList==null ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
@@ -543,13 +560,16 @@ class _ProfileFormState extends State<ProfileForm> {
   late String save;
   String? age;
   TextEditingController _ageController = TextEditingController();
+  FocusNode _focusNode = FocusNode();
   final List<String> professions = [
     'Engineer',
     'Doctor',
     'Teacher',
     'Artist',
+    'Other',
     // Add more professions as needed
   ];
+  List<String> cities = [];
 
   final List<String> genders = ['Male', 'Female', 'Other'];
 
@@ -561,9 +581,107 @@ class _ProfileFormState extends State<ProfileForm> {
     // Add more languages as needed
   ];
 
+  // Future<List<String>> getCities(String state, String country) async {
+  //   final username = 'aman_1101'; // Replace with your Geonames username
+  //   final url = 'http://api.geonames.org/searchJSON?country=$country&adminCode1=$state&username=$username';
+  //
+  //   final response = await http.get(Uri.parse(url));
+  //
+  //   if (response.statusCode == 200) {
+  //     final List<dynamic> data = json.decode(response.body)['geonames'];
+  //     return data.map<String>((city) => city['name']).toList();
+  //   } else {
+  //     throw Exception('Failed to load city data');
+  //   }
+  // }
+  //
+  // Future<List<String>> _getCitySuggestions(String state, String country) async {
+  //   try {
+  //     return await getCities(state, country);
+  //   } catch (e) {
+  //     print('Error fetching city suggestions: $e');
+  //     return [];
+  //   }
+  // }
+  //
+  // void getCityList() async{
+  //   LocationPermission permission; permission = await Geolocator.requestPermission();
+  //
+  //   if (permission == LocationPermission.denied) {
+  //     ScaffoldMessenger.of(context).showSnackBar(
+  //       SnackBar(
+  //         content: Text('Location permission denied. Unable to get the city.'),
+  //       ),
+  //     );
+  //     return;
+  //   }
+  //
+  //   Position position = await Geolocator.getCurrentPosition(
+  //     desiredAccuracy: LocationAccuracy.high,
+  //   );
+  //
+  //   Future<Map<String, String>> fetchAddressFromCoordinates(double latitude, double longitude) async {
+  //     final String apiUrl = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude';
+  //
+  //     try {
+  //       final response = await http.get(Uri.parse(apiUrl));
+  //       if (response.statusCode == 200) {
+  //         final decoded = jsonDecode(response.body);
+  //
+  //         // Extract state and country from the address components
+  //         String state = '';
+  //         String country = '';
+  //         print(decoded['address']);
+  //         final addressComponents = decoded['address'];
+  //         if (addressComponents != null && addressComponents.isNotEmpty) {
+  //           state = addressComponents['state'] ?? '';
+  //           country = addressComponents['country'] ?? '';
+  //         }
+  //
+  //         print('State: $state, Country: $country');
+  //
+  //         return {
+  //           'state': state,
+  //           'country': country,
+  //         };
+  //       } else {
+  //         print('Failed to fetch address. Status code: ${response.statusCode}');
+  //         return {
+  //           'state': '',
+  //           'country': '',
+  //         };
+  //       }
+  //     } catch (e) {
+  //       print('Error: $e');
+  //       return {
+  //         'state': '',
+  //         'country': '',
+  //       };
+  //     }
+  //   }
+  //   String state='Uttar Pradesh',country = 'India';
+  //   if (kIsWeb) {
+  //     Map<String,String>items = await fetchAddressFromCoordinates(position.latitude,position.longitude);
+  //     state = items['state']!.length==0?state:items['state']!;
+  //     country = items['country']!.length==0?state:items['country']!;
+  //   }else if(Platform.isAndroid){
+  //     List<Placemark> placemarks = await placemarkFromCoordinates(
+  //       position.latitude,
+  //       position.longitude,
+  //     );
+  //     state = placemarks.first.administrativeArea!;
+  //     country = placemarks.first.country!;
+  //   }
+  //
+  //   print(state);
+  //   print(country);
+  //   cities = await _getCitySuggestions(state, country);
+  // }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
+
 
     @override
     void initState() {
@@ -571,13 +689,72 @@ class _ProfileFormState extends State<ProfileForm> {
       // Get the device width using MediaQuery and store it in deviceWidth
       screenWidth = MediaQuery.of(context).size.width;
     }
+    // bool _isFocused = false;
+    TextEditingController _textController = TextEditingController();
 
+    Future<bool> isValidCity(String city) async {
+      final url = 'http://api.geonames.org/searchJSON?q=$city&maxRows=5&username=aman_1101';
+      print('Request URL: $url');
+
+      final response = await http.get(Uri.parse(url));
+      final decode = jsonDecode(response.body);
+      print(decode);
+      if(decode['totalResultsCount']>0)
+          return true;
+      else
+        return false;
+    }
     return Container(
       padding: EdgeInsets.all(10.0),
 
       child: Column(
 
         children: [
+          Container(
+            height: 79,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Home City',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                TextField(
+                  focusNode: _focusNode,
+                  controller: _textController,
+                  decoration: InputDecoration(
+                    hintText: 'Type Here....',
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor('#FB8C00')),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    // Add your onChanged logic if needed
+                  },
+                  onTap: () {
+                    _focusNode.addListener(() async{
+                      if (!_focusNode.hasFocus) {
+                        bool checker = await isValidCity(_textController.text);
+                        if(!checker) {
+                          _textController.text = '';
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text('Invalid city!'),
+                            ),
+                          );
+                        }
+                        else{};
+                      }
+                    });
+                  },
+                  onEditingComplete: ()  {
+                    print('caller');
+                    _focusNode.unfocus();
+                  },
+                )
+              ],
+            ),
+          ),
+          SizedBox(height: 10,),
           CustomDropdown.build(
             label: 'Profession',
             items: professions,
@@ -628,13 +805,14 @@ class _ProfileFormState extends State<ProfileForm> {
             selectedValue: selectedGender, // Pass the selected value to the widget
           ),
           SizedBox(height: 10,),
-          CustomDropdown.build(
+          CustomMultiDropdown(
             label: 'Language You Know!',
             items: languages,
             deviceWidth:screenWidth,
+            selectedFields: [],
             onChanged: (String? newValue) {
               // Handle the selected value here, if needed
-              print('Selected: $newValue');
+                print('Selected: $newValue');
               // widget.profileDataProvider?.updateLanguages(newValue!);
             },
             setSelectedValue: (String? newValue) {
@@ -644,6 +822,34 @@ class _ProfileFormState extends State<ProfileForm> {
             },
             selectedValue: selectedLanguage, // Pass the selected value to the widget
           ),
+          SizedBox(height: 10,),
+      // Padding(
+      //   padding: const EdgeInsets.all(16.0),
+      //   child: Column(
+      //     children: [
+      //       DropdownButtonFormField(
+      //         isDense: true,
+      //         isExpanded: true,
+      //         hint: Text('Select Fields'),
+      //         value: val,
+      //         items: allFields.map((field) {
+      //           return DropdownMenuItem(
+      //             value: field,
+      //             child: Text(field),
+      //           );
+      //         }).toList(),
+      //         onChanged: (String ?newValue) {
+      //           print('NN::$newValue');
+      //             selectedFields!.add(newValue!);
+      //             allFields.remove(newValue);
+      //             val = newValue!;
+      //         },
+      //       ),
+      //       SizedBox(height: 10),
+      //       Text('Selected Fields: ${selectedFields!.join(', ')}'),
+      //     ],
+      //     ),
+      //   ),
         ],
       ),
     );

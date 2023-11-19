@@ -78,7 +78,7 @@ class ExpertCardDetails extends StatelessWidget{
                 Row(
                   children: [
                     Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                    SizedBox(width: 61,),
+                    SizedBox(width: 60,),
                     Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
                   ],
                 ),
@@ -120,9 +120,9 @@ class ExpertCardDetails extends StatelessWidget{
                     Text('Your Culturtap Status',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
                     SizedBox(width: 30,),
                     Container(
-                      child: profileStatus=='Out Standing'?
-                      Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
-                      Text('Working',style: TextStyle(color: Colors.red,fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
+                      child: visitedplace==0 || coveredLocation==0?
+                      Text('N/A',style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
+                      Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
                     ),
                   ],
                 ),

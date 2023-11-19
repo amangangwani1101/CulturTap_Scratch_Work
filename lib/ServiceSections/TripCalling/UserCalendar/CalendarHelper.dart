@@ -34,12 +34,19 @@ class _CalendarHelperState  extends State<CalendarHelper>{
   void printMeetTimes(String key) {
     try {
       Map<String, dynamic> parsedData = widget.plans as Map<String, dynamic>;
-
+      print(parsedData);
       if (parsedData.containsKey(key)) {
-        Map<String, dynamic> value = parsedData[key];
-
-        meetStartTimes = List<String>.from(value['meetStartTime'] ?? []);
-        meetEndTimes = List<String>.from(value['meetEndTime'] ?? []);
+        print(2);
+        List<dynamic> value = parsedData[key]['meetingStatus'];
+        print(value);
+        for (int index=0;index<value.length;index++){
+          if(value[index]!='close'){
+            meetStartTimes.add(parsedData[key]['meetStartTime'][index]);
+            meetEndTimes.add(parsedData[key]['meetEndTime'][index]);
+          }
+        }
+        // meetStartTimes = List<String>.from(value['meetStartTime'] ?? []);
+        // meetEndTimes = List<String>.from(value['meetEndTime'] ?? []);
         print("Meet Start Times: $meetStartTimes");
         print("Meet End Times: $meetEndTimes");
         print('----------------------------------');
@@ -152,7 +159,8 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                   children: [
                     Text('Day Plans',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height:20),
-                    Column(
+                    meetStartTimes.length!=0
+                    ? Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: List.generate(
                         meetStartTimes.length,
@@ -187,6 +195,24 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                           ),
                         ),
                       ),
+                    )
+                    :Container(
+                      width: 369,
+                      height: 112,
+                      decoration:BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      // padding: EdgeInsets.all(15),
+                      child: Center(child: Text('Nothing planned this day, You \ncan scheduled your slots for \ninteraction',style: TextStyle(fontSize: 16,fontFamily: 'Poppins'),)),
                     ),
                   ],
                 ),

@@ -100,16 +100,22 @@ class _ProfilePageState extends State<ProfilePage> {
           backgroundColor: Colors.transparent, // Make the background transparent
         ),
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ProfileHeader(reqPage: widget.reqPage),
-            widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
-            SizedBox(height: 17,),
-            CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,name:widget.userName),
-            UserInformationSection(reqPage:widget.reqPage,profileDataProvider:widget.profileDataProvider,userName:widget.userName,userId:widget.userId),
-          ],
+      body: WillPopScope(
+        onWillPop: ()async{
+          Navigator.of(context).pop();
+          return true;
+        },
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),
+              widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
+              SizedBox(height: 17,),
+              CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,name:widget.userName),
+              UserInformationSection(reqPage:widget.reqPage,profileDataProvider:widget.profileDataProvider,userName:widget.userName,userId:widget.userId),
+            ],
+          ),
         ),
       ),
     );
@@ -231,14 +237,14 @@ class UserInformationSection extends StatelessWidget {
       child: Column(
         children: [
           SizedBox(height: 10,),
-          MotivationalQuote(profileDataProvider:profileDataProvider),
+          reqPage==0?SizedBox(width: 0,):MotivationalQuote(profileDataProvider:profileDataProvider),
           SizedBox(height: 20.0),
           ReachAndLocation(profileDataProvider:profileDataProvider),
           SizedBox(height: 30,),
-          reqPage==0?SizedBox(height: 0):SignIn(),
+          reqPage==0?SizedBox(height: 0):SignIn(profileDataProvider:profileDataProvider),
           SizedBox(height: 30.0),
           reqPage==0?SizedBox(height: 0):LocationEditor(profileDataProvider:profileDataProvider),
-          SizedBox(height: 30.0),
+          reqPage==0?SizedBox(height: 0):SizedBox(height: 30),
           reqPage==0?UserDetailsTable():ProfileForm(profileDataProvider:profileDataProvider),
           SizedBox(height: 45.0),
           ExpertCardDetails(),

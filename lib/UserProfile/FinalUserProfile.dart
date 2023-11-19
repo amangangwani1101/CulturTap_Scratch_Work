@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
@@ -94,45 +95,40 @@ class _FinalProfileState extends State<FinalProfile> {
             backgroundColor: Colors.transparent, // Make the background transparent
           ),
         ),
-        body: WillPopScope(
-          onWillPop: () async{
-            return false;
-          },
-          child: SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
-              child: Center(
-                child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null),
-                    SizedBox(height: 20,),
-                    CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
-                    SizedBox(height: 20,),
-                    MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,),
-                    SizedBox(height: 30,),
-                    ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
-                    SizedBox(height: 40,),
-                    Container(
-                      width: 360,
-                      child: Center(
-                        child: UserDetailsTable(place:dataset != null ? dataset!['userPlace'] : null,
-                          profession:dataset != null ? dataset!['userProfession'] : null,
-                          age:dataset != null ? dataset!['userAge'] : null,
-                          gender:dataset != null ? dataset!['userGender'] : null,
-                          languageList:dataset != null ? dataset!['userLanguages'] : null,
-                        ),
+        body: SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
+            child: Center(
+              child: Column(
+                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),
+                  SizedBox(height: 20,),
+                  CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
+                  SizedBox(height: 20,),
+                  MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,state:'final'),
+                  SizedBox(height: 30,),
+                  ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
+                  SizedBox(height: 40,),
+                  Container(
+                    width: 360,
+                    child: Center(
+                      child: UserDetailsTable(place:dataset != null ? dataset!['userPlace'] : null,
+                        profession:dataset != null ? dataset!['userProfession'] : null,
+                        age:dataset != null ? dataset!['userAge'] : null,
+                        gender:dataset != null ? dataset!['userGender'] : null,
+                        languageList:dataset != null ? dataset!['userLanguages'] : null,
                       ),
                     ),
-                    SizedBox(height: 40,),
-                    ExpertCardDetails(),
-                    SizedBox(height: 40,),
-                    dataset?['userServiceTripCallingData'] != null?TripCalling(data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
-                    SizedBox(height: 50,),
-                    RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName'])
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 40,),
+                  ExpertCardDetails(),
+                  SizedBox(height: 40,),
+                  dataset?['userServiceTripCallingData'] != null?TripCalling(data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
+                  SizedBox(height: 50,),
+                  RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName'])
+                ],
               ),
             ),
           ),

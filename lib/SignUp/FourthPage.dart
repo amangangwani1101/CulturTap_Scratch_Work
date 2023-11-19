@@ -174,6 +174,8 @@ class _FourthPageState extends State<FourthPage> {
     }
 
 
+
+
     Future<String?> fetchAddressFromCoordinates(double latitude, double longitude) async {
       final String apiUrl = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude';
 
@@ -200,7 +202,7 @@ class _FourthPageState extends State<FourthPage> {
         desiredAccuracy: LocationAccuracy.high,
       );
       if (kIsWeb) {
-        fullAddress = await fetchAddressFromCoordinates(26.4470615,80.3092354);
+        fullAddress = await fetchAddressFromCoordinates(position.latitude,position.longitude);
         print('Running on the web');
       } else if (Platform.isAndroid) {
         List<Placemark> placemarks = await placemarkFromCoordinates(

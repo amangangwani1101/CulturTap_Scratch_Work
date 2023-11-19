@@ -8,6 +8,7 @@
   import 'package:learn_flutter/widgets/Constant.dart';
   import 'UserProfile/ProfileHeader.dart';
   import './widgets/hexColor.dart';
+import 'widgets/01_helpIconCustomWidget.dart';
   // import 'package:video_player/video_player.dart';
   
   
@@ -75,15 +76,37 @@
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: [
-              SizedBox(height: 30,),
-              ProfileHeader(reqPage: 2),
+              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+                showDialog(context: context, builder: (BuildContext context){
+                  return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',serviceSettings: false),);
+                },
+                );
+              },
+              ),
+              Container(
+                width: 60,
+                height: 40,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: GestureDetector(
+                    onTap: (){
+                      showDialog(context: context, builder: (BuildContext context){
+                        return Container( child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,),);
+                      },
+                      );
+                    },
+                    child: Image.asset('assets/images/skip.png',width: 60,height: 30,),
+                  ),
+                ),
+              ),
+              ProfileHeader(reqPage: 4),
               Container(
                   width: 357,
                   height: 25,
                   child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
               SizedBox(height: 30,),
               PaymentCard(paymentCards:cards,cardForm: cardform,),
-  
+
             ],
           ),
         ),
