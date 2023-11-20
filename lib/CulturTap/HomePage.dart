@@ -24,7 +24,6 @@ class ImageScroll extends StatelessWidget {
     'assets/images/home_three.png',
     'assets/images/home_four.png',
     'assets/images/home_five.png',
-
   ];
 
   @override
@@ -153,7 +152,6 @@ class _HomePageState extends State<HomePage> {
 
         String location = story['location'];
         String storyLocation = location?.split(',')?.first ?? '';
-
         String expDescription = story['expDescription'];
         List<String> placeLoveDesc = List.from(story['placeLoveDesc'] ?? []);
         String dontLikeDesc = story['dontLikeDesc'];
