@@ -17,19 +17,23 @@ router.put("/profileSection", async (req, res) => {
         return res.status(404).json({ error: "User Not Found" });
       }
 
-
+        console.log(user);
       // Update existing fields with new values
       Object.keys(dataset).forEach((key) => {
-      if(key=='userServiceTripCallingData' && user[key]!==null){
+      if(key=='userServiceTripCallingData' && user['userServiceTripCallingData']){
+            console.log(1);
             if(dataset[key]!==null){
                 user[key]['startTimeFrom'] = dataset[key].startTimeFrom;
                 user[key]['endTimeTo'] = dataset[key].endTimeTo;
                 user[key]['slotsChossen'] = dataset[key].slotsChossen;
             }
             else{
-//                if(user[key].containKey('startTimeFrom')){
-//                    user[key].remove()
-//                }
+                if(user[key]['startTimeFrom']){
+//                console.log(2);
+//                    delete user[key].startTimeFrom;
+//                     delete user[key].endTimeTo;
+//                     delete user[key].slotsChossen;
+                }
             }
         }
         else{

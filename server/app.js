@@ -88,7 +88,7 @@ io.on("connection", (socket) => {
         uniqueIdentifier
       );
       console.log("Qwe:", meetingIdVerification);
-      if (meetingIdVerification === null && !meetingIdVerification._id) {
+      if (meetingIdVerification === null || !meetingIdVerification._id) {
         socket.emit("roomNotFound", "Invalid room identifier");
         console.log("Meeting not found or invalid");
         return;

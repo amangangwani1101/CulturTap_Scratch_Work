@@ -15,8 +15,8 @@ import '../../../widgets/hexColor.dart';
 
 class CalendarHelper extends StatefulWidget{
   Map<String,dynamic>?plans;
-  String ?choosenDate,startTime,endTime,slotChossen,date;
-  CalendarHelper({this.plans,this.choosenDate,this.startTime,this.endTime,this.slotChossen,this.date});
+  String ?choosenDate,startTime,endTime,slotChossen,date,text,userName;
+  CalendarHelper({this.plans,this.choosenDate,this.startTime,this.endTime,this.slotChossen,this.date,this.text,this.userName});
   @override
   _CalendarHelperState createState()=> _CalendarHelperState();
 }
@@ -74,149 +74,161 @@ class _CalendarHelperState  extends State<CalendarHelper>{
 
       return months[monthNumber - 1];
     }
-    return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 5),automaticallyImplyLeading: false,),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            width: screenWidth*0.83,
-            // decoration: BoxDecoration(border: Border.all(width: 1)),
-            child: Column(
-              children: [
-                SizedBox(height: 48,),
-                Container(
-                  height: 241,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text('Check Calendar',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                      Container(
-                        height: 76,
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Hemant’s provided avilable time for trip \n planning interaction calls -',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                            Row(
-                              children: [
-                                Container(
-                                  child: Image.asset('assets/images/clock.png',width: 22,height: 22,),
-                                ),
-                                SizedBox(width: 10,),
-                                Text('${widget.startTime} - ${widget.endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                Text('India',style: TextStyle(fontWeight: FontWeight.bold,fontSize:14,fontFamily: 'Poppins'),)
-                              ],
-                            ),
-                          ],
+    return WillPopScope(
+      onWillPop: ()async{
+        if(widget.text=='calendarhelper'){
+          print(1);
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }else{
+          print(2);
+        }
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(title: ProfileHeader(reqPage: 5,text: widget.text,),automaticallyImplyLeading: false,),
+        body: SingleChildScrollView(
+          child: Center(
+            child: Container(
+              width: screenWidth*0.83,
+              // decoration: BoxDecoration(border: Border.all(width: 1)),
+              child: Column(
+                children: [
+                  SizedBox(height: 48,),
+                  Container(
+                    height: 241,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text('Check Calendar',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                        Container(
+                          height: 76,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('${widget.userName}’s provided avilable time for trip \n planning interaction calls -',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                              Row(
+                                children: [
+                                  Container(
+                                    child: Image.asset('assets/images/clock.png',width: 22,height: 22,),
+                                  ),
+                                  SizedBox(width: 10,),
+                                  Text('${widget.startTime} - ${widget.endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                  Text('India',style: TextStyle(fontWeight: FontWeight.bold,fontSize:14,fontFamily: 'Poppins'),)
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
-                      ),
-                      CustomDOBDropDown(
-                        initData: widget.date==null?'15 NOV':widget.date,
-                        label: 'Select Date',
-                        selectedDate: selectedDate,
-                        deviceWidth: screenWidth*0.60,
-                        onDateSelected: widget.slotChossen=='choice_2'?((DateTime? newDate) {
-                          setState(() {
-                            selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
-                            sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
-                            print('Selected: ${sendDate}');
-                            printMeetTimes(sendDate!);
-                          });
-                        })
-                            :((DateTime? newDate) {
-                          // Check if the selected date is a weekend day (Saturday or Sunday)
-                          if (newDate != null &&
-                              (newDate.weekday == DateTime.saturday ||
-                                  newDate.weekday == DateTime.sunday)) {
+                        CustomDOBDropDown(
+                          initData: widget.date==null?'15 NOV':widget.date,
+                          label: 'Select Date',
+                          selectedDate: selectedDate,
+                          deviceWidth: screenWidth*0.60,
+                          onDateSelected: widget.slotChossen=='choice_1'?((DateTime? newDate) {
                             setState(() {
                               selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
                               sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
-                              print('Selected: ${newDate}');
+                              print('Selected: ${sendDate}');
                               printMeetTimes(sendDate!);
                             });
-                          } else if(newDate!=null) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Please select a weekend day.'),
-                              ),
-                            );
-                          }else{
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                content: Text('Please select a date.'),
-                              ),
-                            );
-                          }
-                        }),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 50,),
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('Day Plans',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                    SizedBox(height:20),
-                    meetStartTimes.length!=0
-                    ? Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: List.generate(
-                        meetStartTimes.length,
-                            (index) =>  Padding(
-                          padding: const EdgeInsets.only(bottom: 20.0),
-                          child: Container(
-                            width: 369,
-                            height: 101,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12.0),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.grey.withOpacity(0.5),
-                                  spreadRadius: 2,
-                                  blurRadius: 5,
-                                  offset: Offset(0, 3),
+                          })
+                              :((DateTime? newDate) {
+                            // Check if the selected date is a weekend day (Saturday or Sunday)
+                            if (newDate != null &&
+                                (newDate.weekday == DateTime.saturday ||
+                                    newDate.weekday == DateTime.sunday)) {
+                              setState(() {
+                                selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
+                                sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
+                                print('Selected: ${newDate}');
+                                printMeetTimes(sendDate!);
+                              });
+                            } else if(newDate!=null) {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please select a weekend day.'),
                                 ),
-                              ],
-                            ),
-                            child:Container(
-                              padding: EdgeInsets.only(left: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  Text('${meetStartTimes[index]} - ${meetEndTimes[index]} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                  Text('Trip Planning call with customer',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                              );
+                            }else{
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: Text('Please select a date.'),
+                                ),
+                              );
+                            }
+                          }),
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 50,),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Day Plans',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                      SizedBox(height:20),
+                      meetStartTimes.length!=0
+                      ? Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: List.generate(
+                          meetStartTimes.length,
+                              (index) =>  Padding(
+                            padding: const EdgeInsets.only(bottom: 20.0),
+                            child: Container(
+                              width: 369,
+                              height: 101,
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(12.0),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5),
+                                    spreadRadius: 2,
+                                    blurRadius: 5,
+                                    offset: Offset(0, 3),
+                                  ),
                                 ],
+                              ),
+                              child:Container(
+                                padding: EdgeInsets.only(left: 10),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                  children: [
+                                    Text('${meetStartTimes[index]} - ${meetEndTimes[index]} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                    Text('Trip Planning call with customer',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                  ],
+                                ),
                               ),
                             ),
                           ),
                         ),
+                      )
+                      :Container(
+                        width: 369,
+                        height: 112,
+                        decoration:BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12.0),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.grey.withOpacity(0.5),
+                              spreadRadius: 2,
+                              blurRadius: 5,
+                              offset: Offset(0, 3),
+                            ),
+                          ],
+                        ),
+                        // padding: EdgeInsets.all(15),
+                        child: Center(child: Text('Nothing planned this day, You \ncan scheduled your slots for \ninteraction',style: TextStyle(fontSize: 16,fontFamily: 'Poppins'),)),
                       ),
-                    )
-                    :Container(
-                      width: 369,
-                      height: 112,
-                      decoration:BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12.0),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5),
-                            spreadRadius: 2,
-                            blurRadius: 5,
-                            offset: Offset(0, 3),
-                          ),
-                        ],
-                      ),
-                      // padding: EdgeInsets.all(15),
-                      child: Center(child: Text('Nothing planned this day, You \ncan scheduled your slots for \ninteraction',style: TextStyle(fontSize: 16,fontFamily: 'Poppins'),)),
-                    ),
-                  ],
-                ),
-              ],
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ),

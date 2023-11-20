@@ -58,6 +58,39 @@ router.patch("/cancelMeeting", async (req, res) => {
   }
 });
 
+
+//close meet request after feedback
+router.patch("/closeMeeting", async (req, res) => {
+  try {
+    const { userId, date, index} = req.body;
+
+    const user = await ProfileData.findById(userId).lean();
+
+    if (!user) {
+      return res.status(404).json({ message: "User Not Found" });
+    }
+
+    if (!user.userServiceTripCallingData.dayPlans || !user.userServiceTripCallingData.dayPlans[date]) {
+      return res.status(404).json({ message: "Meeting not found for the given date" });
+    }
+
+
+    const { meetingStatus } = user.userServiceTripCallingData.dayPlans[date];
+    if (index < 0 || index >= meetingStatus.length) {
+      return res.status(404).json({ message: "Invalid index" });
+    }
+
+    // Update the meeting status to "close" at the specified index
+    user.userServiceTripCallingData.dayPlans[date].meetingStatus[index] = 'closed';
+    // Save the updated user data
+    await ProfileData.findByIdAndUpdate(userId, user);
+    res.status(200).json({ message: "Meeting status updated successfully" });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 // Firebase Cloud Function
 const sendNotificationFunction = functions.https.onCall(async (data, context) => {
 

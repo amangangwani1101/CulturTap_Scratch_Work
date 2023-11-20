@@ -3,7 +3,9 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
+import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 
 import '../BackendStore/BackendStore.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
@@ -14,9 +16,9 @@ import '../widgets/hexColor.dart';
 class ProfileHeader extends StatefulWidget {
   final int reqPage;
   final String? imagePath;
-  final String? userId,text;
+  final String? userId,text,userName;
   ProfileDataProvider?profileDataProvider;
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider});
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.userName});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -60,7 +62,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               Text('Profile',style: TextStyle(fontSize: 14,color:HexColor("#FB8C00"),fontWeight: FontWeight.w900,fontFamily: 'Poppins',),),
             ],
           ):
-          widget.reqPage!=6 && widget.reqPage!=4
+          widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
           ? Container(
             // decoration: BoxDecoration(
             //   border: Border.all(
@@ -74,9 +76,18 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               alignment: Alignment.topCenter,
               child: GestureDetector(
                 onTap: (){
-                  if(widget.text=='calendar') {
+                  if(widget.text=='calendar' || widget.text=='calendarhelper') {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
+                  }
+                  else if(widget.text=='meetingPings'){
+                    print('${widget.userName!}');
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(userId: widget.userId!,userName: widget.userName!,),
+                      ),
+                    );
                   }
                   else{
                     Navigator.of(context).pop();
@@ -158,27 +169,34 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               Text('Pings',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
             ],
           )
-          : widget.reqPage==4
+          : widget.reqPage==4 || widget.reqPage==8
             ?Container(
-            width: 60,
-              height: 40,
+            width: widget.reqPage==4? 60:13,
+              height: widget.reqPage==4? 40:13,
               child: Align(
                 alignment: Alignment.topCenter,
                 child: GestureDetector(
                 onTap: (){
-                  showDialog(context: context, builder: (BuildContext context){
-                    return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: widget.text,navigate: 'pop',onButtonPressed: (){
-                      print(2);
-                      widget.profileDataProvider?.removeAllCards();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },),);
-                  },
-                  );
+                  if(widget.reqPage==4){
+                    showDialog(context: context, builder: (BuildContext context){
+                      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: widget.text,navigate: 'pop',onButtonPressed: (){
+                        print(2);
+                        widget.profileDataProvider?.removeAllCards();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      },),);
+                    },
+                    );
+                  }
+                  else{
+                    Navigator.of(context).pop();
+                  }
                 },
-                child: Image.asset('assets/images/skip.png',width: 60,height: 30,),
+                child:widget.reqPage==4
+                ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
+                : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
           ),
               ),
             ):SizedBox(width: 0,),

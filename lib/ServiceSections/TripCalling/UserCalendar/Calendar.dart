@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:provider/provider.dart';
@@ -76,28 +77,34 @@ class CalendarPage extends StatefulWidget{
   }
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 1,userId:widget.currentUser),automaticallyImplyLeading: false,),
-      body: SingleChildScrollView(
-        child: Container(
-          width: 390,
-          // decoration: BoxDecoration(
-          //   border:Border.all(
-          //     width: 1,
-          //   ),
-          // ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              SizedBox(height: 40,),
-              CallTime(clickedUserDataSet:clickedUserDataSet),
-              SizedBox(height: 33,),
-              CalendarCheck(plans:clickedUserDataSet?['userServiceTripCallingData']['dayPlans']
-                  ,slotChoosen:clickedUserDataSet?['userServiceTripCallingData']['slotsChossen']
-                  ,userStartTime:clickedUserDataSet?['userServiceTripCallingData']['startTimeFrom']
-                  ,userEndTime:clickedUserDataSet?['userServiceTripCallingData']['endTimeTo'],
-                   id:widget.currentUser,userName:clickedUserDataSet?['userName'],userPhoto:clickedUserDataSet?['userPhoto']
-                  ,uName:currentUserDataSet?['userName'],uPhoto:currentUserDataSet?['userPhoto'],id2:widget.clickedUser),
-            ],
+      appBar: AppBar(title: ProfileHeader(reqPage: 1,userId:widget.currentUser,),automaticallyImplyLeading: false,),
+      body: WillPopScope(
+        onWillPop: () async{
+          // Navigator.of(context).pop();
+          return false;
+        },
+        child: SingleChildScrollView(
+          child: Container(
+            width: 390,
+            // decoration: BoxDecoration(
+            //   border:Border.all(
+            //     width: 1,
+            //   ),
+            // ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                SizedBox(height: 40,),
+                CallTime(clickedUserDataSet:clickedUserDataSet),
+                SizedBox(height: 33,),
+                CalendarCheck(plans:clickedUserDataSet?['userServiceTripCallingData']['dayPlans']
+                    ,slotChoosen:clickedUserDataSet?['userServiceTripCallingData']['slotsChossen']
+                    ,userStartTime:clickedUserDataSet?['userServiceTripCallingData']['startTimeFrom']
+                    ,userEndTime:clickedUserDataSet?['userServiceTripCallingData']['endTimeTo'],
+                     id:widget.currentUser,userName:clickedUserDataSet?['userName'],userPhoto:clickedUserDataSet?['userPhoto']
+                    ,uName:currentUserDataSet?['userName'],uPhoto:currentUserDataSet?['userPhoto'],id2:widget.clickedUser),
+              ],
+            ),
           ),
         ),
       ),
@@ -229,10 +236,19 @@ class _CalendarCheckState extends State<CalendarCheck>{
                 deviceWidth: screenWidth*0.60,
                 onDateSelected: widget.slotChoosen=='choice_1'?((DateTime? newDate) {
                   setState(() {
-                    String cmp = getThreeLetterMonth(newDate!.month);
-                    selectedDate = ('${newDate?.day}/${cmp.toUpperCase()}');
-                    sendDate = ('${newDate?.day}/${cmp}/${newDate!.year}');
-                    showCalendar = !showCalendar;
+                    if( newDate!=null){
+                      String cmp = getThreeLetterMonth(newDate!.month);
+                      selectedDate = ('${newDate?.day}/${cmp.toUpperCase()}');
+                      sendDate = ('${newDate?.day}/${cmp}/${newDate!.year}');
+                      showCalendar = true;
+                    }
+                    else{
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please select a date.'),
+                        ),
+                      );
+                    }
                     print('Selected: ${newDate}');
                   });
                 })
@@ -280,7 +296,7 @@ class _CalendarCheckState extends State<CalendarCheck>{
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => CalendarHelper(plans:widget.plans,choosenDate:sendDate!,startTime:widget.userStartTime!,endTime:widget.userEndTime!,slotChossen: widget.slotChoosen!,date:selectedDate!),
+                            builder: (context) => CalendarHelper(userName:widget.userName,plans:widget.plans,choosenDate:sendDate!,startTime:widget.userStartTime!,endTime:widget.userEndTime!,slotChossen: widget.slotChoosen!,date:selectedDate!),
                           ),
                         );
                       },
@@ -300,7 +316,7 @@ class _CalendarCheckState extends State<CalendarCheck>{
             )
             :SizedBox(height: 0,),
             SizedBox(height: 20,),
-            TimeSet(setDate:sendDate,userStartTime:widget.userStartTime,userEndTime:widget.userEndTime,plans:widget.plans,id:widget.id,id2:widget.id2,userName:widget.userName,userPhoto:widget.userPhoto,user2Name:widget.uName,user2Photo:widget.uPhoto),
+            TimeSet(slotChoosen:widget.slotChoosen,selectedDate:selectedDate,setDate:sendDate,userStartTime:widget.userStartTime,userEndTime:widget.userEndTime,plans:widget.plans,id:widget.id,id2:widget.id2,userName:widget.userName,userPhoto:widget.userPhoto,user2Name:widget.uName,user2Photo:widget.uPhoto),
         ],
       ),
     );
@@ -375,10 +391,10 @@ class CustomDOBDropDown extends StatelessWidget{
 
 
 class TimeSet extends StatefulWidget{
-  String? setDate,userStartTime,userEndTime,userName,userPhoto,user2Name,user2Photo;
+  String? setDate,userStartTime,userEndTime,userName,userPhoto,user2Name,user2Photo,slotChoosen,selectedDate;
   Map<String,dynamic>? plans;
   String?id,id2;
-  TimeSet({this.setDate,this.userEndTime,this.userStartTime,this.plans,this.id,this.userName,this.userPhoto,this.user2Name,this.user2Photo,this.id2});
+  TimeSet({this.slotChoosen,this.selectedDate,this.setDate,this.userEndTime,this.userStartTime,this.plans,this.id,this.userName,this.userPhoto,this.user2Name,this.user2Photo,this.id2});
   @override
   _TimeSetState createState() => _TimeSetState();
 }
@@ -394,7 +410,7 @@ class _TimeSetState extends State<TimeSet>{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
-        'userId':widget.id,
+        'userId':widget.id2,
         'chosenDate':widget.setDate ,
         'chosenStartTime':startTime,
         'chosenEndTime':endTime,
@@ -414,13 +430,28 @@ class _TimeSetState extends State<TimeSet>{
         if(!responseData['isOverlap']){
           print('Very Good');
           showDialog(context: context, builder: (BuildContext context){
-            return Container(child: CustomHelpOverlay(imagePath: 'assets/images/request_call_sent.png',text:'Pings',navigate:'pings',helper:widget.id),);
+            return Container(child: CustomHelpOverlay(imagePath: 'assets/images/request_call_sent.png',text:'Pings',navigate:'pings',helper:widget.id,helper2:widget.user2Name,onBackPressed: (){
+              print(widget.user2Name);
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => HomePage(userId: widget.id,userName: widget.user2Name,),
+                ),
+              );
+            },),);
           },
           );
           saveMeetingSchedule();
         }else{
           showDialog(context: context, builder: (BuildContext context){
-            return Container(child: CustomHelpOverlay(imagePath: 'assets/images/request_call_dialog_box.png',text:'Check  User  Calendar',navigate:'calendarhelper',helper:widget.plans),);
+            return Container(child: CustomHelpOverlay(imagePath: 'assets/images/request_call_dialog_box.png',text:'Check  User  Calendar',navigate:'calendarhelper',helper:widget.plans,onButtonPressed: (){
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => CalendarHelper(text:'calendarhelper',plans:widget.plans,choosenDate:widget.setDate!,startTime:widget.userStartTime!,endTime:widget.userEndTime!,slotChossen: widget.slotChoosen,date:widget.selectedDate,userName:widget.userName),
+                ),
+              );
+            },),);
           },
           );
           print('isOverlapping change data');
@@ -621,6 +652,19 @@ class _TimeSetState extends State<TimeSet>{
     return '$hour:$minuteStr $period';
   }
 
+  bool validator(String? time,String title,String? date){
+    if(time!=null && title!='' && date!=null && time!=''){
+      return true;
+    }else{
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Please Compltete Requirement!.'),
+        ),
+      );
+      return false;
+    }
+  }
+
   String addMinutesToTime(String timeString, int minutesToAdd) {
     // Split the input time string into components
     List<String> timeComponents = timeString.split(' ');
@@ -788,7 +832,10 @@ class _TimeSetState extends State<TimeSet>{
               child: FiledButton(
                   backgroundColor: HexColor('#FB8C00'),
                   onPressed: () {
-                    checkSetDate_Time();
+                    print('$startTime,${widget.setDate},${_meetingEditingController.text}');
+                    if(validator(startTime,_meetingEditingController.text,widget.setDate)){
+                      checkSetDate_Time();
+                    }else {}
                   },
                   child: Center(
                       child: Text('Request Call',

@@ -471,7 +471,7 @@ class _LocationEditorState extends State<LocationEditor> {
 // ReqPage : 0 -> User Details : shows all saved data of user during profile form filling
 class UserDetailsTable extends StatelessWidget {
   String? place = null,profession = null,age = null,gender = null;
-  List<String>? languageList = [];
+  List<dynamic>? languageList;
   UserDetailsTable({this.place,this.profession,this.age,
     this.gender,this.languageList});
   @override

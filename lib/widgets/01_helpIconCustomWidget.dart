@@ -22,93 +22,104 @@ String? globalEndTime;
 String? globalSlots;
 
 class CustomHelpOverlay extends StatelessWidget {
-  final VoidCallback? onButtonPressed;
+  final VoidCallback? onButtonPressed,onBackPressed;
   final String imagePath;
   bool? serviceSettings=false;
   String?text,navigate;
-  final helper;
+  final helper,helper2;
   final ProfileDataProvider? profileDataProvider;
-  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.helper,this.onButtonPressed});
+  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.helper,this.helper2,this.onButtonPressed,this.onBackPressed});
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    return Container(
-      child: Stack(
-        children: [
-          BackdropFilter(
-            filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-            child: Container(
-              color: Colors.grey.withOpacity(0),
-            ),
-          ),
-          Center(
-            child: Container(
-              padding: EdgeInsets.all(20.0),
-              width: screenWidth*0.90,
-              height: 315,
-              // child: Align(
-              //   alignment: Alignment.topRight,
-              //   child: ElevatedButton(
-              //     onPressed: () {
-              //       Navigator.of(context).pop();
-              //     },
-              //     child: (Icon(Icons.crop_sharp)),
-              //   ),
-              // ),
-
+    return WillPopScope(
+      onWillPop: ()async{
+        if(navigate=='pings'){
+          onBackPressed!();
+        }else
+          print(1);
+        return true;
+      },
+      child: Container(
+        child: Stack(
+          children: [
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
               child: Container(
-                child: Stack(
-                  children: [
-                    Center(child: Image.asset(imagePath,width: 361,height: 281,fit: BoxFit.contain,),),
-                    Positioned(
-                      top: 15,
-                      right: 15,
-                      child:navigate=='pings'
-                        ?SizedBox(width: 0,)
-                        : IconButton(
-                        icon: Icon(Icons.close),
-                        onPressed: (){
-                          Navigator.of(context).pop();
-                        },
+                color: Colors.grey.withOpacity(0),
+              ),
+            ),
+            Center(
+              child: Container(
+                padding: EdgeInsets.all(20.0),
+                width: screenWidth*0.90,
+                height: 315,
+                // child: Align(
+                //   alignment: Alignment.topRight,
+                //   child: ElevatedButton(
+                //     onPressed: () {
+                //       Navigator.of(context).pop();
+                //     },
+                //     child: (Icon(Icons.crop_sharp)),
+                //   ),
+                // ),
+
+                child: Container(
+                  child: Stack(
+                    children: [
+                      Center(child: Image.asset(imagePath,width: 361,height: 281,fit: BoxFit.contain,),),
+                      Positioned(
+                        top: 15,
+                        right: 15,
+                        child:navigate=='pings'
+                          ?SizedBox(width: 0,)
+                          : IconButton(
+                          icon: Icon(Icons.close),
+                          onPressed: (){
+                            Navigator.of(context).pop();
+                          },
+                        ),
                       ),
-                    ),
-                    if (text!=null) Container(
-                      height: 250,
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: GestureDetector(
-                            onTap: (){
-                              if(navigate=='calendarhelper')
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> CalendarHelper(plans:helper!)));
-                              else if(navigate=='pings')
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> PingsSection(userId: helper!,)));
-                              else if(navigate=='pop'){
-                                  print(1);
-                                  onButtonPressed!();
-                              }
-                            },
-                            child: Text(text!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
-                      ),
-                    ) else SizedBox(width: 0,),
-                    if (serviceSettings==true) Container(
+                      if (text!=null) Container(
                         height: 250,
                         child: Align(
                           alignment: Alignment.bottomCenter,
                           child: GestureDetector(
                               onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(profileDataProvider:profileDataProvider)));
+                                if(navigate=='calendarhelper'){
+                                  print(2);
+                                  onButtonPressed!();
+                                }
+                                else if(navigate=='pings')
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> PingsSection(userId: helper!,userName:helper2!,text:'meetingPings')));
+                                else if(navigate=='pop'){
+                                    print(1);
+                                    onButtonPressed!();
+                                }
                               },
-                              child: Text('Continue',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
+                              child: Text(text!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
                         ),
-                      ) else SizedBox(width: 0,)
-                  ],
+                      ) else SizedBox(width: 0,),
+                      if (serviceSettings==true) Container(
+                          height: 250,
+                          child: Align(
+                            alignment: Alignment.bottomCenter,
+                            child: GestureDetector(
+                                onTap: (){
+                                  Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(profileDataProvider:profileDataProvider)));
+                                },
+                                child: Text('Continue',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
+                          ),
+                        ) else SizedBox(width: 0,)
+                    ],
+                  ),
                 ),
+
+
               ),
-
-
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

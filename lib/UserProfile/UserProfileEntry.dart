@@ -100,22 +100,16 @@ class _ProfilePageState extends State<ProfilePage> {
           backgroundColor: Colors.transparent, // Make the background transparent
         ),
       ),
-      body: WillPopScope(
-        onWillPop: ()async{
-          Navigator.of(context).pop();
-          return true;
-        },
-        child: SingleChildScrollView(
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),
-              widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
-              SizedBox(height: 17,),
-              CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,name:widget.userName),
-              UserInformationSection(reqPage:widget.reqPage,profileDataProvider:widget.profileDataProvider,userName:widget.userName,userId:widget.userId),
-            ],
-          ),
+      body: SingleChildScrollView(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),
+            widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
+            SizedBox(height: 17,),
+            CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,name:widget.userName),
+            UserInformationSection(reqPage:widget.reqPage,profileDataProvider:widget.profileDataProvider,userName:widget.userName,userId:widget.userId),
+          ],
         ),
       ),
     );

@@ -95,40 +95,46 @@ class _FinalProfileState extends State<FinalProfile> {
             backgroundColor: Colors.transparent, // Make the background transparent
           ),
         ),
-        body: SingleChildScrollView(
-          child: Container(
-            padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
-            child: Center(
-              child: Column(
-                // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),
-                  SizedBox(height: 20,),
-                  CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
-                  SizedBox(height: 20,),
-                  MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,state:'final'),
-                  SizedBox(height: 30,),
-                  ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
-                  SizedBox(height: 40,),
-                  Container(
-                    width: 360,
-                    child: Center(
-                      child: UserDetailsTable(place:dataset != null ? dataset!['userPlace'] : null,
-                        profession:dataset != null ? dataset!['userProfession'] : null,
-                        age:dataset != null ? dataset!['userAge'] : null,
-                        gender:dataset != null ? dataset!['userGender'] : null,
-                        languageList:dataset != null ? dataset!['userLanguages'] : null,
+        body: WillPopScope(
+          onWillPop: ()async{
+            Navigator.of(context).pop();
+            return true;
+          },
+          child: SingleChildScrollView(
+            child: Container(
+              padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
+              child: Center(
+                child: Column(
+                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),
+                    SizedBox(height: 20,),
+                    CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
+                    SizedBox(height: 20,),
+                    MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,state:'final'),
+                    SizedBox(height: 30,),
+                    ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
+                    SizedBox(height: 40,),
+                    Container(
+                      width: 360,
+                      child: Center(
+                        child: UserDetailsTable(place:dataset != null ? dataset!['userPlace'] : null,
+                          profession:dataset != null ? dataset!['userProfession'] : null,
+                          age:dataset != null ? dataset!['userAge'] : null,
+                          gender:dataset != null ? dataset!['userGender'] : null,
+                          languageList:dataset != null ? dataset!['userLanguages'] : null,
+                        ),
                       ),
                     ),
-                  ),
-                  SizedBox(height: 40,),
-                  ExpertCardDetails(),
-                  SizedBox(height: 40,),
-                  dataset?['userServiceTripCallingData'] != null?TripCalling(data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
-                  SizedBox(height: 50,),
-                  RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName'])
-                ],
+                    SizedBox(height: 40,),
+                    ExpertCardDetails(),
+                    SizedBox(height: 40,),
+                    dataset?['userServiceTripCallingData'] != null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
+                    SizedBox(height: 50,),
+                    RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName'])
+                  ],
+                ),
               ),
             ),
           ),
@@ -142,9 +148,9 @@ class _FinalProfileState extends State<FinalProfile> {
 // Services Selected By User -> Its Data || Currently Trip Calling Is Available
 class TripCalling extends StatefulWidget{
   final  ServiceTripCallingData? data;
-  final String? currentUserId , actualUserId;
+  final String? currentUserId , actualUserId,name;
   Map<String, dynamic>? plans;
-  TripCalling({this.data,this.actualUserId,this.currentUserId,this.plans});
+  TripCalling({this.data,this.actualUserId,this.currentUserId,this.plans,this.name});
   @override
   _TripCallingState createState() => _TripCallingState();
 }
@@ -165,7 +171,7 @@ class _TripCallingState extends State<TripCalling>{
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text('Hemant’s provided avilable time for trip planning interaction calls -',
+            Text('${widget.name}’s provided avilable time for trip planning interaction calls -',
               style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
             Container(
               width: 331,
@@ -245,10 +251,9 @@ class _TripCallingState extends State<TripCalling>{
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CalendarHelper(plans:widget.plans,startTime:widget.data?.setStartTime ,endTime: widget.data?.setEndTime,slotChossen: widget.data?.slots,),
+                          builder: (context) => CalendarHelper(userName:widget.name,plans:widget.plans,startTime:widget.data?.setStartTime ,endTime: widget.data?.setEndTime,slotChossen: widget.data?.slots,),
                         ),
                       );
-
                     },
                     child: Center(child: Text('Schedual Requests',style: TextStyle(fontSize: 13,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'),fontFamily: 'Poppins'),)))
                 )

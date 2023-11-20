@@ -27,6 +27,7 @@ router.post("/checkMeetingTime", async (req, res) => {
 
     const meetStartTimes = meetDayPlan.meetStartTime;
     const meetEndTimes = meetDayPlan.meetEndTime;
+    const meetingStatus = meetDayPlan.meetingStatus;
 
     // Convert chosen time to 24-hour format
     const convertTo24Hour = (time) => {
@@ -39,28 +40,42 @@ router.post("/checkMeetingTime", async (req, res) => {
     const chosenStart24 = convertTo24Hour(chosenStartTime);
     const chosenEnd24 = convertTo24Hour(chosenEndTime);
 
-    // Check for time overlap
-    for (let i = 0; i < meetStartTimes.length; i++) {
-      const existingStartTime24 = convertTo24Hour(meetStartTimes[i]);
-      const existingEndTime24 = convertTo24Hour(meetEndTimes[i]);
-
-      if (
-        (chosenStart24 <= existingEndTime24 && chosenStart24 >= existingStartTime24) ||
-        (chosenEnd24 >= existingStartTime24 && chosenEnd24 <= existingEndTime24)
-      ) {
-        return res.status(200).json({ isOverlap: true });
-      }
+    // Function to add 10 minutes to a given time
+    function add10Minutes(time) {
+      const [hours, minutes] = time.split(':').map(Number);
+      const totalMinutes = hours * 60 + minutes + 10;
+      const newHours = Math.floor(totalMinutes / 60) % 24;
+      const newMinutes = totalMinutes % 60;
+      return `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
     }
 
-    const userPrefferedStartTime = convertTo24Hour(user2.userServiceTripCallingData.startTimeFrom);
-    const userPrefferedEndTime = convertTo24Hour(user2.userServiceTripCallingData.endTimeTo);
+    // Function to subtract 10 minutes from a given time
+    function subtract10Minutes(time) {
+      const [hours, minutes] = time.split(':').map(Number);
+      const totalMinutes = hours * 60 + minutes - 10;
+      const newHours = (totalMinutes < 0 ? 24 + Math.floor(totalMinutes / 60) : Math.floor(totalMinutes / 60)) % 24;
+      const newMinutes = (totalMinutes + 1440) % 60; // Ensure positive minutes
+      return `${String(newHours).padStart(2, '0')}:${String(newMinutes).padStart(2, '0')}`;
+    }
 
-    if (!((chosenStart24 <= userPrefferedEndTime && chosenStart24 >= userPrefferedStartTime) ||
-        (chosenEnd24 >= userPrefferedStartTime && chosenEnd24 <= userPrefferedEndTime))) {
-        return res.status(200).json({ isOverlap: true });
-      }
+    // Check for time overlap with existing meetings and 10-minute gaps
+    for (let i = 0; i < meetStartTimes.length; i++) {
+    if(meetingStatus[i]!='close' && meetingStatus[i]!='cancel'){
+          const existingStartTime24 = subtract10Minutes(convertTo24Hour(meetStartTimes[i]));
+          const existingEndTime24 = add10Minutes(convertTo24Hour(meetEndTimes[i]));
+    //      console.log(subtract10Minutes(existingStartTime24),add10Minutes(existingEndTime24));
+          // Check if chosen time overlaps with existing meetings
+          if (
+            (chosenStart24 <= existingEndTime24 && chosenStart24 >= existingStartTime24) ||
+            (chosenEnd24 >= existingStartTime24 && chosenEnd24 <= existingEndTime24)
+          ) {
+            return res.status(200).json({ isOverlap: true, message: "Meeting time overlaps with existing meetings." });
+          }
+          }
+    }
     // No overlap found, return false
     res.status(200).json({ isOverlap: false });
+
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Internal server error" });
