@@ -323,7 +323,7 @@ class _FourthPageState extends State<FourthPage> {
                         print('Location: $fetchedLocation');
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => HomePage(userName:widget.userName,userId:userId,phoneNumber:widget.phoneNumber,latitude:latitude,longitude:longitude,token:token)),
+                          MaterialPageRoute(builder: (context) => HomePage()),
                         );
                       },
                       child: Center(

@@ -40,7 +40,7 @@ class _CalendarHelperState  extends State<CalendarHelper>{
         List<dynamic> value = parsedData[key]['meetingStatus'];
         print(value);
         for (int index=0;index<value.length;index++){
-          if(value[index]!='close'){
+          if(value[index]!='close' && value[index]!='closed'){
             meetStartTimes.add(parsedData[key]['meetStartTime'][index]);
             meetEndTimes.add(parsedData[key]['meetEndTime'][index]);
           }

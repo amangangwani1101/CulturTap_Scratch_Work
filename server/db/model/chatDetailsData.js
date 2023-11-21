@@ -6,7 +6,10 @@ const feedbackSchema = new mongoose.Schema({
     },
     info:{
         type:String,
-    }
+    },
+    companyInfo:{
+        type:String,
+    },
 });
 const chatDetailsSchema = new mongoose.Schema({
     sendersId : {
@@ -36,6 +39,7 @@ const chatDetailsSchema = new mongoose.Schema({
     receiversFeedback:{
         type:feedbackSchema,
     },
+
 });
 
 const chatHistory = new mongoose.model('chatHistory',chatDetailsSchema);

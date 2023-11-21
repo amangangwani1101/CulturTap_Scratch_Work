@@ -17,8 +17,9 @@ class ProfileHeader extends StatefulWidget {
   final int reqPage;
   final String? imagePath;
   final String? userId,text,userName;
+  final VoidCallback? onButtonPressed;
   ProfileDataProvider?profileDataProvider;
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.userName});
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.userName,this.onButtonPressed});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -79,6 +80,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   if(widget.text=='calendar' || widget.text=='calendarhelper') {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
+                  }
+                  else if(widget.text=='chats'){
+                    widget.onButtonPressed!();
                   }
                   else if(widget.text=='meetingPings'){
                     print('${widget.userName!}');

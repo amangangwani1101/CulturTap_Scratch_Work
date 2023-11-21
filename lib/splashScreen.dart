@@ -39,7 +39,7 @@ class _splashScreenState extends State<splashScreen>{
       String userId = userData['userMongoId'];
       Navigator.push(
         context,
-        MaterialPageRoute(builder: (context) => HomePage(userName: userName,userId: userId,)),
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
     }
     else {

@@ -14,6 +14,7 @@ import '../../UserProfile/FinalUserProfile.dart';
 import '../../UserProfile/ProfileHeader.dart';
 // import '../../rating.dart';
 import '../../widgets/CustomButton.dart';
+import '../../widgets/CustomDialogBox.dart';
 import '../../widgets/hexColor.dart';
 import '../TripCalling/ChatSection/ChatSection.dart';
 // void main(){
@@ -52,8 +53,9 @@ class _PingSectionState extends State<PingsSection>{
   @override
   void initState() {
     super.initState();
-    fetchDatasets(widget.userId);
+    // fetchDatasets(widget.userId);
     initialHandler();
+    callback();
   }
 
 
@@ -162,7 +164,7 @@ class _PingSectionState extends State<PingsSection>{
     return days[dayName - 1]; // Adjust to index of days array (0 for Monday, 6 for Sunday)
   }
 
-  String _selectedValue = 'All';
+  String _selectedValue = 'Pending';
 
   void _updateSelectedValue(String newValue) {
     setState(() {
@@ -227,6 +229,81 @@ class _PingSectionState extends State<PingsSection>{
     String phoneNumber =  randomDigits;
 
     return phoneNumber;
+  }
+
+  void checkStatus(String date,int index,String receiver,String sender,String receiverName,String status) async{
+    try{
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'userId': sender,
+        'date':date,
+        'index':index,
+      };
+      print(data);
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/checkStatus'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Ama ${responseData['status']}');
+        if(responseData['status']!=status){
+        showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ConfirmationDialog(
+                message:'Are You Sure To Cancel Meet With ${receiverName} Scheduled At ${date}',
+                onCancel: () {
+                  // Perform action on confirmation
+                  Navigator.of(context).pop(); // Close the dialog
+                  // Add your action here
+                  print('Action cancelled');
+                },
+                onConfirm: () {
+                  cancelMeeting(date, index, 'cancel', receiver, 'cancel');
+                  // Perform action on cancellation
+                  // Add your action here
+                  print('Action confirmed');
+                },
+              );});
+        callback();
+      }else{
+          if(status=='choose' && responseData['status']=='choose'){
+            cancelMeeting(date, index, 'pending', receiver, 'accept');
+          }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Meeting Is Cancelled! Refresh Page'),
+          ),
+        );
+        callback();
+      }
+
+
+      print('$date,$index');
+    }
+    else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Unable to Update.Try Again!'),
+          ),
+        );
+        print('Failed to save data: ${response.statusCode}');
+        return;
+      }
+    }catch(err){
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Unable to Update.Try Again!'),
+        ),
+      );
+      print('Error:$err');
+      return ;
+    }
   }
 
 
@@ -441,7 +518,7 @@ class _PingSectionState extends State<PingsSection>{
                             (_selectedValue == 'Pending' && meetStatus =='pending')||
                             (_selectedValue == 'Closed' && meetStatus =='close')||
                             (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
-                            _selectedValue =='All')
+                            _selectedValue =='All' && meetStatus!='closed')
                             ? Container(
                               padding: EdgeInsets.only(top:10,bottom:20),
 
@@ -641,8 +718,8 @@ class _PingSectionState extends State<PingsSection>{
                                   ),
                                   (meetStatus=='pending' && meetType=='sender')
                                   ?InkWell(
-                                      onTap: (){
-                                        cancelMeeting(date,index,'cancel',userId,'cancel');
+                                      onTap: ()  {
+                                        checkStatus(date,index,userId,widget.userId,userName,'cancel');
                                         print('$date,$index');
                                       },
                                       child: Container(width:screenWidth*0.72,child: Center(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)),))
@@ -657,14 +734,14 @@ class _PingSectionState extends State<PingsSection>{
                                       children: [
                                         InkWell(
                                             onTap: (){
-                                              cancelMeeting(date,index,'cancel',userId,'cancel');
+                                              checkStatus(date,index,userId,widget.userId,userName,'cancel');
                                               print('$date,$index');
                                             },
                                             child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
                                         SizedBox(width: screenWidth*0.17,),
                                         InkWell(
                                             onTap: (){
-                                              cancelMeeting(date,index,'pending',userId,'accept');
+                                              checkStatus(date, index, userId, widget.userId, userName, 'choose');
                                               print('$date,$index');
                                             },
                                             child: Container(child: Text('Accept',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
@@ -679,7 +756,7 @@ class _PingSectionState extends State<PingsSection>{
                                       children: [
                                         InkWell(
                                             onTap: (){
-                                              cancelMeeting(date,index,'cancel',userId,'cancel');
+                                              checkStatus(date,index,userId,widget.userId,userName,'cancel');
                                               print('$date,$index');
                                             },
                                             child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
@@ -987,13 +1064,14 @@ class _RateFeedBackState extends State<RateFeedBack>{
   }
 
 
-  void updateMeetingFeedback(String meetingId,int rating,String info,String type,String userId,int index,String date)async{
+  void updateMeetingFeedback(String meetingId,int rating,String info,String type,String userId,int index,String date,String info2)async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
         'meetId': meetingId,
         'rating':rating,
         'info':info,
+        'companyInfo':info2,
         'type':type,
       };
       print('PPPPP::$data');
@@ -1008,6 +1086,7 @@ class _RateFeedBackState extends State<RateFeedBack>{
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print(responseData);
+        widget.pingsCallback!();
       } else {
         print('Failed to save data: ${response.statusCode}');
       }
@@ -1043,7 +1122,7 @@ class _RateFeedBackState extends State<RateFeedBack>{
   }
 
   int rating = 0;
-  String textValue = '';
+  String textValue = '',textValue2='';
   @override
   Widget build(BuildContext context) {
 
@@ -1208,7 +1287,7 @@ class _RateFeedBackState extends State<RateFeedBack>{
                 Container(
                   // decoration: BoxDecoration(border:Border.all(width: 1)),
                   width: screenWidth<400?screenWidth*0.80:370,
-                  height: 309,
+                  height: 333,
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -1250,17 +1329,19 @@ class _RateFeedBackState extends State<RateFeedBack>{
                         ),
                       ),
                       Container(
-                        height: 185,
+                        height: widget.meetType=='sender'?156:185,
                         child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                             Container(
+                                padding:EdgeInsets.only(top: widget.meetType=='sender'?23:0),
                                 width: screenWidth<400?screenWidth*0.80:370,
                                 child: Text('Additional Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)),
-                            SizedBox(
+                            Container(
+                              color: HexColor('#E9EAEB'),
                               width: screenWidth<400?screenWidth*0.80:370,
-                              height: 152,
+                              height: widget.meetType=='sender'?104:152,
                               child: TextField(
                                 style: TextStyle(fontSize: 16,),
                                 onChanged: (value) {
@@ -1273,15 +1354,61 @@ class _RateFeedBackState extends State<RateFeedBack>{
                               maxLines: 5, // Increase the maxLines for a larger text area
                               ),
                             ),
+
                         ],
                         ),
                       ),
+                      widget.meetType=='sender'?SizedBox(height: 5,):SizedBox(height: 0,),
+                      widget.meetType=='sender'
+                      ?Container(
+                        height: 1,
+                        decoration: BoxDecoration(
+                          border: Border.all(
+                            color: Colors.black
+                          ),
+                        ),
+                      )
+                      :SizedBox(height: 0,),
+                      widget.meetType=='sender'?SizedBox(height: 5,):SizedBox(height: 0,),
+                      widget.meetType=='sender'
+                      ?Container(
+                        height: 102,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                                width: screenWidth<400?screenWidth*0.80:370,
+                                height: 21,
+                                child: Text('Wanna say something to Culturtap ?',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)),
+                            SizedBox(height: 10,),
+                            Container(
+                              color: HexColor('#E9EAEB'),
+                              width: screenWidth<400?screenWidth*0.80:370,
+                              height: 70,
+                              child: TextField(
+                                style: TextStyle(fontSize: 16,),
+                                onChanged: (value) {
+                                  textValue2 = value;
+                                },
+                                decoration: InputDecoration(
+                                  hintText: 'Type here........',
+                                  border: OutlineInputBorder(),
+                                ),
+                                maxLines: 5, // Increase the maxLines for a larger text area
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      )
+                      :SizedBox(height: 0,),
                     ],
                   ),
                 ),
               ],
             ),
-            SizedBox(height:90),
+            widget.meetType=='sender'?SizedBox(height: 30,):SizedBox(height: 90,),
             Container(
               width: screenWidth<400?screenWidth*0.80:370,
               height: 55,
@@ -1289,14 +1416,14 @@ class _RateFeedBackState extends State<RateFeedBack>{
                   backgroundColor: HexColor('#FB8C00'),
                   onPressed: () {
                     print('${widget.meetId},${widget.meetType}');
-                    updateMeetingFeedback(widget.meetId!,rating,textValue,widget.meetType!,widget.userId!,widget.index!,widget.date!);
+                    updateMeetingFeedback(widget.meetId!,rating,textValue,widget.meetType!,widget.userId!,widget.index!,widget.date!,textValue2);
                     // Navigator.push(
                     //   context,
                     //   MaterialPageRoute(
                     //     builder: (context) => HomePage(userId: widget.userId,userName: widget.userName,),
                     //   ),
                     // );
-                    widget.pingsCallback!();
+
                     Navigator.of(context).pop();
                   },
                   child: Center(

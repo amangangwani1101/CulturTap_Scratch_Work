@@ -33,85 +33,97 @@ class _ChatAppsState extends State<ChatApps> {
   late Timer meetingTimer;
   String senderNavigatorId = 'sender';
   String receiverNavigatorId = 'receiver';
-  int meetingTime =3;
+  int meetingTime =6;
   late Duration meetingDuration = Duration(minutes: meetingTime); // Set your meeting duration
   Duration remainingTime = Duration();
   late Timer countdownTimer;
   late Timer alertTimer;
   late RTCPeerConnection _peerConnection;
   late MediaStream _localStream;
-
+  late Timer _timer;
+  Duration _remainingTime = Duration();
+  bool _isUiEnabled = true;
   // late Timer _timer;
   // int _start = 180;   // 2 minutes in seconds
   bool dispalyHi = true;
+  VoidCallback? onButtonPressed;
   @override
   void initState() {
     super.initState();
 
-    // Connect to your server
-    socket = IO.io(serverUrl, <String, dynamic>{
-      'transports': ['websocket'],
-      'autoConnect': true,
-    });
-    startMeetingTimer();
-    // startTimer();
-    if(widget.senderId!='')
-      fetchDataFromSharedPreferences(senderNavigatorId);
-    else
-      fetchDataFromSharedPreferences(receiverNavigatorId);
-    try {
-      socket.connect();
+    print('Meeting : ${widget.meetingId}');
+    print('CurrentTime : ${widget.currentTime}');
+    if (widget.currentTime != null && widget.currentTime!.isAfter(DateTime.now())) {
+      // DateTime is greater than current time, start the countdown
+      startCountdown();
+    }else{
+      // Connect to your server
+      _isUiEnabled = false;
       print('Hello 1');
-    } catch (e) {
-      print('Error connecting to the server: $e');
-      // Handle the error, e.g., display an error message to the user
+      socket = IO.io(serverUrl, <String, dynamic>{
+        'transports': ['websocket'],
+        'autoConnect': true,
+      });
+      startMeetingTimer();
+      if(widget.senderId!='')
+        fetchDataFromSharedPreferences(senderNavigatorId);
+      else
+        fetchDataFromSharedPreferences(receiverNavigatorId);
+      try {
+        socket.connect();
+        print('Hello 1');
+      } catch (e) {
+        print('Error connecting to the server: $e');
+        // Handle the error, e.g., display an error message to the user
+      }
+
+      // Listen for incoming messages
+      socket.on('message', (data) {
+        // Handle 'data' based on your requirements
+        print('Received: ${data}');
+        // Extract sender or other relevant information from 'data'
+        setState(() {
+          messages.add([data['message'],data['user']]);
+          if(data['user']=='sender')
+            sender.add(data['message']);
+          else
+            receiver.add(data['message']);
+          print(messages);
+        });
+      });
+
+      // Emit 'join' event with uniqueIdentifier, senderId, receiverId, and meetingId
+      socket.emit('join', {widget.meetingId, widget.senderId, widget.receiverId});
+
+      // Listen for 'roomNotFound' event to handle cases where the user is not allowed
+      socket.on('roomNotFound', (message) {
+        print('Room not found: $message');
+        // Handle the case where the user is not allowed to enter the room
+        // You can display an error message and navigate the user out of this screen.
+      });
+
+      // callng functionality
+      // Listen for signaling messages
+      socket.on('offer', (data) {
+        print('Step2');
+        // final se = data['offer'];
+        print('sss:$data');
+        // Handle incoming offer
+        handleOffer(data['offer'], data['callerId']);
+      });
+
+      socket.on('answer', (data) {
+        // Handle incoming answer
+        print('Data:$data');
+        handleAnswer(data['answer']);
+      });
+
+      socket.on('iceCandidate', (data) {
+        // Handle incoming ICE candidates
+        handleIceCandidate(data['candidate']);
+      });
     }
 
-    // Listen for incoming messages
-    socket.on('message', (data) {
-      // Handle 'data' based on your requirements
-      print('Received: ${data}');
-      // Extract sender or other relevant information from 'data'
-      setState(() {
-        messages.add([data['message'],data['user']]);
-        if(data['user']=='sender')
-            sender.add(data['message']);
-        else
-          receiver.add(data['message']);
-        print(messages);
-      });
-    });
-
-    // Emit 'join' event with uniqueIdentifier, senderId, receiverId, and meetingId
-    socket.emit('join', {widget.meetingId, widget.senderId, widget.receiverId});
-
-    // Listen for 'roomNotFound' event to handle cases where the user is not allowed
-    socket.on('roomNotFound', (message) {
-      print('Room not found: $message');
-      // Handle the case where the user is not allowed to enter the room
-      // You can display an error message and navigate the user out of this screen.
-    });
-
-    // callng functionality
-    // Listen for signaling messages
-    socket.on('offer', (data) {
-      print('Step2');
-      // final se = data['offer'];
-      print('sss:$data');
-      // Handle incoming offer
-      handleOffer(data['offer'], data['callerId']);
-    });
-
-    socket.on('answer', (data) {
-      // Handle incoming answer
-      print('Data:$data');
-      handleAnswer(data['answer']);
-    });
-
-    socket.on('iceCandidate', (data) {
-      // Handle incoming ICE candidates
-      handleIceCandidate(data['candidate']);
-    });
   }
 
   void storeDataLocally(userNavigatorId) async{
@@ -173,6 +185,8 @@ class _ChatAppsState extends State<ChatApps> {
     }
   }
 
+
+
   void updateMeetingChats(String meetId)async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
@@ -209,9 +223,38 @@ class _ChatAppsState extends State<ChatApps> {
     });
   }
 
+  Future<void> _refreshPage() async {
+    // Add your data fetching logic here
+    // For example, you can fetch new data from an API
+    await Future.delayed(Duration(seconds: 2));
+    // Update the UI with new data if needed
+    Navigator.of(context).pop();
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) => ChatApps(senderId:widget.senderId,receiverId:widget.receiverId,meetingId:widget.meetingId,date:widget.date,index:widget.index,currentTime:widget.currentTime),
+      ),
+    );
+  }
+
+  void startCountdown() {
+    _remainingTime = widget.currentTime!.difference(DateTime.now());
+
+    _timer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        _remainingTime = widget.currentTime!.difference(DateTime.now());
+
+        if (_remainingTime.inSeconds <= 0) {
+          _timer.cancel();
+          // Time has reached zero, update UI accordingly
+          _refreshPage();
+          // ... Perform actions when the countdown reaches zero ...
+        }
+      });
+    });
+  }
+
   void startMeetingTimer() {
-
-
     countdownTimer = Timer.periodic(Duration(seconds: 1), (timer) {
       updateRemainingTime();
       print(remainingTime);
@@ -276,12 +319,16 @@ class _ChatAppsState extends State<ChatApps> {
     // Navigate to the end screen after the meeting ends
     updateMeetingChats(widget.meetingId);
     cancelMeeting(widget.date!,widget.index!,'close',widget.receiverId==''?widget.senderId:widget.receiverId,'close');
-    showMeetingEndedAlert();
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (context) => PingsSection(userId: widget.senderId==''?widget.receiverId:widget.senderId,)),
-    );
+    // showMeetingEndedAlert();
+    Navigator.of(context).pop();
+    Navigator.of(context).pop(); 
+    // Navigator.of(context).pop();
+    // Navigator.pushReplacement(
+    //   context,
+    //   MaterialPageRoute(builder: (context) => PingsSection(userId: widget.senderId==''?widget.receiverId:widget.senderId,)),
+    // );
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -294,148 +341,173 @@ class _ChatAppsState extends State<ChatApps> {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 5,userId:widget.senderId!=''?widget.senderId:widget.receiverId),),
-        body: Column(
-            children: <Widget>[
-              InkWell(onTap:(){
-                if(widget.senderId!='')
-                  storeDataLocally(senderNavigatorId);
-                else
-                  storeDataLocally(receiverNavigatorId);
-                Navigator.of(context).pop();
-              },child: Text('Back')),
-              SizedBox(height: 20,),
-              Container(
-                height: 120,
-                child: Row(
-                  children: [
-                    SizedBox(width: 35,),
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text('Get Connected With \nCustomer',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,),),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text('You Can Chat or Talk',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
-                          ],
-                        ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Image.asset('assets/images/clock.png',width: 22,height: 22,color: Colors.green,),
-                            SizedBox(width: 10,),
-                            Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            SizedBox(height: 20,),
-            messages.length==0
-            ?Container(
-              width: screenWidth<400?screenWidth*0.85:336,
-              height: 134,
-              decoration: BoxDecoration(
-                color: Colors.white, // Container background color
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.5), // Shadow color
-                    spreadRadius: 5, // Spread radius
-                    blurRadius: 7, // Blur radius
-                    offset: Offset(0, 3), // Changes the position of the shadow
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Text('Say Hi!',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,fontFamily: 'Poppins'),),
-                  Text('You have 20 min, to discuss and \nplan your next trip',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                ],
-              ),
-            )
-            : Expanded(
-              child: Row(
-                children: [
-                  SizedBox(width: 20,),
-                  Container(
-                    width: screenWidth<400?screenWidth*0.92:400,
-                    // decoration: BoxDecoration(border:Border.all(width: 1)),
-                    child: ListView.builder(
-                      itemCount: messages.length,
-                      itemBuilder: (context, index) {
-                        return ListTile(
-                          title:messages[index][1]=='sender'
-                                  ?widget.senderId!=''
-                                  ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#FB8C00').withOpacity(0.8)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.white),)))
-                                  :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#FB8C00').withOpacity(0.8)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.white),)))
-                                  :widget.senderId==''
-                               ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#FB8C00').withOpacity(0.8)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.white),)))
-                               :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#FB8C00').withOpacity(0.8)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.white),))),
-                        );
-                      },
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
+        appBar: AppBar(title: ProfileHeader(reqPage: 5,text:'chats',userId:widget.senderId!=''?widget.senderId:widget.receiverId,onButtonPressed:(){
+          if(_isUiEnabled!=true){
+            if(widget.senderId!='')
+              storeDataLocally(senderNavigatorId);
+            else
+              storeDataLocally(receiverNavigatorId);
+          }
+          Navigator.of(context).pop();
+        }),),
+        body: WillPopScope(
+          onWillPop: ()async{
+            if(_isUiEnabled!=true){
+              if(widget.senderId!='')
+                storeDataLocally(senderNavigatorId);
+              else
+                storeDataLocally(receiverNavigatorId);
+            }
+            Navigator.of(context).pop();
+            return true;
+          },
+          child: Column(
+              children: <Widget>[
                 Container(
-                  width: screenWidth<400?screenWidth*0.70:320,
-                  height: 58,
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: HexColor('#F2F2F2'),
-                  ),
+                  height: 120,
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: <Widget>[
-                      SizedBox(width: 30,),
-                      Expanded(
-                        child: TextField(
-                          controller: _controller,
-                          decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
-                        ),
+                children: [
+                  SizedBox(width: 45,),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text('Get Connected With \nCustomer',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,),),
+                        ],
                       ),
-                      IconButton(
-                        icon: Icon(Icons.send),
-                        onPressed: _handleSend,
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Text('You Can Chat or Talk',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                        ],
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: [
+                          Image.asset('assets/images/clock.png',width: 22,height: 22,color: _isUiEnabled?Colors.red:Colors.green,),
+                          SizedBox(width: 10,),
+                          _isUiEnabled
+                              ?Text(
+                            '${_remainingTime.inDays<=0?'':_remainingTime.inDays}Day, ${(_remainingTime.inHours % 24)<=0?'':(_remainingTime.inHours % 24)}Hours ${(_remainingTime.inMinutes % 60)<=0?'':(_remainingTime.inMinutes % 60)}Min ${(_remainingTime.inSeconds % 60)<=0?'':(_remainingTime.inSeconds % 60)}Sec Remaning',
+                            style: TextStyle(fontSize: 16, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.red),
+                          )
+                              : Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                        ],
                       ),
                     ],
                   ),
+                ],
+              ),
                 ),
-                SizedBox(width: 5,),
-                Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: HexColor('#F2F2F2')),
-                  child: IconButton(
-                    icon: Icon(Icons.call),
-                    // onPressed:initiateVideoCall,
-                    onPressed: startCall,
+              SizedBox(height: 20,),
+              messages.length==0 && !_isUiEnabled
+              ?Expanded(
+                child: Column(
+                  children: [
+                    Container(
+                      width: screenWidth<450?screenWidth*0.85:336,
+                      height: 134,
+                      decoration: BoxDecoration(
+                        color: Colors.white, // Container background color
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5), // Shadow color
+                            spreadRadius: 5, // Spread radius
+                            blurRadius: 7, // Blur radius
+                            offset: Offset(0, 3), // Changes the position of the shadow
+                          ),
+                        ],
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text('Say Hi!',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,fontFamily: 'Poppins'),),
+                          Text('You have 20 min, to discuss and \nplan your next trip',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              )
+              :!_isUiEnabled
+                ? Expanded(
+                child: Row(
+                  children: [
+                    SizedBox(width: 20,),
+                    Container(
+                      width: screenWidth<450?screenWidth*0.92:400,
+                      // decoration: BoxDecoration(border:Border.all(width: 1)),
+                      child: ListView.builder(
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title:messages[index][1]=='sender'
+                                    ?widget.senderId!=''
+                                    ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                    :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                    :widget.senderId==''
+                                 ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                 :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),))),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              )
+                :Expanded(child: SizedBox(height: 10,)),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  Container(
+                    width: screenWidth<400?screenWidth*0.70:320,
+                    height: 58,
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2'),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: <Widget>[
+                        SizedBox(width: 30,),
+                        Expanded(
+                          child: TextField(
+                            controller: _controller,
+                            decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
+                          ),
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.send),
+                          onPressed: !_isUiEnabled ? _handleSend : null,
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                SizedBox(width: 5,),
-                Container(
-                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: HexColor('#F2F2F2')),
-                  child: IconButton(
-                    icon: Icon(Icons.videocam),
-                    // onPressed:initiateVideoCall,
-                    onPressed: (){},
+                  SizedBox(width: 5,),
+                  Container(
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+                    child: IconButton(
+                      icon: Icon(Icons.call),
+                      // onPressed:initiateVideoCall,
+                      onPressed: !_isUiEnabled ? startCall : null,
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                  SizedBox(width: 5,),
+                  Container(
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+                    child: IconButton(
+                      icon: Icon(Icons.videocam),
+                      // onPressed:initiateVideoCall,
+                      onPressed: (){},
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

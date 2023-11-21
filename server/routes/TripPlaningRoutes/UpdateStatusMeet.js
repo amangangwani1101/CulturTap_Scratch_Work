@@ -91,6 +91,19 @@ router.patch("/closeMeeting", async (req, res) => {
   }
 });
 
+//check status of meet
+router.patch("/checkStatus", async (req, res) => {
+    const {userId,date,index} = req.body;
+    try {
+      const user = await ProfileData.findById(userId).lean();
+      let st = user.userServiceTripCallingData.dayPlans[date].meetingStatus[index];
+      res.status(200).json({status:st});
+    } catch (error) {
+      console.error("Error fetching data:", error);
+      res.status(500).json({ message: "Internal server error" });
+    }
+});
+
 // Firebase Cloud Function
 const sendNotificationFunction = functions.https.onCall(async (data, context) => {
 

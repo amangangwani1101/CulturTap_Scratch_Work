@@ -94,7 +94,7 @@ router.patch('/storeMeetingConversation', async (req, res) => {
 //update feedback meeting
 router.patch("/updateMeetingFeedback", async (req, res) => {
     try{
-        const { meetId,rating,info,type} = req.body;
+        const { meetId,rating,info,type,companyInfo} = req.body;
 
         const meet = await MeetingsData.findById(meetId);
 
@@ -107,10 +107,12 @@ router.patch("/updateMeetingFeedback", async (req, res) => {
                 meet.sendersFeedback = {
                     rating:null,
                     info:null,
+                    companyInfo:null,
                 }
             }
             meet.sendersFeedback.rating = rating;
             meet.sendersFeedback.info = info;
+            meet.sendersFeedback.companyInfo = companyInfo;
         }
         else{
             if(!meet.receiversFeedback){

@@ -47,7 +47,7 @@ class _OtpScreenState extends State<OtpScreen>{
         String userId = userData['userMongoId'];
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => HomePage(userName: userName,userId: userId,)),
+          MaterialPageRoute(builder: (context) => HomePage()),
         );
       }
       else{

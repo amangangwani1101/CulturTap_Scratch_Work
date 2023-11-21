@@ -17,8 +17,8 @@ import '../../../widgets/CustomButton.dart';
 import './CalendarHelper.dart';
 
 void main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  // WidgetsFlutterBinding.ensureInitialized();
+  // await Firebase.initializeApp();
   runApp(ChangeNotifierProvider(
     create:(context) => ProfileDataProvider(),
     child: ProfileApps(),
@@ -36,7 +36,7 @@ class ProfileApps  extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
         useMaterial3: true,
       ),
-      home: CalendarPage(clickedUser: '655558c9bbfaf0599da445e9',currentUser: Constant().receiversId,),
+      home: CalendarPage(clickedUser: '652bb97a2310b75ec11cd2ed',currentUser: '652a31f77ff9b6023a14838a',),
       debugShowCheckedModeBanner: false,
     );
   }
