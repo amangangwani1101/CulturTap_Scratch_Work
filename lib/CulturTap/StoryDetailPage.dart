@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
+import 'package:http/http.dart' as http;
 
 class StoryDetailPage extends StatefulWidget {
   final List<String> storyUrls;
@@ -20,25 +21,15 @@ class StoryDetailPage extends StatefulWidget {
 class _StoryDetailPageState extends State<StoryDetailPage> {
   late PageController _pageController;
   int _currentIndex = 0;
-
-  late ChewieController _chewieController;
+   ChewieController? _chewieController;
   late VideoPlayerController _videoPlayerController;
 
   @override
   void initState() {
     super.initState();
-
-    _initializeData();
-
-  }
-
-  Future<void> _initializeData() async {
-
     _pageController = PageController(initialPage: widget.initialIndex);
     _currentIndex = widget.initialIndex;
-
     _initializeVideoPlayer();
-
     _videoPlayerController.addListener(() {
       if (_videoPlayerController.value.isPlaying &&
           _videoPlayerController.value.position ==
@@ -47,70 +38,107 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       }
     });
   }
+  Future<void> _initializeVideoPlayer() async {
+    List<String> videoPaths = widget.storyDetailsList[_currentIndex]["videoPaths"];
+    print('videoPaths in storyDetailsPage $videoPaths');
+    String initialVideoPath = videoPaths.first;
 
-  void _initializeVideoPlayer() {
-    _videoPlayerController = VideoPlayerController.network(
-      widget.storyUrls[_currentIndex],
-    );
+    // Construct the full video URL based on your server URL and video path
+    String fullVideoUrl = 'http://173.212.193.109:8080/videos$initialVideoPath';
+
+    _videoPlayerController = VideoPlayerController.network(fullVideoUrl);
+
+    // Fetch the first video in the list initially
+    await _fetchAndPlayVideo(initialVideoPath);
+
+    // Wait for the video to initialize
+    await _videoPlayerController.initialize();
 
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
+      placeholder: Container(
+        color: Colors.grey,
+      ),
       autoPlay: true,
       looping: false,
       allowMuting: false,
       allowedScreenSleep: false,
       showControls: true,
     );
+
+    setState(() {});
   }
+
+  Future<void> _fetchAndPlayVideo(String videoPath) async {
+    String fullVideoUrl = 'http://173.212.193.109:8080/videos/$videoPath';
+    print('this is the video url $fullVideoUrl');
+
+    var response = await http.get(Uri.parse(fullVideoUrl));
+
+    if (response.statusCode == 200) {
+      // Dispose the old controllers before creating new ones
+      _videoPlayerController.dispose();
+      _chewieController?.dispose();
+
+      // Create new controllers
+      _videoPlayerController = VideoPlayerController.network(fullVideoUrl);
+      await _videoPlayerController.initialize();
+
+      _chewieController = ChewieController(
+        videoPlayerController: _videoPlayerController,
+        placeholder: Container(
+          color: Colors.grey,
+        ),
+        autoPlay: true,
+        looping: false,
+        allowMuting: false,
+        allowedScreenSleep: false,
+        showControls: true,
+      );
+
+      // Update the state to reflect the new video
+      setState(() {});
+    } else {
+      // Handle errors, e.g., video not found, server error, etc.
+      print('Failed to fetch video: ${response.statusCode}');
+    }
+  }
+
 
   void _playNextVideo() {
     if (_currentIndex < widget.storyUrls.length - 1) {
+      _videoPlayerController.dispose();
+      _chewieController?.dispose();
+      _initializeVideoPlayer();
       setState(() {
         _currentIndex++;
       });
 
-      _videoPlayerController.dispose();
-      _initializeVideoPlayer();
-    }
-  }
 
-  void _playPreviousVideo() {
-    if (_currentIndex > 0) {
-      setState(() {
-        _currentIndex--;
-      });
-
-      _videoPlayerController.dispose();
-      _initializeVideoPlayer();
     }
   }
 
   @override
   void dispose() {
     _videoPlayerController.dispose();
-    _chewieController.dispose();
+    // Check if _chewieController is initialized before disposing
+    if (_chewieController != null) {
+      _chewieController?.dispose();
+    }
     super.dispose();
   }
 
-  @override
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: GestureDetector(
         onTapUp: (details) {
-          // Get the width of the screen
           double screenWidth = MediaQuery.of(context).size.width;
-
-          // Calculate the tap position relative to the screen width
           double tapPosition = details.globalPosition.dx / screenWidth;
 
-          // If tapped on the right side, play the next video; if tapped on the left side, play the previous video
           if (tapPosition > 0.5) {
             print('Tapped on the right side');
             _playNextVideo();
-          } else {
-            print('Tapped on the left side');
-            _playPreviousVideo();
           }
         },
         child: PageView.builder(
@@ -120,6 +148,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
             setState(() {
               _currentIndex = index;
             });
+            _videoPlayerController.dispose();
+            _initializeVideoPlayer();
           },
           itemBuilder: (context, index) {
             return buildStoryPage(
@@ -132,23 +162,25 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     );
   }
 
-
-
   Widget buildStoryPage(String videoUrl, Map<String, dynamic> storyDetails) {
     return ListView(
       children: [
         GestureDetector(
-          onTap: () {
-            // Toggle play/pause on video tap
-            if (_videoPlayerController.value.isPlaying) {
-              _videoPlayerController.pause();
-            } else {
-              _videoPlayerController.play();
+          onTapUp: (details) {
+            double screenWidth = MediaQuery.of(context).size.width;
+            double tapPosition = details.globalPosition.dx / screenWidth;
+
+            if (tapPosition > 0.5) {
+              print('right side tapped');
+              _playNextVideo();
             }
           },
           child: Chewie(
-            controller: _chewieController,
+            controller: _chewieController ?? ChewieController(
+              videoPlayerController: _videoPlayerController,
+            ),
           ),
+
         ),
         Container(
           padding: EdgeInsets.all(16),

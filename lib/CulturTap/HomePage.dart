@@ -119,7 +119,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
 
   bool isLoading = true;
-  List<Map<String, dynamic>> storyDetailsList = [];
+
 
 
 
@@ -136,12 +136,14 @@ class _HomePageState extends State<HomePage> {
       final fetchedStoryList = await fetchDataForStories(latitude, longitude, apiEndpoint);
 
 
-
+      List<Map<String, dynamic>> storyDetailsList = [];
       List<String> totalVideoPaths = [];
       List<String> totalVideoCounts = [];
       List<String> storyDistances = [];
       List<String> storyLocations = [];
       List<String> storyCategories = [];
+
+
 
 
 
@@ -205,7 +207,8 @@ class _HomePageState extends State<HomePage> {
           storyCategories.add(storyCategory);
 
 
-          categoryData[categoryIndex]['storyDetailsList'].add(storyDetails);
+          storyDetailsList.add(storyDetails);
+          print('storyDetailsList $storyDetailsList');
           // print('printing story details');
           // print(categoryData[categoryIndex]['storyDetailsList']);
 
@@ -222,6 +225,7 @@ class _HomePageState extends State<HomePage> {
       categoryData[categoryIndex]['storyLocation'] = storyLocations;
       categoryData[categoryIndex]['storyCategory'] = storyCategories;
       categoryData[categoryIndex]['storyDetailsList'] = storyDetailsList;
+
 
       // Refresh the UI to reflect the changes
       setState(() {
@@ -277,7 +281,7 @@ class _HomePageState extends State<HomePage> {
 
 
 
-  Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyCategory) {
+  Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList) {
     // Check if the category has videos
     if (storyUrls.isEmpty || storyDistance.isEmpty) {
       // Don't display anything for categories with no videos
@@ -512,10 +516,11 @@ class _HomePageState extends State<HomePage> {
                 final List<String> storyDistance = category['storyDistance'];
                 final List<String> storyLocation = category['storyLocation'];
                 final List<String> storyCategory = category['storyCategory'];
+                List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
 
 
 
-                return buildCategorySection(specificCategoryName, categoryName, storyUrls, videoCounts, storyDistance, storyLocation, storyCategory);
+                return buildCategorySection(specificCategoryName, categoryName, storyUrls, videoCounts, storyDistance, storyLocation, storyCategory, storyDetailsList);
               }).toList(),
             ),
             ]
