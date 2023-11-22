@@ -25,7 +25,7 @@ class Receiver extends StatefulWidget{
 }
 
 class _ReceiverState extends State<Receiver>{
-  String id = '652bb97a2310b75ec11cd2ed';
+  String id = '65581291f46f5794689c1ffd';
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -35,7 +35,7 @@ class _ReceiverState extends State<Receiver>{
       ),
       home:Scaffold(
       // debugShowCheckedModeBanner: false,
-      body : PingsSection(userId:id),
+      body : PingsSection(userId:id,state: 'All',),
     ),
       debugShowCheckedModeBanner: false,
     );

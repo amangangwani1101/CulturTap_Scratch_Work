@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
@@ -251,7 +252,7 @@ class _TripCallingState extends State<TripCalling>{
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CalendarHelper(userName:widget.name,plans:widget.plans,startTime:widget.data?.setStartTime ,endTime: widget.data?.setEndTime,slotChossen: widget.data?.slots,),
+                          builder: (context) => PingsSection(userId:widget.currentUserId!,state:'pending'),
                         ),
                       );
                     },

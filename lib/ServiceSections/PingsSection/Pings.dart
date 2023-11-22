@@ -41,14 +41,15 @@ class PingsDataStore{
 
 class PingsSection extends StatefulWidget{
   String userId;
-  String?text,userName;
-  PingsSection({required this.userId,this.text,this.userName});
+  String?text,userName,state;
+  PingsSection({required this.userId,this.text,this.userName,this.state});
   @override
   _PingSectionState createState() => _PingSectionState();
 }
 
 class _PingSectionState extends State<PingsSection>{
   late PingsDataStore pingsDataStore;
+  VoidCallback? callbacker;
   bool isLoading = true; // Add a boolean flag to indicate loading state
   @override
   void initState() {
@@ -92,7 +93,7 @@ class _PingSectionState extends State<PingsSection>{
       print('Failed to fetch dataset: ${response.statusCode}');
     }
   }
-  Future<void> _refreshPage({int time = 2}) async {
+  Future<void> _refreshPage({int time = 2,String state = 'All'}) async {
     // Add your data fetching logic here
     // For example, you can fetch new data from an API
     await Future.delayed(Duration(seconds: time));
@@ -101,6 +102,7 @@ class _PingSectionState extends State<PingsSection>{
       // Update your data
       // otherUserId= '652d671b59966d1623532468';
       isLoading = true;
+      widget.state = state;
       fetchDatasets(widget.userId);
     });
   }
@@ -164,11 +166,11 @@ class _PingSectionState extends State<PingsSection>{
     return days[dayName - 1]; // Adjust to index of days array (0 for Monday, 6 for Sunday)
   }
 
-  String _selectedValue = 'Pending';
+  String? _selectedValue;
 
   void _updateSelectedValue(String newValue) {
     setState(() {
-      _selectedValue = newValue;
+      widget.state = newValue;
     });
   }
   bool toggle = true;
@@ -267,20 +269,24 @@ class _PingSectionState extends State<PingsSection>{
                   cancelMeeting(date, index, 'cancel', receiver, 'cancel');
                   // Perform action on cancellation
                   // Add your action here
+                  _refreshPage(time:0,state:'Cancelled');
                   print('Action confirmed');
                 },
               );});
-        callback();
+
       }else{
           if(status=='choose' && responseData['status']=='choose'){
             cancelMeeting(date, index, 'pending', receiver, 'accept');
+            _refreshPage(time:0,state:'Pending');
           }
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Meeting Is Cancelled! Refresh Page'),
-          ),
-        );
-        callback();
+          else{
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text('Meeting Is Cancelled! Refresh Page'),
+              ),
+            );
+          }
+
       }
 
 
@@ -307,10 +313,12 @@ class _PingSectionState extends State<PingsSection>{
   }
 
 
+
   @override
   Widget build(BuildContext context) {
+    _selectedValue = widget.state!=null?widget.state:'All';
     final screenWidth = MediaQuery.of(context).size.width;
-
+    // callback();
     return WillPopScope(
       onWillPop: ()async{
         if(widget.text=='meetingPings'){
@@ -325,7 +333,7 @@ class _PingSectionState extends State<PingsSection>{
       },
       child: Scaffold(
 
-          appBar: AppBar(title: ProfileHeader(reqPage: 1,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,),
+          appBar: AppBar(title: ProfileHeader(reqPage: 8 ,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,),
       body: !isLoading
           ? RefreshIndicator(
             onRefresh: ()=>_refreshPage(),
@@ -334,6 +342,7 @@ class _PingSectionState extends State<PingsSection>{
           width: screenWidth,
           child: Column(
               children: [
+                // ProfileHeader(reqPage: 0),
                 SizedBox(height: 40,),
                 Center(
                   child: Container(
@@ -474,6 +483,7 @@ class _PingSectionState extends State<PingsSection>{
                                 }).toList(),
                                 onChanged: (String? newValue) {
                                   if (newValue != null) {
+                                    print(':::');
                                     _updateSelectedValue(newValue);
                                   }
                                 },
@@ -518,7 +528,7 @@ class _PingSectionState extends State<PingsSection>{
                             (_selectedValue == 'Pending' && meetStatus =='pending')||
                             (_selectedValue == 'Closed' && meetStatus =='close')||
                             (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
-                            _selectedValue =='All' && meetStatus!='closed')
+                            _selectedValue =='All')
                             ? Container(
                               padding: EdgeInsets.only(top:10,bottom:20),
 
@@ -765,6 +775,7 @@ class _PingSectionState extends State<PingsSection>{
                                             onTap: (){
                                               paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
                                               cancelMeeting(date,index,'schedule',userId,'schedule');
+                                              _refreshPage(time:0,state:'Scheduled');
                                               print('$date,$index');
                                             },
                                             child: Container(child: Text('Unlock Calendar',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
@@ -777,7 +788,7 @@ class _PingSectionState extends State<PingsSection>{
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) => ScheduledCalendar(date:date,userId:widget.userId,meetDetails:meetDetails,index:index),
+                                          builder: (context) => ScheduledCalendar(date:date,userId:widget.userId,meetDetails:meetDetails,index:index,callbacker:()=>_refreshPage(time:0,state: 'Closed')),
                                         ),
                                       );
                                     },
@@ -844,8 +855,9 @@ class _PingSectionState extends State<PingsSection>{
 class ScheduledCalendar extends StatefulWidget {
   String date,userId;
   dynamic meetDetails;
+  VoidCallback? callbacker;
   int index;
-  ScheduledCalendar({required this.date,required this.userId,required this.meetDetails,required this.index});
+  ScheduledCalendar({required this.date,required this.userId,required this.meetDetails,required this.index,this.callbacker});
   @override
   _ScheduledCalendarState createState() =>  _ScheduledCalendarState();
 }
@@ -982,13 +994,13 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
                                         ? Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => ChatApps(senderId:userId,receiverId:'',meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
+                                        builder: (context) => ChatApps(callbacker:widget.callbacker,senderId:userId,receiverId:'',meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
                                       ),
                                     )
                                         :Navigator.push(
                                       context,
                                       MaterialPageRoute(
-                                        builder: (context) => ChatApps(senderId:'',receiverId:userId,meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
+                                        builder: (context) => ChatApps(callbacker:widget.callbacker,senderId:'',receiverId:userId,meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
                                       ),
                                     );
                                   },

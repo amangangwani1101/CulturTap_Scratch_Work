@@ -63,6 +63,51 @@ class _OtpScreenState extends State<OtpScreen>{
     }
   }
 
+  void verifyNumber() {
+    auth.verifyPhoneNumber(
+      phoneNumber: widget.phoneNumber,
+      verificationCompleted: (PhoneAuthCredential credential) async {
+        await auth.signInWithCredential(credential).then((value) {
+          print("You are logged in successfully");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpScreen(userName:widget.userName,phoneNumber:widget.phoneNumber),
+            ),
+          );
+        });
+      },
+      verificationFailed: (FirebaseAuthException exception) {
+        if(exception.code=='invalid-phone-number'){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Phone Number is invalid.'),
+            ),
+          );
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Something Went Wrong!'),
+            ),
+          );
+        }
+        print(exception.message);
+      },
+      codeSent: (String verificationID, int? resendToken) {
+        setState(() {
+          widget.otp = verificationID;
+          print("verification id recieved" + '${widget.otp}');
+          // registerUser();
+        });
+      },
+      codeAutoRetrievalTimeout: (String verificationID) {
+        setState(() {
+          widget.otp = verificationID;
+        });
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context){
 

@@ -229,7 +229,7 @@ class _SecondPageState extends State<SecondPage> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => OtpScreen(userName:widget.userName,phoneNumber:widget.phoneNumberController.text),
+              builder: (context) => OtpScreen(userName:widget.userName,phoneNumber:_selectedCountryCode + widget.phoneNumberController.text),
             ),
           );
         });
@@ -260,7 +260,7 @@ class _SecondPageState extends State<SecondPage> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OtpScreen(otp: verificationIDReceived,userName:widget.userName,phoneNumber:widget.phoneNumberController.text),
+            builder: (context) => OtpScreen(otp: verificationIDReceived,userName:widget.userName,phoneNumber:_selectedCountryCode + widget.phoneNumberController.text),
           ),
         );
       },
