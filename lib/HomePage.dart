@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/CulturTap/StoryDetailPage.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
 import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -11,11 +13,51 @@ import 'dart:math';
 import 'dart:convert';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
+import 'package:learn_flutter/SignUp/FirstPage.dart';
+import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
+import 'package:learn_flutter/widgets/Constant.dart';
+import 'package:learn_flutter/widgets/hexColor.dart';
+import 'package:provider/provider.dart';
+import 'package:flutter/rendering.dart';
+import 'BackendStore/BackendStore.dart';
+import 'UserProfile/ProfileHeader.dart';
+import 'UserProfile/UserProfileEntry.dart';
 
 void main() {
   runApp(MyApp());
 }
 
+
+//new stuff
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//inside this
 
 class ImageScroll extends StatelessWidget {
   final List<String> imageUrls = [
@@ -117,8 +159,15 @@ class HomePage extends StatefulWidget {
 
 
 class _HomePageState extends State<HomePage> {
-
+  bool _isVisible = true;
   bool isLoading = true;
+  String userName = '';
+  String userID = '';
+  ScrollController _scrollController = ScrollController();
+
+
+
+
 
 
 
@@ -264,7 +313,8 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
 
 
   @override
@@ -272,99 +322,43 @@ class _HomePageState extends State<HomePage> {
     super.initState();
     requestLocationPermission();
     fetchUserLocationAndData();
+    _scrollController.addListener(() {
+      if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+        setState(() {
+          _isVisible = true;
+        });
+      } else if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+        setState(() {
+          _isVisible = false;
+        });
+      }
+    });
+
   }
+
+  //updated code from here
+
+  Future<void> fetchDataFromMongoDB() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // User is already signed in, navigate to the desired screen
+      var userQuery = await firestore.collection('users').where('uid',isEqualTo:user.uid).limit(1).get();
+
+      var userData = userQuery.docs.first.data();
+      String uName = userData['name'];
+      String uId = userData['userMongoId'];
+      userName = uName;
+      print('userName: $userName');
+      userID =uId;
+      print('userID$userID');
+    }
+  }
+
 
   Future<void> fetchUserLocationAndDataasync() async {
     await fetchUserLocationAndData();
+    print(userName);
     // Any other asynchronous initialization tasks can be added here
-  }
-
-
-
-  Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList) {
-    // Check if the category has videos
-    if (storyUrls.isEmpty || storyDistance.isEmpty) {
-      // Don't display anything for categories with no videos
-      return Column(children: [
-
-
-      ],);
-    }
-
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
-        Padding(
-          padding: EdgeInsets.only(left:18.0,right:18,top:18,bottom:10),
-          child: Column(
-            children: [
-              if (specificCategoryName != null && specificCategoryName.isNotEmpty)
-              Text(
-                specificCategoryName,
-                style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF263238),),
-              ),
-
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    categoryName,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF263238),),
-                  ),
-                  TextButton(
-                    onPressed: () {
-                      // Handle button press for "View All" in the specific category
-                    },
-                    child: Text(
-                      'View All >',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.orange,
-                      ),
-                    ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height: 590,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: storyUrls.length,
-            itemBuilder: (context, index) {
-
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StoryDetailPage(
-                        storyUrls: storyUrls,
-                        storyDetailsList: storyDetailsList,
-                        initialIndex: index,
-                      ),
-                    ),
-                  );
-
-                },
-                child: VideoStoryCard(
-                  videoUrl: storyUrls[index],
-                  distance: storyDistance[index],
-                  videoCount: videoCounts[index],
-                  location : storyLocation[index],
-                  category : storyCategory[index],
-
-                ),
-              );
-            },
-          ),
-        ),
-
-      ],
-    );
   }
 
 
@@ -483,6 +477,10 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> _refreshHomepage() async {
       await fetchUserLocationAndData();
+      fetchDataFromMongoDB();
+
+      print(userName);
+      print(userID);
   }
 
 
@@ -491,206 +489,66 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
-        appBar:CustomAppBar(title: ""),
+        appBar: AppBar(
+          title: ProfileHeader(reqPage: 0, userId: userID),
+          automaticallyImplyLeading: false,
+          backgroundColor: Colors.white,
+          shadowColor: Colors.transparent,
+        ),
         body: RefreshIndicator(
           backgroundColor: Color(0xFF263238),
           color: Colors.orange,
           onRefresh: _refreshHomepage,
-
           child: isLoading
               ? Center(
             child: CircularProgressIndicator(),
           )
-              : ListView(
+              : SingleChildScrollView(
+            controller: _scrollController,
             physics: AlwaysScrollableScrollPhysics(),
-            children: <Widget>[
-              Column(
-              children: categoryData.asMap().entries.map((entry) {
-                final int categoryIndex = entry.key;
-                final Map<String, dynamic> category = entry.value;
+            child: Column(
+              children: <Widget>[
+                // Your other widgets here
+                Column(
+                  children: categoryData.asMap().entries.map((entry) {
+                    final int categoryIndex = entry.key;
+                    final Map<String, dynamic> category = entry.value;
 
-                final String specificCategoryName = category['specificCategoryName'];
-                final String categoryName = category['name'];
-                final List<String> storyUrls = category['storyUrls'];
-                final List<String> videoCounts = category['videoCounts'];
-                final List<String> storyDistance = category['storyDistance'];
-                final List<String> storyLocation = category['storyLocation'];
-                final List<String> storyCategory = category['storyCategory'];
-                List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+                    final String specificCategoryName = category['specificCategoryName'];
+                    final String categoryName = category['name'];
+                    final List<String> storyUrls = category['storyUrls'];
+                    final List<String> videoCounts = category['videoCounts'];
+                    final List<String> storyDistance = category['storyDistance'];
+                    final List<String> storyLocation = category['storyLocation'];
+                    final List<String> storyCategory = category['storyCategory'];
+                    List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
 
-
-
-                return buildCategorySection(specificCategoryName, categoryName, storyUrls, videoCounts, storyDistance, storyLocation, storyCategory, storyDetailsList);
-              }).toList(),
+                    return buildCategorySection(
+                      specificCategoryName,
+                      categoryName,
+                      storyUrls,
+                      videoCounts,
+                      storyDistance,
+                      storyLocation,
+                      storyCategory,
+                      storyDetailsList,
+                    );
+                  }).toList(),
+                ),
+              ],
             ),
-            ]
-
           ),
         ),
-        bottomNavigationBar: CustomFooter(),
+        bottomNavigationBar: AnimatedContainer(
+          duration: Duration(milliseconds: 100),
+          height: _isVisible ? kBottomNavigationBarHeight + 25 : 0.0,
+          child: CustomFooter(userName: userName, userId: userID),
+        ),
       ),
     );
   }
 
-}
 
-
-
-
-
-
-
-
-class VideoStoryCard extends StatelessWidget {
-  final String videoUrl;
-  final String distance; // Change the type to String for distance
-  final String videoCount;
-  final String location;
-  final String category;
-
-
-  VideoStoryCard({required this.videoUrl, required this.distance, required this.videoCount, required this.location, required this.category});
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          height: 500,
-          width: 280,
-          margin: EdgeInsets.all(8),
-          child: Stack(
-            clipBehavior: Clip.none, // Allow children to overflow the container
-            children: [
-              Positioned.fill(
-                child: AspectRatio(
-                  aspectRatio: 9 / 16,
-                  child: ClipRRect(
-                    borderRadius: BorderRadius.circular(10),
-                    child: Image(
-                      image: AssetImage('assets/images/homeimage.png'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-              ),
-              Positioned(
-                top: -8, // Adjust this value to control vertical positioning
-                right: 10, // Adjust this value to control horizontal positioning
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF263238),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.fork_right_rounded,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      Text(
-                        '${distance} km',
-                        style: TextStyle(color: Colors.white),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              Positioned(
-                bottom: -5, // Adjust this value to control vertical positioning
-                right: 10, // Adjust this value to control horizontal positioning
-                child: Container(
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                  decoration: BoxDecoration(
-                    color: Color(0xFF263238),
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    children: [
-                      Icon(
-                        Icons.video_library,
-                        color: Colors.white,
-                        size: 24,
-                      ),
-                      Text(
-                        ' +$videoCount',
-                        style: TextStyle(color: Colors.white,fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-        Container(
-          height:70,
-          width:280,
-          padding:EdgeInsets.all(10),
-          child:Column(children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-              children: [
-                Row(
-                  children: [
-                    Text('Location ',style: TextStyle(fontWeight: FontWeight.bold,  color: Color(0xFF263238),),),
-                    Text(' ${location}',style: TextStyle(color: Color(0xFF263238),),),
-
-                  ],
-                ),
-                Container(
-                  width : 65,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Icon(
-                        Icons.remove_red_eye_sharp,
-                        color: Colors.grey,
-                        size: 24,
-                      ),
-                      Text('89.0K',style: TextStyle(color: Color(0xFF263238),),),
-                    ],
-                  ),
-                ),
-
-
-            ],),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-              children: [
-                Row(
-                  children: [
-                    Text('Category ',style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF263238),),),
-                    Text(' ${category}',style: TextStyle(color: Color(0xFF263238),),),
-                  ],
-                ),
-                Container(
-                  width:65,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-
-                    children: [
-                      Icon(
-                        Icons.heart_broken,
-                        color : Colors.grey,
-                        size: 24,
-                      ),
-                      Text('700.5k',style: TextStyle(color: Color(0xFF263238),),),
-                    ],
-                  ),
-                ),
-
-
-              ],),
-          ],)
-        ),
-      ],
-    );
-  }
 }
 
 

@@ -1,10 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/Utils/location_utils.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/Utils/location_utils.dart';
+import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
+import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
+import 'package:learn_flutter/widgets/Constant.dart';
+import 'package:learn_flutter/widgets/hexColor.dart';
+import 'package:provider/provider.dart';
+import 'package:learn_flutter/BackendStore/BackendStore.dart';
 
 class CustomFooter extends StatefulWidget implements PreferredSizeWidget {
+  final String? userId;
+  final String? userName;
+
+  CustomFooter({this.userId, this.userName});
+
   @override
   _CustomFooterState createState() => _CustomFooterState();
 
@@ -18,6 +29,12 @@ class _CustomFooterState extends State<CustomFooter> {
   Color airplaneIconColor = Color(0xFF263238);
   Color settingsIconColor = Color(0xFF263238);
   Color addIconColor = Color(0xFF263238);
+
+  @override
+  void initState() {
+    super.initState();
+    // You can access userId and userName via widget.userId and widget.userName
+  }
 
   void _changeIconColor(String iconName) {
     setState(() {
@@ -50,12 +67,12 @@ class _CustomFooterState extends State<CustomFooter> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white, // Set the background color to white
+      color: Colors.white,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
           Padding(
-            padding: const EdgeInsets.only(left:10),
+            padding: const EdgeInsets.only(left: 10),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -63,6 +80,15 @@ class _CustomFooterState extends State<CustomFooter> {
                   children: [
                     IconButton(
                       onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChangeNotifierProvider(
+                              create: (context) => ProfileDataProvider(),
+                              child: FinalProfile(userId: widget.userId!, clickedId: widget.userId!),
+                            ),
+                          ),
+                        );
 
                         _changeIconColor('home');
                       },
@@ -97,25 +123,22 @@ class _CustomFooterState extends State<CustomFooter> {
                   ],
                 ),
                 Align(
-                  alignment: Alignment(0.0, 1.0), // Align to the bottom center
+                  alignment: Alignment(0.0, 1.0),
                   child: Transform.translate(
-                    offset: Offset(5, -30.0), // Half of the button's height (60 / 2 = 30)
+                    offset: Offset(5, -30.0),
                     child: SizedBox(
                       width: 80,
                       height: 80,
                       child: ElevatedButton(
-
                         onPressed: () {
-
-
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=>CameraApp()));
+                          Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
                           _changeIconColor('add');
                         },
                         style: ElevatedButton.styleFrom(
                           primary: Colors.white,
                           shape: CircleBorder(),
                         ),
-                        child: Icon(Icons.add, color: addIconColor, size:42,),
+                        child: Icon(Icons.add, color: addIconColor, size: 42),
                       ),
                     ),
                   ),
@@ -124,6 +147,15 @@ class _CustomFooterState extends State<CustomFooter> {
                   children: [
                     IconButton(
                       onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => ChangeNotifierProvider(
+                              create: (context) => ProfileDataProvider(),
+                              child: ProfileApp(userId: widget.userId, userName: widget.userName),
+                            ),
+                          ),
+                        );
                         _changeIconColor('airplane');
                       },
                       icon: Icon(Icons.airplanemode_active, color: airplaneIconColor, size: 30),
@@ -165,7 +197,7 @@ class _CustomFooterState extends State<CustomFooter> {
             ),
           ),
           SizedBox(
-            height: 0, // Adjust the height as needed
+            height: 0,
           ),
         ],
       ),

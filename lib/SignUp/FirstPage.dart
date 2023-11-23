@@ -56,50 +56,6 @@ class _MyHomePageState extends State<MyHomePage> {
   bool validate = false;
 
 
-  // void registerUser() async {
-  //   try {
-  //     // print('userRegistration started');
-  //     final String userName = _textController.text;
-  //     final Map<String, String> regBody = {
-  //       "userName": userName,
-  //     };
-  //
-  //     print('Request Body: $regBody');
-  //
-  //     final String serverUrl = 'http://192.168.85.191:8080';
-  //     // Replace with your server's URL
-  //     final http.Response response = await http.post(
-  //
-  //       Uri.parse('$serverUrl/SignUp'),
-  //       headers: {
-  //         "Content-Type": "application/json",
-  //       },
-  //       body: jsonEncode(regBody),
-  //     );
-  //
-  //     print('response : ');
-  //     print(response);
-  //
-  //     if (response.statusCode == 200) {
-  //       // Request was successful
-  //       print('Response Data: ${response.body}');
-  //
-  //
-  //
-  //     } else {
-  //       // Request failed with a non-200 status code
-  //       print('Request failed with status: ${response.statusCode}');
-  //       print('Response Data: ${response.body}');
-  //     }
-  //   } catch (error) {
-  //     // Handle network or other errors
-  //     print("Error: $error");
-  //   }
-  //
-  //   // print('user registration ended');
-  // }
-
-
 
 
   Widget build(BuildContext context) {

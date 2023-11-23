@@ -1,12 +1,16 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/SignUp/FourthPage.dart';
 import '../CustomItems/CostumAppbar.dart';
+import '../HomePage.dart';
 
 
 class OtpScreen extends StatefulWidget {
-  final String otp;
-  OtpScreen({required this.otp});
+  String? otp;
+  final String userName,phoneNumber;
+
+  OtpScreen({this.otp,required this.userName,required this.phoneNumber});
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
@@ -14,10 +18,7 @@ class OtpScreen extends StatefulWidget {
 
 class _OtpScreenState extends State<OtpScreen>{
   List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
-  List<TextEditingController> _controllers = List.generate(
-    6,
-        (index) => TextEditingController(),
-  );
+  List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController(),);
 
   @override
   void dispose() {
@@ -31,9 +32,40 @@ class _OtpScreenState extends State<OtpScreen>{
   }
 
   FirebaseAuth auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   var otpCodeControlloer = TextEditingController();
+
+
+  void checkUserSaved(String phoneNumber,String userCredId) async {
+
+    try{
+      var userQuery = await firestore.collection('users').where('phoneNo',isEqualTo:int.parse(phoneNumber)).limit(1).get();
+
+      if (userQuery.docs.isNotEmpty) {
+        var userData = userQuery.docs.first.data();
+        String userName = userData['name'];
+        String userId = userData['userMongoId'];
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      }
+      else{
+        print('${widget.userName} , ${widget.phoneNumber} , ${userCredId}');
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
+        );
+      }
+
+    }catch(err){
+      print('Error $err');
+    }
+  }
+
   @override
   Widget build(BuildContext context){
+
     return Scaffold(
       appBar: CustomAppBar(title:""),
       body: Container(
@@ -67,9 +99,9 @@ class _OtpScreenState extends State<OtpScreen>{
 
                     Text('ENTER OTP',
                         style: TextStyle(
-                            fontSize: 24,
-                            color: Colors.black,
-                            fontFamily: 'Poppins',
+                          fontSize: 24,
+                          color: Colors.black,
+                          fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
                         )),
                     Container(
@@ -177,37 +209,48 @@ class _OtpScreenState extends State<OtpScreen>{
   }
 
 
+  late final dynamic authCredential;
+  late String userCredId;  // Declare userCredId here
+  Future<void> verifyCode() async {
 
-  void verifyCode() async {
     print('Received OTP: ${widget.otp}');
     print('User-Entered OTP: ${_controllers.map((controller) => controller.text).join('')}');
-    String OTPP = widget.otp; // Access the OTP passed from the previous page
+    String OTPP = widget.otp!; // Access the OTP passed from the previous page
 
     // Now you can compare it with the OTP entered by the user
-    if (OTPP == _controllers.map((controller) => controller.text).join('')) {
-      // OTPs match, proceed with verification
+    // OTPs match, proceed with verification
+    try{
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: OTPP,
         smsCode: _controllers.map((controller) => controller.text).join(''),
       );
 
-      await auth.signInWithCredential(credential).then((value) {
-        print("you are logged in successfully");
+      authCredential = await auth.signInWithCredential(credential);
 
-        // Navigate to the FourthPage
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => FourthPage()),
+      print("You are logged in successfully");
+      if (authCredential.user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Credentials Error'),
+          ),
         );
-      });
-    } else {
-      // OTPs do not match, handle the error
-      print("OTP does not match");
+        return;
+      }
+      userCredId = authCredential.user.uid;
+      print(userCredId);
+      checkUserSaved(widget.phoneNumber,userCredId);
+      // await auth.signInWithCredential(credential).then((value) {
+      //   print("you are logged in successfully");
+      //   // Navigate to the FourthPage
+
+    } catch(err){
+      print('Error is$err');
     }
   }
-
-
 }
+
+
+
 
 
 class FilledButton extends StatelessWidget {

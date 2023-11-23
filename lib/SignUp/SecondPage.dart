@@ -20,6 +20,8 @@ class _PhoneNumberValidatorState extends State<PhoneNumberValidator> {
     super.dispose();
   }
 
+
+
   @override
   Widget build(BuildContext context) {
     return SecondPage(
@@ -55,62 +57,6 @@ class SecondPage extends StatefulWidget {
 
 
 class _SecondPageState extends State<SecondPage> {
-
-  void registerUser() async {
-    try {
-      final String userName = widget.userName; // Access the userName from the widget
-      final String phoneNumber = widget.phoneNumberController.text; // Assuming you have a phoneNumberController
-
-      final Map<String, String> regBody = {
-        "userName": userName,
-        "phoneNumber": phoneNumber,
-      };
-
-      print('Request Body: $regBody');
-
-
-      const String serverUrl = 'http://192.168.1.176:8080'; // Replace with your server's URL
-
-
-      final http.Response response = await http.post(
-        Uri.parse('$serverUrl/signUp'), // Adjust the endpoint as needed
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode(regBody),
-      );
-
-      print('Response: ${response.statusCode} ${response.reasonPhrase}');
-
-      if (response.statusCode == 200) {
-        // Request was successful
-        Navigator.push(
-          context,
-          MaterialPageRoute(
-            builder: (context) => OtpScreen(otp: verificationIDReceived),
-          ),
-        );
-        print('Response Data: ${response.body}');
-
-        // You can handle the response here as needed, e.g., show a success message or navigate to a new page.
-      } else {
-        // Request failed with a non-200 status code
-        print('Request failed with status: ${response.statusCode}');
-        print('Response Data: ${response.body}');
-
-        // Handle the error here, e.g., show an error message.
-      }
-    } catch (error) {
-      // Handle network or other errors
-      print("Error: $error");
-    }
-  }
-
-
-
-
-
-
   FirebaseAuth auth = FirebaseAuth.instance;
   String verificationIDReceived = "";
   bool _isPhoneNumberValid = true; // Default to true
@@ -253,16 +199,6 @@ class _SecondPageState extends State<SecondPage> {
                           // For verifying the number using Firebase
                           verifyNumber();
                         }
-
-                        setState(() {
-                          _isPhoneNumberValid = isValid;
-                        });
-
-                        if (isValid) {
-                          print('PhoneNumber: $number');
-                          registerUser();
-
-                        }
                       },
                       child: Center(
                         child: Text(
@@ -284,25 +220,55 @@ class _SecondPageState extends State<SecondPage> {
       ),
     );
   }
-
   void verifyNumber() {
     auth.verifyPhoneNumber(
       phoneNumber: _selectedCountryCode + widget.phoneNumberController.text,
       verificationCompleted: (PhoneAuthCredential credential) async {
         await auth.signInWithCredential(credential).then((value) {
           print("You are logged in successfully");
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => OtpScreen(userName:widget.userName,phoneNumber:widget.phoneNumberController.text),
+            ),
+          );
         });
       },
       verificationFailed: (FirebaseAuthException exception) {
+        if(exception.code=='invalid-phone-number'){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Phone Number is invalid.'),
+            ),
+          );
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Something Went Wrong!'),
+            ),
+          );
+        }
         print(exception.message);
       },
       codeSent: (String verificationID, int? resendToken) {
         setState(() {
           verificationIDReceived = verificationID;
+          _isPhoneNumberValid = true;
           print("verification id recieved" + verificationIDReceived);
+          // registerUser();
+        });
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => OtpScreen(otp: verificationIDReceived,userName:widget.userName,phoneNumber:widget.phoneNumberController.text),
+          ),
+        );
+      },
+      codeAutoRetrievalTimeout: (String verificationID) {
+        setState(() {
+          verificationIDReceived = verificationID;
         });
       },
-      codeAutoRetrievalTimeout: (String verificationID) {},
     );
   }
 }

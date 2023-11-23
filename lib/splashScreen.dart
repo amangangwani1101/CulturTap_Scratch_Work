@@ -1,8 +1,14 @@
 import 'dart:async';
+import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/CulturTap/HomePage.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/SignUp/FirstPage.dart';
-import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:http/http.dart' as http;
+import 'dart:io';
+import 'package:flutter/foundation.dart';
 
 class splashScreen extends StatefulWidget {
   @override
@@ -10,17 +16,38 @@ class splashScreen extends StatefulWidget {
 
 }
 class _splashScreenState extends State<splashScreen>{
-
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
   @override
   void initState() {
     super.initState();
 
-    Timer(Duration(seconds: 3), () {
-
-      Navigator.pushReplacement(context, MaterialPageRoute(builder: (context)=>HomePage()));
-
+    WidgetsBinding.instance?.addPostFrameCallback((_) {
+      currentUserStatus();
     });
 
+  }
+
+  void currentUserStatus() async{
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // User is already signed in, navigate to the desired screen
+      var userQuery = await firestore.collection('users').where('uid',isEqualTo:user.uid).limit(1).get();
+
+      var userData = userQuery.docs.first.data();
+      String userName = userData['name'];
+      String userId = userData['userMongoId'];
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    }
+    else {
+      Timer(Duration(seconds: 3), () {
+        Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => FirstPage()));
+      });
+    }
   }
 
   @override
@@ -67,5 +94,3 @@ class _splashScreenState extends State<splashScreen>{
   }
 
 }
-
-

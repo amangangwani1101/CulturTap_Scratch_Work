@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:learn_flutter/CulturTap/HomePage.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 

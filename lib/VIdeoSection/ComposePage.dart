@@ -1,6 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/CulturTap/HomePage.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:geocoding/geocoding.dart';
