@@ -24,7 +24,7 @@ class ProfileHeader extends StatefulWidget {
 }
 class _ProfileHeaderState extends State<ProfileHeader> {
   // notification count will be made dynamic from backend
-  int notificationCount = 0;
+  int notificationCount = 4;
   @override
   Widget build(BuildContext context) {
     print('Use:${widget.userId}');

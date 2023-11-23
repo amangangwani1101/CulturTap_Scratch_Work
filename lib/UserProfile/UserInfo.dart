@@ -1,6 +1,4 @@
 import 'dart:core';
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'package:flutter/cupertino.dart';
@@ -8,7 +6,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/UserProfile/CoverPage.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
-import 'package:path/path.dart';
 import '../widgets/CustomButton.dart';
 import '../widgets/CustomDropDowns.dart';
 import '../widgets/hexColor.dart';
@@ -53,7 +50,7 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
                 width: widget.quote!=null?320:260,
                 child: widget.state=='final'
                   ?Center(
-                    child: Text('${widget.quote==null?'':'" ${widget.quote}"'} ' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),maxLines: 2,overflow: TextOverflow.visible,
+                    child: Text('${widget.quote==null?'':'" ${widget.quote}"'} ' ,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),),maxLines: 2,overflow: TextOverflow.visible,
                   ))
                   :GestureDetector(
                   onTap: (){
@@ -62,14 +59,14 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
                   child:
                   widget.quote!=null
                       ? Center(
-                    child: Text('" ${widget.quote} "' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),maxLines: 2,overflow: TextOverflow.visible,
+                    child: Text('" ${widget.quote} "' ,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),),maxLines: 2,overflow: TextOverflow.visible,
                     ),
                   )
                       : !isQuoteSet?
-                  Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: Color(0xFF263238),fontFamily: 'Poppins',),
+                  Text(setQuote!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,color: Color(0xFF263238),fontFamily: 'Poppins',),
                   ):
                   Center(
-                    child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),maxLines: 2,overflow: TextOverflow.ellipsis,
+                    child: Text(setQuote!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),maxLines: 2,overflow: TextOverflow.ellipsis,
                     ),
                   ),
                 ),
@@ -143,9 +140,9 @@ class _EditQuoteState extends State<EditQuote>{
                       hintText:'Type your quote........',
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.only(top: 20,left: 20, ),
-                      hintStyle: TextStyle(color: Color(0xFF263238),fontSize: 14,fontFamily: 'Poppins'),
+                      hintStyle: TextStyle(color: Color(0xFF263238),fontSize: 16,fontFamily: 'Poppins'),
                     ),
-                    style: TextStyle(color: Color(0xFF263238),fontFamily: 'Poppins',fontSize: 14,),
+                    style: TextStyle(color: Color(0xFF263238),fontFamily: 'Poppins',fontSize: 16,),
                   ),
                 ),
                 Container(
@@ -165,7 +162,7 @@ class _EditQuoteState extends State<EditQuote>{
                               style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
-                                fontSize: 18,)))),
+                                fontSize: 16,)))),
                 ),
               ],
             ),
@@ -236,7 +233,7 @@ class InfoWidget extends StatelessWidget {
         // IconButton(padding: EdgeInsets.zero,onPressed: (){},icon: Icon(icon),),
         Icon(icon,color: Color(0xFF263238),size: 24,),
         SizedBox(height: 2.0),
-        Text(text,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+        Text(text,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
       ],
     );
   }
@@ -323,7 +320,7 @@ class _SignInState extends State<SignIn>{
             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-              Text('Fetch Details From',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+              Text('Fetch Details From',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),),),
               Container(
                 // decoration: BoxDecoration(
                 //   border: Border.all(
@@ -453,7 +450,7 @@ class _LocationEditorState extends State<LocationEditor> {
               height: 61,
               child: Align(
                 alignment: Alignment.bottomCenter,
-                child: Text('Auto-Locate',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: Colors.orange),),
+                child: Text('Auto-Locate',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange),),
               ),
             ),
           ),
@@ -492,28 +489,28 @@ class UserDetailsTable extends StatelessWidget {
         children: [
           Row(
             children: [
-              Text('Place -',style: TextStyle(fontSize: 15,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+              Text('Place -',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),),
               SizedBox(width: 96,),
               Text(place==null?'NA':'${place}',style: TextStyle(fontSize: 15,fontFamily: 'Poppins',color: Color(0xFF263238),),),
             ],
           ),
           Row(
             children: [
-              Text('Profession -',style: TextStyle(fontSize: 15,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+              Text('Profession -',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),),
               SizedBox(width: 58,),
               Text(profession==null?'NA':'${profession}',style: TextStyle(fontSize: 15,fontFamily: 'Poppins',color: Color(0xFF263238),),),
             ],
           ),
           Row(
             children: [
-              Text('Age/Gender -',style: TextStyle(fontSize: 15,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+              Text('Age/Gender -',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),),
               SizedBox(width: 42,),
               Text(age ==null?'NA':'${age} Yr / ${gender}',style: TextStyle(fontSize: 15,fontFamily: 'Poppins',color: Color(0xFF263238),),),
             ],
           ),
           Row(
             children: [
-              Text('Language -',style: TextStyle(fontSize: 15,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+              Text('Language -',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,fontFamily: 'Poppins',color: Color(0xFF263238),),),
               SizedBox(width: 60,),
               Container(
                 child: languageList==null ? Text('NA', style: TextStyle(fontSize: 15,fontFamily: 'Poppins',color: Color(0xFF263238),)):
@@ -529,7 +526,7 @@ class UserDetailsTable extends StatelessWidget {
                               children: [
                                 Text(languageList![i]),
                                 if (i < languageList!.length - 1)
-                                  Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),)),
+                                  Text(',', style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),)),
                               ],
                             ),
                           ),
@@ -718,7 +715,7 @@ class _ProfileFormState extends State<ProfileForm> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Home City',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                Text('Home City',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                 TextField(
                   focusNode: _focusNode,
                   controller: _textController,
@@ -830,7 +827,7 @@ class _ProfileFormState extends State<ProfileForm> {
           ),
           SizedBox(height: 12,),
       // Padding(
-      //   padding: const EdgeInsets.all(14.0),
+      //   padding: const EdgeInsets.all(16.0),
       //   child: Column(
       //     children: [
       //       DropdownButtonFormField(

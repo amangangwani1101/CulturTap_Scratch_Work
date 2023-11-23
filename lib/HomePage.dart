@@ -486,11 +486,12 @@ class _HomePageState extends State<HomePage> {
 
 
   Widget build(BuildContext context) {
+    fetchDataFromMongoDB();
     return WillPopScope(
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
         appBar: AppBar(
-          title: ProfileHeader(reqPage: 0, userId: userID),
+          title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
           automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
           shadowColor: Colors.transparent,
@@ -508,6 +509,7 @@ class _HomePageState extends State<HomePage> {
             physics: AlwaysScrollableScrollPhysics(),
             child: Column(
               children: <Widget>[
+                Container(height : 20),
                 // Your other widgets here
                 Column(
                   children: categoryData.asMap().entries.map((entry) {

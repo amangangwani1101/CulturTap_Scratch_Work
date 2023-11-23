@@ -43,7 +43,7 @@ class _ServiceCardState extends State<ServiceCard>{
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Text(widget.titleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+              Text(widget.titleLabel,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
               IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                 showDialog(context: context, builder: (BuildContext context){
                   return Container(child: CustomHelpOverlay(imagePath: widget.iconImage,serviceSettings: false),);
@@ -70,7 +70,7 @@ class _ServiceCardState extends State<ServiceCard>{
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                      Text(widget.subTitleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                      Text(widget.subTitleLabel,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
                       Container(
                         child: RichText(
                           text: TextSpan(
@@ -81,7 +81,7 @@ class _ServiceCardState extends State<ServiceCard>{
                               ),
                               TextSpan(
                                 text: ' 500 INR',
-                                style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.green),
+                                style: TextStyle(fontFamily: 'Poppins',fontSize: 16,color: Colors.green),
                               ),
                               TextSpan(
                                   text: '\nper Call'

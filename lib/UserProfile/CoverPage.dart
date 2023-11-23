@@ -123,7 +123,7 @@ class _UserImageState extends State<UserImage>{
                                 ),
                               ),
                               Text('Add your cover'),
-                              Text('Expereince via video here !',style: TextStyle(fontSize: 14,color: Color(0xFF263238),fontFamily: 'Poppins'),
+                              Text('Expereince via video here !',style: TextStyle(fontSize: 18,color: Color(0xFF263238),fontFamily: 'Poppins'),
                               ),
                             ],
                           ),
@@ -229,7 +229,7 @@ class _UserImageState extends State<UserImage>{
                   widget.name!=null?widget.name!:'', // Replace with actual user name
                   style: TextStyle(
                     color: Color(0xFF263238),
-                    fontSize: 16,
+                    fontSize: 18,
                     fontWeight: FontWeight.w900,
                     fontFamily: 'Poppins',
                   ),
@@ -312,7 +312,7 @@ class _UploadMethodsState extends State<UploadMethods> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Upload',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),decoration: TextDecoration.none,),),
+                              Text('Upload',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),decoration: TextDecoration.none,),),
                               Icon(Icons.arrow_forward_rounded,color: Color(0xFF263238),),
                             ],
                           ),
@@ -339,7 +339,7 @@ class _UploadMethodsState extends State<UploadMethods> {
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              Text('Open Camera',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),decoration: TextDecoration.none,),),
+                              Text('Open Camera',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),decoration: TextDecoration.none,),),
                               Icon(Icons.arrow_forward_rounded,color: Color(0xFF263238),),
                             ],
                           ),

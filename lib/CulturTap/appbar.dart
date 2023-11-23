@@ -3,17 +3,13 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-// import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
-
+import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 
 import '../BackendStore/BackendStore.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
-
-import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
-
-import 'package:provider/provider.dart';
-import 'package:learn_flutter/BackendStore/BackendStore.dart';
+import '../widgets/hexColor.dart';
 
 
 // AppBar Section
@@ -29,71 +25,63 @@ class ProfileHeader extends StatefulWidget {
 }
 class _ProfileHeaderState extends State<ProfileHeader> {
   // notification count will be made dynamic from backend
-  int notificationCount = 0;
+  int notificationCount = 4;
   @override
   Widget build(BuildContext context) {
     print('Use:${widget.userId}');
-    return Container(
-      // decoration: BoxDecoration(
-      //   border: Border.all(
-      //     color: Colors.red,
-      //     width: 2,
-      //   ),
-      // ),
-      height: 105,
-      padding:EdgeInsets.only(top : 25),
-      // padding: EdgeInsets.only(top: 35.0,left: 15.0,right: 15.0,bottom:15.0),
+    return Center(
+      child: Container(
+        padding: EdgeInsets.only(top: 16,left: 20,right: 20),
+        // decoration: BoxDecoration(
+        //   border: Border.all(
+        //     color: Colors.red,
+        //     width: 2,
+        //   ),
+        // ),
+        height: 90,
+        // width: 320,
+        // margin: EdgeInsets.only(top: 33.0,left:36.0,right: 34.0),
 
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          widget.reqPage<1?
-          Column(
-            children: [
-              GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChangeNotifierProvider(
-                        create: (context) => ProfileDataProvider(),
-                        child: ProfileApp(userId: widget.userId, userName: widget.userName),
-                      ),
-                    ),
-                  );
-                },
-                child: Container(
-
-                  width: 70,
-                  height: 75,
-                  child: Column(
-                    children: [
-                      CircleAvatar(
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            widget.reqPage<1?
+            Container(
+              width: 40,
+              height: 54,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  GestureDetector(
+                    onTap: () {
+                      // Handle profile image click
+                    },
+                    child: Container(
+                      width: 24,
+                      height: 24,
+                      child: CircleAvatar(
                         radius: 20.0,
                         backgroundImage: widget.imagePath != null
                             ? FileImage(File(widget.imagePath!)) as ImageProvider<Object>?
-                            : AssetImage('assets/images/profile_image.jpg'), // Use a default asset image
+                            : AssetImage('assets/images/profile_image.png'), // Use a default asset image
                       ),
-                      Text('Profile',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w900,fontFamily: 'Poppins',),),
-                    ],
+                    ),
                   ),
-                ),
+                  SizedBox(height: 2,),
+                  Text('Profile',style: TextStyle(fontSize: 12,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins',),),
+                ],
               ),
-
-            ],
-          ):
-          widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
-              ? Container(
-            // decoration: BoxDecoration(
-            //   border: Border.all(
-            //     color: Colors.black,
-            //     width: 2,
-            //   ),
-            // ),
-            width: 60,
-            height: 40,
-            child: Align(
-              alignment: Alignment.topCenter,
+            ):
+            widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
+                ? Container(
+              // decoration: BoxDecoration(
+              //   border: Border.all(
+              //     color: Colors.black,
+              //     width: 2,
+              //   ),
+              // ),
+              width: 60,
+              height: 30,
               child: GestureDetector(
                 onTap: (){
                   if(widget.text=='calendar' || widget.text=='calendarhelper') {
@@ -118,86 +106,71 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 },
                 child: Image.asset('assets/images/back.png',width: 60,height: 30,),
               ),
+            )
+                :widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 30,): SizedBox(height: 0,),
+            widget.reqPage>=1
+                ? Container(
+              child: Image.asset('assets/images/logo.png',width: 160,height: 50,),
+            )
+                : Container(
+              child: Image.asset('assets/images/logo.png',width: 160,height: 50,),
             ),
-          )
-              : SizedBox(height: 0,),
-          widget.reqPage>=1
-              ? Padding(
-            padding:widget.reqPage==4?EdgeInsets.only(top: 13.0,left: 30):EdgeInsets.only(top: 13.0),
-            child:Align(
-              alignment: Alignment.topCenter,
-              child: Image.asset('assets/images/logo.png',width: 145),
-            ),
-          )
-              : Padding(
-            padding:EdgeInsets.only(top: 13.0,right: 12,),
-            child:Align(
-              alignment: Alignment.topLeft,
-              child: Image.asset('assets/images/logo.png',width: 145),
-            ),
-          ),
-          widget.reqPage<=1
-              ? Column(
-            children: [
-              InkWell(
-                onTap: (){
-                  print('Us2e:${widget.userId}');
-                  if(widget.userId!=null){
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: widget.userId!,),
-                      ),
-                    );
-                  }
-                },
-                child: Container(
-                  width: 55,
-                  height: 35,
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(
-                  //     color: Colors.orange,
-                  //     width: 2,
-                  //   ),
-                  // ),
-                  child: Stack(
-                    alignment: Alignment.topRight,
-                    children: [
-                      Padding(
-                        padding: EdgeInsets.only(top: 6.0,right: 4.0),
-                        child: Image.asset('assets/images/ping_image.png',height: 28 ,fit: BoxFit.cover,
-                        ),
-                      ),
-                      if(notificationCount>0)
-                        Positioned(
-                          top: -6,
-                          right: 0,
-                          // height: 20,
-                          child: Container(
-                            padding: EdgeInsets.all(4),
-                            decoration: BoxDecoration(
-                              color: Colors.red,
-                              shape: BoxShape.circle,
-                            ),
-                            child: Text(
-                              notificationCount.toString(),
-                              style: TextStyle(fontSize: 14,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
-                            ),
+            widget.reqPage<=1
+                ? Container(
+              width: 36,
+              height: 55,
+              // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  InkWell(
+                    onTap: (){
+                      print('Us2e:${widget.userId}');
+                      if(widget.userId!=null){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PingsSection(userId: widget.userId!,),
                           ),
-                        ),
-                    ],
+                        );
+                      }
+                    },
+                    child: Container(
+                      width: 35,
+                      height: 24,
+                      child: Stack(
+                        children: [
+                          Align(alignment: Alignment.topCenter, child: Image.asset('assets/images/ping_image.png',height: 24 ,width:24,fit: BoxFit.contain,)),
+                          if(notificationCount>0)
+                            Positioned(
+                              top: -4,
+                              right: 0,
+                              // height: 20,
+                              child: Container(
+                                padding: EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  notificationCount.toString(),
+                                  style: TextStyle(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                  SizedBox(height: 2,),
+                  Text('Pings',style: TextStyle(fontSize: 12,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
+                ],
               ),
-              Text('Pings',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
-            ],
-          )
-              : widget.reqPage==4 || widget.reqPage==8
-              ?Container(
-            width: widget.reqPage==4? 60:13,
-            height: widget.reqPage==4? 40:13,
-            child: Align(
-              alignment: Alignment.topCenter,
+            )
+                : widget.reqPage==4 || widget.reqPage==8
+                ?Container(
+              width: widget.reqPage==4? 60:53,
+              height: widget.reqPage==4? 40:13,
               child: GestureDetector(
                 onTap: (){
                   if(widget.reqPage==4){
@@ -219,13 +192,13 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 },
                 child:widget.reqPage==4
                     ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
-                    : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
+                    : Image.asset('assets/images/close_icon.png'),
               ),
-            ),
-          ):SizedBox(width: 0,),
-        ],
+            ):SizedBox(width: 30,),
+
+          ],
+        ),
       ),
     );
   }
 }
-

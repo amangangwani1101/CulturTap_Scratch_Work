@@ -102,7 +102,7 @@ class _FinalProfileState extends State<FinalProfile> {
           },
           child: SingleChildScrollView(
             child: Container(
-              padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
+              padding: EdgeInsets.only(top: 0.0,left: 18.0,right: 18.0 , bottom: 18.00),
               child: Center(
                 child: Column(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -116,17 +116,17 @@ class _FinalProfileState extends State<FinalProfile> {
                     SizedBox(height: 30,),
                     ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
                     SizedBox(height: 40,),
-                    Container(
-                      width: 360,
-                      child: Center(
-                        child: UserDetailsTable(place:dataset != null ? dataset!['userPlace'] : null,
-                          profession:dataset != null ? dataset!['userProfession'] : null,
-                          age:dataset != null ? dataset!['userAge'] : null,
-                          gender:dataset != null ? dataset!['userGender'] : null,
-                          languageList:dataset != null ? dataset!['userLanguages'] : null,
-                        ),
-                      ),
-                    ),
+                    // Container(
+                    //   width: 360,
+                    //   child: Center(
+                    //     child: UserDetailsTable(place:dataset != null ? dataset!['userPlace'] : null,
+                    //       profession:dataset != null ? dataset!['userProfession'] : null,
+                    //       age:dataset != null ? dataset!['userAge'] : null,
+                    //       gender:dataset != null ? dataset!['userGender'] : null,
+                    //       languageList:dataset != null ? dataset!['userLanguages'] : null,
+                    //     ),
+                    //   ),
+                    // ),
                     SizedBox(height: 40,),
                     ExpertCardDetails(),
                     SizedBox(height: 40,),
@@ -172,7 +172,7 @@ class _TripCallingState extends State<TripCalling>{
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('${widget.name}’s provided avilable time for trip planning interaction calls -',
-              style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),),),
             Container(
               width: 331,
               height: 76,
@@ -192,7 +192,7 @@ class _TripCallingState extends State<TripCalling>{
                         children: [
                           Image.asset('assets/images/time_icon.png',width: 22,height: 22,),
                           SizedBox(width: 10,),
-                          Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                          Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                         ],
                       ),
                       widget.currentUserId == widget.actualUserId
@@ -204,7 +204,7 @@ class _TripCallingState extends State<TripCalling>{
                           children:[
                             Image.asset('assets/images/edit_icon.png',width: 15,height: 15,),
                             SizedBox(width: 3,),
-                            Text('EDIT',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
+                            Text('EDIT',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
                           ],
                         ),
                       )
@@ -216,7 +216,7 @@ class _TripCallingState extends State<TripCalling>{
                     children: [
                       Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
                       SizedBox(width: 10,),
-                      Text('5 already pending requests for \ninteraction with Hemant',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                      Text('5 already pending requests for \ninteraction with Hemant',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                     ],
                   ),
                 ],
@@ -238,7 +238,7 @@ class _TripCallingState extends State<TripCalling>{
             :SizedBox(height: 0,),
             widget.currentUserId == widget.actualUserId
                 ? Container( 
-                width: 163,
+                width: 183,
                 height: 40,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),

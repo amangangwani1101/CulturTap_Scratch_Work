@@ -37,7 +37,7 @@ class ExpertCardDetails extends StatelessWidget{
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Your Expert Cards' ,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                Text('Your Expert Cards' ,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                 IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined,color: Color(0xFF263238),)),
               ],
             ),
@@ -47,10 +47,10 @@ class ExpertCardDetails extends StatelessWidget{
               children: [
                 Row(
                   children: [
-                    Text('Expert in locations -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                    Text('Expert in locations -',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                     SizedBox(width: 31,),
                     Container(
-                      child: expertLocations.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),)):
+                      child: expertLocations.isEmpty ? Text('NA', style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),)):
                       Wrap(
                         runSpacing: 8.0, // Vertical spacing between lines of items
                         children: [
@@ -63,7 +63,7 @@ class ExpertCardDetails extends StatelessWidget{
                                     children: [
                                       Text(expertLocations[i]),
                                       if (i < expertLocations.length - 1)
-                                        Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),)),
+                                        Text(',', style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),)),
                                     ],
                                   ),
                                 ),
@@ -77,21 +77,21 @@ class ExpertCardDetails extends StatelessWidget{
                 SizedBox(height: 20,),
                 Row(
                   children: [
-                    Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                    Text('Visited Places - ',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                     SizedBox(width: 60,),
-                    Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                    Text('${visitedplace}',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                   ],
                 ),
                 Row(
                   children: [
-                    Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                    Text('Covered Locations - ',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                     SizedBox(width: 23,),
-                    Text('${coveredLocation}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                    Text('${coveredLocation}',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                   ],
                 ),
                 Row(
                   children: [
-                    Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                    Text('Expertise Rating - ',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                     SizedBox(width: 37,),
                     Container(
                       child: ratings == 0
@@ -117,7 +117,7 @@ class ExpertCardDetails extends StatelessWidget{
                 SizedBox(height: 40,),
                 Row(
                   children: [
-                    Text('Your Culturtap Status',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                    Text('Your Culturtap Status',style: TextStyle(fontSize: 16,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
                     SizedBox(width: 30,),
                     Container(
                       child: visitedplace==0 || coveredLocation==0?

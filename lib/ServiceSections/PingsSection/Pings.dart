@@ -66,6 +66,7 @@ class _PingSectionState extends State<PingsSection>{
 
 
   Future<void> initialHandler() async{
+    print('stripe online');
     WidgetsFlutterBinding.ensureInitialized();
     Stripe.publishableKey = Constant().publishableKey;
     Stripe.instance.applySettings();
@@ -325,7 +326,7 @@ class _PingSectionState extends State<PingsSection>{
       },
       child: Scaffold(
 
-          appBar: AppBar(title: ProfileHeader(reqPage: 1,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,),
+          appBar: AppBar(title: ProfileHeader(reqPage: 1,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,backgroundColor: Colors.white,),
       body: !isLoading
           ? RefreshIndicator(
             onRefresh: ()=>_refreshPage(),
@@ -630,7 +631,7 @@ class _PingSectionState extends State<PingsSection>{
                                             ),
                                             child: Text('   '+
                                                 'Closed'+'   ',
-                                              style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                              style: TextStyle(color: Colors.white,fontSize: 12), // Text color white
                                             ),
                                           ),
                                         ],
@@ -911,7 +912,7 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 6,),automaticallyImplyLeading: false,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 6,),automaticallyImplyLeading: false, backgroundColor: Colors.white,),
         body: SingleChildScrollView(
           child: Row(
             children: [
