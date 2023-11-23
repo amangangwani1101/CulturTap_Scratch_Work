@@ -148,7 +148,7 @@ class _HomePageWidgetState extends State<HomePageWidget> {
                     context,
                     MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
                       create:(context) => ProfileDataProvider(),
-                      child: FinalProfile(userId: widget.userId!,clickedId: '652bb97a2310b75ec11cd2ed',),
+                      child: FinalProfile(userId: widget.userId!,clickedId: '655f69db6f33d10609c6673f',),
                     ),),
                   );
                 },
