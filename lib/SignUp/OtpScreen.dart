@@ -212,6 +212,7 @@ class _OtpScreenState extends State<OtpScreen>{
                             TextButton(
                               onPressed: () {
                                 // Resend login here
+                                verifyNumber();
                               },
                               child: Text('RESEND !',
                                   style: TextStyle(

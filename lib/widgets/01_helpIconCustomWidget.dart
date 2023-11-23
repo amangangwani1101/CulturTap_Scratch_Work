@@ -163,17 +163,10 @@ class _ServicePageState extends State<ServicePage>{
         return true;
       },
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(0), // Set the preferred height to 0
-          child: AppBar(
-            elevation: 0, // Remove the shadow
-            backgroundColor: Colors.transparent, // Make the background transparent
-          ),
-        ),
+        appBar:AppBar(title: ProfileHeader(reqPage: 3,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
           child: Column(
             children: [
-              ProfileHeader(reqPage: 3,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),
               Container(
                 height:screenHeight*0.85,
                 // decoration: BoxDecoration(
@@ -746,19 +739,21 @@ class PaymentSection extends StatelessWidget{
         return true;
       },
       child: Scaffold(
+        appBar: AppBar(title: ProfileHeader(reqPage: 4,text:'You are all set',profileDataProvider:profileDataProvider),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ProfileHeader(reqPage: 4,text:'You are all set',profileDataProvider:profileDataProvider),
-              Container(
-                  width: 357,
-                  height: 25,
-                  child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
-              SizedBox(height: 30,),
-              PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:profileDataProvider),
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Container(
+                    width: 357,
+                    height: 25,
+                    child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
+                SizedBox(height: 30,),
+                PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:profileDataProvider),
 
-            ],
+              ],
+            ),
           ),
         ),
       ),

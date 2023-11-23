@@ -31,7 +31,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     print('Use:${widget.userId}');
     return Center(
       child: Container(
-        padding: EdgeInsets.only(top: 16),
+        padding: EdgeInsets.only(top: 16,left: 20,right: 20),
         // decoration: BoxDecoration(
         //   border: Border.all(
         //     color: Colors.red,

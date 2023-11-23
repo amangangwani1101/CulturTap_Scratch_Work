@@ -333,7 +333,7 @@ class _PingSectionState extends State<PingsSection>{
       },
       child: Scaffold(
 
-          appBar: AppBar(title: ProfileHeader(reqPage: 8 ,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,),
+          appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,),
       body: !isLoading
           ? RefreshIndicator(
             onRefresh: ()=>_refreshPage(),
@@ -923,7 +923,7 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 6,),automaticallyImplyLeading: false,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 1,),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
           child: Row(
             children: [

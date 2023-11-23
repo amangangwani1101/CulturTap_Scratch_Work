@@ -93,18 +93,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(0), // Set the preferred height to 0
-        child: AppBar(
-          elevation: 0, // Remove the shadow
-          backgroundColor: Colors.transparent, // Make the background transparent
-        ),
-      ),
+      appBar:AppBar(title: ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),automaticallyImplyLeading:false,),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),
+            widget.reqPage==0?SizedBox(height: 17,):SizedBox(height: 0,),
             widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
             SizedBox(height: 17,),
             CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,name:widget.userName),
