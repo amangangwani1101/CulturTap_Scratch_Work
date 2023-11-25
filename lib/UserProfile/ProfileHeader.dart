@@ -35,7 +35,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
       //     width: 2,
       //   ),
       // ),
-      height: 105,
+      height: 145,
 
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,

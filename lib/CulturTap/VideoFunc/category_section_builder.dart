@@ -4,7 +4,7 @@ import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
 
 
 
-Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList) {
+Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyTitle, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList, ) {
   // Check if the category has videos
   if (storyUrls.isEmpty || storyDistance.isEmpty) {
     // Don't display anything for categories with no videos
@@ -78,7 +78,11 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
                 distance: storyDistance[index],
                 videoCount: videoCounts[index],
                 location : storyLocation[index],
+
                 category : storyCategory[index],
+                title : storyTitle[index],
+
+
 
               ),
             );

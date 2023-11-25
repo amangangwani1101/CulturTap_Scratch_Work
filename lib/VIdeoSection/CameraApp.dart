@@ -344,7 +344,7 @@ class _CameraAppState extends State<CameraApp> {
                       ),
                     ),
                     Text(
-                      _isRecording ? 'Time Remaining: $_remainingRecordingTime' : '',
+                      _isRecording ? ' $_remainingRecordingTime sec' : ' ',
                       style: TextStyle(
                         color: Colors.white54,
                         fontSize: 18.0,

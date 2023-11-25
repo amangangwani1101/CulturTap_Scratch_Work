@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CustomItems/loading_dialog.dart';
+import 'package:learn_flutter/CustomItems/pulseUpload.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -30,13 +32,44 @@ class UploadPopup extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             SizedBox(height: 30),
-            Icon(Icons.cloud_upload, color: Colors.white, size:100),
+            PulseEffect(),
             SizedBox(height: 30),
-            CircularProgressIndicator(
-              color : Colors.orange,
+            // CircularProgressIndicator(
+            //   color : Colors.orange,
+            // ),
+            SizedBox(height: 0),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Text('While CulturTap Upload',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
+                Text('Your Amazing Story...',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
+
+              ],
             ),
-            SizedBox(height: 40),
-            Text('Uploading Story...',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
+            SizedBox(height: 30),
+            Positioned(
+              top : 30,
+              child: ElevatedButton(
+                onPressed: () {
+                  // Navigate to the homepage
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage()),  // Replace with your homepage
+                  );
+                },
+                style: ElevatedButton.styleFrom(
+                  primary: Colors.orange,  // Set the button color
+                  onPrimary: Colors.white,  // Set the text color
+                  textStyle: TextStyle(
+                    fontSize: 18.0,  // Set the font size
+                    fontWeight: FontWeight.bold,  // Set the font weight
+                  ),
+                ),
+                child: Text('Explore Homepage'),
+              ),
+            )
+
+
           ],
         ),
       ),
@@ -95,7 +128,13 @@ class _ComposePageState extends State<ComposePage> {
 
   Future<void> uploadCompressedVideos(List<File> videoPaths, BuildContext context) async {
     try {
-      // Show loading popup
+
+
+      // Navigate to the homepage
+      // Navigator.pushReplacement(
+      //   context,
+      //   MaterialPageRoute(builder: (context) => HomePage()),  // Replace with your homepage
+      // );
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -103,6 +142,14 @@ class _ComposePageState extends State<ComposePage> {
           return UploadPopup();
         },
       );
+
+        // // Show loading dialog
+        // showDialog(
+        //   context: context,
+        //   builder: (BuildContext context) {
+        //     return LoadingDialog();
+        //   },
+        // );
 
       List<String> compressedPaths = [];
 
@@ -136,17 +183,28 @@ class _ComposePageState extends State<ComposePage> {
       final response = await request.send();
 
       // Close loading popup
-      Navigator.of(context).pop();
+
 
       if (response.statusCode == 201) {
         // Successfully uploaded all compressed videos.
         // You can now save their URLs to MongoDB.
         // Add the logic to save video URLs to your MongoDB database here.
         print('Compressed videos successfully uploaded to the server');
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
+        showDialog(
+          context: context,
+          builder: (context) {
+            return ImagePopUpWithOK(
+              imagePath: "assets/images/storyUploaded.svg",
+              textField: "Your Story is Successfully Uploaded",
+              what:"home",
+              isDarkMode:"",
+
+
+
+            );
+          },
         );
+
       } else {
         print('Failed to upload compressed videos. Error: ${response.reasonPhrase}');
       }
@@ -191,6 +249,8 @@ class _ComposePageState extends State<ComposePage> {
 
   Future<void> sendDataToBackend() async {
 
+
+
     List<File> videoFiles = convertPathsToFiles(widget.videoPaths);
     await uploadCompressedVideos(videoFiles,context);
 
@@ -198,6 +258,7 @@ class _ComposePageState extends State<ComposePage> {
     print('final video paths $finalVideoPaths');
     print('publish button clicked');
     try{
+
 
       final data = {
         "singleStoryData": {
@@ -246,19 +307,6 @@ class _ComposePageState extends State<ComposePage> {
         print('Response Data: ${response.body}');
 
 
-
-
-        showDialog(
-          context: context,
-          barrierDismissible: false,
-          builder: (context) {
-            return ImagePopUpWithOK(
-              imagePath: "assets/images/storyUploaded.svg",
-              textField: "Your Story is Successfully Uploaded",
-              what:"home",
-            );
-          },
-        );
 
       } else {
         print('Failed to send data. Error: ${response.reasonPhrase}');

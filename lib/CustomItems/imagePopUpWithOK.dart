@@ -15,22 +15,22 @@ class ImagePopUpWithOK extends StatelessWidget {
   final String textField;
   final String what;
   final String? extraText;
-
-
+  final String? isDarkMode; // Add a boolean variable for background color condition
 
   ImagePopUpWithOK({
     required this.imagePath,
     required this.textField,
     required this.what,
     this.extraText,
-
+    this.isDarkMode,
   });
 
   @override
   Widget build(BuildContext context) {
+    Color backgroundColor = (isDarkMode=='') ? Color(0xFF263238) : Colors.white; // Set background color based on the condition
+
     return Center(
       child: Container(
-
         height: 440,
         width: 377,
         child: AlertDialog(
@@ -39,9 +39,7 @@ class ImagePopUpWithOK extends StatelessWidget {
             children: [
               SizedBox(height: 66),
               SvgPicture.asset(
-
                 imagePath,
-
                 height: 66,
                 width: 66,
               ),
@@ -51,12 +49,11 @@ class ImagePopUpWithOK extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: Colors.white,
+                  color: (isDarkMode=='') ? Colors.white : Colors.black, // Text color based on condition
                 ),
                 textAlign: TextAlign.center,
               ),
-
-              if (extraText != null) // Check if extraText is not null
+              if (extraText != null)
                 Text(
                   extraText!,
                   style: TextStyle(
@@ -67,28 +64,24 @@ class ImagePopUpWithOK extends StatelessWidget {
                   textAlign: TextAlign.center,
                 ),
               SizedBox(height: 26),
-
               TextButton(
                 onPressed: () {
-                  // Navigate to the CameraApp page when OK is clicked
-                  if(what == 'home'){
+                  if (what == 'home') {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => HomePage()),
                     );
                   }
-                  if(what == 'camera'){
+                  if (what == 'camera') {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => CameraApp()),
                     );
                   }
-                  //condition for just using back functionality
-                  if(what == 'ok'){
+                  if (what == 'ok') {
                     Navigator.of(context).pop();
                   }
-
-                  },
+                },
                 child: Text(
                   'OK',
                   style: TextStyle(
@@ -100,12 +93,11 @@ class ImagePopUpWithOK extends StatelessWidget {
               ),
             ],
           ),
-          backgroundColor: Color(0xFF263238),
+          backgroundColor: backgroundColor, // Set the background color
         ),
       ),
     );
   }
-
 }
 
 void gotocameraapp(BuildContext context) {
@@ -114,3 +106,6 @@ void gotocameraapp(BuildContext context) {
     MaterialPageRoute(builder: (context) => CameraApp()),
   );
 }
+
+
+

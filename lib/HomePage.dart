@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:learn_flutter/CulturTap/StoryDetailPage.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
+import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -91,6 +92,32 @@ class ImageScroll extends StatelessWidget {
   }
 }
 
+Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async {
+  try {
+    // Modify the search API endpoint based on your backend implementation
+    final Map<String, dynamic> queryParams = {'query': query};
+    final uri = Uri.http('173.212.193.109:8080', apiEndpoint, queryParams);
+
+    final response = await http.get(uri);
+
+    if (response.statusCode == 200) {
+      final List<dynamic> searchResults = json.decode(response.body);
+      print('Search results: $searchResults');
+
+      return searchResults;
+      // Process and update the UI with the search results
+
+    } else {
+      print('Failure');
+      throw Exception('Failed to load search results');
+    }
+  } catch (error) {
+    print('Error fetching search results: $error');
+    throw error; // Add this line to explicitly return an error
+  }
+}
+
+
 Future<List<dynamic>> fetchDataForStories(double latitude, double longitude, String apiEndpoint) async {
   final uri = Uri.http('173.212.193.109:8080', apiEndpoint, {
     'latitude': latitude.toString(),
@@ -164,124 +191,124 @@ class _HomePageState extends State<HomePage> {
   String userName = '';
   String userID = '';
   ScrollController _scrollController = ScrollController();
+  final TextEditingController _searchController = TextEditingController();
 
 
 
 
 
 
+  Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, double latitude, double longitude) {
+    List<Map<String, dynamic>> storyDetailsList = [];
+    List<String> totalVideoPaths = [];
+    List<String> totalVideoCounts = [];
+    List<String> storyDistances = [];
+    List<String> storyLocations = [];
+    List<String> storyTitles = [];
+    List<String> storyCategories = [];
 
+
+    for (var story in fetchedStoryList) {
+      dynamic videoPathData = story['videoPath'];
+
+      double storyLat = story['latitude'];
+      double storyLng = story['longitude'];
+
+      String location = story['location'];
+      String storyTitle = story['storyTitle'];
+      String storyLocation = location?.split(',')?.first ?? '';
+      String expDescription = story['expDescription'];
+      List<String> placeLoveDesc = List.from(story['placeLoveDesc'] ?? []);
+      String dontLikeDesc = story['dontLikeDesc'];
+      String review = story['review'];
+      int starRating = story['starRating'];
+      String selectedVisibility = story['selectedVisibility'];
+
+      String productDescription = story['productDescription'];
+      String category = story['category'];
+      String genre = story['genre'];
+
+      String storyCategory = story['category'];
+
+      double douDistance = calculateDistance(latitude, longitude, storyLat, storyLng);
+      String distance = '${douDistance.toStringAsFixed(2)}';
+
+      if (videoPathData is List) {
+        List<String> videoPaths = videoPathData
+            .whereType<String>() // Filter out non-string elements
+            .toList();
+
+        Map<String, dynamic> storyDetails = {
+          'videoPaths': videoPaths,
+          'storyDistance': distance,
+          'storyLocation': storyLocation,
+          'storyCategory': storyCategory,
+          'expDescription': expDescription,
+          'placeLoveDesc': placeLoveDesc,
+          'dontLikeDesc': dontLikeDesc,
+          'review': review,
+          'starRating': starRating,
+          'selectedVisibility': selectedVisibility,
+          'storyTitle': storyTitle,
+          'productDescription': productDescription,
+          'category': category,
+          'genre': genre,
+        };
+
+        totalVideoCounts.add('${videoPaths.length}');
+        String thumbnailurl = 'thumbnail-' + videoPaths[0].replaceAll('.mp4', '.webp');
+        totalVideoPaths.add('$thumbnailurl');
+        storyDistances.add(distance);
+        storyLocations.add(storyLocation);
+        storyTitles.add(storyTitle);
+
+        storyCategories.add(storyCategory);
+
+
+        storyDetailsList.add(storyDetails);
+      } else {
+        print('Unsupported videoPath format');
+      }
+    }
+
+    return {
+      'storyDetailsList': storyDetailsList,
+      'totalVideoPaths': totalVideoPaths,
+      'totalVideoCounts': totalVideoCounts,
+      'storyDistances': storyDistances,
+      'storyLocations': storyLocations,
+      'storyTitles': storyTitles,
+
+      'storyCategories': storyCategories,
+    };
+  }
 
   Future<void> fetchDataForCategory(double latitude, double longitude, int categoryIndex) async {
     try {
-
-
-
-
-
       final Map<String, dynamic> category = categoryData[categoryIndex];
-      final String apiEndpoint = category['apiEndpoint'];
+      String apiEndpoint = category['apiEndpoint'];
 
       final fetchedStoryList = await fetchDataForStories(latitude, longitude, apiEndpoint);
 
+      Map<String, dynamic> processedData = processFetchedStories(fetchedStoryList, latitude, longitude);
 
-      List<Map<String, dynamic>> storyDetailsList = [];
-      List<String> totalVideoPaths = [];
-      List<String> totalVideoCounts = [];
-      List<String> storyDistances = [];
-      List<String> storyLocations = [];
-      List<String> storyCategories = [];
+      categoryData[categoryIndex]['storyUrls'] = processedData['totalVideoPaths'];
+      categoryData[categoryIndex]['videoCounts'] = processedData['totalVideoCounts'];
+      categoryData[categoryIndex]['storyDistance'] = processedData['storyDistances'];
+      categoryData[categoryIndex]['storyLocation'] = processedData['storyLocations'];
+      categoryData[categoryIndex]['storyTitle'] = processedData['storyTitles'];
+      categoryData[categoryIndex]['storyCategory'] = processedData['storyCategories'];
+      categoryData[categoryIndex]['thumbnail_url'] = processedData['thumbnail_urls'];
+      categoryData[categoryIndex]['storyDetailsList'] = processedData['storyDetailsList'];
 
-
-
-
-
-      for (var story in fetchedStoryList) {
-        dynamic videoPathData = story['videoPath'];
-        double storyLat = story['latitude'];
-        double storyLng = story['longitude'];
-
-        String location = story['location'];
-        String storyLocation = location?.split(',')?.first ?? '';
-        String expDescription = story['expDescription'];
-        List<String> placeLoveDesc = List.from(story['placeLoveDesc'] ?? []);
-        String dontLikeDesc = story['dontLikeDesc'];
-        String review = story['review'];
-        int starRating = story['starRating'];
-        String selectedVisibility = story['selectedVisibility'];
-        String storyTitle = story['storyTitle'];
-        String productDescription = story['productDescription'];
-        String category = story['category'];
-        String genre = story['genre'];
-        // Add more details as needed
-
-
-        String storyCategory = story['category'];
-
-        double douDistance = calculateDistance(latitude, longitude, storyLat, storyLng);
-        String distance = '${douDistance.toStringAsFixed(2)}';
-        print(distance);
-
-        // print('Distance to story: $distance km');
-
-
-        if (videoPathData is List) {
-          List<String> videoPaths = videoPathData
-              .whereType<String>() // Filter out non-string elements
-              .toList();
-
-          Map<String, dynamic> storyDetails = {
-            'videoPaths': videoPaths,
-            'storyDistance': distance,
-            'storyLocation': storyLocation,
-            'storyCategory': storyCategory,
-            'expDescription': expDescription,
-            'placeLoveDesc': placeLoveDesc,
-            'dontLikeDesc': dontLikeDesc,
-            'review': review,
-            'starRating': starRating,
-            'selectedVisibility': selectedVisibility,
-            'storyTitle': storyTitle,
-            'productDescription': productDescription,
-            'category': category,
-            'genre': genre,
-            // Add more details to the map
-          };
-
-          // print(storyDetails);
-          totalVideoCounts.add('${videoPaths.length}');
-          totalVideoPaths.add(genre);
-          storyDistances.add(distance);
-          storyLocations.add(storyLocation);
-          storyCategories.add(storyCategory);
-
-
-          storyDetailsList.add(storyDetails);
-          print('storyDetailsList $storyDetailsList');
-          // print('printing story details');
-          // print(categoryData[categoryIndex]['storyDetailsList']);
-
-        } else {
-          print('Unsupported videoPath format');
-          // Handle unsupported format as needed
-        }
-      }
-
-      // Update the 'storyUrls' property of the current category
-      categoryData[categoryIndex]['storyUrls'] = totalVideoPaths;
-      categoryData[categoryIndex]['videoCounts'] = totalVideoCounts;
-      categoryData[categoryIndex]['storyDistance'] = storyDistances;
-      categoryData[categoryIndex]['storyLocation'] = storyLocations;
-      categoryData[categoryIndex]['storyCategory'] = storyCategories;
-      categoryData[categoryIndex]['storyDetailsList'] = storyDetailsList;
-
-
-      // Refresh the UI to reflect the changes
       setState(() {
         isLoading = false;
       });
-      print('Video counts per story in category $categoryIndex: $totalVideoCounts');
-      print('All video paths in category $categoryIndex: $totalVideoPaths');
+
+      print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
+      print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
+      print('storyurls');
+      print(categoryData[categoryIndex]['storyUrls']);
     } catch (error) {
       print('Error fetching stories for category $categoryIndex: $error');
     }
@@ -300,13 +327,24 @@ class _HomePageState extends State<HomePage> {
 
       double latitude = position.latitude;
       double longitude = position.longitude;
+      String query = _searchController.text;
 
       print('Latitude is: $latitude');
 
       // Fetch stories for each category
-      for (int i = 0; i < categoryData.length; i++) {
-        await fetchDataForCategory(latitude, longitude, i);
+
+      if(query.isNotEmpty){
+        print('wow');
+
       }
+      else{
+        for (int i = 0; i < categoryData.length; i++) {
+          await fetchDataForCategory(latitude, longitude, i);
+        }
+      }
+
+
+
     } catch (e) {
       print('Error fetching location: $e');
     }
@@ -320,6 +358,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
+    fetchDataFromMongoDB();
+
     requestLocationPermission();
     fetchUserLocationAndData();
     _scrollController.addListener(() {
@@ -332,6 +372,9 @@ class _HomePageState extends State<HomePage> {
           _isVisible = false;
         });
       }
+    });
+    setState(() {
+
     });
 
   }
@@ -374,8 +417,11 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
+
     },
     {
       'specificCategoryName': 'vTrending NearBy',
@@ -385,7 +431,9 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
@@ -396,7 +444,9 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
@@ -407,7 +457,9 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
@@ -418,7 +470,9 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
@@ -429,7 +483,9 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
@@ -440,7 +496,9 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
@@ -451,7 +509,9 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
@@ -462,7 +522,9 @@ class _HomePageState extends State<HomePage> {
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
       'storyLocation' : <String>[],
+      'storyTitle' : <String>[],
       'storyCategory' : <String>[],
+
       'storyDetailsList': <Map<String, dynamic>>[],
     },
 
@@ -486,7 +548,7 @@ class _HomePageState extends State<HomePage> {
 
 
   Widget build(BuildContext context) {
-    fetchDataFromMongoDB();
+
     return WillPopScope(
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
@@ -509,7 +571,12 @@ class _HomePageState extends State<HomePage> {
             physics: AlwaysScrollableScrollPhysics(),
             child: Column(
               children: <Widget>[
-                Container(height : 20),
+                StoryBar(
+                  controller: _searchController,
+                  onSubmitted: (value) {
+                    fetchUserLocationAndData();
+                  },
+                ),
                 // Your other widgets here
                 Column(
                   children: categoryData.asMap().entries.map((entry) {
@@ -523,6 +590,8 @@ class _HomePageState extends State<HomePage> {
                     final List<String> storyDistance = category['storyDistance'];
                     final List<String> storyLocation = category['storyLocation'];
                     final List<String> storyCategory = category['storyCategory'];
+                    final List<String> storyTitle = category['storyTitle'];
+
                     List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
 
                     return buildCategorySection(
@@ -532,8 +601,11 @@ class _HomePageState extends State<HomePage> {
                       videoCounts,
                       storyDistance,
                       storyLocation,
+                      storyTitle,
                       storyCategory,
                       storyDetailsList,
+
+
                     );
                   }).toList(),
                 ),
