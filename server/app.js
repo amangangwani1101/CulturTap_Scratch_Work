@@ -21,6 +21,7 @@ app.use(express.urlencoded({ extended: false }));
 // router files declaration
 const {SignUp} = require('./routes/LoginSignUpRoutes.js');
 const ProfileRoutes = require('./routes/ProfileRoutes.js');
+const SettingRoutes = require('./routes/SettingRoutes.js')
 const ScheduleMeet = require('./routes/TripPlaningRoutes/ScheduleMeet.js');
 const ConfirmMeet = require('./routes/TripPlaningRoutes/ConfirmSetMeet.js');
 const UpdateMeetStatus = require('./routes/TripPlaningRoutes/UpdateStatusMeet.js');
@@ -43,6 +44,10 @@ app.use('/SignUp',SignUp);
 
 //Profile Section Routes
 app.use('/',ProfileRoutes);
+
+//Settings Section Routes
+app.use('/',SettingRoutes);
+
 
 // Trip Planing Routes includes meeting details , check for overlapping meets
 app.use('/',ScheduleMeet);

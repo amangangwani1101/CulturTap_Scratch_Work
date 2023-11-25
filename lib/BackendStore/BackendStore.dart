@@ -360,6 +360,7 @@ class ProfileDataProvider extends ChangeNotifier {
     print('Set Service');
     notifyListeners();
   }
+
   bool retServide1(){
     print(111);
     return _profileData.service1;

@@ -53,7 +53,7 @@ class CustomHelpOverlay extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(20.0),
                 width: screenWidth*0.90,
-                height: 315,
+                height: navigate=='edit'?357:315,
                 // child: Align(
                 //   alignment: Alignment.topRight,
                 //   child: ElevatedButton(
@@ -95,6 +95,10 @@ class CustomHelpOverlay extends StatelessWidget {
                                 else if(navigate=='pop'){
                                     print(1);
                                     onButtonPressed!();
+                                }
+                                else if(navigate=='edit') {
+                                  onButtonPressed!();
+                                  Navigator.of(context).pop();
                                 }
                               },
                               child: Text(text!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
@@ -544,7 +548,6 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
     widget.profileDataProvider?.setStartTime(globalStartTime!);
     widget.profileDataProvider?.setEndTime(globalEndTime!);
     widget.profileDataProvider?.setSlots(globalSlots!);
-    widget.profileDataProvider?.setServide1();
     return true;
   }
   @override
@@ -637,12 +640,15 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                 onPressed: () {
                   if(validator()){
                     if(widget.userId==null){
+                    // Navigator.of(context).pop();
+                      if(widget.profileDataProvider!=null){
+                        widget.profileDataProvider?.setServide1();
+                      }
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(profileDataProvider:widget.profileDataProvider)));
                     }else{
                       print(1);
                       print(widget.userId!);
                       updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
-
                       // Navigator.of(context).pop();
                     }
                   }else{}
@@ -683,18 +689,32 @@ class CardItem {
   });
 }
 
-class PaymentSection extends StatelessWidget{
+class PaymentSection extends StatefulWidget{
   ProfileDataProvider?profileDataProvider;
-  PaymentSection({this.profileDataProvider});
-  List<CardDetails> cards = [
-    // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
-    // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
-    // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
-    // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857')
-  ];
+  List<CardDetails>?savedCards;
+  PaymentSection({this.profileDataProvider,this.savedCards});
+
+  @override
+  State<PaymentSection> createState() => _PaymentSectionState();
+}
+
+class _PaymentSectionState extends State<PaymentSection> {
+  List<CardDetails> cards = [];
+
   bool cardform=false;
+
+  @override
+  void initState(){
+    super.initState();
+    if(widget.profileDataProvider!=null)
+      widget.profileDataProvider?.setServide1();
+  }
+
   @override
   Widget build(BuildContext context){
+    if(widget.savedCards!=null){
+      cards = widget.savedCards!;
+    }
     return WillPopScope(
       onWillPop: () async {
         cards.length>0
@@ -711,7 +731,7 @@ class PaymentSection extends StatelessWidget{
               },
               onConfirm: () {
                 // Perform action on cancellation
-                profileDataProvider?.removeAllCards();
+                widget.profileDataProvider?.removeAllCards();
                 showDialog(context: context, builder: (BuildContext context){
                   return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
                     Navigator.of(context).pop();
@@ -736,10 +756,11 @@ class PaymentSection extends StatelessWidget{
           },),);
         },
         );
+
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 4,text:'You are all set',profileDataProvider:profileDataProvider),automaticallyImplyLeading: false,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 4,text:'You are all set',profileDataProvider:widget.profileDataProvider),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
           child: Center(
             child: Column(
@@ -750,7 +771,7 @@ class PaymentSection extends StatelessWidget{
                     height: 25,
                     child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
                 SizedBox(height: 30,),
-                PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:profileDataProvider),
+                PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:widget.profileDataProvider),
 
               ],
             ),
@@ -764,9 +785,9 @@ class PaymentSection extends StatelessWidget{
 class CardDetails{
   final String name;
   final String cardNo;
-  final int cardChoosen;
+  int? cardChoosen;
   final String month,year,cvv;
-  bool options;
+  bool? options;
 
   CardDetails({
     required this.name,
@@ -775,16 +796,17 @@ class CardDetails{
     required this.month,
     required this.year,
     required this.cvv,
-    required this.options
+    this.options
   });
 }
 
 class PaymentCard extends StatefulWidget{
   final List<CardDetails> paymentCards;
   ProfileDataProvider? profileDataProvider;
+  String?section;
   bool cardForm;
 
-  PaymentCard({required this.paymentCards,required this.cardForm,this.profileDataProvider});
+  PaymentCard({required this.paymentCards,required this.cardForm,this.profileDataProvider,this.section});
 
   @override
   _PaymentCardState createState() => _PaymentCardState();
@@ -901,13 +923,15 @@ class _PaymentCardState extends State<PaymentCard> {
                   return GestureDetector(
                     onTap: (){
                       print('1');
-                      setState(() {
-                        cards[index].options = !cards[index].options;
-                      });
+                      if(cards[index].options!=null){
+                        setState(() {
+                          cards[index].options = !(cards[index].options!);
+                        });
+                      }
                     },
                     child: Container(
                       width: 357,
-                      height: cards[index].options?192:102,
+                      height: cards[index].options!=null && cards[index].options==true?192:102,
                       margin: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
@@ -953,7 +977,7 @@ class _PaymentCardState extends State<PaymentCard> {
                               ),
                             ],
                           ),
-                          cards[index].options
+                          cards[index].options!=null && cards[index].options==true
                               ?Container(
                                   height: 27,
                                 width: 357,
@@ -971,14 +995,16 @@ class _PaymentCardState extends State<PaymentCard> {
                                       cvvController.text = cards[index].cvv;
                                       widget.cardForm = !widget.cardForm;
                                     });
-                                    widget.profileDataProvider!.removeCard(index);
+                                    if(widget.section=='edit'){}
+                                    else widget.profileDataProvider!.removeCard(index);
                                     widget.paymentCards.removeAt(index);
                                   },
                                 ),
                                 Text('|',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'))),
                                 GestureDetector(
                                     onTap: (){
-                                      widget.profileDataProvider!.removeCard(index);
+                                      if(widget.section=='edit'){}
+                                      else widget.profileDataProvider!.removeCard(index);
                                       setState(() {
                                         widget.paymentCards.removeAt(index);
                                       });
@@ -995,6 +1021,7 @@ class _PaymentCardState extends State<PaymentCard> {
                 })
             ),
           ),
+
           widget.cardForm
               ? Container(
             width: 357,
@@ -1218,7 +1245,10 @@ class _PaymentCardState extends State<PaymentCard> {
                                     cardNo: cardNoController.text, // Get this from user input
                                     cvv: cvvController.text, // Get this from user input
                                   );
-                                  widget.profileDataProvider!.addCardDetails(newPayment);
+                                  if(widget.section=='edit') {}
+                                  else {
+                                    widget.profileDataProvider!.addCardDetails(newPayment);
+                                  }
                                   setState(() {
                                     widget.paymentCards.add(CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text,month:expMonthController.text,year: expYearController.text,cvv:cvvController.text,options: false));
                                     nameController.text = '';
@@ -1293,16 +1323,19 @@ class _PaymentCardState extends State<PaymentCard> {
           ? Container(
               width: 326,
               height: 53,
-              margin: EdgeInsets.only(top: screenHeight * 0.7),
+              margin: EdgeInsets.only(top: screenHeight * 0.2 ),
               child: FiledButton(
               backgroundColor: HexColor('#FB8C00'),
               onPressed: () {
                   showDialog(context: context, builder: (BuildContext context){
                     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
                       Navigator.of(context).pop();
+                      // Navigator.of(context).pop();
+                      // Navigator.of(context).pop();
                       Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
+                      if(widget.profileDataProvider!=null){
+                        widget.profileDataProvider?.setServide1();
+                      }
                     },),);
                   },
                 );

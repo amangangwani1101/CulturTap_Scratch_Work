@@ -28,7 +28,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   int notificationCount = 4;
   @override
   Widget build(BuildContext context) {
-    print('Use:${widget.userId}');
+    // print('Use:${widget.userId}');
     return Center(
       child: Container(
         padding: EdgeInsets.only(top: 16,left: 20,right: 20),

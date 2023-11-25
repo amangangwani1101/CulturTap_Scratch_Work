@@ -154,7 +154,7 @@ import 'widgets/01_helpIconCustomWidget.dart';
     bool cardForm;
   
     PaymentCard({required this.paymentCards,required this.cardForm});
-  
+
     @override
     _PaymentCardState createState() => _PaymentCardState();
   }
@@ -567,9 +567,8 @@ import 'widgets/01_helpIconCustomWidget.dart';
                                     onTap: (){
                                       setState(() {
                                         widget.paymentCards.add(CardDetailss(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text));
-                                        // sendCardDetailsToBackend(card);
-
-                                        tokenizeDealerCard(cardNoController.text,expMonthController.text,expYearController.text,cvvController.text,nameController.text);
+                                        sendCardDetailsToBackend(card);
+                                        // tokenizeDealerCard(cardNoController.text,expMonthController.text,expYearController.text,cvvController.text,nameController.text);
                                         nameController.text = '';
                                         cardNoController.text = '';
                                         expMonthController.text = '';

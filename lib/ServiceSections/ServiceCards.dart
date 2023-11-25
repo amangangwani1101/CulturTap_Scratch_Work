@@ -1,16 +1,22 @@
 
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 import '../BackendStore/BackendStore.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
+import '../widgets/Constant.dart';
 import '../widgets/hexColor.dart';
+import 'package:http/http.dart' as http;
 
 
 // Single Service Cards
 class ServiceCard extends StatefulWidget{
   final String titleLabel,iconImage,serviceImage,subTitleLabel,endLabel;
   final ProfileDataProvider? profileDataProvider;
+  bool ?isToggle;
+  String?userId;
   ServiceCard({
     required this.titleLabel,
     required this.serviceImage,
@@ -18,18 +24,23 @@ class ServiceCard extends StatefulWidget{
     required this.subTitleLabel,
     required this.endLabel,
     this.profileDataProvider,
+    this.isToggle,
+    this.userId
   });
 
   @override
   _ServiceCardState createState() => _ServiceCardState();
 }
 class _ServiceCardState extends State<ServiceCard>{
-  bool buttonState = false;
-  void toggleButton(){
-    setState(() {
-      buttonState = !buttonState;
-    });
-  }
+  // bool buttonState = false;
+  //
+  // void toggleButton(){
+  //   setState(() {
+  //     buttonState = !buttonState;
+  //   });
+  // }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -101,7 +112,7 @@ class _ServiceCardState extends State<ServiceCard>{
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(widget.endLabel),
-              ConcentricCircles(profileDataProvider:widget.profileDataProvider),
+              ConcentricCircles(profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId),
             ],
           ),
         ],
@@ -110,9 +121,10 @@ class _ServiceCardState extends State<ServiceCard>{
   }
 }
 class ConcentricCircles extends StatefulWidget{
-  bool isToggled = false;
+  bool? isToggled;
+  String ? userId;
   final ProfileDataProvider? profileDataProvider;
-  ConcentricCircles({this.profileDataProvider});
+  ConcentricCircles({this.profileDataProvider,this.isToggled,this.userId});
   final animationDuration = Duration(milliseconds: 500);
   @override
   _ConcentricCirclesState createState() => _ConcentricCirclesState();
@@ -122,27 +134,92 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
   @override
   void initState(){
     super.initState();
-    setState(() {
-      widget.isToggled  =widget.profileDataProvider!.retServide1();
-    });
   }
-  void onPressedHandler() {
-      showDialog(context: context, builder: (BuildContext context){
-        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/clock_icon.jpg',serviceSettings: true,profileDataProvider:widget.profileDataProvider),);
+  void onPressedHandler() async {
+      await showDialog(context: context, builder: (BuildContext context){
+        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/clock_icon.jpg',serviceSettings: true,profileDataProvider:widget.profileDataProvider,),);
       },);
-      widget.isToggled  =widget.profileDataProvider!.retServide1();
+      setService();
+  }
+
+  void service1HandlerOff() async{
+    await showDialog(context: context, builder: (BuildContext context){
+      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/service1-off.png'),);
+    },);
+  }
+
+  void service1HandlerState() async{
+    await showDialog(context: context, builder: (BuildContext context){
+      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/service1-state.png',text: 'Check Calendar',navigate: 'edit',),);
+    },);
+  }
+
+   void setService(){
+    setState(() {
+      widget.isToggled = widget.profileDataProvider!.retServide1();
+    });
+    if(widget.profileDataProvider!=null && widget.profileDataProvider!.retServide1()==true){
+      setState(() {
+        widget.isToggled = true;
+      });
+    }
    }
 
 
+   Future<bool> checkUserCalendar() async{
+     try {
+       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+       final Map<String,dynamic> data = {
+         'userId':widget.userId
+       };
+       final http.Response response = await http.patch(
+         Uri.parse('$serverUrl/checkServiceStatus'), // Adjust the endpoint as needed
+         headers: {
+           "Content-Type": "application/json",
+         },
+         body: jsonEncode(data),
+       );
+
+       if (response.statusCode == 200) {
+         final responseData = json.decode(response.body);
+         print(responseData);
+         return responseData['isEligible'];
+       } else {
+         print('Failed to check data: ${response.statusCode}');
+         ScaffoldMessenger.of(context).showSnackBar(
+           SnackBar(
+             content: Text('Try Again!!'),
+           ),
+         );
+         return false;
+       }
+     }catch(err){
+       print("Error: $err");
+       ScaffoldMessenger.of(context).showSnackBar(
+         SnackBar(
+           content: Text('Try Again!!'),
+         ),
+       );
+       return false;
+     }
+   }
 
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: (){
-        setState(() {
-          widget.isToggled = widget.profileDataProvider!.retServide1();
-        });
-        onPressedHandler();
+      onTap: () async{
+        if(widget.isToggled==true){
+          bool checker = await checkUserCalendar();
+          if(checker){
+            setState(() {
+              widget.isToggled = false;
+            });
+          }
+          else{
+
+          }
+        }
+        else onPressedHandler();
       },
       child: AnimatedContainer(
         width: 90,
@@ -156,12 +233,12 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
                 width: 77,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(25),
-                  color: widget.isToggled?HexColor('#FB8C00'):HexColor('#EDEDED'),
+                  color: widget.isToggled!=null && widget.isToggled==true?HexColor('#FB8C00'):HexColor('#EDEDED'),
                 ),
               ),
             ),
             Align(
-              alignment: widget.isToggled?Alignment.centerRight:Alignment.centerLeft,
+              alignment: widget.isToggled!=null && widget.isToggled==true?Alignment.centerRight:Alignment.centerLeft,
               child:Stack(
                 children: [
                   Container(
@@ -179,7 +256,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
                       width: 46,
                       height: 46,
                       decoration: BoxDecoration(
-                        color: widget.isToggled?HexColor('#128807'):Colors.white,
+                        color:widget.isToggled!=null && widget.isToggled==true?HexColor('#128807'):Colors.white,
                         shape: BoxShape.circle,
                         border: Border.all(
                           color: HexColor('#FB8C00'),
@@ -200,8 +277,8 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  Text('OFF',style: widget.isToggled?TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white,):TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00'),),),
-                  Text('ON',style: widget.isToggled?TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white,):TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100'),),),
+                  Text('OFF',style: widget.isToggled!=null && widget.isToggled==true?TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white,):TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00'),),),
+                  Text('ON',style: widget.isToggled!=null && widget.isToggled==true?TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white,):TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100'),),),
                 ],
               ),
             ),

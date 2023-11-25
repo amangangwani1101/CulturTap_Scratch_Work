@@ -103,12 +103,12 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                       children: [
                         Text('Check Calendar',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                         Container(
-                          height: 76,
+                          height: 82,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('${widget.userName}’s provided avilable time for trip \n planning interaction calls -',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                              Text('${widget.userName}’s provided avilable time for trip planning interaction calls -',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                               Row(
                                 children: [
                                   Container(
