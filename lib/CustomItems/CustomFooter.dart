@@ -5,10 +5,13 @@ import 'package:learn_flutter/Utils/location_utils.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:provider/provider.dart';
 import 'package:learn_flutter/BackendStore/BackendStore.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
 
 class CustomFooter extends StatefulWidget implements PreferredSizeWidget {
   final String? userId;
@@ -30,9 +33,12 @@ class _CustomFooterState extends State<CustomFooter> {
   Color settingsIconColor = Color(0xFF263238);
   Color addIconColor = Color(0xFF263238);
 
+  late VideoDatabaseHelper _databaseHelper;
+
   @override
   void initState() {
     super.initState();
+    _databaseHelper = VideoDatabaseHelper();
     // You can access userId and userName via widget.userId and widget.userName
   }
 
@@ -130,8 +136,38 @@ class _CustomFooterState extends State<CustomFooter> {
                       width: 80,
                       height: 80,
                       child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                        onPressed: () async{
+                          bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
+                          if (hasVideos) {
+                            // Navigate to VideoPreviewPage with data from the database
+                            List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                            List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+                            // Extract the required data from the list of videos
+                            List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                            String userLocation = ''; // Replace with your logic to get user location
+                            double latitude = allVideos[0].latitude;
+                            double longitude = allVideos[0].longitude;
+
+                            print('latitude : $latitude');
+                            print('longitude : $longitude');
+
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => VideoPreviewPage(
+                                  videoPaths: videoPaths,
+                                  userLocation: userLocation,
+                                  latitude: latitude,
+                                  longitude: longitude,
+                                ),
+                              ),
+                            );
+                          } else {
+                            // Navigate to CameraApp
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                          }
                           _changeIconColor('add');
                         },
                         style: ElevatedButton.styleFrom(

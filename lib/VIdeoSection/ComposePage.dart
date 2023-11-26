@@ -9,12 +9,13 @@ import 'package:geocoding/geocoding.dart';
 import 'dart:math';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
-import 'package:learn_flutter/VIdeoSection/VideoPreviewPage.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'dart:convert';
 import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
@@ -80,6 +81,8 @@ class UploadPopup extends StatelessWidget {
 
 
 class ComposePage extends StatefulWidget {
+  VideoDatabaseHelper myDatabaseHelper = VideoDatabaseHelper();
+
   final List<String> videoPaths;
   final double latitude;
   final double longitude;
@@ -258,7 +261,7 @@ class _ComposePageState extends State<ComposePage> {
     print('final video paths $finalVideoPaths');
     print('publish button clicked');
     try{
-
+      VideoDatabaseHelper myDatabaseHelper = VideoDatabaseHelper();
 
       final data = {
         "singleStoryData": {
@@ -307,6 +310,7 @@ class _ComposePageState extends State<ComposePage> {
         print('Response Data: ${response.body}');
 
 
+        await myDatabaseHelper.deleteAllVideos();
 
       } else {
         print('Failed to send data. Error: ${response.reasonPhrase}');
@@ -375,6 +379,8 @@ class _ComposePageState extends State<ComposePage> {
 
 
   Future<void> _saveVideoToLocalStorage(String videoPath) async {
+    VideoDatabaseHelper myDatabaseHelper = VideoDatabaseHelper();
+
     final localPath = (await getApplicationDocumentsDirectory()).path;
     final fileName = videoPath.split('/').last; // Extract the filename from the videoPath
     final localFilePath = '$localPath/$fileName';
@@ -384,6 +390,7 @@ class _ComposePageState extends State<ComposePage> {
 
 
     print('Video file copied to local storage: $localFilePath');
+    await myDatabaseHelper.deleteAllVideos();
   }
 
 

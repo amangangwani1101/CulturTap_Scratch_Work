@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
-import 'package:learn_flutter/VIdeoSection/VideoPreviewPage.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
@@ -9,6 +11,10 @@ import 'dart:async';
 import 'dart:io';
 
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+
+
+
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,6 +40,9 @@ class CameraApp extends StatefulWidget {
 }
 
 class _CameraAppState extends State<CameraApp> {
+
+  late VideoDatabaseHelper _databaseHelper;
+
   List<CameraDescription> cameras = [];
   Geolocator _geolocator = Geolocator();
   Position? _startPosition;
@@ -56,6 +65,7 @@ class _CameraAppState extends State<CameraApp> {
   void initState() {
     super.initState();
     initializeCamera();
+    _databaseHelper = VideoDatabaseHelper();
     requestLocationPermission();
 
 
@@ -105,6 +115,25 @@ class _CameraAppState extends State<CameraApp> {
     }
   }
 
+  Future<void> saveVideoToDatabase(String videoPath, double latitude, double longitude) async {
+    try {
+      // Create a VideoInfo object
+      VideoInfo2 videoInfo = VideoInfo2(
+        videoUrl: videoPath,
+        latitude: latitude,
+        longitude: longitude,
+      );
+
+
+      await _databaseHelper.insertVideo(videoInfo);
+
+      print('Video added to the local database.');
+    } catch (e) {
+      print('Error adding video to the local database: $e');
+    }
+  }
+
+
   Future<void> fetchUserLocation() async {
     try {
       Position position = await Geolocator.getCurrentPosition(
@@ -124,13 +153,13 @@ class _CameraAppState extends State<CameraApp> {
       print('Error fetching location: $e');
     }
   }
-
-  Future<void> saveVideo(File videoFile) async {
-    final Directory appDirectory = await getApplicationDocumentsDirectory();
-    final String videoPath = '${appDirectory.path}/recorded_video.mp4';
-    await videoFile.copy(videoPath);
-  }
-
+  //
+  // Future<void> saveVideo(File videoFile) async {
+  //   final Directory appDirectory = await getApplicationDocumentsDirectory();
+  //   final String videoPath = '${appDirectory.path}/recorded_video.mp4';
+  //   await videoFile.copy(videoPath);
+  // }
+  //
 
   void startRecording() async {
 
@@ -183,17 +212,37 @@ class _CameraAppState extends State<CameraApp> {
     // });
   }
 
-  void navigateToPreviewPage(BuildContext context) {
-    Navigator.of(context).push(
-      MaterialPageRoute(
-        builder: (context) => VideoPreviewPage(
-          videoPaths: recordedVideoPaths,
-          userLocation: liveLocation,
-          latitude: liveLatitude,
-          longitude: liveLongitude,
+  void navigateToPreviewPage(BuildContext context) async{
+    bool hasVideos = await VideoDatabaseHelper().hasVideos();
+    if (hasVideos) {
+      // Navigate to VideoPreviewPage with data from the database
+      List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+      List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+      // Extract the required data from the list of videos
+      List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+      String userLocation = ''; // Replace with your logic to get user location
+      double latitude = allVideos[0].latitude;
+      double longitude = allVideos[0].longitude;
+
+      print('latitude : $latitude');
+      print('longitude : $longitude');
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => VideoPreviewPage(
+            videoPaths: videoPaths,
+            userLocation: userLocation,
+            latitude: latitude,
+            longitude: longitude,
+          ),
         ),
-      ),
-    );
+      );
+    } else {
+      // Navigate to CameraApp
+      Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+    }
   }
 
 
@@ -217,8 +266,16 @@ class _CameraAppState extends State<CameraApp> {
     if (videoFile != null) {
       updateCloseButtonVisibility();
       String videoPath = videoFile.path;
-      saveVideo(File(videoPath));
+
+      saveVideoToDatabase(videoPath, liveLatitude, liveLongitude);
+
+
       recordedVideoPaths.add(videoPath);
+
+      // Save video information to the database
+
+
+
       print('navigating to preview page');
       navigateToPreviewPage(context);
       print('navigated to preview page');

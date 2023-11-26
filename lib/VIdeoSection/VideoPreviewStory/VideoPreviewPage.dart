@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -42,7 +43,13 @@ class VideoPreviewPage extends StatefulWidget {
   _VideoPreviewPageState createState() => _VideoPreviewPageState();
 }
 
+
+
 class _VideoPreviewPageState extends State<VideoPreviewPage> {
+
+
+
+
   double? firstVideoLatitude;
   double? firstVideoLongitude;
   double? userLatitude;
@@ -53,6 +60,8 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
     super.initState();
 
     // Add videos to videoData when the page loads
+
+    print('init state here');
 
     for (int i = 0; i < widget.videoPaths.length; i++) {
       addVideo(widget.userLocation, widget.videoPaths[i], widget.latitude, widget.longitude);
@@ -82,16 +91,22 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       desiredAccuracy: LocationAccuracy.medium,
     );
 
+
+
+    print('fetch user location in video preview page');
+
     setState(() {
       userLatitude = position.latitude;
       userLongitude = position.longitude;
     });
 
+    print('user latitude : $userLatitude');
+
     handleAddNewVideoButton();
   }
 
 
-  void handleAddNewVideoButton() {
+  void handleAddNewVideoButton() async{
     if (userLatitude != null && userLongitude != null) {
       double radiusInMeters = 200.0;
       double distance = Geolocator.distanceBetween(
@@ -101,14 +116,27 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
         firstVideoLongitude!,
 
       );
-   print('distance');
-   print(distance);
+      print('distance');
+      print(distance);
 
 
       if (distance <= radiusInMeters) {
         // User is within the radius; they can proceed to create a new video
         print('Location checked - User is within 500 meters.');
-        Navigator.pop(context);
+        bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
+
+
+        if(hasVideos){
+
+          print('has Videos');
+          Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+
+        }
+        else{
+          Navigator.pop(context);
+        }
+
         print('location checked');
         print(radiusInMeters);
         print("firstVideoLatitude");
@@ -428,6 +456,8 @@ class _VideoItemState extends State<VideoItem> {
         setState(() {});
       });
   }
+
+
 
   void _togglePlayPause() {
     setState(() {

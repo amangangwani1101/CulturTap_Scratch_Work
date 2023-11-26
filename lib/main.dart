@@ -1,14 +1,22 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/splashScreen.dart';
+import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+
+
 
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+
   runApp(const MyApp());
 }
 
+
+Future<void> onSelectNotification(String? payload) async {
+  // Handle notification click here (optional)
+}
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
