@@ -305,7 +305,6 @@ class ProfileDataProvider extends ChangeNotifier {
 
   void updateGender(String userGender) {
     _profileData.gender = userGender!;
-    print('Path is ${_profileData.tripCallingData?.setStartTime}');
     notifyListeners();
   }
 
@@ -315,7 +314,13 @@ class ProfileDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setStartTime(String startTime) {
+  void unsetTripCalling(){
+    _profileData.tripCallingData = null;
+    print('done it');
+    notifyListeners();
+    return;
+  }
+  void setStartTime(String?startTime) {
     if (_profileData.tripCallingData == null) {
       _profileData.tripCallingData = ServiceTripCallingData(); // Initialize if null
     }
@@ -356,7 +361,7 @@ class ProfileDataProvider extends ChangeNotifier {
     notifyListeners();
   }
   void setServide1(){
-    _profileData.service1 = true;
+    _profileData.service1 = !_profileData.service1;
     print('Set Service');
     notifyListeners();
   }

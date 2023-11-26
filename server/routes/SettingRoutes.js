@@ -16,8 +16,6 @@ router.patch("/checkServiceStatus", async (req, res) => {
     }
 
     if (!user2.userServiceTripCallingData.dayPlans) {
-      const updateFields = { $unset: { 'userServiceTripCallingData.startTimeFrom': 1, 'userServiceTripCallingData.endTimeTo': 1 ,'userServiceTripCallingData.slotsChossen':1}};
-      await ProfileData.findByIdAndUpdate(userId, updateFields);
       res.status(200).json({ isEligible: true });
       return;
     }
@@ -37,10 +35,6 @@ router.patch("/checkServiceStatus", async (req, res) => {
             break;
         }
     };
-    if(status){
-        const updateFields = { $unset: { 'userServiceTripCallingData.startTimeFrom': 1, 'userServiceTripCallingData.endTimeTo': 1 ,'userServiceTripCallingData.slotsChossen':1}};
-        await ProfileData.findByIdAndUpdate(userId, updateFields);
-    }
     res.status(200).json({  isEligible: status});
     return;
   } catch (error) {
@@ -48,5 +42,30 @@ router.patch("/checkServiceStatus", async (req, res) => {
     res.status(500).json({ error: "Internal server error" });
   }
 });
+
+
+// update cards of users
+router.patch('/updateCards',async(req,res)=>{
+    try{
+       let { userId,cards} = req.body;
+       const user2 = await ProfileData.findById(userId).lean();
+
+       if (!user2) {
+         return res.status(404).json({ error: "User Not Found" });
+       }
+
+       user2['userPaymentData'] = cards;
+
+       // Save the updated user timings
+       await ProfileData.findByIdAndUpdate(userId, user2);
+       res.status(200).json({ message: "User Cards updated successfully" });
+    }catch(err){
+        console.log('Error,',err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+
+
 
 module.exports = router;

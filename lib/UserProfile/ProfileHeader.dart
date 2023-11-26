@@ -72,7 +72,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 ],
               ),
             ):
-            widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
+            widget.reqPage!=6 && widget.reqPage!=8
             ? Container(
               // decoration: BoxDecoration(
               //   border: Border.all(
@@ -84,7 +84,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               height: 30,
               child: GestureDetector(
                 onTap: (){
-                  if(widget.text=='calendar' || widget.text=='calendarhelper') {
+                  if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
                     Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   }
@@ -99,6 +99,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                         builder: (context) => HomePage(userId: widget.userId!,userName: widget.userName!,),
                       ),
                     );
+                  }
+                  else if(widget.text=='You are all set'){
+                    widget.onButtonPressed!();
                   }
                   else{
                     Navigator.of(context).pop();
@@ -182,6 +185,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                         Navigator.of(context).pop();
                         Navigator.of(context).pop();
                         Navigator.of(context).pop();
+                        // Navigator.of(context).pop();
                       },),);
                     },
                     );

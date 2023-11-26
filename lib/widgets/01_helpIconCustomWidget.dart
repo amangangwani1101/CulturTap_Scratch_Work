@@ -1,4 +1,5 @@
 import 'dart:convert';
+// import 'dart:html';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
 import '../BackendStore/BackendStore.dart';
+import 'AlertBox2Option.dart';
 import 'Constant.dart';
 import 'package:http/http.dart' as http;
 import 'CustomButton.dart';
@@ -20,9 +22,10 @@ import '../UserProfile/ProfileHeader.dart';
 String? globalStartTime;
 String? globalEndTime;
 String? globalSlots;
-
+List<PaymentDetails> globalCards =[];
+bool isGone=false;
 class CustomHelpOverlay extends StatelessWidget {
-  final VoidCallback? onButtonPressed,onBackPressed;
+  VoidCallback? onButtonPressed,onBackPressed;
   final String imagePath;
   bool? serviceSettings=false;
   String?text,navigate;
@@ -86,7 +89,7 @@ class CustomHelpOverlay extends StatelessWidget {
                           alignment: Alignment.bottomCenter,
                           child: GestureDetector(
                               onTap: (){
-                                if(navigate=='calendarhelper'){
+                                if(navigate=='calendarhelper' || navigate=='edit'){
                                   print(2);
                                   onButtonPressed!();
                                 }
@@ -95,10 +98,6 @@ class CustomHelpOverlay extends StatelessWidget {
                                 else if(navigate=='pop'){
                                     print(1);
                                     onButtonPressed!();
-                                }
-                                else if(navigate=='edit') {
-                                  onButtonPressed!();
-                                  Navigator.of(context).pop();
                                 }
                               },
                               child: Text(text!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
@@ -131,8 +130,10 @@ class CustomHelpOverlay extends StatelessWidget {
 class ServicePage extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
   final ServiceTripCallingData?data;
-  String?userId;
-  ServicePage({this.profileDataProvider,this.userId,this.data});
+  VoidCallback? onButtonPressed;
+  String?userId,text;
+  bool?haveCards;
+  ServicePage({this.profileDataProvider,this.userId,this.data,this.text,this.haveCards,this.onButtonPressed});
 
   @override
   _ServicePageState createState() => _ServicePageState();
@@ -155,7 +156,12 @@ class _ServicePageState extends State<ServicePage>{
     final screenHeight = MediaQuery.of(context).size.height;
     return WillPopScope(
       onWillPop: ()async{
-        if(widget.profileDataProvider==null){
+        if(widget.text=='edit' && isGone==true){
+          widget.onButtonPressed!();
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
+        else if(widget.profileDataProvider==null){
           print(1);
           Navigator.of(context).pop();
         }
@@ -206,7 +212,7 @@ class _ServicePageState extends State<ServicePage>{
                         ],
                       ),
                     ),
-                    BandWidthSelect(profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId),
+                    BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
                   ],
                 ),
               ),
@@ -435,8 +441,10 @@ class _TimePickerState extends State<TimePicker>{
 
 class BandWidthSelect extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
-  final String?slots,userId;
-  BandWidthSelect({this.profileDataProvider,this.slots,this.userId});
+  final String?slots,userId,text;
+  VoidCallback? onButtonPressed;
+  bool?haveCards;
+  BandWidthSelect({this.profileDataProvider,this.slots,this.userId,this.haveCards,this.text,this.onButtonPressed});
   @override
   _BandWidthSelectState createState() => _BandWidthSelectState();
 }
@@ -450,6 +458,7 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
       _radioValue = widget.slots!;
     }
   }
+
 
   void updateUserTime (String userId,String startTime,String endTime,String slot) async{
     try {
@@ -475,7 +484,22 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
             content: Text('Your Time Is Set :) '),
           ),
         );
-        Navigator.of(context).pop();
+        if(widget.haveCards==false){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(text:widget.text,userId:widget.userId)));
+        }
+        else{
+          showDialog(context: context, builder: (BuildContext context){
+            return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              // Navigator.of(context).pop();
+              // Navigator.of(context).pop();
+            },),);
+          },
+          );
+        }
+        widget.onButtonPressed!();
         print('Data saved successfully');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -545,9 +569,11 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
       );
       return false;
     }
-    widget.profileDataProvider?.setStartTime(globalStartTime!);
-    widget.profileDataProvider?.setEndTime(globalEndTime!);
-    widget.profileDataProvider?.setSlots(globalSlots!);
+    if(widget.profileDataProvider!=null){
+      widget.profileDataProvider?.setStartTime(globalStartTime!);
+      widget.profileDataProvider?.setEndTime(globalEndTime!);
+      widget.profileDataProvider?.setSlots(globalSlots!);
+    }
     return true;
   }
   @override
@@ -638,15 +664,26 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
             child: FilledButton(
                 backgroundColor: HexColor('#FB8C00'),
                 onPressed: () {
+                  // if(isGone){
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //       content: Text('Already Set!!'),
+                  //     ),
+                  //   );
+                  //   Navigator.of(context).pop();
+                  // }
                   if(validator()){
+                    // setState(() {
+                    //   isGone = true;
+                    // });
                     if(widget.userId==null){
                     // Navigator.of(context).pop();
-                      if(widget.profileDataProvider!=null){
-                        widget.profileDataProvider?.setServide1();
-                      }
+                    //   if(widget.profileDataProvider!=null){
+                    //     widget.profileDataProvider?.setServide1();
+                    //   }
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(profileDataProvider:widget.profileDataProvider)));
                     }else{
-                      print(1);
+                      print('5th Page');
                       print(widget.userId!);
                       updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
                       // Navigator.of(context).pop();
@@ -692,7 +729,8 @@ class CardItem {
 class PaymentSection extends StatefulWidget{
   ProfileDataProvider?profileDataProvider;
   List<CardDetails>?savedCards;
-  PaymentSection({this.profileDataProvider,this.savedCards});
+  String?text,userId;
+  PaymentSection({this.profileDataProvider,this.savedCards,this.text,this.userId});
 
   @override
   State<PaymentSection> createState() => _PaymentSectionState();
@@ -710,6 +748,58 @@ class _PaymentSectionState extends State<PaymentSection> {
       widget.profileDataProvider?.setServide1();
   }
 
+  void saveCardsToDatabase() async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'userId':widget.userId,
+        'cards':globalCards
+      };
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/updateCards'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+        if(widget.savedCards!=null){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Cards Are Updated Successfully!'),
+            ),
+          );
+          Navigator.of(context).pop();
+        }else{
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
+        // Navigator.of(context).pop();
+        return;
+      } else {
+        print('Failed to check data: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Try Again!!'),
+          ),
+        );
+        return;
+      }
+    }catch(err){
+      print("Error: $err");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Try Again!!'),
+        ),
+      );
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context){
     if(widget.savedCards!=null){
@@ -717,37 +807,115 @@ class _PaymentSectionState extends State<PaymentSection> {
     }
     return WillPopScope(
       onWillPop: () async {
+        // showDialog(
+        //   context: context,
+        //   builder: (BuildContext context) {
+        //     return ConfirmationDialog(
+        //       message:'Cards Are Not Save.',
+        //       onCancel: () {
+        //         // Perform action on confirmation
+        //         Navigator.of(context).pop(); // Close the dialog
+        //         // Add your action here
+        //         print('Action confirmed');
+        //       },
+        //       onConfirm: () {
+        //         // Perform action on cancellation
+        //         widget.profileDataProvider?.removeAllCards();
+        //         showDialog(context: context, builder: (BuildContext context){
+        //           return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+        //             Navigator.of(context).pop();
+        //             Navigator.of(context).pop();
+        //             Navigator.of(context).pop();
+        //             Navigator.of(context).pop();
+        //             Navigator.of(context).pop();
+        //           },),);
+        //         },
+        //         );
+        //         // Add your action here
+        //         print('Action cancelled');
+        //       },
+        //     );
+        //   },
+        // )
         cards.length>0
-        ? showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ConfirmationDialog(
-              message:'Cards Are Not Save.',
-              onCancel: () {
-                // Perform action on confirmation
+        ?showDialog(context: context, builder: (BuildContext context){
+          return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Are You Sure ?',extraText: 'Save Cards',option1:'No',option2:'Yes',onButton1Pressed: (){
+            // Perform action on confirmation
+            if(widget.text=='edit'){
+              if(widget.savedCards!=null){
                 Navigator.of(context).pop(); // Close the dialog
-                // Add your action here
-                print('Action confirmed');
-              },
-              onConfirm: () {
-                // Perform action on cancellation
-                widget.profileDataProvider?.removeAllCards();
-                showDialog(context: context, builder: (BuildContext context){
+                Navigator.of(context).pop(); // Close the dialog
+              }else{
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the dialog
+                Navigator.of(context).pop(); // Close the dialog
+              }
+            }
+            else{
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(); // Close the dialog
+            }
+
+            // Add your action here
+            print('Action confirmed');
+          },onButton2Pressed: () async{
+            if(widget.text=='edit'){
+              if(widget.savedCards!=null){
+                // if(widget.savedCards!.length>0){
+                //   globalCards = [];
+                //   cards = widget.savedCards!;
+                //   for(int i=0;i<widget.savedCards!.length;i++){
+                //     CardDetails card = widget.savedCards![i];
+                //     globalCards!.add(PaymentDetails(
+                //       name: card.name, // Get this from user input
+                //       month: card.month, // Get this from user input
+                //       year: card.year, // Get this from user input
+                //       cardNo: card.cardNo, // Get this from user input
+                //       cvv: card.cvv, // Get this from user input
+                //     ));
+                //   }
+                //   saveCardsToDatabase();
+                // }
+
+                await showDialog(context: context, builder: (BuildContext context){
                   return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
                     Navigator.of(context).pop();
                   },),);
                 },
                 );
-                // Add your action here
-                print('Action cancelled');
+                saveCardsToDatabase();
+                Navigator.of(context).pop();
+              }
+              else{
+                await showDialog(context: context, builder: (BuildContext context){
+                  return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+                    Navigator.of(context).pop();
+                  },),);
+                },
+                );
+                saveCardsToDatabase();
+              }
+            }
+            else{
+              // widget.profileDataProvider?.removeAllCards();
+              showDialog(context: context, builder: (BuildContext context){
+                return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },),);
               },
-            );
-          },
-        ):showDialog(context: context, builder: (BuildContext context){
+              );
+              // Add your action here
+              print('Action cancelled');
+            }
+          },);
+        },) :showDialog(context: context, builder: (BuildContext context){
           return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
             Navigator.of(context).pop();
             Navigator.of(context).pop();
@@ -760,7 +928,40 @@ class _PaymentSectionState extends State<PaymentSection> {
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 4,text:'You are all set',profileDataProvider:widget.profileDataProvider),automaticallyImplyLeading: false,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 4,text:'You are all set',profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+          if(widget.text=='edit'){
+            print('6th Page');
+            if(widget.savedCards==null){
+              showDialog(context: context, builder: (BuildContext context){
+                return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+                  print(2);
+                  saveCardsToDatabase();
+                  // Navigator.of(context).pop();
+                  // Navigator.of(context).pop();
+                },),);
+              },
+              );
+            }
+            else{
+              saveCardsToDatabase();
+            }
+          }else{
+            if(widget.profileDataProvider!=null){
+              // widget.profileDataProvider?.setServide1();
+            }
+            showDialog(context: context, builder: (BuildContext context){
+              return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+                print('I have done!');
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
+              },),);
+            },
+            );
+          }
+        },),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
           child: Center(
             child: Column(
@@ -771,8 +972,7 @@ class _PaymentSectionState extends State<PaymentSection> {
                     height: 25,
                     child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
                 SizedBox(height: 30,),
-                PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:widget.profileDataProvider),
-
+                PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:widget.profileDataProvider,section: widget.text,),
               ],
             ),
           ),
@@ -800,13 +1000,16 @@ class CardDetails{
   });
 }
 
+
+
 class PaymentCard extends StatefulWidget{
   final List<CardDetails> paymentCards;
+  List<PaymentDetails>? paymentCard;
   ProfileDataProvider? profileDataProvider;
   String?section;
   bool cardForm;
 
-  PaymentCard({required this.paymentCards,required this.cardForm,this.profileDataProvider,this.section});
+  PaymentCard({required this.paymentCards,required this.cardForm,this.profileDataProvider,this.section,this.paymentCard});
 
   @override
   _PaymentCardState createState() => _PaymentCardState();
@@ -910,9 +1113,29 @@ class _PaymentCardState extends State<PaymentCard> {
     // Join the chunks with spaces
     return chunks.join(' ');
   }
+  CardDetails?editCard;
+  List<CardDetails> cards=[];
+  @override
+  void initState(){
+    super.initState();
+    if(widget.paymentCards!=null  && widget.paymentCards.length>0){
+      cards = widget.paymentCards;
+      for(int i=0;i<widget.paymentCards.length;i++){
+        CardDetails card = widget.paymentCards[i];
+        globalCards!.add(PaymentDetails(
+          name: card.name, // Get this from user input
+          month: card.month, // Get this from user input
+          year: card.year, // Get this from user input
+          cardNo: card.cardNo, // Get this from user input
+          cvv: card.cvv, // Get this from user input
+        ));
+      }
+    }
+  }
   @override
   Widget build (BuildContext context){
-    List<CardDetails> cards = widget.paymentCards;
+    cards = widget.paymentCards;
+    print('8th Page');
     double screenHeight = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       child: Column(
@@ -995,15 +1218,21 @@ class _PaymentCardState extends State<PaymentCard> {
                                       cvvController.text = cards[index].cvv;
                                       widget.cardForm = !widget.cardForm;
                                     });
-                                    if(widget.section=='edit'){}
+                                    if(widget.section=='edit'){
+                                      globalCards!.removeAt(index);
+                                    }
                                     else widget.profileDataProvider!.removeCard(index);
+                                    editCard = CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text,month:expMonthController.text,year: expYearController.text,cvv:cvvController.text,options: false);
                                     widget.paymentCards.removeAt(index);
                                   },
                                 ),
                                 Text('|',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'))),
                                 GestureDetector(
                                     onTap: (){
-                                      if(widget.section=='edit'){}
+                                      if(widget.section=='edit'){
+                                        print('removed');
+                                        globalCards!.removeAt(index);
+                                      }
                                       else widget.profileDataProvider!.removeCard(index);
                                       setState(() {
                                         widget.paymentCards.removeAt(index);
@@ -1218,9 +1447,36 @@ class _PaymentCardState extends State<PaymentCard> {
                           children: [
                             GestureDetector(
                               onTap: (){
+                                if(editCard!=null){
+                                  widget.paymentCards.add(editCard!);
+                                  if(widget.profileDataProvider!=null){
+                                    PaymentDetails newPayment = PaymentDetails(
+                                      name: nameController.text, // Get this from user input
+                                      month: expMonthController.text, // Get this from user input
+                                      year: expYearController.text, // Get this from user input
+                                      cardNo: cardNoController.text, // Get this from user input
+                                      cvv: cvvController.text, // Get this from user input
+                                    );
+                                    widget.profileDataProvider!.addCardDetails(newPayment);
+                                  }
+                                  else{
+                                    globalCards!.add(PaymentDetails(
+                                      name: nameController.text, // Get this from user input
+                                      month: expMonthController.text, // Get this from user input
+                                      year: expYearController.text, // Get this from user input
+                                      cardNo: cardNoController.text, // Get this from user input
+                                      cvv: cvvController.text, // Get this from user input
+                                    ));
+                                  }
+                                  editCard = null;
+                                }
                                 setState(() {
+                                  nameController.text = '';
+                                  cardNoController.text = '';
+                                  expMonthController.text = '';
+                                  expYearController.text = '';
+                                  cvvController.text = '';
                                   widget.cardForm = !widget.cardForm;
-                                  print(widget.cardForm);
                                 });
                               },
                               child: Container(
@@ -1245,9 +1501,15 @@ class _PaymentCardState extends State<PaymentCard> {
                                     cardNo: cardNoController.text, // Get this from user input
                                     cvv: cvvController.text, // Get this from user input
                                   );
-                                  if(widget.section=='edit') {}
+                                  print(widget.section);
+                                  if(widget.section=='edit') {
+                                    globalCards!.add(newPayment);
+                                  }
                                   else {
                                     widget.profileDataProvider!.addCardDetails(newPayment);
+                                  }
+                                  if(editCard!=null){
+                                    editCard = null;
                                   }
                                   setState(() {
                                     widget.paymentCards.add(CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text,month:expMonthController.text,year: expYearController.text,cvv:cvvController.text,options: false));
@@ -1259,7 +1521,6 @@ class _PaymentCardState extends State<PaymentCard> {
                                     widget.cardForm = !widget.cardForm;
                                   });
                                 }
-
                               },
                               child: Container(
                                   width: 156,
@@ -1319,31 +1580,32 @@ class _PaymentCardState extends State<PaymentCard> {
               ),
             ),
           ),
-          widget.paymentCards.length>0
-          ? Container(
-              width: 326,
-              height: 53,
-              margin: EdgeInsets.only(top: screenHeight * 0.2 ),
-              child: FiledButton(
-              backgroundColor: HexColor('#FB8C00'),
-              onPressed: () {
-                  showDialog(context: context, builder: (BuildContext context){
-                    return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-                      Navigator.of(context).pop();
-                      // Navigator.of(context).pop();
-                      // Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      if(widget.profileDataProvider!=null){
-                        widget.profileDataProvider?.setServide1();
-                      }
-                    },),);
-                  },
-                );
-              },
-              child: Center(
-                child: Text('Set Cards',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 18)))),
-            )
-          :SizedBox(height: 0,),
+          // widget.paymentCards.length>0
+          // ? Container(
+          // ? Container(
+          //     width: 326,
+          //     height: 53,
+          //     margin: EdgeInsets.only(top: screenHeight * 0.2 ),
+          //     child: FiledButton(
+          //     backgroundColor: HexColor('#FB8C00'),
+          //     onPressed: () {
+          //         showDialog(context: context, builder: (BuildContext context){
+          //           return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+          //             Navigator.of(context).pop();
+          //             // Navigator.of(context).pop();
+          //             // Navigator.of(context).pop();
+          //             Navigator.of(context).pop();
+          //             if(widget.profileDataProvider!=null){
+          //               widget.profileDataProvider?.setServide1();
+          //             }
+          //           },),);
+          //         },
+          //       );
+          //     },
+          //     child: Center(
+          //       child: Text('Set Cards',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 18)))),
+          //   )
+          // :SizedBox(height: 0,),
         ],
       ),
     );

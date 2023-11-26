@@ -122,6 +122,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 // Handle the error as needed
               }
             }
+            _signOut();
             Navigator.of(context).pop(); // Close the alert box
             // Add your action for Button 2 here
             print('Button 2 Pressed');
@@ -140,7 +141,7 @@ class _SettingsPageState extends State<SettingsPage> {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 0,),automaticallyImplyLeading: false,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
           child: Center(
             child: Container(
@@ -198,6 +199,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       service2:false,
                                       userId: widget.userId!,
                                       service3:false,
+                                      haveCards:dataset?['userPaymentData']!=null && dataset?['userPaymentData'].length>0?true:false,
                                       ),));
                                 },
                                 child: Container(
@@ -229,7 +231,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             builder: (context) {
                               return GestureDetector(
                                 onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments(savedCards: dataset?['userPaymentData']!=null?(dataset?['userPaymentData']):[],)));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments(userId:widget.userId,savedCards: dataset?['userPaymentData']!=null?(dataset?['userPaymentData']):[],)));
                                 },
                                 child: Container(
                                   width: 330,
@@ -474,9 +476,9 @@ class _EditProfileState extends State<EditProfile>{
 }
 
 class EditServices extends StatefulWidget{
-  bool ?service1,service2,service3;
+  bool ?service1,service2,service3,haveCards;
   String?userId;
-  EditServices({this.service1,this.service2,this.service3,this.userId});
+  EditServices({this.service1,this.service2,this.service3,this.userId,this.haveCards});
   @override
   _EditServicesState createState()=> _EditServicesState();
 }
@@ -484,17 +486,21 @@ class EditServices extends StatefulWidget{
 class _EditServicesState extends State<EditServices>{
   @override
   Widget build(BuildContext context) {
+    print('Cards ${widget.haveCards}');
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 1,),automaticallyImplyLeading: false),
-      body: Container(
-        height: 860,
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: [
-            ServiceCard(userId:widget.userId,isToggle:widget.service1,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner '),
-            ServiceCard(isToggle:widget.service2,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'Turn youself ON for Becoming \nSuperhero as a saviour ! '),
-            ServiceCard(isToggle:widget.service3,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !'),
-          ],
+      appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false),
+      body: Center(
+        child: Container(
+          width: 360,
+          height: 860,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              ServiceCard(text:'edit',haveCards:widget.haveCards,userId:widget.userId,isToggle:widget.service1,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner '),
+              ServiceCard(isToggle:widget.service2,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'Turn youself ON for Becoming \nSuperhero as a saviour ! '),
+              ServiceCard(isToggle:widget.service3,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !'),
+            ],
+          ),
         ),
       ),
     );
@@ -503,7 +509,8 @@ class _EditServicesState extends State<EditServices>{
 
 class EditPayments extends StatefulWidget{
   List<dynamic>?savedCards;
-  EditPayments({this.savedCards});
+  String?userId;
+  EditPayments({this.savedCards,this.userId});
   @override
   _EditPaymentsState createState()=> _EditPaymentsState();
 }
@@ -533,13 +540,7 @@ class _EditPaymentsState extends State<EditPayments>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 2,),automaticallyImplyLeading: false,),
-      body: Row(
-        children: [
-          SizedBox(width: 20,),
-          PaymentCard(paymentCards: convertToCardDetailsList(widget.savedCards!), cardForm: false,section:'edit'),
-        ],
-      ),
+      body: PaymentSection(savedCards: convertToCardDetailsList(widget.savedCards!),text: 'edit',userId: widget.userId,),
     );
 
   }
@@ -687,41 +688,48 @@ class Help extends StatelessWidget{
           width: 333,
           height: 838,
           child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(
-                children: [
-                  Column(
-                    children: [
-                      Text('Help',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold),),
-                      Text('Tell us your concern !',style:TextStyle(fontFamily: 'Poppins',fontSize: 16,)),
-                    ],
-                  ),
-                  Container(
-                    color: HexColor('#D9D9D9'),
-                    height:361,
-                    child: TextField(
-                      style: TextStyle(fontSize: 16,),
-                      onChanged: (value) {
-                        textValue = value;
-                      },
-                      decoration: InputDecoration(
-                        hintText: 'Type here........',
-                        border: OutlineInputBorder(),
-                      ),
-                      maxLines: 5, // Increase the maxLines for a larger text area
-                    ),
-                  ),
-                  Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              Container(
+                height: 593,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Or',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 16),),
-                        Text('Submit your concern with us at',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 16),),
-                        Text('Info@culturtap.com',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
+                        Text('Help',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold),),
+                        Text('Tell us your concern !',style:TextStyle(fontFamily: 'Poppins',fontSize: 16,)),
                       ],
                     ),
-                  ),
-                ],
+                    Container(
+                      color: HexColor('#D9D9D9'),
+                      height:361,
+                      child: TextField(
+                        style: TextStyle(fontSize: 16,),
+                        onChanged: (value) {
+                          textValue = value;
+                        },
+                        decoration: InputDecoration(
+                          hintText: 'Type here........',
+                          border: OutlineInputBorder(),
+                        ),
+                        maxLines: 15, // Increase the maxLines for a larger text area
+                      ),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          Text('Or',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 16),),
+                          Text('Submit your concern with us at',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 16),),
+                          Text('Info@culturtap.com',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
               ),
               Container(
                 width: 326,

@@ -329,6 +329,10 @@ class _PingSectionState extends State<PingsSection>{
             ),
           );
         }
+        else if(widget.text=='edit'){
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
         return true;
       },
       child: Scaffold(

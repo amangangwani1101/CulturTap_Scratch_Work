@@ -28,13 +28,7 @@ router.put("/profileSection", async (req, res) => {
                 user[key]['slotsChossen'] = dataset[key].slotsChossen;
             }
             else{
-                if(user[key]['startTimeFrom']){
-//                console.log(2);
-//                    delete user[key].startTimeFrom;
-//                     delete user[key].endTimeTo;
-//                     delete user[key].slotsChossen;
-                }
-            }
+             }
         }
         else{
           user[key] = dataset[key];
@@ -93,5 +87,27 @@ router.put("/updateUserTime",async (req,res)=>{
       res.status(501).json({ error: "Failed to update user time" });
   }
 });
+
+// clear user timing
+router.put("/deleteUserTime",async (req,res)=>{
+  try{
+      let { userId } = req.body;
+      const user = await ProfileData.findById(userId).lean();
+      if (!user) {
+        return res.status(404).json({ error: "User Not Found" });
+      }
+      if(!user.userServiceTripCallingData){
+       res.status(404).json({ message: "Details Are Not Present ! Refresh Page" });
+      }
+      // Save the updated user timings
+      const updateFields = { $unset: { 'userServiceTripCallingData.startTimeFrom': 1, 'userServiceTripCallingData.endTimeTo': 1 ,'userServiceTripCallingData.slotsChossen':1}};
+      await ProfileData.findByIdAndUpdate(userId, updateFields);
+      res.status(200).json({ message: "User timing updated successfully" });
+  }catch(err){
+      console.log('Error:',err);
+      res.status(501).json({ error: "Failed to update user time" });
+  }
+});
+
 
 module.exports = router;
