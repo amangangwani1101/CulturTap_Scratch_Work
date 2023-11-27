@@ -66,6 +66,55 @@ router.patch('/updateCards',async(req,res)=>{
 });
 
 
+// update profile section
+router.patch('/updateProfile',async(req,res)=>{
+    try{
+       let updatedFields = req.body;
+       console.log(updatedFields);
+       const user = await ProfileData.findById(updatedFields['userId']).lean();
+       if (!user) {
+         return res.status(404).json({ error: "User Not Found" });
+       }
+
+       for (const key in updatedFields) {
+         if (updatedFields[key]) {
+            user[key] = updatedFields[key];
+         }
+       }
+       // Save the updated user timings
+       await ProfileData.findByIdAndUpdate(updatedFields['userId'], user);
+       res.status(200).json({ message: "User Details updated successfully" });
+    }catch(err){
+        console.log('Error,',err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
+router.get('/profileDetails/:id',async(req,res)=>{
+    try{
+       const userId = req.params.id;
+       const user = await ProfileData.findById(userId).lean();
+       if (!user) {
+         return res.status(404).json({ error: "User Not Found" });
+       }
+        res.status(200).json(
+            {
+                homeCity:user['userPlace'],
+                profession:user['userProfession'],
+                dob:user['userAge'],
+                gender:user['userGender'],
+                imagePath:user['userPhoto'],
+                name:user['userName'],
+                quote:user['userQuote'],
+                language:user['userLanguages']
+            }
+        );
+    }catch(err){
+        console.log('Error,',err);
+        res.status(500).json({ error: "Internal server error" });
+    }
+});
+
 
 
 module.exports = router;

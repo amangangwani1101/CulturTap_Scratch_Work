@@ -19,12 +19,12 @@ class CustomDropdown {
         Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
         SizedBox(height: 10,),
         Container(
-          width: deviceWidth*0.90,
+          width: deviceWidth,
           height: 60,
           child: DropdownButtonFormField<String>(
             value: selectedValue,
             icon: Icon(Icons.arrow_drop_down_circle,color: HexColor('#FB8C00'),),
-            hint: Text('Select'),
+            hint: Text('Select',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
@@ -90,7 +90,7 @@ class CustomDOBDropDown extends StatelessWidget{
               border: Border.all(width: 1.0, color: Colors.grey), // Border style
               borderRadius: BorderRadius.circular(5.0), // Rounded corners
             ),
-            width: deviceWidth*0.86,
+            width: deviceWidth,
             height: 55,
             child: Padding(
               padding: const EdgeInsets.only(left: 11.0,right: 8.0),

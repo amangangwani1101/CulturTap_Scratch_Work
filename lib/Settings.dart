@@ -9,11 +9,14 @@ import 'package:flutter/material.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
+import 'package:learn_flutter/widgets/CustomAutoSuggestionDropDown.dart';
 import 'package:learn_flutter/widgets/CustomButton.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:http/http.dart' as http;
 import 'ServiceSections/ServiceCards.dart';
 import 'SignUp/FirstPage.dart';
+import 'UserProfile/CoverPage.dart';
+import 'UserProfile/UserInfo.dart';
 import 'widgets/Constant.dart';
 import 'widgets/CustomAlertImageBox.dart';
 
@@ -31,7 +34,7 @@ void main() async{
       appId: "1:268794997426:android:694506cda12a213f13f7ab ",
     ),
   );
-  runApp(SettingsPage(userId: '656050b3030772278b8b54cd',));
+  runApp(SettingsPage(userId: '655e6f1aaa077c80bc0da471',));
 }
 class SettingsPage extends StatefulWidget{
   String userId;
@@ -163,7 +166,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             builder: (context) {
                               return GestureDetector(
                                 onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(),));
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(userId:widget.userId),));
                                 },
                                 child: Container(
                                   width: 330,
@@ -457,20 +460,178 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class EditProfile extends StatefulWidget{
+  String?userId;
+  EditProfile({this.userId});
   @override
   _EditProfileState createState() => _EditProfileState();
 }
 
 class _EditProfileState extends State<EditProfile>{
+  String?homeCity,profession,dob,gender,imagePath,name,quote;
+  List<String>?language;
+
+  @override
+  void initState(){
+    super.initState();
+    fetchData();
+  }
+
+  void fetchData()async {
+    await fetchProfileData();
+  }
+  void sendDataToBackend () async{
+    print('Status');
+    try {
+      Map<String,dynamic> data = {
+        'userId':widget.userId,
+        'userPlace':homeCity,
+        'userProfession':profession,
+        'userAge':dob,
+        'userGender':gender,
+        'userPhoto':imagePath,
+        'userName':name,
+        'userQuote':quote,
+        'userLanguages':language
+      };
+
+      print(data);
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/updateProfile'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Profile Updated Successfully!'),
+          ),
+        );
+        Navigator.of(context).pop();
+        print('Data updated successfully');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Try Again!!'),
+          ),
+        );
+        print('Failed to save data: ${response.statusCode}');
+      }
+    }catch(err){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Try Again!!'),
+        ),
+      );
+      print("Error: $err");
+    }
+  }
+
+  Future<void> fetchProfileData() async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/profileDetails/${widget.userId}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        imagePath = data['imagePath'];
+        homeCity = data['homeCity'];
+        profession = data['profession'];
+        dob = data['dob'];
+        gender = data['gender'];
+        name = data['name'];
+        quote = data['quote'];
+      });
+    } else {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Try Again!!'),
+        ),
+      );
+      Navigator.of(context).pop();
+      print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    print('1 $homeCity');
     return Scaffold(
       appBar: AppBar(title: ProfileHeader(reqPage: 1,),automaticallyImplyLeading: false,),
-      body: Center(
-        child: Container(
-          child: Text('Currently Under Work!!'),
+      body: SingleChildScrollView(
+        child: Center(
+          child: Container(
+            width: 380,
+            // height: 1126,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Center(
+                  child: Container(
+                    width: 360,
+                    height: 480,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Text('Edit Profile',style:TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins')),
+                        CoverPage(reqPage:0,name: 'Aman',),
+                        MotivationalQuote(quote:'Aman Gangwani'),
+                      ],
+                    ),
+                  ),
+                ),
+                Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                        ProfileForm(text:'edit',homeCityCallback: (value){
+                          homeCity = value;
+                        },professionCallback:(value){
+                          profession = value;
+                        },dobCallback:(value){
+                          dob = value;
+                        },genderCallback:(value){
+                          gender = value;
+                        },languageCallback:(values){
+                          language = values;
+                        },setHomeCity:imagePath,setProfession:profession,setGender:gender,setLanguage:language
+                        ),
+                        Center(
+                          child: Container(
+                            width: 360,
+                            height: 53,
+                            child: FiledButton(
+                                backgroundColor: HexColor('#FB8C00'),
+                                onPressed: () {
+                                  sendDataToBackend();
+                                },
+                                child: Center(
+                                    child: Text('SUBMIT',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.white,
+                                          fontSize: 18,)))),
+                          ),
+                        ),
+                      ],
+
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-      ),
+      )
     );
   }
 }

@@ -32,7 +32,8 @@ class CoverPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider!,imagePath:imagePath,name: name,image:image);
+    // return Container(height:20, child: Text('Hello'));
+    return UserImage(reqPages: reqPage,profileDataProvider: profileDataProvider,imagePath:imagePath,name: name,image:image);
   }
 }
 
@@ -55,7 +56,8 @@ class _UserImageState extends State<UserImage>{
   void handleImageUpdated(File image) {
     setState(() {
       _userProfileImage = image; // Update the parameter in the main class
-      widget.profileDataProvider?.updateImagePath((image.path)!); // Update image path in the provider
+      if(widget.profileDataProvider!=null)
+        widget.profileDataProvider?.updateImagePath((image.path)!); // Update image path in the provider
     });
   }
 
@@ -175,21 +177,22 @@ class _UserImageState extends State<UserImage>{
                             width: 15.0, // Border width
                           ),
                         ),
-                        child: widget.imagePath!=null?
-                        widget.image=='network'
-                        ?CircleAvatar(
+                        child: widget.imagePath!=null
+                          ? widget.image=='network'
+                            ? CircleAvatar(
                           radius: 60,
                           backgroundImage: NetworkImage(widget.imagePath!), // Replace with the actual image URL
                         )
-                        : CircleAvatar(
+                            : CircleAvatar(
                           radius: 60,
                           backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>,
                         )
-                            : _userProfileImage!=null?
-                        CircleAvatar(
+                          : _userProfileImage!=null
+                            ? CircleAvatar(
                           radius: 60,
                           backgroundImage: FileImage(_userProfileImage!),
-                        ) :CircleAvatar(
+                        )
+                            : CircleAvatar(
                           radius: 60,
                           backgroundImage: AssetImage('assets/images/user.png'),
                           backgroundColor: Colors.white,// Replace with user avatar image
@@ -353,8 +356,6 @@ class _UploadMethodsState extends State<UploadMethods> {
     );
   }
 }
-
-
 
 // Edit Name
 class EditNameForm extends StatefulWidget {

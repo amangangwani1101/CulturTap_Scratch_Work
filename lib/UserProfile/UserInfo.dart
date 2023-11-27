@@ -6,8 +6,12 @@ import 'dart:ui';
 import 'package:flutter/cupertino.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:learn_flutter/UserProfile/CoverPage.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
+import 'package:learn_flutter/widgets/Constant.dart';
+import 'package:multiselect/multiselect.dart';
+import '../widgets/CustomAutoSuggestionDropDown.dart';
 import '../widgets/CustomButton.dart';
 import '../widgets/CustomDropDowns.dart';
 import '../widgets/hexColor.dart';
@@ -16,6 +20,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
+import 'package:flutter_typeahead/flutter_typeahead.dart';
+
 // raw data variable
 typedef void SetQuote(String? image);
 
@@ -546,9 +552,56 @@ class UserDetailsTable extends StatelessWidget {
 
 
 // ReqPage : 1 -> Profile Form For User Details : input data of user
+
+
+// class MultiLanguageSelector extends StatelessWidget{
+//   Rx<List<String>> selectedOptionsList = Rx<List<String>>([]);
+//   var selectedOptions = ''.obs;
+//
+//
+//   @override
+//   Widget build(BuildContext context){
+//     return Center(
+//       child: Column(
+//         crossAxisAlignment: CrossAxisAlignment.start,
+//         children: [
+//           Text('Languages',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),),
+//           SizedBox(height: 10,),
+//           DropDownMultiSelect(
+//             isDense: true,
+//             enabled: true,
+//             options: Constant().languageList,
+//             whenEmpty: 'Select',
+//             decoration: InputDecoration(
+//               focusedBorder: OutlineInputBorder(
+//                 borderSide: BorderSide(color: HexColor('#FB8C00')),
+//               ),
+//               border: OutlineInputBorder(),
+//             ),
+//             icon:Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'),),
+//             onChanged: (value){
+//               selectedOptionsList.value = value;
+//               selectedOptions.value = '';
+//               selectedOptionsList.value.forEach((item) {
+//                 selectedOptions.value = selectedOptions.value+',' + item;
+//               });
+//
+//             },
+//             selectedValues: selectedOptionsList.value,
+//           ),
+//         ],
+//       ),
+//     );
+//   }
+//
+// }
 class ProfileForm extends StatefulWidget {
+  final Function(String)? homeCityCallback,professionCallback,dobCallback,genderCallback;
+  Function(List<String>)?languageCallback;
   final ProfileDataProvider? profileDataProvider;
-  ProfileForm({this.profileDataProvider});
+  String?text,setHomeCity,setProfession,setGender;
+  List<String>?setLanguage;
+  ProfileForm({this.profileDataProvider,this.setGender,this.setHomeCity,this.setLanguage,this.setProfession,this.text,this.homeCityCallback,this.dobCallback,this.genderCallback,this.languageCallback,this.professionCallback});
   @override
   _ProfileFormState createState() => _ProfileFormState();
 }
@@ -559,124 +612,14 @@ class _ProfileFormState extends State<ProfileForm> {
   String? selectedLanguage;
   late String save;
   String? age;
+  Rx<List<String>> selectedOptionsList = Rx<List<String>>([]);
+  var selectedOptions = ''.obs;
   TextEditingController _ageController = TextEditingController();
   FocusNode _focusNode = FocusNode();
-  final List<String> professions = [
-    'Engineer',
-    'Doctor',
-    'Teacher',
-    'Artist',
-    'Other',
-    // Add more professions as needed
-  ];
-  List<String> cities = [];
-
   final List<String> genders = ['Male', 'Female', 'Other'];
 
-  final List<String> languages = [
-    'English',
-    'Spanish',
-    'French',
-    'German',
-    // Add more languages as needed
-  ];
 
-  // Future<List<String>> getCities(String state, String country) async {
-  //   final username = 'aman_1101'; // Replace with your Geonames username
-  //   final url = 'http://api.geonames.org/searchJSON?country=$country&adminCode1=$state&username=$username';
-  //
-  //   final response = await http.get(Uri.parse(url));
-  //
-  //   if (response.statusCode == 200) {
-  //     final List<dynamic> data = json.decode(response.body)['geonames'];
-  //     return data.map<String>((city) => city['name']).toList();
-  //   } else {
-  //     throw Exception('Failed to load city data');
-  //   }
-  // }
-  //
-  // Future<List<String>> _getCitySuggestions(String state, String country) async {
-  //   try {
-  //     return await getCities(state, country);
-  //   } catch (e) {
-  //     print('Error fetching city suggestions: $e');
-  //     return [];
-  //   }
-  // }
-  //
-  // void getCityList() async{
-  //   LocationPermission permission; permission = await Geolocator.requestPermission();
-  //
-  //   if (permission == LocationPermission.denied) {
-  //     ScaffoldMessenger.of(context).showSnackBar(
-  //       SnackBar(
-  //         content: Text('Location permission denied. Unable to get the city.'),
-  //       ),
-  //     );
-  //     return;
-  //   }
-  //
-  //   Position position = await Geolocator.getCurrentPosition(
-  //     desiredAccuracy: LocationAccuracy.high,
-  //   );
-  //
-  //   Future<Map<String, String>> fetchAddressFromCoordinates(double latitude, double longitude) async {
-  //     final String apiUrl = 'https://nominatim.openstreetmap.org/reverse?format=json&lat=$latitude&lon=$longitude';
-  //
-  //     try {
-  //       final response = await http.get(Uri.parse(apiUrl));
-  //       if (response.statusCode == 200) {
-  //         final decoded = jsonDecode(response.body);
-  //
-  //         // Extract state and country from the address components
-  //         String state = '';
-  //         String country = '';
-  //         print(decoded['address']);
-  //         final addressComponents = decoded['address'];
-  //         if (addressComponents != null && addressComponents.isNotEmpty) {
-  //           state = addressComponents['state'] ?? '';
-  //           country = addressComponents['country'] ?? '';
-  //         }
-  //
-  //         print('State: $state, Country: $country');
-  //
-  //         return {
-  //           'state': state,
-  //           'country': country,
-  //         };
-  //       } else {
-  //         print('Failed to fetch address. Status code: ${response.statusCode}');
-  //         return {
-  //           'state': '',
-  //           'country': '',
-  //         };
-  //       }
-  //     } catch (e) {
-  //       print('Error: $e');
-  //       return {
-  //         'state': '',
-  //         'country': '',
-  //       };
-  //     }
-  //   }
-  //   String state='Uttar Pradesh',country = 'India';
-  //   if (kIsWeb) {
-  //     Map<String,String>items = await fetchAddressFromCoordinates(position.latitude,position.longitude);
-  //     state = items['state']!.length==0?state:items['state']!;
-  //     country = items['country']!.length==0?state:items['country']!;
-  //   }else if(Platform.isAndroid){
-  //     List<Placemark> placemarks = await placemarkFromCoordinates(
-  //       position.latitude,
-  //       position.longitude,
-  //     );
-  //     state = placemarks.first.administrativeArea!;
-  //     country = placemarks.first.country!;
-  //   }
-  //
-  //   print(state);
-  //   print(country);
-  //   cities = await _getCitySuggestions(state, country);
-  // }
+  bool otherHome=false,otherPro=false;
 
   @override
   Widget build(BuildContext context) {
@@ -691,35 +634,49 @@ class _ProfileFormState extends State<ProfileForm> {
     }
     // bool _isFocused = false;
     TextEditingController _textController = TextEditingController();
-
-    Future<bool> isValidCity(String city) async {
-      final url = 'http://api.geonames.org/searchJSON?q=$city&maxRows=5&username=aman_1101';
-      print('Request URL: $url');
-
-      final response = await http.get(Uri.parse(url));
-      final decode = jsonDecode(response.body);
-      print(decode);
-      if(decode['totalResultsCount']>0)
-          return true;
-      else
-        return false;
-    }
+    TextEditingController _otherHomeController = TextEditingController();
+    TextEditingController _otherProController = TextEditingController();
+    final FocusNode _focusNode = FocusNode();
     return Container(
       padding: EdgeInsets.all(10.0),
 
       child: Column(
 
         children: [
-          Container(
+          // setHomeCity,setProfession,setGender,setLanguage
+          CustomAutoSuggestion(
+            cityList: Constant().cityList,
+            text: 'Home city',
+            initialText:widget.setHomeCity,
+            onValueChanged: (selectedValue) {
+              if(selectedValue=='Others'){
+                setState(() {
+                  otherHome = true;
+                });
+              }else{
+                setState(() {
+                  otherHome = false;
+                });
+                if(widget.text=='edit'){
+                  widget.homeCityCallback!(selectedValue);
+                }else{
+                  widget.profileDataProvider?.updatePlace(selectedValue);
+                }
+              }
+              // Add your logic here
+            },
+          ),
+          SizedBox(height: 10,),
+          otherHome
+            ?Container(
             height: 79,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Home City',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
                 TextField(
                   focusNode: _focusNode,
-                  controller: _textController,
+                  controller: _otherHomeController,
                   decoration: InputDecoration(
                     hintText: 'Type Here....',
                     border: OutlineInputBorder(),
@@ -728,49 +685,69 @@ class _ProfileFormState extends State<ProfileForm> {
                     ),
                   ),
                   onChanged: (value) {
+                    if(widget.text=='edit'){
+                      widget.homeCityCallback!(value);
+                    }else{
+                      widget.profileDataProvider?.updatePlace(value);
+                    }
                     // Add your onChanged logic if needed
                   },
-                  onTap: () {
-                    _focusNode.addListener(() async{
-                      if (!_focusNode.hasFocus) {
-                        bool checker = await isValidCity(_textController.text);
-                        if(!checker) {
-                          _textController.text = '';
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text('Invalid city!'),
-                            ),
-                          );
-                        }
-                        else{};
-                      }
-                    });
-                  },
-                  onEditingComplete: ()  {
-                    print('caller');
-                    _focusNode.unfocus();
-                  },
-                )
+                ),
               ],
             ),
-          ),
-          SizedBox(height: 10,),
-          CustomDropdown.build(
-            label: 'Profession',
-            items: professions,
-            deviceWidth:screenWidth,
-            onChanged: (String? newValue) {
-              // Handle the selected value here, if needed
-              print('Selected: $newValue');
+          )
+            :SizedBox(height: 0,),
+          CustomAutoSuggestion(
+            cityList: Constant().professionList,
+            text: 'Profession',
+            onValueChanged: (selectedValue) {
+              if(selectedValue=='Others'){
+                setState(() {
+                  otherPro = true;
+                });
+              }else{
+                setState(() {
+                  otherPro = false;
+                });
+                if(widget.text=='edit'){
+                  widget.professionCallback!(selectedValue);
+                }else{
+                  widget.profileDataProvider?.updateProfession(selectedValue);
+                }
+              }
+              // Add your logic here
             },
-            setSelectedValue: (String? newValue) {
-              // Set the selected value outside the widget
-              selectedProfession = newValue!;
-              if(newValue!=null)
-                widget.profileDataProvider?.updateProfession(newValue!);
-            },
-            selectedValue: selectedProfession, // Pass the selected value to the widget
           ),
+          otherPro
+              ?Container(
+            height: 79,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                TextField(
+                  focusNode: _focusNode,
+                  controller: _otherProController,
+                  decoration: InputDecoration(
+                    hintText: 'Type Here....',
+                    border: OutlineInputBorder(),
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor('#FB8C00')),
+                    ),
+                  ),
+                  onChanged: (value) {
+                    if(widget.text=='edit'){
+                      widget.professionCallback!(value);
+                    }else{
+                      widget.profileDataProvider?.updateProfession(value);
+                    }
+                    // Add your onChanged logic if needed
+                  },
+                ),
+              ],
+            ),
+          )
+              :SizedBox(height: 0,),
           SizedBox(height: 10,),
           CustomDOBDropDown(
             label: 'Date of Birth',
@@ -779,14 +756,18 @@ class _ProfileFormState extends State<ProfileForm> {
             onDateSelected: (DateTime? newDate) {
               setState(() {
                 String age = (DateTime.now().year - (newDate!.year)).toString();
-                widget.profileDataProvider?.updateAge(age);
+                if(widget.text=='edit'){
+                  widget.dobCallback!(age);
+                }else{
+                  widget.profileDataProvider?.updateAge(age);
+                }
                 print('Path : ${age}');
                 selectedDateOfBirth = newDate;
                 print('Selected: ${newDate}');
               });
             },
           ),
-          SizedBox(height: 10,),
+          SizedBox(height: 20,),
           CustomDropdown.build(
             label: 'Gender',
             items: genders,
@@ -799,28 +780,49 @@ class _ProfileFormState extends State<ProfileForm> {
             setSelectedValue: (String? newValue) {
               // Set the selected value outside the widget
               selectedGender = newValue!;
-              if(newValue!=null)
+              if(widget.text=='edit'){
+                widget.genderCallback!(newValue!);
+              }else{
                 widget.profileDataProvider?.updateGender(newValue!);
+              }
             },
             selectedValue: selectedGender, // Pass the selected value to the widget
           ),
-          SizedBox(height: 10,),
-          CustomMultiDropdown(
-            label: 'Language You Know!',
-            items: languages,
-            deviceWidth:screenWidth,
-            selectedFields: [],
-            onChanged: (String? newValue) {
-              // Handle the selected value here, if needed
-                print('Selected: $newValue');
-              // widget.profileDataProvider?.updateLanguages(newValue!);
-            },
-            setSelectedValue: (String? newValue) {
-              // Set the selected value outside the widget
-              selectedLanguage = newValue!;
-              print('Path:$selectedLanguage');
-            },
-            selectedValue: selectedLanguage, // Pass the selected value to the widget
+          SizedBox(height: 20,),
+          Center(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Language You Know',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),),
+                SizedBox(height: 10,),
+                DropDownMultiSelect(
+                  isDense: true,
+                  enabled: true,
+                  options: Constant().languageList,
+                  whenEmpty: 'Select',
+                  decoration: InputDecoration(
+                    focusedBorder: OutlineInputBorder(
+                      borderSide: BorderSide(color: HexColor('#FB8C00')),
+                    ),
+                    border: OutlineInputBorder(),
+                  ),
+                  icon:Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'),),
+                  onChanged: (value){
+                    selectedOptionsList.value = value;
+                    selectedOptions.value = '';
+                    selectedOptionsList.value.forEach((item) {
+                      selectedOptions.value = selectedOptions.value+',' + item;
+                    });
+                    if(widget.text=='edit'){
+                      widget.languageCallback!(selectedOptionsList.value);
+                    }else{
+                        widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
+                    }
+                  },
+                  selectedValues: selectedOptionsList.value,
+                ),
+              ],
+            ),
           ),
           SizedBox(height: 10,),
       // Padding(
