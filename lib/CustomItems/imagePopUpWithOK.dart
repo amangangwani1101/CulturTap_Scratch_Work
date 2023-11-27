@@ -15,7 +15,7 @@ class ImagePopUpWithOK extends StatelessWidget {
   final String textField;
   final String what;
   final String? extraText;
-  final String? isDarkMode; // Add a boolean variable for background color condition
+  final String? isDarkMode;
 
   ImagePopUpWithOK({
     required this.imagePath,
@@ -27,7 +27,7 @@ class ImagePopUpWithOK extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = (isDarkMode=='') ? Color(0xFF263238) : Colors.white; // Set background color based on the condition
+    Color backgroundColor = (isDarkMode=='dark') ? Color(0xFF263238) : Color(0xFF263238) ; // Set background color based on the condition
 
     return Center(
       child: Container(

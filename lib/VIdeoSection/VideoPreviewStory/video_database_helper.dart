@@ -55,6 +55,11 @@ class VideoDatabaseHelper {
     await db.delete('videos');
   }
 
+  Future<void> deleteVideoByPath(String videoUrl) async {
+    final db = await database;
+    await db.delete('videos', where: 'videoUrl = ?', whereArgs: [videoUrl]);
+  }
+
   Future<List<VideoInfo2>> getAllVideos() async {
     final db = await database;
     final List<Map<String, dynamic>> maps = await db.query('videos');

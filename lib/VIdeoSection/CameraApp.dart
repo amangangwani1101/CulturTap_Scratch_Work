@@ -10,6 +10,8 @@ import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'dart:io';
 
+import 'package:torch_light/torch_light.dart';
+
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
@@ -40,6 +42,9 @@ class CameraApp extends StatefulWidget {
 }
 
 class _CameraAppState extends State<CameraApp> {
+  double _currentZoom = 1.0;
+  double _minZoom = 1.0;
+  double _maxZoom = 2.0;
 
   late VideoDatabaseHelper _databaseHelper;
 
@@ -47,6 +52,7 @@ class _CameraAppState extends State<CameraApp> {
   Geolocator _geolocator = Geolocator();
   Position? _startPosition;
   bool hasRecordedVideos = false;
+  bool hasVideos = false;
 
   CameraController? _controller;
   bool _isRecording = false;
@@ -93,6 +99,23 @@ class _CameraAppState extends State<CameraApp> {
   void updateCloseButtonVisibility() {
     setState(() {
       hasRecordedVideos = recordedVideoPaths.isNotEmpty;
+    });
+  }
+
+
+  void onScaleUpdate(ScaleUpdateDetails details) {
+    setState(() {
+      _currentZoom *= details.scale;
+
+      // Ensure zoom stays within valid range
+      if (_currentZoom < 1.0) {
+        _currentZoom = 1.0;
+      } else if (_currentZoom > _maxZoom) {
+        _currentZoom = _maxZoom;
+      }
+
+      // Apply zoom to the camera controller
+      _controller!.setZoomLevel(_currentZoom);
     });
   }
 
@@ -213,7 +236,7 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void navigateToPreviewPage(BuildContext context) async{
-    bool hasVideos = await VideoDatabaseHelper().hasVideos();
+    hasVideos = await VideoDatabaseHelper().hasVideos();
     if (hasVideos) {
       // Navigate to VideoPreviewPage with data from the database
       List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
@@ -245,6 +268,39 @@ class _CameraAppState extends State<CameraApp> {
     }
   }
 
+  bool _isFlashlightOn = false;
+
+  void toggleFlashlight() async {
+    try {
+      bool hasTorch = await TorchLight.isTorchAvailable();
+
+      if (hasTorch) {
+        if (_isFlashlightOn) {
+          await TorchLight.disableTorch();
+        } else {
+          await TorchLight.enableTorch();
+        }
+
+        setState(() {
+          _isFlashlightOn = !_isFlashlightOn;
+        });
+      } else {
+        print('Flashlight is not available on this device.');
+      }
+    } on EnableTorchExistentUserException catch (e) {
+      print('The camera is in use.');
+    } on EnableTorchNotAvailableException catch (e) {
+      print('Torch was not detected.');
+    } on EnableTorchException catch (e) {
+      print('Torch could not be enabled due to another error.');
+    } on DisableTorchExistentUserException catch (e) {
+      print('The camera is in use.');
+    } on DisableTorchNotAvailableException catch (e) {
+      print('Torch was not detected.');
+    } on DisableTorchException catch (e) {
+      print('Torch could not be disabled due to another error.');
+    }
+  }
 
   void stopRecording() async {
     _countdownTimer?.cancel();
@@ -364,138 +420,215 @@ class _CameraAppState extends State<CameraApp> {
           ),
         );
     } else {
-      return WillPopScope(
-        onWillPop: () => backButtonHandler.onWillPop(context, true),
-        child: Scaffold(
-          body: Stack(
-            fit: StackFit.expand,
-            children: <Widget>[
-              CameraPreview(_controller!),
-              if (hasRecordedVideos)
-                Positioned(
-                  top: 50,
-                  right: 30,
-                  child: GestureDetector(
-                    onTap: (){
-                      navigateToPreviewPage(context);
-                    } ,
-                    child: Icon(
-                      Icons.close,
-                      color: Colors.white,
-                      size: 30,
+      return GestureDetector(
+        onScaleUpdate: onScaleUpdate,
+        child: WillPopScope(
+          onWillPop: () => backButtonHandler.onWillPop(context, true),
+          child: Scaffold(
+
+            body: Column(
+
+              children: [
+
+                Expanded(
+                  child: Container(
+                    // Add your widgets for the row content here
+                    color: Colors.black, // Replace with your desired background color
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Padding(
+                          padding: const EdgeInsets.only(top:14.0),
+                          child: IconButton(
+                            onPressed: () {
+                              // Add your action for the first icon button
+                            },
+                            icon: Icon(
+                              Icons.settings,
+                              size: 30.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top:19.0),
+                          child: IconButton(
+                            icon: Icon(
+                              _isFlashlightOn ? Icons.flash_on : Icons.flash_off,
+                              size: 25.0,
+                              color: Colors.white,
+                            ),
+                            onPressed: toggleFlashlight,
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top:14.0),
+                          child: IconButton(
+                            onPressed: () {
+
+                              // Add your action for the third icon button
+                            },
+                            icon: Icon(
+                              Icons.fullscreen_outlined,
+                              size: 30.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                        Padding(
+                          padding: const EdgeInsets.only(top:14.0),
+                          child: IconButton(
+                            onPressed: () {
+                              if(hasVideos){
+                                navigateToPreviewPage(context);
+                              }
+
+
+                            },
+                            icon: Icon(
+                              Icons.chevron_right,
+                              size: 35.0,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-              Positioned(
-                bottom: 190,
-                left: 10,
-                right: 0,
-                child: Column(
+
+                Stack(
+
                   children: <Widget>[
-                    Text(
-                      _showRecordingMessage ? 'Recording Started' : '',
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
+
+
+
+                    AspectRatio(
+                      aspectRatio: 9/16, // Set the aspect ratio to 9:16
+                      child: CameraPreview(_controller!),
+                    ),
+
+
+
+
+                    // //
+                    // CameraPreview(_controller!),
+
+
+                      Positioned(
+                      bottom: 190,
+                      left: 10,
+                      right: 0,
+                      child: Column(
+                        children: <Widget>[
+                          Text(
+                            _showRecordingMessage ? 'Recording Started' : '',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            _isRecording ? ' $_remainingRecordingTime sec' : ' ',
+                            style: TextStyle(
+                              color: Colors.white54,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
                       ),
                     ),
-                    Text(
-                      _isRecording ? ' $_remainingRecordingTime sec' : ' ',
-                      style: TextStyle(
-                        color: Colors.white54,
-                        fontSize: 18.0,
-                        fontWeight: FontWeight.bold,
+                      Positioned(
+                      bottom: 30,
+                      left: 0,
+                      right: 0,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: <Widget>[
+                          Container(
+                            width: 90,
+                            height: 80,
+                          ),
+                          Column(
+                            children: [
+                              GestureDetector(
+                                onTap: _isRecording ? stopRecording : startRecording,
+                                child: Container(
+                                  margin: EdgeInsets.all(10.0),
+                                  child: Stack(
+                                    alignment: Alignment.center,
+                                    children: [
+                                      SizedBox(
+                                        width: 80,
+                                        height: 80,
+                                        child: CircularProgressIndicator(
+                                          value: _isRecording ? _currentProgress : 0.0,
+                                          backgroundColor: Colors.transparent,
+                                          valueColor: AlwaysStoppedAnimation<Color>(
+                                            Colors.orange,
+                                          ),
+                                          strokeWidth: 10.0,
+                                        ),
+                                      ),
+                                      SizedBox(
+                                        width: 80,
+                                        height: 80,
+                                        child: Icon(
+                                          _isRecording
+                                              ? Icons.pause_circle
+                                              : Icons.circle,
+                                          size: 69,
+                                          color: _isRecording
+                                              ? Colors.white60
+                                              : Colors.white,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                'Start Filming',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                          Column(
+                            children: [
+                              SizedBox(
+                                child: Container(
+                                  height: 100,
+                                  width: 80,
+                                  child: IconButton(
+                                    icon: Image.asset("assets/images/flip_camera.png"),
+                                    onPressed: toggleCamera,
+                                  ),
+                                ),
+                              ),
+                              Text(
+                                'Flip',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 18,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-              Positioned(
-                bottom: 30,
-                left: 0,
-                right: 0,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Container(
-                      width: 90,
-                      height: 80,
-                    ),
-                    Column(
-                      children: [
-                        GestureDetector(
-                          onTap: _isRecording ? stopRecording : startRecording,
-                          child: Container(
-                            margin: EdgeInsets.all(10.0),
-                            child: Stack(
-                              alignment: Alignment.center,
-                              children: [
-                                SizedBox(
-                                  width: 80,
-                                  height: 80,
-                                  child: CircularProgressIndicator(
-                                    value: _isRecording ? _currentProgress : 0.0,
-                                    backgroundColor: Colors.transparent,
-                                    valueColor: AlwaysStoppedAnimation<Color>(
-                                      Colors.orange,
-                                    ),
-                                    strokeWidth: 10.0,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 80,
-                                  height: 80,
-                                  child: Icon(
-                                    _isRecording
-                                        ? Icons.pause_circle
-                                        : Icons.circle,
-                                    size: 69,
-                                    color: _isRecording
-                                        ? Colors.white60
-                                        : Colors.white,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Text(
-                          'Start Filming',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                    Column(
-                      children: [
-                        SizedBox(
-                          child: Container(
-                            height: 100,
-                            width: 80,
-                            child: IconButton(
-                              icon: Image.asset("assets/images/flip_camera.png"),
-                              onPressed: toggleCamera,
-                            ),
-                          ),
-                        ),
-                        Text(
-                          'Flip',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 18,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

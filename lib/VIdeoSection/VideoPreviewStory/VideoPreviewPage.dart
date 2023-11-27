@@ -180,7 +180,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
   }
 
-  void removeVideo(String videoPath) {
+  Future<void> removeVideo(String videoPath) async {
     setState(() {
       // Find the location associated with the videoPath
       String location = widget.userLocation;
@@ -203,6 +203,9 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       // Remove the video path from widget.videoPaths
       int pathIndex = widget.videoPaths.indexOf(videoPath);
       if (pathIndex != -1) {
+        // Remove the video file from local storage asynchronously
+        VideoDatabaseHelper().deleteVideoByPath(videoPath);
+        // Remove the video path from the list
         widget.videoPaths.removeAt(pathIndex);
       }
     });
@@ -210,10 +213,43 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
     if (widget.videoPaths.isEmpty) {
       Navigator.pop(context);
     }
-
-
-
   }
+
+
+  // void removeVideo(String videoPath) {
+  //   setState(() {
+  //     // Find the location associated with the videoPath
+  //     String location = widget.userLocation;
+  //
+  //     if (videoData.containsKey(location)) {
+  //       // Find the index of the video with the given path within the location
+  //       int index = videoData[location]!.indexWhere((videoInfo) => videoInfo.videoUrl == videoPath);
+  //
+  //       if (index != -1) {
+  //         // Remove the video info from videoData
+  //         videoData[location]!.removeAt(index);
+  //
+  //         // If there are no videos left for that location, remove the location key
+  //         if (videoData[location]!.isEmpty) {
+  //           videoData.remove(location);
+  //         }
+  //       }
+  //     }
+  //
+  //     // Remove the video path from widget.videoPaths
+  //     int pathIndex = widget.videoPaths.indexOf(videoPath);
+  //     if (pathIndex != -1) {
+  //       widget.videoPaths.removeAt(pathIndex);
+  //     }
+  //   });
+  //
+  //   if (widget.videoPaths.isEmpty) {
+  //     Navigator.pop(context);
+  //   }
+  //
+  //
+  //
+  // }
 
 
 

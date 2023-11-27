@@ -7,14 +7,14 @@ String previousSpecific = '';
 
 Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyTitle, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList, ) {
 
-
+  if(previousSpecific == specificCategoryName){
+    specificCategoryName = '';
+  }
+  previousSpecific = specificCategoryName;
 
   if (storyUrls.isEmpty || storyDistance.isEmpty) {
 
-    if(previousSpecific == specificCategoryName){
-      specificCategoryName = '';
-    }
-    previousSpecific = specificCategoryName;
+    specificCategoryName = '';
 
     return Column(children: [
 

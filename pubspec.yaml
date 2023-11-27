@@ -19,7 +19,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 version: 1.0.0+1
 
 environment:
-  sdk: '>=3.0.6 <4.0.0'
+  sdk: '>=3.1.0 <4.0.0'
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
@@ -30,7 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.1.0
+  http: ^1.1.2
 
 
 
@@ -45,11 +45,12 @@ dependencies:
   web_socket_channel: ^2.4.0
   camera: ^0.10.5+4
   path_provider: ^2.1.1
-  video_player: ^2.7.1
+  video_player: ^2.8.1
+
   dropdown_search: ^5.0.6
   sqflite: ^2.3.0
   path: ^1.8.3
-  permission_handler: ^11.0.1
+  permission_handler: ^11.1.0
   video_thumbnail: ^0.5.3
   provider: ^6.0.5
   flutter_svg: ^2.0.7
@@ -70,6 +71,8 @@ dependencies:
   image_cropper: ^5.0.0
   flutter_local_notifications: ^16.2.0
 
+  torch_light: ^1.0.0
+
 
 
 
@@ -83,7 +86,7 @@ dev_dependencies:
   # activated in the `analysis_options.yaml` file located at the root of your
   # package. See that file for information about deactivating specific lint
   # rules and activating additional ones.
-  flutter_lints: ^2.0.0
+  flutter_lints: ^3.0.1
   pin_input_text_field: ^4.5.1
 
 
