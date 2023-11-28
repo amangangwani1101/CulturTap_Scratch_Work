@@ -82,7 +82,7 @@ class _FourthPageState extends State<FourthPage> {
         "phoneNumber": phoneNumber,
         "latitude":latitude!,
         "longitude":longitude!,
-        "profileStatus":"low",
+        "profileStatus":"",
         "pings":0,
         "uniqueToken":token==null?'':token!,
       };

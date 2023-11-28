@@ -37,15 +37,26 @@ class CoverPage extends StatelessWidget {
   }
 }
 
+String capitalizeWords(String input) {
+  List<String> words = input.split(' ');
+  for (int i = 0; i < words.length; i++) {
+    if (words[i].isNotEmpty) {
+      words[i] = words[i][0].toUpperCase() + words[i].substring(1);
+    }
+  }
+  return words.join(' ');
+}
+
 
 
 // Image Section
 class UserImage extends StatefulWidget {
   final int reqPages;
+  final Function(String)? imagePathCallback,nameCallback;
   final ProfileDataProvider? profileDataProvider;
   final String? name;// Pass the profileDataProvider here
-  final String? imagePath,image;
-  UserImage({required this.reqPages, this.profileDataProvider,this.imagePath,this.name,this.image});
+  final String? imagePath,image,text;
+  UserImage({required this.reqPages, this.profileDataProvider,this.imagePath,this.name,this.image,this.nameCallback,this.imagePathCallback,this.text});
   @override
   _UserImageState createState() => _UserImageState();
 }
@@ -56,9 +67,12 @@ class _UserImageState extends State<UserImage>{
   void handleImageUpdated(File image) {
     setState(() {
       _userProfileImage = image; // Update the parameter in the main class
-      if(widget.profileDataProvider!=null)
-        widget.profileDataProvider?.updateImagePath((image.path)!); // Update image path in the provider
     });
+    if (widget.text=='edit'){
+      widget.imagePathCallback!((image.path)!);
+    }
+    else if(widget.profileDataProvider!=null)
+      widget.profileDataProvider?.updateImagePath((image.path)!); // Update image path in the provider
   }
 
   @override
@@ -212,13 +226,15 @@ class _UserImageState extends State<UserImage>{
                             shape: BoxShape.circle,
                             color: Colors.orange,
                           ),
-                          child:IconButton(icon:Icon(Icons.camera_alt_outlined),color: Colors.white,onPressed: (){
-                            showDialog(context: context, builder: (BuildContext context){
+                          child:widget.text!='edit'
+                            ? IconButton(icon:Icon(Icons.camera_alt_outlined),color: Colors.white,onPressed: (){
+                              showDialog(context: context, builder: (BuildContext context){
+                                return Container(child: UploadMethods(onImageUpdated : handleImageUpdated));
+                              },);},)
+                            : IconButton(icon:Icon(Icons.edit_outlined),color: Colors.white,onPressed: (){
+                              showDialog(context: context, builder: (BuildContext context){
                               return Container(child: UploadMethods(onImageUpdated : handleImageUpdated));
-                            },
-                            );
-                          },
-                          ),
+                              },);},),
                         ),
                       ),
                     ],
@@ -226,14 +242,16 @@ class _UserImageState extends State<UserImage>{
                 ),
                 widget.reqPages<1?
                 Text(
-                  widget.name!=null?widget.name!:'Hemant Singh', // Replace with actual user name
+                  widget.name!=null?capitalizeWords(widget.name!):'Hemant Singh', // Replace with actual user name
                   style: TextStyle(
                     color: Colors.black,
-                    fontSize: 15,
-                    fontWeight: FontWeight.w900,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
                   ),
-                ):EditNameForm(profileDataProvider:widget.profileDataProvider!,name:widget.name==null?'Hemant Singh':widget.name!),
+                ):EditNameForm(text: widget.text,profileDataProvider:widget.profileDataProvider,name:widget.name==null?'Hemant Singh':capitalizeWords(widget.name!),callback: (value){
+                  widget.nameCallback!(value);
+                },),
               ],
             ),
           ),
@@ -260,8 +278,8 @@ class _UploadMethodsState extends State<UploadMethods> {
     if (pickedFile != null) {
       setState(() {
         _userProfileImage = File(pickedFile.path);
-        widget.onImageUpdated(_userProfileImage!); // Call the callback to update the parameter in the parent class
       });
+      widget.onImageUpdated(_userProfileImage!); // Call the callback to update the parameter in the parent class
     }
   }
   // upload from gallery
@@ -271,8 +289,8 @@ class _UploadMethodsState extends State<UploadMethods> {
     if(croppedImage!=null){
       setState(() {
         _userProfileImage = croppedImage;
-        widget.onImageUpdated(_userProfileImage!); // Call the callback to update the parameter in the parent class
       });
+      widget.onImageUpdated(_userProfileImage!); // Call the callback to update the parameter in the parent class
     }
     return;
   }
@@ -359,9 +377,10 @@ class _UploadMethodsState extends State<UploadMethods> {
 
 // Edit Name
 class EditNameForm extends StatefulWidget {
-  final ProfileDataProvider profileDataProvider;
-  final String name;
-  EditNameForm({required this.profileDataProvider,required this.name});
+  final ProfileDataProvider? profileDataProvider;
+  final String? name,text;
+  final Function(String)? callback;
+  EditNameForm({this.profileDataProvider,this.name,this.callback,this.text});
   @override
   _EditNameFormState createState() => _EditNameFormState();
 }
@@ -373,28 +392,31 @@ class _EditNameFormState extends State<EditNameForm> {
   @override
   void initState() {
     super.initState();
-    nameController.text = widget.name;
-    userName = widget.name;
+    nameController.text = (widget.name!);
+    userName = (widget.name!);
   }
 
   void toggleEdit() {
     setState(() {
       isEditing = !isEditing;
-
       if (!isEditing) {
         if(nameController.text.length<1){
           isEditing = !isEditing;
           print('Name is too small');
         }else{
           // Save the edited name when exiting edit mode
-          userName = nameController.text;
-          widget.profileDataProvider.updateName(userName);
+          userName = capitalizeWords(nameController.text);
           // Here, you can send the updated name to your backend for processing
           // For demonstration, we'll just print it
           print("Updated Name: $userName");
         }
       }
     });
+    if(widget.text=='edit'){
+      widget.callback!(userName);
+    }
+    else if(widget.profileDataProvider!=null)
+      widget.profileDataProvider?.updateName(userName);
   }
 
   @override
@@ -414,16 +436,17 @@ class _EditNameFormState extends State<EditNameForm> {
               onChanged: (value){
                 userName = value;
               },
-              style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.w500,fontFamily: 'Poppins'),
+              style: TextStyle(fontSize: 16.0,fontWeight: FontWeight.w500,fontFamily: 'Poppins'),
             ),
           )
               : Text(
-            userName,
-            style: TextStyle(fontSize: 18.0,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
+            userName!=null?userName:'',
+            style: TextStyle(fontSize: 16.0,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
           ),
           IconButton(
             icon: Icon(isEditing ? Icons.save_outlined : Icons.edit_outlined),
             onPressed: toggleEdit,
+            color: Colors.grey,
           ),
         ],
       ),

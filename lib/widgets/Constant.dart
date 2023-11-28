@@ -1,74 +1,123 @@
 
+import 'dart:core';
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 
 class Constant {
-  String serverUrl = 'http://192.168.29.119:8080';
+  String serverUrl = 'http://192.168.84.60:8080';
   String sendersId = '652a578b7ff9b6023a1483ba';
   String receiversId = '652b2cfe59629378c2c7dacb';
   String senderId = '652b2cfe59629378c2c7dacb';
   String publishableKey = 'pk_test_51O1mwsSBFjpzQSTJYIRROzWlVlSlOL4ysCytD2icFn57ISGbDUDaVLyLgFJABlFaHDPgMmmOpvRKxE99x3w90HRf00ZwzrVv0R';
   int tripPlaningCost = 1000;
-  List<String> professionList = [];
-  Future<void> fetchDataset() async {
-    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
-    final url = Uri.parse('$serverUrl/professionList'); // Replace with your backend URL
-    final http.Response response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      professionList = data['list'];
-    } else {
-      professionList = [
-        'Doctor',
-        'Engineer',
-        'Teacher',
-        'Software Developer',
-        'Graphic Designer',
-        'Accountant',
-        'Chef',
-        'Architect',
-        'Lawyer',
-        'Police Officer',
-        'Firefighter',
-        'Pilot',
-        'Dentist',
-        'Electrician',
-        'Plumber',
-        'Journalist',
-        'Actor',
-        'Musician',
-        'Athlete',
-        'Scientist',
-        'Psychologist',
-        'Social Worker',
-        'Librarian',
-        'Fashion Designer',
-        'Marketing Manager',
-        'Biologist',
-        'Economist',
-        'Mechanic',
-        'Photographer',
-        'Nurse',
-        'Pharmacist',
-        'Veterinarian',
-        'Artist',
-        'Carpenter',
-        'Dancer',
-        'Entrepreneur',
-        'Hair Stylist',
-        'Interior Designer',
-        'Investment Banker',
-        'Meteorologist',
-        'Paramedic',
-        'Physicist',
-        'Speech Therapist',
-        'Translator',
-        'Zoologist',
-        'Others'
-      ];
-    }
-  }
+  List<String> professionList = [
+    'Doctor',
+    'Engineer',
+    'Teacher',
+    'Software Developer',
+    'Graphic Designer',
+    'Accountant',
+    'Chef',
+    'Architect',
+    'Lawyer',
+    'Police Officer',
+    'Firefighter',
+    'Pilot',
+    'Dentist',
+    'Electrician',
+    'Plumber',
+    'Journalist',
+    'Actor',
+    'Musician',
+    'Athlete',
+    'Scientist',
+    'Psychologist',
+    'Social Worker',
+    'Librarian',
+    'Fashion Designer',
+    'Marketing Manager',
+    'Biologist',
+    'Economist',
+    'Mechanic',
+    'Photographer',
+    'Nurse',
+    'Pharmacist',
+    'Veterinarian',
+    'Artist',
+    'Carpenter',
+    'Dancer',
+    'Entrepreneur',
+    'Hair Stylist',
+    'Interior Designer',
+    'Investment Banker',
+    'Meteorologist',
+    'Paramedic',
+    'Physicist',
+    'Speech Therapist',
+    'Translator',
+    'Zoologist',
+    'Others'
+  ];
+  // Future<void> fetchDataset() async {
+  //   final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+  //   final url = Uri.parse('$serverUrl/professionList'); // Replace with your backend URL
+  //   final http.Response response = await http.get(url);
+  //
+  //   if (response.statusCode == 200) {
+  //     final data = json.decode(response.body);
+  //     professionList = data['list'];
+  //   } else {
+  //     professionList = [
+  //       'Doctor',
+  //       'Engineer',
+  //       'Teacher',
+  //       'Software Developer',
+  //       'Graphic Designer',
+  //       'Accountant',
+  //       'Chef',
+  //       'Architect',
+  //       'Lawyer',
+  //       'Police Officer',
+  //       'Firefighter',
+  //       'Pilot',
+  //       'Dentist',
+  //       'Electrician',
+  //       'Plumber',
+  //       'Journalist',
+  //       'Actor',
+  //       'Musician',
+  //       'Athlete',
+  //       'Scientist',
+  //       'Psychologist',
+  //       'Social Worker',
+  //       'Librarian',
+  //       'Fashion Designer',
+  //       'Marketing Manager',
+  //       'Biologist',
+  //       'Economist',
+  //       'Mechanic',
+  //       'Photographer',
+  //       'Nurse',
+  //       'Pharmacist',
+  //       'Veterinarian',
+  //       'Artist',
+  //       'Carpenter',
+  //       'Dancer',
+  //       'Entrepreneur',
+  //       'Hair Stylist',
+  //       'Interior Designer',
+  //       'Investment Banker',
+  //       'Meteorologist',
+  //       'Paramedic',
+  //       'Physicist',
+  //       'Speech Therapist',
+  //       'Translator',
+  //       'Zoologist',
+  //       'Others'
+  //     ];
+  //   }
+  // }
   List<String> cityList = [
     'Mumbai',
     'Delhi',

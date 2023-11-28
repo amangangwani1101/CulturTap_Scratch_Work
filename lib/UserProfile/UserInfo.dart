@@ -28,8 +28,9 @@ typedef void SetQuote(String? image);
 // Motivational Quote Section
 class MotivationalQuote extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
-  final String? quote,state;
-  MotivationalQuote({this.profileDataProvider,this.quote,this.state});
+  final String? quote,state,text;
+  final Function(String)? quoteCallback;
+  MotivationalQuote({this.profileDataProvider,this.quote,this.state,this.quoteCallback,this.text});
   @override
   _MotivationalQuoteState createState() => _MotivationalQuoteState();
 }
@@ -37,12 +38,24 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
 
   String? setQuote = '+ Add your Motivational quote';
   bool isQuoteSet = false;
-  void handleQuote(String? quote) {
+  @override
+  void initState(){
+    if(widget.quote!=null)
+        setQuote = widget.quote;
+  }
+  void handleQuote(String? quot) {
     setState(() {
-      setQuote = quote ?? '+ Add your Motivational quote'; // Update the parameter in the main class
-      widget.profileDataProvider?.updateQuote(quote!);
+      setQuote = quot ?? '+ Add your Motivational quote'; // Update the parameter in the main class
       isQuoteSet = true;
     });
+    if(widget.text=='edit'){
+      widget.quoteCallback!(quot!);
+    }else if(widget.profileDataProvider!=null){
+      if(quot!.length>0){
+        widget.profileDataProvider?.updateFieldCnt(50);
+      }
+      widget.profileDataProvider?.updateQuote(quot!);
+    }
   }
 
   @override
@@ -51,44 +64,73 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
       Center(
         child: Container(
           width: 350,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          child: Column(
             children: [
-              Container(
-                width: widget.quote!=null?320:260,
-                child: widget.state=='final'
-                  ?Center(
-                    child: Text('${widget.quote==null?'':'" ${widget.quote}"'} ' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',),maxLines: 2,overflow: TextOverflow.visible,
-                  ))
-                  :GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote)));
-                  },
-                  child:
-                  widget.quote!=null
-                      ? Center(
-                    child: Text('" ${widget.quote} "' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',),maxLines: 2,overflow: TextOverflow.visible,
-                    ),
-                  )
-                      : !isQuoteSet?
-                  Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
-                  ):
-                  Center(
-                    child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins',),maxLines: 2,overflow: TextOverflow.ellipsis,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    width: widget.quote!=null?350:300,
+                    child: widget.state=='final'
+                      ?Center(
+                        child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',),textAlign: TextAlign.justify,maxLines: 10,overflow: TextOverflow.visible,
+                      ))
+                      :GestureDetector(
+                      onTap: (){
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
+                      },
+                      child:
+                      widget.quote!=null
+                          ? Center(
+                        child: Text('" ${capitalizeWords(widget.text=='edit'?setQuote!:widget.quote!)} "' ,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',),textAlign: TextAlign.justify,maxLines: 10,overflow: TextOverflow.visible,
+                        ),
+                      )
+                          : !isQuoteSet?
+                      Text(setQuote!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
+                      ):
+                      Center(
+                        child: Text(setQuote!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,fontFamily: 'Poppins',),textAlign: TextAlign.justify,maxLines: 5,overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
                     ),
                   ),
-                ),
+                  widget.quote!=null || widget.state=='final'
+                      ?SizedBox(width: 0,)
+                      :widget.text!='edit' || widget.quote==null
+                          ?!isQuoteSet
+                            ? IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+                              showDialog(context: context, builder: (BuildContext context){
+                                return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',serviceSettings: false),);
+                                },
+                               );
+                              },)
+                           :SizedBox(width: 0,)
+                         :SizedBox(width: 0,),
+                ],
               ),
-              widget.quote!=null || widget.state=='final'
-                  ?SizedBox(width: 0,)
-                  :!isQuoteSet?
-              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-                showDialog(context: context, builder: (BuildContext context){
-                  return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',serviceSettings: false),);
-                },
-                );
-              },
-              ):SizedBox(width: 0,),
+              SizedBox(height: 33,),
+              widget.text=='edit'
+                ?GestureDetector(
+                  onTap: (){
+                    Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
+                  },
+                  child: Container(
+                    width: 144,
+                    height: 35,
+                    decoration: BoxDecoration(
+                      color: HexColor('#FB8C00'),
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.edit_outlined,size: 19,color: Colors.white,),
+                        Text('EDIT QUOTE',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white),),
+                      ],
+                    ),
+                  ),
+                )
+                :SizedBox(height: 0,),
             ],
           ),
         ),
@@ -97,7 +139,8 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
 }
 class EditQuote extends StatefulWidget{
   final SetQuote setQuote;
-  EditQuote({required this.setQuote});
+  String ?quote;
+  EditQuote({required this.setQuote,this.quote});
 
   @override
   _EditQuoteState createState() => _EditQuoteState();
@@ -105,7 +148,13 @@ class EditQuote extends StatefulWidget{
 class _EditQuoteState extends State<EditQuote>{
   String? _setsQuote;
   TextEditingController _textEditingController = TextEditingController();
-
+  @override
+  void initState(){
+    super.initState();
+    if(widget.quote!=null){
+      _textEditingController.text = widget.quote!;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -160,9 +209,10 @@ class _EditQuoteState extends State<EditQuote>{
                       backgroundColor: HexColor('#FB8C00'),
                       onPressed: () {
                         setState(() {
-                          _setsQuote = _textEditingController.text;
-                          widget.setQuote(_setsQuote!);
+                          _setsQuote = capitalizeWords(_textEditingController.text);
+                          widget.quote = _setsQuote!;
                         });
+                        widget.setQuote(_setsQuote!);
                         Navigator.of(context).pop();
                       },
                       child: Center(
@@ -202,23 +252,23 @@ class _ReachAndLocationState extends State<ReachAndLocation>{
       children: [
         GestureDetector(
             onTap: (){
-              setState(() {
-                widget.followers = widget.followers==null?0:widget.followers;
-                widget.followers = (widget.followers! + 1);
-                print('Followers : ${(widget.followers)}');
-                widget.profileDataProvider?.updateFollowersCnt(widget.followers!);
-              });
+              // setState(() {
+                // widget.followers = widget.followers==null?0:widget.followers;
+                // widget.followers = (widget.followers! + 1);
+                // print('Followers : ${(widget.followers)}');
+                // widget.profileDataProvider?.updateFollowersCnt(widget.followers!);
+              // });
             },
             child: InfoWidget(icon: Icons.person_add_alt, text: widget.followers!=null?'${widget.followers} Follower':'${0} Follower')
         ),
         GestureDetector(
             onTap: (){
-              setState(() {
-                widget.following = widget.following==null?0:widget.following;
-                widget.following = (widget.following! + 1)!;
-                print('Following : ${(widget.following)}');
-                widget.profileDataProvider?.updateFollowersCnt(widget.following!);
-              });
+              // setState(() {
+                // widget.following = widget.following==null?0:widget.following;
+                // widget.following = (widget.following! + 1)!;
+                // print('Following : ${(widget.following)}');
+                // widget.profileDataProvider?.updateFollowersCnt(widget.following!);
+              // });
             },
             child: InfoWidget(icon: Icons.person_outline, text: widget.following!=null?'${widget.following} Following':'${0} Following')
         ),
@@ -282,8 +332,9 @@ class _SignInState extends State<SignIn>{
           gPhotoUrl = user.photoURL;
           gName = user.displayName;
           isSignedIn = true;
-          CoverPage(reqPage: 1,imagePath: gPhotoUrl,name: gName,profileDataProvider: widget.profileDataProvider,image:'network');
         });
+        // working on auto updation from google
+        // CoverPage(reqPage: 1,imagePath: gPhotoUrl,name: gName,profileDataProvider: widget.profileDataProvider,image:'network');
         widget.profileDataProvider!.updateEmail(emailId!);
         // onDataChanged(gPhotoUrl!,gName!);
         return user;
@@ -410,13 +461,11 @@ class _LocationEditorState extends State<LocationEditor> {
 
     String city = placemarks.first.locality ?? "Unknown City";
     String state = placemarks.first.administrativeArea ?? "Bengaluru";
-
+    widget.profileDataProvider?.updatePlace(city);
     setState(() {
       _currentLocation = "$city";
-      widget.profileDataProvider?.updatePlace(city);
       _locationController.text = _currentLocation;
     });
-
     print("Latitude: ${position.latitude}");
     print("Longitude: ${position.longitude}");
     print("State: $state");
@@ -476,7 +525,7 @@ class _LocationEditorState extends State<LocationEditor> {
 
 // ReqPage : 0 -> User Details : shows all saved data of user during profile form filling
 class UserDetailsTable extends StatelessWidget {
-  String? place = null,profession = null,age = null,gender = null;
+  String? place,profession,age,gender;
   List<dynamic>? languageList;
   UserDetailsTable({this.place,this.profession,this.age,
     this.gender,this.languageList});
@@ -497,7 +546,7 @@ class UserDetailsTable extends StatelessWidget {
           Row(
             children: [
               Text('Place -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 96,),
+              SizedBox(width: 94,),
               Text(place==null?'NA':'${place}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
@@ -512,36 +561,43 @@ class UserDetailsTable extends StatelessWidget {
             children: [
               Text('Age/Gender -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 42,),
-              Text(age ==null?'NA':'${age} Yr / ${gender}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+              Text(age ==null?'NA':'${age} Yr / ${gender==null?'':gender}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
             ],
           ),
           Row(
             children: [
               Text('Language -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
               SizedBox(width: 60,),
-              Container(
-                child: languageList==null ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
-                Wrap(
-                  runSpacing: 8.0, // Vertical spacing between lines of items
-                  children: [
-                    Row(
-                      children: [
-                        for (int i = 0; i < languageList!.length; i++)
-                          Container(
-                            margin: EdgeInsets.only(right: 8.0),
-                            child: Row(
-                              children: [
-                                Text(languageList![i]),
-                                if (i < languageList!.length - 1)
-                                  Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
-                              ],
-                            ),
-                          ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
+              // Container(
+              //   child: languageList==null ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
+              //   Wrap(
+              //     runSpacing: 8.0, // Vertical spacing between lines of items
+              //     children: [
+              //       Row(
+              //         children: [
+              //           for (int i = 0; i < languageList!.length; i++)
+              //             Container(
+              //               margin: EdgeInsets.only(right: 8.0),
+              //               child: Row(
+              //                 children: [
+              //                   Text(languageList![i]),
+              //                   if (i < languageList!.length - 1)
+              //                     Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
+              //                 ],
+              //               ),
+              //             ),
+              //         ],
+              //       ),
+              //     ],
+              //   ),
+              // ),
+              languageList!=null?
+              Text(
+                overflow:TextOverflow.ellipsis,
+                languageList!.join(', '), // Join the list elements with a comma and space
+                style: TextStyle(fontSize: 14, fontFamily: 'Poppins',overflow: TextOverflow.ellipsis),
+                maxLines: 5,
+              ):Text('NA'),
             ],
           ),
         ],
@@ -596,15 +652,19 @@ class UserDetailsTable extends StatelessWidget {
 //
 // }
 class ProfileForm extends StatefulWidget {
-  final Function(String)? homeCityCallback,professionCallback,dobCallback,genderCallback;
+  final Function(String)? homeCityCallback,professionCallback,genderCallback,ageCallBack;
+  Function(DateTime)?dobCallback;
   Function(List<String>)?languageCallback;
   final ProfileDataProvider? profileDataProvider;
-  String?text,setHomeCity,setProfession,setGender;
+  String?text,setHomeCity,setProfession,setGender,setAge;
+  DateTime?setDOB;
   List<String>?setLanguage;
-  ProfileForm({this.profileDataProvider,this.setGender,this.setHomeCity,this.setLanguage,this.setProfession,this.text,this.homeCityCallback,this.dobCallback,this.genderCallback,this.languageCallback,this.professionCallback});
+  ProfileForm({this.setAge,this.ageCallBack,this.profileDataProvider,this.setDOB,this.setGender,this.setHomeCity,this.setLanguage,this.setProfession,this.text,this.homeCityCallback,this.dobCallback,this.genderCallback,this.languageCallback,this.professionCallback});
   @override
   _ProfileFormState createState() => _ProfileFormState();
 }
+
+String customHomeCity='';
 class _ProfileFormState extends State<ProfileForm> {
   String? selectedProfession;
   DateTime? selectedDateOfBirth;
@@ -620,11 +680,11 @@ class _ProfileFormState extends State<ProfileForm> {
 
 
   bool otherHome=false,otherPro=false;
-
+  TextEditingController _otherHomeController = TextEditingController();
+  TextEditingController _otherProController = TextEditingController();
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-
 
     @override
     void initState() {
@@ -633,9 +693,15 @@ class _ProfileFormState extends State<ProfileForm> {
       screenWidth = MediaQuery.of(context).size.width;
     }
     // bool _isFocused = false;
-    TextEditingController _textController = TextEditingController();
-    TextEditingController _otherHomeController = TextEditingController();
-    TextEditingController _otherProController = TextEditingController();
+    if(widget.setGender!=null){
+      selectedGender = widget.setGender;
+    }
+    if(widget.setLanguage!=null){
+      selectedOptionsList.value = widget.setLanguage!;
+    }
+    if(widget.setDOB!=null){
+      selectedDateOfBirth = widget.setDOB;
+    }
     final FocusNode _focusNode = FocusNode();
     return Container(
       padding: EdgeInsets.all(10.0),
@@ -647,6 +713,7 @@ class _ProfileFormState extends State<ProfileForm> {
           CustomAutoSuggestion(
             cityList: Constant().cityList,
             text: 'Home city',
+            state: widget.text,
             initialText:widget.setHomeCity,
             onValueChanged: (selectedValue) {
               if(selectedValue=='Others'){
@@ -660,7 +727,13 @@ class _ProfileFormState extends State<ProfileForm> {
                 if(widget.text=='edit'){
                   widget.homeCityCallback!(selectedValue);
                 }else{
-                  widget.profileDataProvider?.updatePlace(selectedValue);
+                  setState(() {
+                    customHomeCity = selectedValue;
+                  });
+                  if(selectedValue.isNotEmpty)
+                    widget.profileDataProvider?.updateFieldCnt(1);
+                  print(customHomeCity);
+                  widget.profileDataProvider?.updatePlace(customHomeCity!);
                 }
               }
               // Add your logic here
@@ -684,7 +757,12 @@ class _ProfileFormState extends State<ProfileForm> {
                       borderSide: BorderSide(color: HexColor('#FB8C00')),
                     ),
                   ),
+
                   onChanged: (value) {
+                    setState(() {
+                      customHomeCity = customHomeCity+value;
+                    });
+                      print(customHomeCity);
                     if(widget.text=='edit'){
                       widget.homeCityCallback!(value);
                     }else{
@@ -700,6 +778,8 @@ class _ProfileFormState extends State<ProfileForm> {
           CustomAutoSuggestion(
             cityList: Constant().professionList,
             text: 'Profession',
+            state: widget.text,
+            initialText: widget.setProfession,
             onValueChanged: (selectedValue) {
               if(selectedValue=='Others'){
                 setState(() {
@@ -712,6 +792,8 @@ class _ProfileFormState extends State<ProfileForm> {
                 if(widget.text=='edit'){
                   widget.professionCallback!(selectedValue);
                 }else{
+                  if(selectedValue.isNotEmpty)
+                    widget.profileDataProvider?.updateFieldCnt(1);
                   widget.profileDataProvider?.updateProfession(selectedValue);
                 }
               }
@@ -751,26 +833,32 @@ class _ProfileFormState extends State<ProfileForm> {
           SizedBox(height: 10,),
           CustomDOBDropDown(
             label: 'Date of Birth',
+            text: widget.text,
             selectedDate: selectedDateOfBirth,
             deviceWidth: screenWidth,
             onDateSelected: (DateTime? newDate) {
+              String age = (DateTime.now().year - (newDate!.year)).toString();
               setState(() {
-                String age = (DateTime.now().year - (newDate!.year)).toString();
-                if(widget.text=='edit'){
-                  widget.dobCallback!(age);
-                }else{
-                  widget.profileDataProvider?.updateAge(age);
-                }
                 print('Path : ${age}');
                 selectedDateOfBirth = newDate;
                 print('Selected: ${newDate}');
               });
+              if(widget.text=='edit'){
+                widget.dobCallback!(newDate);
+                widget.ageCallBack!(age);
+              }else{
+                if(int.parse(age)>0)
+                  widget.profileDataProvider?.updateFieldCnt(1);
+                widget.profileDataProvider?.updateDOb(newDate);
+                widget.profileDataProvider?.updateAge(age);
+              }
             },
           ),
           SizedBox(height: 20,),
           CustomDropdown.build(
             label: 'Gender',
             items: genders,
+            text: widget.text,
             deviceWidth:screenWidth,
             onChanged: (String? newValue) {
               // Handle the selected value here, if needed
@@ -783,6 +871,8 @@ class _ProfileFormState extends State<ProfileForm> {
               if(widget.text=='edit'){
                 widget.genderCallback!(newValue!);
               }else{
+                if(newValue.isNotEmpty)
+                  widget.profileDataProvider?.updateFieldCnt(1);
                 widget.profileDataProvider?.updateGender(newValue!);
               }
             },
@@ -793,37 +883,84 @@ class _ProfileFormState extends State<ProfileForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text('Language You Know',style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),),
-                SizedBox(height: 10,),
-                DropDownMultiSelect(
-                  isDense: true,
-                  enabled: true,
-                  options: Constant().languageList,
-                  whenEmpty: 'Select',
-                  decoration: InputDecoration(
-                    focusedBorder: OutlineInputBorder(
-                      borderSide: BorderSide(color: HexColor('#FB8C00')),
-                    ),
-                    border: OutlineInputBorder(),
+                Text(
+                  'Language You Know',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+                ),
+                SizedBox(height: 10),
+                Container(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        child: DropDownMultiSelect(
+                          isDense: true,
+                          childBuilder: (selected) {
+                            return Row(
+                              children: [
+                                Container(
+                                  padding: EdgeInsets.only(left: 10),
+                                  width: 310, // Adjust as needed
+                                  child: Text(
+                                    selected.join(', '),
+                                    style: TextStyle(
+                                      fontSize: 16,
+                                      overflow: TextOverflow.ellipsis,
+                                    ),
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                              ],
+                            );
+                          },
+                          enabled: true,
+                          options: Constant().languageList,
+                          whenEmpty: 'Select', // Placeholder text when no option is chosen
+                          decoration: InputDecoration(
+                            contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                            focusedBorder: OutlineInputBorder(
+                              borderSide: BorderSide(color: HexColor('#FB8C00')),
+                            ),
+                            border: OutlineInputBorder(),
+                            suffixIcon: widget.text == 'edit'
+                                ? Padding(
+                              padding: const EdgeInsets.only(right: 8.0, top: 10),
+                              child: Text(
+                                'EDIT',
+                                style: TextStyle(
+                                  fontSize: 14,
+                                  fontFamily: 'Poppins',
+                                  fontWeight: FontWeight.bold,
+                                  color: HexColor('#FB8C00'),
+                                ),
+                              ),
+                            )
+                                : Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')),
+                          ),
+                          icon: SizedBox.shrink(),
+                          onChanged: (value) {
+                            selectedOptionsList.value = value;
+                            selectedOptions.value = '';
+                            selectedOptionsList.value.forEach((item) {
+                              selectedOptions.value = selectedOptions.value + ',' + item;
+                            });
+                            if (widget.text == 'edit') {
+                              widget.languageCallback!(selectedOptionsList.value);
+                            } else {
+                              if(selectedOptionsList.value.length>0)
+                                widget.profileDataProvider?.updateFieldCnt(1);
+                              widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
+                            }
+                          },
+                          selectedValues: selectedOptionsList.value,
+                        ),
+                      ),
+                    ],
                   ),
-                  icon:Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'),),
-                  onChanged: (value){
-                    selectedOptionsList.value = value;
-                    selectedOptions.value = '';
-                    selectedOptionsList.value.forEach((item) {
-                      selectedOptions.value = selectedOptions.value+',' + item;
-                    });
-                    if(widget.text=='edit'){
-                      widget.languageCallback!(selectedOptionsList.value);
-                    }else{
-                        widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
-                    }
-                  },
-                  selectedValues: selectedOptionsList.value,
                 ),
               ],
             ),
           ),
+
           SizedBox(height: 10,),
       // Padding(
       //   padding: const EdgeInsets.all(16.0),

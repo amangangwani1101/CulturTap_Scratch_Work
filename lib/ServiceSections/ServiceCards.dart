@@ -148,8 +148,6 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
   }
   void onPressedHandler() async {
       if(widget.text=='edit'){
-        print('4th page');
-        print(widget.userId);
         await showDialog(context: context, builder: (BuildContext context){
           return Container(child: CustomHelpOverlay(text:'Continue',navigate:'edit',imagePath: 'assets/images/clock_icon.jpg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (context) => ServicePage(text:widget.text,userId: widget.userId!,haveCards:widget.haveCards,onButtonPressed:(){
@@ -170,9 +168,9 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
       }
   }
 
-  void service1HandlerOff() async{
+  void service1HandlerOff(String image) async{
     await showDialog(context: context, builder: (BuildContext context){
-      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/service1_off.png'),);
+      return Container(child: CustomHelpOverlay(imagePath: image),);
     },);
   }
 
@@ -256,7 +254,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print(responseData);
-        service1HandlerOff();
+        service1HandlerOff('assets/images/service1_off.png');
         setState(() {
           widget.isToggled = false;
         });
@@ -282,6 +280,55 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
       return;
     }
   }
+
+  void saveServiceDatabse()async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'userId':widget.userId,
+        'state':widget.isToggled
+      };
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/updateServices'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        if(widget.isToggled==true){
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Services Is Enabled :)'),
+            ),
+          );
+        }else{
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Services Is Disabled :)'),
+            ),
+          );
+        }
+      } else {
+        print('Failed to check data: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Try Again!!'),
+          ),
+        );
+        return;
+      }
+    }catch(err){
+      print("Error: $err");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Try Again!!'),
+        ),
+      );
+      return ;
+    }
+  }
   @override
   Widget build(BuildContext context) {
     print('3rd Page');
@@ -290,46 +337,62 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
     print(widget.haveCards);
     return GestureDetector(
       onTap: () async{
-        if(widget.profileDataProvider?.retServide1()==true){
-          showDialog(context: context, builder: (BuildContext context){
-            return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Are You Sure ?',extraText: 'You Want To Turn Off Trip Calling Service',option1:'No',option2:'Yes',onButton1Pressed: (){
-              // Perform action on confirmation
-              Navigator.of(context).pop();
-            },onButton2Pressed: (){
-             setState(() {
-               widget.profileDataProvider?.setServide1();
-               widget.profileDataProvider?.unsetTripCalling();
-               widget.isToggled = false;
-               Navigator.of(context).pop();
-             });
-            },);
-          },);
-        }
-        else if(widget.text=='edit'){
-          if(widget.isToggled==true) {
-            bool checker = await checkUserCalendar();
-            if (checker) {
-              showDialog(context: context, builder: (BuildContext context){
-                return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Are You Sure ?',extraText: 'You Want To Switch Off Trip Calling Services',option1:'Cancel',option2:'Confirm',onButton1Pressed: (){
-                  Navigator.of(context).pop();
-                },onButton2Pressed: (){
-                  deleteTime();
-                },);
+        if(widget.text=='editService2'){
+          setState(() {
+            widget.isToggled = widget.isToggled==true?false:true;
+          });
+          if(widget.profileDataProvider!=null){
+            widget.profileDataProvider?.setServide2();
+          }else{
+            saveServiceDatabse();
+          }
+          if(widget.isToggled==false)
+            service1HandlerOff('assets/images/service2_off.png');
+        }else{
+          if(widget.profileDataProvider?.retServide1()==true){
+            showDialog(context: context, builder: (BuildContext context){
+              return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Are You Sure ?',extraText: 'You Want To Turn Off Trip Calling Service',option1:'No',option2:'Yes',onButton1Pressed: (){
+                // Perform action on confirmation
+                Navigator.of(context).pop();
+              },onButton2Pressed: (){
+                widget.profileDataProvider?.setServide1();
+                widget.profileDataProvider?.unsetTripCalling();
+                setState(() {
+                  // widget.profileDataProvider?.setServide1();
+                  // widget.profileDataProvider?.unsetTripCalling();
+                  widget.isToggled = false;
+                });
+                Navigator.of(context).pop();
               },);
+            },);
+          }
+          else if(widget.text=='edit'){
+            if(widget.isToggled==true) {
+              bool checker = await checkUserCalendar();
+              if (checker) {
+                showDialog(context: context, builder: (BuildContext context){
+                  return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Are You Sure ?',extraText: 'You Want To Switch Off Trip Calling Services',option1:'Cancel',option2:'Confirm',onButton1Pressed: (){
+                    Navigator.of(context).pop();
+                  },onButton2Pressed: (){
+                    deleteTime();
+                    Navigator.of(context).pop();
+                  },);
+                },);
 
-              // setState(() {
-              //   widget.isToggled = false;
-              // });
-            }
-            else {
+                // setState(() {
+                //   widget.isToggled = false;
+                // });
+              }
+              else {
                 service1HandlerState();
+              }
+            }
+            else{
+              onPressedHandler();
             }
           }
-          else{
-            onPressedHandler();
-          }
+          else onPressedHandler();
         }
-        else onPressedHandler();
       },
       child: AnimatedContainer(
         width: 90,

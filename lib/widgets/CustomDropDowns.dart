@@ -2,50 +2,70 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'hexColor.dart';
 
-// rest fields of user
 class CustomDropdown {
-
   static Widget build({
     required String label,
+    String? text,
     required List<String> items,
     required ValueChanged<String?> onChanged,
-    required Function(String?) setSelectedValue, // Callback for setting the selected value
+    required Function(String?) setSelectedValue,
     String? selectedValue,
     required double deviceWidth,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-        SizedBox(height: 10,),
+        Text(
+          label,
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Poppins'),
+        ),
+        SizedBox(height: 10),
         Container(
           width: deviceWidth,
           height: 60,
-          child: DropdownButtonFormField<String>(
-            value: selectedValue,
-            icon: Icon(Icons.arrow_drop_down_circle,color: HexColor('#FB8C00'),),
-            hint: Text('Select',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-            decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
+          child: Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              DropdownButtonFormField<String>(
+                value: selectedValue,
+                icon: SizedBox.shrink(),
+                hint: Text('Select', style: TextStyle(fontSize: 14, fontFamily: 'Poppins')),
+                decoration: InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: HexColor('#FB8C00'),
+                    ),
+                  ),
+                  suffixIcon: text!='edit'?Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')):null,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                ),
+                onChanged: (String? newValue) {
+                  setSelectedValue(newValue);
+                  selectedValue = newValue;
+                },
+                items: items.map((String item) {
+                  return DropdownMenuItem<String>(
+                    value: item,
+                    child: Text(item, style: TextStyle(fontSize: 14, fontFamily: 'Poppins')),
+                  );
+                }).toList(),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey), // Change the border color here
-              ), // Add an outline border
-            ),
-            onChanged: (String? newValue) {
-              // newValue = newValue==''?newValue:selectedValue! +',${newValue}';
-              // onChanged(newValue); // Call the provided onChanged callback
-              setSelectedValue(newValue);
-              selectedValue = newValue;  // Set the selected value using the callback
-
-            },
-            items: items.map((String item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(item,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-              );
-            }).toList(),
+              if (text == 'edit')
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Text(
+                    'EDIT',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      color: HexColor('#FB8C00'),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ],
@@ -56,6 +76,7 @@ class CustomDropdown {
 // specially for DOB
 class CustomDOBDropDown extends StatelessWidget{
   final String label;
+  String?text;
   final DateTime? selectedDate;
   final ValueChanged<DateTime?> onDateSelected;
   double deviceWidth;
@@ -65,6 +86,7 @@ class CustomDOBDropDown extends StatelessWidget{
     required this.onDateSelected,
     required this.selectedDate,
     required this.deviceWidth,
+    this.text,
   });
 
   @override
@@ -102,7 +124,10 @@ class CustomDOBDropDown extends StatelessWidget{
                         ? "${selectedDate!.toLocal()}".split(' ')[0]
                         : 'Select Date',
                     style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                  Icon(Icons.calendar_today_rounded,color: HexColor('#FB8C00'),), // Calendar icon
+                    text=='edit'
+                    ? Text('EDIT',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00'),),)
+                    :Icon(Icons.calendar_today_rounded,color: HexColor('#FB8C00'),),
+                  // Calendar icon
                 ],
               ),
             ),

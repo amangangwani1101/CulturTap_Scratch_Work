@@ -170,6 +170,9 @@ const userProfileSchema = new mongoose.Schema({
     profileStatus:{
         type:String,
     },
+    userDOB:{
+        type:Date,
+    },
     pings:{
         type:Number,
     },
@@ -205,6 +208,9 @@ const userProfileSchema = new mongoose.Schema({
     },
     userServiceTripCallingData : {
         type :userTripCallingSchema,
+    },
+    userServiceTripAssistantData:{
+        type:Boolean,
     },
     userReviewsData : {
         type : [userReviewsSchema],

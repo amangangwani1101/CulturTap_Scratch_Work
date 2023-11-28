@@ -308,6 +308,20 @@ class ProfielStatusAndButton  extends StatelessWidget{
     void sendDataToBackend () async{
       print('Status');
       try {
+
+        if(profileDataProvider.retFieldsCnt()>53){
+          if(profileDataProvider.retServide1()==true || profileDataProvider.retServide2()==true)
+            profileDataProvider.setProfileStatus('high');
+          else
+            profileDataProvider.setProfileStatus('medium');
+        }
+        else{
+          if(profileDataProvider.retServide1()==true || profileDataProvider.retServide2()==true){
+            profileDataProvider.setProfileStatus('medium');
+          }else{
+            profileDataProvider.setProfileStatus('low');
+          }
+        }
         final profileData = profileDataProvider.profileData.toJson();
         print('Path is $profileData');
         final String serverUrl = Constant().serverUrl; // Replace with your server's URL

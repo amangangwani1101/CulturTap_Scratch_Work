@@ -9,6 +9,7 @@ import 'package:flutter/material.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
+import 'package:learn_flutter/widgets/AlertBox2Option.dart';
 import 'package:learn_flutter/widgets/CustomAutoSuggestionDropDown.dart';
 import 'package:learn_flutter/widgets/CustomButton.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
@@ -99,40 +100,26 @@ class _SettingsPageState extends State<SettingsPage> {
   }
 
   void showCustomAlertBox(BuildContext context) {
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return CustomAlertDialog(
-          title: 'Are you sure ?',
-          message: 'You try to logout from \nCulturTap',
-          imagePath: 'logout-icon',
-          option2: 'Yes',
-          option1:'Cancel',
-          onButton1Pressed: () {
-            Navigator.of(context).pop(); // Close the alert box
-            // Add your action for Button 1 here
-            print('Button 1 Pressed');
-          },
-          onButton2Pressed: () {
-            Future<void> _signOut() async {
-              try {
-                await _auth.signOut();
-                // Redirect to the login or splash screen after logout
-                // For example:
-                Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FirstPage()));
-              } catch (e) {
-                print('Error while logging out: $e');
-                // Handle the error as needed
-              }
-            }
-            _signOut();
-            Navigator.of(context).pop(); // Close the alert box
-            // Add your action for Button 2 here
-            print('Button 2 Pressed');
-          },
-        );
-      },
-    );
+    showDialog(context: context, builder: (BuildContext context){
+      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logout-icon.png',textField: 'Are You Sure ?',extraText: 'You Try To Logout From CulturTap',option1:'Cancel',option2:'Yes',onButton1Pressed: (){
+        // Perform action on confirmation
+        Navigator.of(context).pop();
+      },onButton2Pressed: (){
+        Future<void> _signOut() async {
+          try {
+            await _auth.signOut();
+            // Redirect to the login or splash screen after logout
+            // For example:
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FirstPage()));
+          } catch (e) {
+            print('Error while logging out: $e');
+            // Handle the error as needed
+          }
+        }
+        _signOut();
+        Navigator.of(context).pop();
+      },);
+    },);
   }
 
   @override
@@ -153,9 +140,11 @@ class _SettingsPageState extends State<SettingsPage> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
+                  SizedBox(height: 30,),
                   Container(
                     child: Text('Settings',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold),),
                   ),
+                  SizedBox(height: 20,),
                   Container(
                     height: 680,
                     child: Center(
@@ -165,9 +154,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           Builder(
                             builder: (context) {
                               return GestureDetector(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(userId:widget.userId),));
-                                },
+                                onTap: ()async {
+                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(userId:widget.userId),));
+                                  setState(() {
+                                    fetchDataset();
+                                  });
+                                  },
                                 child: Container(
                                   width: 330,
                                   // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
@@ -196,14 +188,17 @@ class _SettingsPageState extends State<SettingsPage> {
                           Builder(
                             builder: (context) {
                               return GestureDetector(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices(
+                                onTap: ()async {
+                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices(
                                       service1:dataset?['userServiceTripCallingData']!=null?(dataset?['userServiceTripCallingData']['startTimeFrom']!=null?true:false):false,
-                                      service2:false,
+                                      service2:dataset?['userServiceTripAssistantData']!=null?(dataset?['userServiceTripAssistantData']):false,
                                       userId: widget.userId!,
                                       service3:false,
                                       haveCards:dataset?['userPaymentData']!=null && dataset?['userPaymentData'].length>0?true:false,
                                       ),));
+                                    setState(() {
+                                      fetchDataset();
+                                    });
                                 },
                                 child: Container(
                                   width: 330,
@@ -233,9 +228,12 @@ class _SettingsPageState extends State<SettingsPage> {
                           Builder(
                             builder: (context) {
                               return GestureDetector(
-                                onTap: (){
-                                  Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments(userId:widget.userId,savedCards: dataset?['userPaymentData']!=null?(dataset?['userPaymentData']):[],)));
-                                },
+                                onTap: ()async {
+                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments(userId:widget.userId,savedCards: dataset?['userPaymentData']!=null?(dataset?['userPaymentData']):[],)));
+                                  setState(() {
+                                    fetchDataset();
+                                  });
+                                  },
                                 child: Container(
                                   width: 330,
                                   // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
@@ -469,16 +467,15 @@ class EditProfile extends StatefulWidget{
 class _EditProfileState extends State<EditProfile>{
   String?homeCity,profession,dob,gender,imagePath,name,quote;
   List<String>?language;
+  Future<Map<String, dynamic>>? profileData;
+  DateTime?dateOfBirth;
 
   @override
   void initState(){
     super.initState();
-    fetchData();
+    profileData = fetchProfileData();
   }
 
-  void fetchData()async {
-    await fetchProfileData();
-  }
   void sendDataToBackend () async{
     print('Status');
     try {
@@ -491,7 +488,8 @@ class _EditProfileState extends State<EditProfile>{
         'userPhoto':imagePath,
         'userName':name,
         'userQuote':quote,
-        'userLanguages':language
+        'userLanguages':language,
+        'userDOB':dateOfBirth?.toUtc()?.toIso8601String(),
       };
 
       print(data);
@@ -531,23 +529,25 @@ class _EditProfileState extends State<EditProfile>{
       print("Error: $err");
     }
   }
+  // setState(() {
+  // imagePath = data['imagePath'];
+  // homeCity = data['homeCity'];
+  // profession = data['profession'];
+  // dob = data['dob'];
+  // gender = data['gender'];
+  // name = data['name'];
+  // quote = data['quote'];
+  // });
 
-  Future<void> fetchProfileData() async {
-    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
-    final url = Uri.parse('$serverUrl/profileDetails/${widget.userId}'); // Replace with your backend URL
+  Future<Map<String, dynamic>> fetchProfileData() async {
+    final String serverUrl = Constant().serverUrl;
+    final url = Uri.parse('$serverUrl/profileDetails/${widget.userId}');
     final http.Response response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      setState(() {
-        imagePath = data['imagePath'];
-        homeCity = data['homeCity'];
-        profession = data['profession'];
-        dob = data['dob'];
-        gender = data['gender'];
-        name = data['name'];
-        quote = data['quote'];
-      });
+      print(data);
+      return data;
     } else {
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
@@ -557,80 +557,119 @@ class _EditProfileState extends State<EditProfile>{
       );
       Navigator.of(context).pop();
       print('Failed to fetch dataset: ${response.statusCode}');
+      throw Exception('Failed to fetch profile data');
     }
   }
 
+
+
   @override
   Widget build(BuildContext context) {
-    print('1 $homeCity');
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 1,),automaticallyImplyLeading: false,),
-      body: SingleChildScrollView(
-        child: Center(
-          child: Container(
-            width: 380,
-            // height: 1126,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Center(
-                  child: Container(
-                    width: 360,
-                    height: 480,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Text('Edit Profile',style:TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins')),
-                        CoverPage(reqPage:0,name: 'Aman',),
-                        MotivationalQuote(quote:'Aman Gangwani'),
-                      ],
-                    ),
-                  ),
-                ),
-                Container(
+      appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false,),
+      body: FutureBuilder<Map<String, dynamic>>(
+        future: profileData,
+        builder: (context,snapshot){
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            // While waiting for the data to be fetched, you can show a loading indicator or any other placeholder.
+            return Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            // If there's an error during data fetching, you can handle it here.
+            return Center(
+              child: Text('Error: ${snapshot.error}'),
+            );
+          }
+          else{
+            Map<String, dynamic> data = snapshot.data!;
+            imagePath = data['imagePath'];
+            homeCity = data['homeCity'];
+            profession = data['profession'];
+            dob = data['dob'];
+            gender = data['gender'];
+            name = data['name'];
+            quote = data['quote'];
+            dateOfBirth =data['dateOfBirth']!=null?DateTime.parse(data['dateOfBirth']):null;
+            language = data['language']!=null?data['language'].cast<String>().toList():[];
+            return SingleChildScrollView(
+              child: Center(
+                child: Container(
+                  width: 380,
+                  // height: 1126,
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
-                        ProfileForm(text:'edit',homeCityCallback: (value){
-                          homeCity = value;
-                        },professionCallback:(value){
-                          profession = value;
-                        },dobCallback:(value){
-                          dob = value;
-                        },genderCallback:(value){
-                          gender = value;
-                        },languageCallback:(values){
-                          language = values;
-                        },setHomeCity:imagePath,setProfession:profession,setGender:gender,setLanguage:language
-                        ),
-                        Center(
-                          child: Container(
-                            width: 360,
-                            height: 53,
-                            child: FiledButton(
-                                backgroundColor: HexColor('#FB8C00'),
-                                onPressed: () {
-                                  sendDataToBackend();
-                                },
-                                child: Center(
-                                    child: Text('SUBMIT',
-                                        style: TextStyle(
-                                          fontWeight: FontWeight.bold,
-                                          color: Colors.white,
-                                          fontSize: 18,)))),
+                      Center(
+                        child: Container(
+                          width: 360,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                            children: [
+                              SizedBox(height: 30,),
+                              Text('Edit Profile',style:TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins')),
+                              SizedBox(height: 20,),
+                              UserImage(
+                                reqPages:1,
+                                text:'edit',
+                                imagePathCallback: (value){imagePath=value;print(value);},
+                                nameCallback: (value){name = value;print(value);},
+                                imagePath:imagePath,
+                                name:name,
+                              ),
+                              SizedBox(height: 30,),
+                              MotivationalQuote(text:'edit',quote:quote,quoteCallback: (value){quote = value;print(value);},),
+                            ],
                           ),
                         ),
-                      ],
+                      ),
+                      Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ProfileForm(text:'edit',homeCityCallback: (value){
+                              homeCity = value;
+                            },professionCallback:(value){
+                              profession = value;
+                            },dobCallback:(value){
+                              dateOfBirth = value;
+                            },genderCallback:(value){
+                              gender = value;
+                            },languageCallback:(values){
+                              language = values;
+                            },ageCallBack:(value){
+                              dob = value;
+                            }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
+                            ),
+                            Center(
+                              child: Container(
+                                width: 360,
+                                height: 53,
+                                child: FiledButton(
+                                    backgroundColor: HexColor('#FB8C00'),
+                                    onPressed: () {
+                                      sendDataToBackend();
+                                    },
+                                    child: Center(
+                                        child: Text('SUBMIT',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              fontSize: 18,)))),
+                              ),
+                            ),
+                          ],
 
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-              ],
-            ),
-          ),
-        ),
+              ),
+            );
+          }
+        },
       )
     );
   }
@@ -655,11 +694,13 @@ class _EditServicesState extends State<EditServices>{
           width: 360,
           height: 860,
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            mainAxisAlignment: MainAxisAlignment.start,
             children: [
+              SizedBox(height: 40,),
               ServiceCard(text:'edit',haveCards:widget.haveCards,userId:widget.userId,isToggle:widget.service1,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner '),
-              ServiceCard(isToggle:widget.service2,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'Turn youself ON for Becoming \nSuperhero as a saviour ! '),
-              ServiceCard(isToggle:widget.service3,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !'),
+              SizedBox(height: 30,),
+              ServiceCard(text:'editService2',userId:widget.userId,isToggle:widget.service2,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'Turn youself ON for Becoming \nSuperhero as a saviour ! '),
+              // ServiceCard(isToggle:widget.service3,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !'),
             ],
           ),
         ),
@@ -821,7 +862,7 @@ class AboutUs extends StatelessWidget{
 class Help extends StatelessWidget{
 
   void sendEmail() {
-    final String email = 'mailto:recipient@example.com';
+    final String email = 'mailto:amangangwani1101@example.com';
 
     if (Platform.isIOS || Platform.isAndroid) {
       launch(email);
@@ -834,6 +875,7 @@ class Help extends StatelessWidget{
   Future<void> launch(String url) async {
     try {
         await launch(url);
+        print('Launched');
     } catch(e) {
       print('Error launching URL: $e');
     }
@@ -898,9 +940,11 @@ class Help extends StatelessWidget{
                 child: FiledButton(
                     backgroundColor: HexColor('#FB8C00'),
                     onPressed: () {
+                      sendEmail();
+                      Navigator.push(context, MaterialPageRoute(builder: (context) => ThankYou(),));
                     },
                     child: Center(
-                        child: Text('Submit',
+                        child: Text('SUBMIT',
                             style: TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
@@ -919,16 +963,23 @@ class ThankYou extends StatelessWidget{
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(title:ProfileHeader(reqPage: 6,),automaticallyImplyLeading: false,),
-      body:Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            Image.asset('assets/images/heart.png'),
-            Text('Thank you for submitting \nyour concern to us .',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,fontFamily: 'Poppins'),),
-          ],
-        ),
+      body:WillPopScope(
+        onWillPop: ()async{
+          Navigator.pop(context);
+          Navigator.pop(context);
+          return true;
+        },
+        child: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Image.asset('assets/images/heart.png'),
+              Center(child: Text('Thank you for submitting \nyour concern to us .',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,fontFamily: 'Poppins'),textAlign: TextAlign.center,)),
+              SizedBox(height: 100,),
+            ],
+          ),
 
+        ),
       ),
     );
   }

@@ -28,52 +28,48 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-
-          height: 440,
-          width: 377,
+          height: 310,
+          width: 430,
           child: AlertDialog(
-            backgroundColor: Color(0xFF263238),
+            backgroundColor: Colors.white,
             content: Container(
-              height: 269,
-              width: 300,
+              height: 260,
+              width: 400,
               child: Column(
                 children: [
-                  SizedBox(height: 30),
+                  // SizedBox(height: 30),
                   Padding(
                     padding: EdgeInsets.all(20),
                     child: Center(
                       child: Image.asset(imagePath),
                     ),
                   ),
-                  SizedBox(height: 30),
+                  // SizedBox(height: 30),
                   Text(
                     textField,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.white,
+                      color: Colors.black,
                       fontSize: 25,
                     ),
                   ),
                   SizedBox(height: 20),
                   Center(
-                    child: Padding(
-                      padding: const EdgeInsets.only(),
-                      child: Column(
-                        children: [
-                          if (extraText != null) // Check if extraText is not null
-                            Text(
-                              extraText!,
-                              style: TextStyle(
-                                fontSize: 16,
-                                fontWeight: FontWeight.bold,
-                                color: Colors.red,
-                              ),
-                              textAlign: TextAlign.center,
+                    child: Column(
+                      children: [
+                        if (extraText != null) // Check if extraText is not null
+                          Text(
+                            extraText!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
                             ),
-                          SizedBox(height: 26),
+                            textAlign: TextAlign.center,
+                          ),
+                        // SizedBox(height: 26),
 
-                        ],
-                      ),
+                      ],
                     ),
                   ),
                 ],
@@ -97,6 +93,11 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
                       ),
                     ),
                   ),
+                  Text('|',style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.orange,
+                    fontSize: 20,
+                  ),),
                   TextButton(
                     onPressed: () {
                       // Remove video logic here
@@ -113,7 +114,7 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
                   ),
                 ],
               ),
-              SizedBox(height: 20),
+              // SizedBox(height: 20),
             ],
           )
       ),
