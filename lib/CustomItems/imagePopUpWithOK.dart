@@ -3,6 +3,7 @@ import 'package:camera/camera.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 
 
 
@@ -27,7 +28,7 @@ class ImagePopUpWithOK extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    Color backgroundColor = (isDarkMode=='dark') ? Color(0xFF263238) : Color(0xFF263238) ; // Set background color based on the condition
+    Color backgroundColor = (isDarkMode=='dark') ? Color(0xFF263238) : Colors.white; // Set background color based on the condition
 
     return Center(
       child: Container(
@@ -49,7 +50,7 @@ class ImagePopUpWithOK extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
-                  color: (isDarkMode=='') ? Colors.white : Colors.black, // Text color based on condition
+                  color: (isDarkMode=='dark') ? Colors.white : Color(0xFF263238), // Text color based on condition
                 ),
                 textAlign: TextAlign.center,
               ),
@@ -76,6 +77,13 @@ class ImagePopUpWithOK extends StatelessWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => CameraApp()),
+                    );
+                  }
+                  if (what == 'drafts') {
+                    Navigator.of(context).push(
+                      MaterialPageRoute(
+                        builder: (context) => SavedDraftsPage(),
+                      ),
                     );
                   }
                   if (what == 'ok') {

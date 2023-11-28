@@ -16,8 +16,6 @@ final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
 
-
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final cameras = await availableCameras();
@@ -398,7 +396,9 @@ class _CameraAppState extends State<CameraApp> {
   BackButtonHandler backButtonHandler = BackButtonHandler(
     imagePath: 'assets/images/exit.svg',
     textField: 'homepage,',
-    what: 'back',
+    what: 'Home',
+    button1: 'Yes',
+    button2: 'No',
   );
 
 
@@ -476,6 +476,8 @@ class _CameraAppState extends State<CameraApp> {
                             ),
                           ),
                         ),
+
+
                         Padding(
                           padding: const EdgeInsets.only(top:14.0),
                           child: IconButton(

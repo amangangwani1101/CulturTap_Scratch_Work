@@ -165,6 +165,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   Widget buildStoryPage(String videoUrl, Map<String, dynamic> storyDetails) {
     return ListView(
       children: [
+
         GestureDetector(
           onTapUp: (details) {
             double screenWidth = MediaQuery.of(context).size.width;
@@ -175,10 +176,48 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               _playNextVideo();
             }
           },
-          child: Chewie(
-            controller: _chewieController ?? ChewieController(
-              videoPlayerController: _videoPlayerController,
-            ),
+          child: Stack(
+              children: [
+                Chewie(
+                  controller: _chewieController ?? ChewieController(
+                    videoPlayerController: _videoPlayerController,
+                  ),
+                ),
+                Positioned(
+                  top: 0,
+                  left: 5,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                       TextButton(onPressed: (){}, child: Text('< back', style:TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color : Colors.white)))
+
+                      ],
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 95,
+                  left: 10,
+                  child: Container(
+                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Local Visits',style:TextStyle(color:Colors.white,fontSize: 17)),
+                        Container(
+                          width : 100,
+                          child: Text(
+                            '${storyDetails["storyLocation"]}',
+                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 20,),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ]
           ),
 
         ),
@@ -187,6 +226,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

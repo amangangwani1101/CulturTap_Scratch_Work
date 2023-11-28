@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
 import 'package:video_player/video_player.dart';
@@ -252,11 +253,19 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   // }
 
 
-
+  BackButtonHandler backButtonHandler4 = BackButtonHandler(
+    imagePath: 'assets/images/exit.svg',
+    textField: 'Save Your Story And Exit?',
+    what: 'Home',
+    button1: 'Add New',
+    button2: 'Save',
+  );
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return WillPopScope(
+        onWillPop: () => backButtonHandler4.onWillPop(context, true),
+    child: Scaffold(
       appBar: VideoAppBar(
         title:'Edit Story',
         exit : 'a',
@@ -464,6 +473,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
           ],
         ),
       ),
+    )
     );
   }
 }
@@ -576,14 +586,14 @@ class _VideoItemState extends State<VideoItem> {
                 ),
               ),
               Positioned(
-                top: 8.0,
-                right: 8.0,
+                top: 2.0,
+                right: 2.0,
                 child: IconButton(
                   onPressed: widget.onClosePressed,
                   icon: Icon(
-                    Icons.close_rounded,
-                    size: 20.0,
-                    color: Colors.white,
+                    Icons.highlight_remove_rounded,
+                    size: 30.0,
+                    color: Colors.white70,
                   ),
                 ),
               ),

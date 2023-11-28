@@ -9,12 +9,16 @@ class BackButtonHandler extends StatelessWidget {
   final String textField;
   final String what;
   final String? extraText;
+  final String button1;
+  final String button2;
 
   BackButtonHandler({
     required this.imagePath,
     required this.textField,
     required this.what,
     this.extraText,
+    required this.button1,
+    required this.button2,
   });
 
   @override
@@ -90,7 +94,8 @@ class BackButtonHandler extends StatelessWidget {
                         Navigator.of(context).pop(false);
                       },
                       child: Text(
-                        'No',
+
+                        button1,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,
@@ -104,15 +109,21 @@ class BackButtonHandler extends StatelessWidget {
                         if(what == "exit"){
                           SystemNavigator.pop();
                         }
-                        if(what=='back'){
+                        if(what=='Home' || what == 'v_p_h'){
                           Navigator.push(
                             context,
                             MaterialPageRoute(builder: (context) => HomePage()),
                           );
                         }
+                        if(what=='settings'){
+                          // Navigator.push(
+                          //   context,
+                          //   MaterialPageRoute(builder: (context) => HomePage()),
+                          // );
+                        }
                       },
                       child: Text(
-                        'Yes',
+                        button2,
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.orange,

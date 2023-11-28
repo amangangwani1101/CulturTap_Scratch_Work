@@ -5,11 +5,15 @@ import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
 class VideoGridItem extends StatefulWidget {
+  final int videoNumber;
   final VideoPlayerController controller;
   final Function()? onRemovePressed;
 
-  VideoGridItem({required this.controller, this.onRemovePressed});
-
+  VideoGridItem({
+    required this.videoNumber,
+    required this.controller,
+    this.onRemovePressed,
+  });
   @override
   _VideoGridItemState createState() => _VideoGridItemState();
 }
@@ -70,14 +74,37 @@ class _VideoGridItemState extends State<VideoGridItem> {
                   ),
                 ),
                 Positioned(
-                  top: 8.0,
+                  top: 2.0,
                   right: 8.0,
                   child: IconButton(
                     onPressed: widget.onRemovePressed,
                     icon: Icon(
-                      Icons.close_rounded,
-                      size: 20.0,
-                      color: Colors.white,
+                      Icons.highlight_remove_rounded,
+                      size: 40.0,
+                      color: Colors.white70,
+                    ),
+                  ),
+                ),
+                Positioned(
+                  top: 8.0,
+                  left: 8.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1.0,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      child: Text(
+                        widget.videoNumber.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -154,6 +181,7 @@ class _DraftVideoListPageState extends State<DraftVideoListPage> {
                 itemCount: videoControllers.length,
                 itemBuilder: (context, index) {
                   return VideoGridItem(
+                    videoNumber: index + 1,
                     controller: videoControllers[index],
                     onRemovePressed: () {
                       showDialog(

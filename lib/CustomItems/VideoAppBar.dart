@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/HomePage.dart';
 
 class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -30,6 +31,14 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
                 if(exit=='b'){
 
                   Navigator.of(context).pop();
+                }
+                if(exit=='home'){
+                  {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                  }
                 }
                  // Show the exit confirmation dialog
               },

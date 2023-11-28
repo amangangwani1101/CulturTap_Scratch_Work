@@ -645,6 +645,8 @@ class _HomePageState extends State<HomePage> {
     imagePath: 'assets/images/exit.svg',
     textField: 'Do you want to exit?',
     what: 'exit',
+    button1: 'EXIT',
+    button2:'NO',
   );
 
   Future<void> _refreshHomepage() async {

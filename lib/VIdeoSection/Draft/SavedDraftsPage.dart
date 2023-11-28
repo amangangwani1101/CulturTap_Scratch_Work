@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
+import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/DraftVideoListPage.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
@@ -61,6 +62,8 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
       }
     });
   }
+
+
   Future<void> _deleteDraft(int index) async {
     if (index < drafts.length) {
       final draftToDelete = drafts[index];
@@ -163,11 +166,22 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
     await _loadDrafts();
   }
 
+  BackButtonHandler backButtonHandler3 = BackButtonHandler(
+    imagePath: 'assets/images/exit.svg',
+    textField: 'HomePage',
+    what: 'Home',
+    button1: 'Yes',
+    button2: 'No',
+  );
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return  WillPopScope(
+        onWillPop: () => backButtonHandler3.onWillPop(context, true),
+    child: Scaffold(
       appBar: VideoAppBar(
         title:'Your Drafts',
+        exit: 'home',
       ),
       backgroundColor: Color(0xFF263238),
       body: RefreshIndicator(
@@ -194,21 +208,32 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
                       Expanded(
                         flex: 5,
                         child: Column(
-
                           mainAxisAlignment: MainAxisAlignment.spaceAround,
-                          crossAxisAlignment: CrossAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+
                           children: [
                             _buildVideoCount(index),
-                            Center(
-                              child: Padding(
-                                padding: EdgeInsets.only(left: 18),
-                                child: Text(
-                                  drafts[index].storyTitle,
-                                  style: TextStyle(
-                                    color: Colors.white,
-                                    fontSize: 20,
+                            Padding(
+                              padding: const EdgeInsets.only(left:28.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    'Title ',
+                                    style: TextStyle(
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                    ),
                                   ),
-                                ),
+                                  Text(
+                                    drafts[index].storyTitle,
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 15,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                             Padding(
@@ -219,7 +244,7 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
                                   Text(
                                     'Location  ',
                                     style: TextStyle(
-                                      fontSize: 20,
+                                      fontSize: 17,
                                       fontWeight: FontWeight.bold,
                                       color: Colors.white,
                                     ),
@@ -294,6 +319,7 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
           },
         ),
       ),
+    )
     );
   }
 
@@ -349,7 +375,9 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
         children: [
-          Row(children: [
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
             IconButton(
               icon: Icon(Icons.video_library),
               color: Colors.white,
