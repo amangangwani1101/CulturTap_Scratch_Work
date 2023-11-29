@@ -3,6 +3,9 @@ import 'package:chewie/chewie.dart';
 import 'package:video_player/video_player.dart';
 import 'package:http/http.dart' as http;
 
+
+
+
 class StoryDetailPage extends StatefulWidget {
   final List<String> storyUrls;
   final List<Map<String, dynamic>> storyDetailsList;
@@ -21,14 +24,17 @@ class StoryDetailPage extends StatefulWidget {
 class _StoryDetailPageState extends State<StoryDetailPage> {
   late PageController _pageController;
   int _currentIndex = 0;
-   ChewieController? _chewieController;
+  ChewieController? _chewieController;
   late VideoPlayerController _videoPlayerController;
+  late List<VideoPlayerController> _videoControllers;
 
   @override
   void initState() {
     super.initState();
     _pageController = PageController(initialPage: widget.initialIndex);
     _currentIndex = widget.initialIndex;
+    _videoControllers = [];
+
     _initializeVideoPlayer();
     _videoPlayerController.addListener(() {
       if (_videoPlayerController.value.isPlaying &&
@@ -38,6 +44,41 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       }
     });
   }
+
+  Future<void> _initializeAllVideoControllers() async {
+    for (int i = 0; i < widget.storyUrls.length; i++) {
+      List<String> videoPaths = widget.storyDetailsList[i]["videoPaths"];
+      String initialVideoPath = videoPaths.first;
+      String fullVideoUrl = 'http://173.212.193.109:8080/videos$initialVideoPath';
+
+      // Create a new video controller for each video in the story
+      VideoPlayerController videoController = VideoPlayerController.network(fullVideoUrl);
+      await videoController.initialize();
+
+      // Add the video controller to the list
+      _videoControllers.add(videoController);
+    }
+
+    // Initialize the Chewie controller for the initial video
+    _initializeChewieController();
+  }
+
+
+  void _initializeChewieController() {
+    _chewieController = ChewieController(
+      videoPlayerController: _videoControllers[_currentIndex],
+      placeholder: Container(
+        color: Colors.grey,
+      ),
+      autoPlay: true,
+      looping: false,
+      allowMuting: false,
+      allowedScreenSleep: false,
+      showControls: true,
+    );
+  }
+
+
   Future<void> _initializeVideoPlayer() async {
     List<String> videoPaths = widget.storyDetailsList[_currentIndex]["videoPaths"];
     print('videoPaths in storyDetailsPage $videoPaths');
@@ -76,28 +117,30 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     var response = await http.get(Uri.parse(fullVideoUrl));
 
     if (response.statusCode == 200) {
+
+      await _videoPlayerController.initialize();
       // Dispose the old controllers before creating new ones
-      _videoPlayerController.dispose();
-      _chewieController?.dispose();
+      // _videoPlayerController.dispose();
+      // _chewieController?.dispose();
 
       // Create new controllers
-      _videoPlayerController = VideoPlayerController.network(fullVideoUrl);
-      await _videoPlayerController.initialize();
-
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        placeholder: Container(
-          color: Colors.grey,
-        ),
-        autoPlay: true,
-        looping: false,
-        allowMuting: false,
-        allowedScreenSleep: false,
-        showControls: true,
-      );
-
-      // Update the state to reflect the new video
-      setState(() {});
+      // _videoPlayerController = VideoPlayerController.network(fullVideoUrl);
+      //
+      //
+      // _chewieController = ChewieController(
+      //   videoPlayerController: _videoPlayerController,
+      //   placeholder: Container(
+      //     color: Colors.grey,
+      //   ),
+      //   autoPlay: true,
+      //   looping: false,
+      //   allowMuting: false,
+      //   allowedScreenSleep: false,
+      //   showControls: true,
+      // );
+      //
+      // // Update the state to reflect the new video
+      // setState(() {});
     } else {
       // Handle errors, e.g., video not found, server error, etc.
       print('Failed to fetch video: ${response.statusCode}');
@@ -107,14 +150,13 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
   void _playNextVideo() {
     if (_currentIndex < widget.storyUrls.length - 1) {
-      _videoPlayerController.dispose();
-      _chewieController?.dispose();
-      _initializeVideoPlayer();
-      setState(() {
-        _currentIndex++;
-      });
+      _videoControllers[_currentIndex].dispose();
+      _currentIndex++;
 
+      // Initialize the Chewie controller for the next video
+      _initializeChewieController();
 
+      setState(() {});
     }
   }
 
@@ -191,7 +233,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                       TextButton(onPressed: (){}, child: Text('< back', style:TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color : Colors.white)))
+                        TextButton(onPressed: (){}, child: Text('< back', style:TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color : Colors.white)))
 
                       ],
                     ),
