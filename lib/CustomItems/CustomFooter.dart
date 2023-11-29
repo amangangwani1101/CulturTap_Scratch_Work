@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/Utils/location_utils.dart';
@@ -212,7 +213,7 @@ class _CustomFooterState extends State<CustomFooter> {
                       onPressed: () {
                         Navigator.of(context).push(
                           MaterialPageRoute(
-                            builder: (context) => SavedDraftsPage(),
+                            builder: (context) => SettingsPage(userId: widget.userId!),
                           ),
                         );
                         _changeIconColor('settings');

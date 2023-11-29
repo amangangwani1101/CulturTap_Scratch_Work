@@ -16,8 +16,9 @@ class ChatApps extends StatefulWidget {
   final String meetingId,senderId,receiverId;
   String ?date;
   DateTime?currentTime;
+  VoidCallback? callbacker;
   int ?index;
-  ChatApps({required this.senderId,required this.receiverId,required this.meetingId,this.date,this.index,this.currentTime});
+  ChatApps({required this.senderId,required this.receiverId,required this.meetingId,this.date,this.index,this.currentTime,this.callbacker});
   @override
   _ChatAppsState createState() => _ChatAppsState();
 }
@@ -228,11 +229,10 @@ class _ChatAppsState extends State<ChatApps> {
     // For example, you can fetch new data from an API
     await Future.delayed(Duration(seconds: 2));
     // Update the UI with new data if needed
-    Navigator.of(context).pop();
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => ChatApps(senderId:widget.senderId,receiverId:widget.receiverId,meetingId:widget.meetingId,date:widget.date,index:widget.index,currentTime:widget.currentTime),
+        builder: (context) => ChatApps(callbacker:widget.callbacker,senderId:widget.senderId,receiverId:widget.receiverId,meetingId:widget.meetingId,date:widget.date,index:widget.index,currentTime:widget.currentTime),
       ),
     );
   }
@@ -321,7 +321,8 @@ class _ChatAppsState extends State<ChatApps> {
     cancelMeeting(widget.date!,widget.index!,'close',widget.receiverId==''?widget.senderId:widget.receiverId,'close');
     // showMeetingEndedAlert();
     Navigator.of(context).pop();
-    Navigator.of(context).pop(); 
+    Navigator.of(context).pop();
+    widget.callbacker!();
     // Navigator.of(context).pop();
     // Navigator.pushReplacement(
     //   context,
@@ -349,6 +350,7 @@ class _ChatAppsState extends State<ChatApps> {
               storeDataLocally(receiverNavigatorId);
           }
           Navigator.of(context).pop();
+          Navigator.of(context).pop();
         }),),
         body: WillPopScope(
           onWillPop: ()async{
@@ -359,6 +361,8 @@ class _ChatAppsState extends State<ChatApps> {
                 storeDataLocally(receiverNavigatorId);
             }
             Navigator.of(context).pop();
+            Navigator.of(context).pop();
+
             return true;
           },
           child: Column(

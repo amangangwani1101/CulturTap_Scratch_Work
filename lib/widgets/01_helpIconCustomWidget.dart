@@ -1,4 +1,5 @@
 import 'dart:convert';
+// import 'dart:html';
 import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
@@ -9,6 +10,7 @@ import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
 import '../BackendStore/BackendStore.dart';
+import 'AlertBox2Option.dart';
 import 'Constant.dart';
 import 'package:http/http.dart' as http;
 import 'CustomButton.dart';
@@ -20,9 +22,10 @@ import '../UserProfile/ProfileHeader.dart';
 String? globalStartTime;
 String? globalEndTime;
 String? globalSlots;
-
+List<PaymentDetails> globalCards =[];
+bool isGone=false;
 class CustomHelpOverlay extends StatelessWidget {
-  final VoidCallback? onButtonPressed,onBackPressed;
+  VoidCallback? onButtonPressed,onBackPressed;
   final String imagePath;
   bool? serviceSettings=false;
   String?text,navigate;
@@ -53,7 +56,7 @@ class CustomHelpOverlay extends StatelessWidget {
               child: Container(
                 padding: EdgeInsets.all(20.0),
                 width: screenWidth*0.90,
-                height: 315,
+                height: navigate=='edit'?357:315,
                 // child: Align(
                 //   alignment: Alignment.topRight,
                 //   child: ElevatedButton(
@@ -69,11 +72,13 @@ class CustomHelpOverlay extends StatelessWidget {
                     children: [
                       Center(child: Image.asset(imagePath,width: 361,height: 281,fit: BoxFit.contain,),),
                       Positioned(
-                        top: 15,
+                        top: navigate=='edit'?30:15,
                         right: 15,
                         child:navigate=='pings'
                           ?SizedBox(width: 0,)
                           : IconButton(
+
+
                           icon: Icon(Icons.close),
                           onPressed: (){
                             Navigator.of(context).pop();
@@ -86,29 +91,27 @@ class CustomHelpOverlay extends StatelessWidget {
                           alignment: Alignment.bottomCenter,
                           child: GestureDetector(
                               onTap: (){
-                                if(navigate=='calendarhelper'){
-                                  print(2);
+                                if(navigate=='calendarhelper' || navigate=='edit'){
                                   onButtonPressed!();
                                 }
                                 else if(navigate=='pings')
                                   Navigator.push(context, MaterialPageRoute(builder: (context)=> PingsSection(userId: helper!,userName:helper2!,text:'meetingPings')));
                                 else if(navigate=='pop'){
-                                    print(1);
                                     onButtonPressed!();
                                 }
                               },
-                              child: Text(text!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
+                              child: Text(text!,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.orange,),)),
                         ),
                       ) else SizedBox(width: 0,),
                       if (serviceSettings==true) Container(
-                          height: 250,
+                          // height: 250,
                           child: Align(
                             alignment: Alignment.bottomCenter,
                             child: GestureDetector(
                                 onTap: (){
                                   Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(profileDataProvider:profileDataProvider)));
                                 },
-                                child: Text('Continue',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: Colors.orange,),)),
+                                child: Text('Continue',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.orange,),)),
                           ),
                         ) else SizedBox(width: 0,)
                     ],
@@ -127,8 +130,10 @@ class CustomHelpOverlay extends StatelessWidget {
 class ServicePage extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
   final ServiceTripCallingData?data;
-  String?userId;
-  ServicePage({this.profileDataProvider,this.userId,this.data});
+  VoidCallback? onButtonPressed;
+  String?userId,text;
+  bool?haveCards;
+  ServicePage({this.profileDataProvider,this.userId,this.data,this.text,this.haveCards,this.onButtonPressed});
 
   @override
   _ServicePageState createState() => _ServicePageState();
@@ -151,7 +156,12 @@ class _ServicePageState extends State<ServicePage>{
     final screenHeight = MediaQuery.of(context).size.height;
     return WillPopScope(
       onWillPop: ()async{
-        if(widget.profileDataProvider==null){
+        if(widget.text=='edit' && isGone==true){
+          widget.onButtonPressed!();
+          Navigator.of(context).pop();
+          Navigator.of(context).pop();
+        }
+        else if(widget.profileDataProvider==null){
           print(1);
           Navigator.of(context).pop();
         }
@@ -163,17 +173,10 @@ class _ServicePageState extends State<ServicePage>{
         return true;
       },
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(0), // Set the preferred height to 0
-          child: AppBar(
-            elevation: 0, // Remove the shadow
-            backgroundColor: Colors.transparent, // Make the background transparent
-          ),
-        ),
+        appBar:AppBar(title: ProfileHeader(reqPage: 3,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
           child: Column(
             children: [
-              ProfileHeader(reqPage: 3,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),
               Container(
                 height:screenHeight*0.85,
                 // decoration: BoxDecoration(
@@ -209,7 +212,7 @@ class _ServicePageState extends State<ServicePage>{
                         ],
                       ),
                     ),
-                    BandWidthSelect(profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId),
+                    BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
                   ],
                 ),
               ),
@@ -438,8 +441,10 @@ class _TimePickerState extends State<TimePicker>{
 
 class BandWidthSelect extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
-  final String?slots,userId;
-  BandWidthSelect({this.profileDataProvider,this.slots,this.userId});
+  final String?slots,userId,text;
+  VoidCallback? onButtonPressed;
+  bool?haveCards;
+  BandWidthSelect({this.profileDataProvider,this.slots,this.userId,this.haveCards,this.text,this.onButtonPressed});
   @override
   _BandWidthSelectState createState() => _BandWidthSelectState();
 }
@@ -453,6 +458,7 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
       _radioValue = widget.slots!;
     }
   }
+
 
   void updateUserTime (String userId,String startTime,String endTime,String slot) async{
     try {
@@ -478,7 +484,26 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
             content: Text('Your Time Is Set :) '),
           ),
         );
-        Navigator.of(context).pop();
+        if(widget.haveCards==false){
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(text:widget.text,userId:widget.userId)));
+          widget.onButtonPressed!();
+        }
+        else if(widget.text=='edit'){
+          showDialog(context: context, builder: (BuildContext context){
+            return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              // Navigator.of(context).pop();
+              // Navigator.of(context).pop();
+            },),);
+          },
+          );
+          widget.onButtonPressed!();
+        }
+        else{
+          Navigator.of(context).pop();
+        }
         print('Data saved successfully');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -548,10 +573,11 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
       );
       return false;
     }
-    widget.profileDataProvider?.setStartTime(globalStartTime!);
-    widget.profileDataProvider?.setEndTime(globalEndTime!);
-    widget.profileDataProvider?.setSlots(globalSlots!);
-    widget.profileDataProvider?.setServide1();
+    if(widget.profileDataProvider!=null){
+      widget.profileDataProvider?.setStartTime(globalStartTime!);
+      widget.profileDataProvider?.setEndTime(globalEndTime!);
+      widget.profileDataProvider?.setSlots(globalSlots!);
+    }
     return true;
   }
   @override
@@ -597,14 +623,14 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                       setState(() {
                         _radioValue = value!;
                         print('Path is : $_radioValue');
-                        if(widget.slots==null){
-                          widget.profileDataProvider?.setSlots(_radioValue);
-                          globalSlots = _radioValue;
-                        }
-                        else {
-                          globalSlots = _radioValue;
-                        }
                       });
+                      if(widget.slots==null){
+                        widget.profileDataProvider?.setSlots(_radioValue);
+                        globalSlots = _radioValue;
+                      }
+                      else {
+                        globalSlots = _radioValue;
+                      }
                     },
                   ),
                   Text("Daily"),
@@ -621,14 +647,14 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                       setState(() {
                         _radioValue = value!;
                         print('Path is : $_radioValue');
-                        if(widget.slots==null){
-                          widget.profileDataProvider?.setSlots(_radioValue);
-                          globalSlots = _radioValue;
-                        }
-                        else {
-                          globalSlots = _radioValue;
-                        }
                       });
+                      if(widget.slots==null){
+                        widget.profileDataProvider?.setSlots(_radioValue);
+                        globalSlots = _radioValue;
+                      }
+                      else {
+                        globalSlots = _radioValue;
+                      }
                     },
                   ),
                   Text("Only Weekends"),
@@ -642,14 +668,26 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
             child: FilledButton(
                 backgroundColor: HexColor('#FB8C00'),
                 onPressed: () {
+                  // if(isGone){
+                  //   ScaffoldMessenger.of(context).showSnackBar(
+                  //     SnackBar(
+                  //       content: Text('Already Set!!'),
+                  //     ),
+                  //   );
+                  //   Navigator.of(context).pop();
+                  // }
                   if(validator()){
+                    // setState(() {
+                    //   isGone = true;
+                    // });
                     if(widget.userId==null){
+                    // Navigator.of(context).pop();
+                    //   if(widget.profileDataProvider!=null){
+                    //     widget.profileDataProvider?.setServide1();
+                    //   }
                       Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(profileDataProvider:widget.profileDataProvider)));
                     }else{
-                      print(1);
-                      print(widget.userId!);
                       updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
-
                       // Navigator.of(context).pop();
                     }
                   }else{}
@@ -690,75 +728,238 @@ class CardItem {
   });
 }
 
-class PaymentSection extends StatelessWidget{
+class PaymentSection extends StatefulWidget{
   ProfileDataProvider?profileDataProvider;
-  PaymentSection({this.profileDataProvider});
-  List<CardDetails> cards = [
-    // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
-    // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
-    // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857'),
-    // CardDetails(name: 'Aman Gangwani', cardChoosen: 1, cardNo: '49756345 349572349857')
-  ];
+  List<CardDetails>?savedCards;
+  String?text,userId;
+  PaymentSection({this.profileDataProvider,this.savedCards,this.text,this.userId});
+
+  @override
+  State<PaymentSection> createState() => _PaymentSectionState();
+}
+
+class _PaymentSectionState extends State<PaymentSection> {
+  List<CardDetails> cards = [];
+
   bool cardform=false;
+
+  @override
+  void initState(){
+    super.initState();
+    if(widget.profileDataProvider!=null)
+      widget.profileDataProvider?.setServide1();
+    if(widget.savedCards!=null){
+      cards = widget.savedCards!;
+    }
+    globalCards = [];
+  }
+
+  void saveCardsToDatabase() async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'userId':widget.userId,
+        'cards':globalCards
+      };
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/updateCards'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+        // if(widget.savedCards!=null){
+        //   ScaffoldMessenger.of(context).showSnackBar(
+        //     SnackBar(
+        //       content: Text('Cards Are Updated Successfully!'),
+        //     ),
+        //   );
+        //   Navigator.of(context).pop();
+        // }else{
+        //   Navigator.of(context).pop();
+        //   Navigator.of(context).pop();
+        //   Navigator.of(context).pop();
+        //   Navigator.of(context).pop();
+        // }
+        // Navigator.of(context).pop();
+        return;
+      } else {
+        print('Failed to check data: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Try Again!!'),
+          ),
+        );
+        return;
+      }
+    }catch(err){
+      print("Error: $err");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Try Again!!'),
+        ),
+      );
+      return;
+    }
+  }
+
   @override
   Widget build(BuildContext context){
     return WillPopScope(
       onWillPop: () async {
-        cards.length>0
-        ? showDialog(
-          context: context,
-          builder: (BuildContext context) {
-            return ConfirmationDialog(
-              message:'Cards Are Not Save.',
-              onCancel: () {
-                // Perform action on confirmation
+        // showDialog(
+        //   context: context,
+        //   builder: (BuildContext context) {
+        //     return ConfirmationDialog(
+        //       message:'Cards Are Not Save.',
+        //       onCancel: () {
+        //         // Perform action on confirmation
+        //         Navigator.of(context).pop(); // Close the dialog
+        //         // Add your action here
+        //         print('Action confirmed');
+        //       },
+        //       onConfirm: () {
+        //         // Perform action on cancellation
+        //         widget.profileDataProvider?.removeAllCards();
+        //         showDialog(context: context, builder: (BuildContext context){
+        //           return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+        //             Navigator.of(context).pop();
+        //             Navigator.of(context).pop();
+        //             Navigator.of(context).pop();
+        //             Navigator.of(context).pop();
+        //             Navigator.of(context).pop();
+        //           },),);
+        //         },
+        //         );
+        //         // Add your action here
+        //         print('Action cancelled');
+        //       },
+        //     );
+        //   },
+        // )
+
+        showDialog(context: context, builder: (BuildContext context){
+          return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Alert !',extraText: 'Do You Want To Save Cards ? ',option1:'No',option2:'Yes',onButton1Pressed: (){
+            // Perform action on confirmation
+            if(widget.text=='edit'){
+              // if(widget.savedCards!=null){
+              //   Navigator.of(context).pop(); // Close the dialog
+              //   Navigator.of(context).pop(); // Close the dialog
+              // }else{
+              //   Navigator.of(context).pop(); // Close the dialog
+              //   Navigator.of(context).pop(); // Close the dialog
+              //   Navigator.of(context).pop(); // Close the dialog
+              //   Navigator.of(context).pop(); // Close the dialog
+              // }
                 Navigator.of(context).pop(); // Close the dialog
-                // Add your action here
-                print('Action confirmed');
+                Navigator.of(context).pop(); // Close the dialog
+            }
+            else{
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(); // Close the dialog
+              Navigator.of(context).pop(); // Close the dialog
+            }
+          },onButton2Pressed: () async{
+            if(widget.text=='edit'){
+              // if(widget.savedCards!=null){
+              //   await showDialog(context: context, builder: (BuildContext context){
+              //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+              //       Navigator.of(context).pop();
+              //     },),);
+              //   },
+              //   );
+              //   saveCardsToDatabase();
+              //   Navigator.of(context).pop();
+              // }
+              // else{
+              //   await showDialog(context: context, builder: (BuildContext context){
+              //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+              //       Navigator.of(context).pop();
+              //     },),);
+              //   },
+              //   );
+              //   saveCardsToDatabase();
+              // }
+              saveCardsToDatabase();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Cards Are Updated Successfully!'),
+                ),
+              );
+            }
+            else{
+              // widget.profileDataProvider?.removeAllCards();
+              showDialog(context: context, builder: (BuildContext context){
+                return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                },),);
               },
-              onConfirm: () {
-                // Perform action on cancellation
-                profileDataProvider?.removeAllCards();
-                showDialog(context: context, builder: (BuildContext context){
-                  return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },),);
-                },
-                );
-                // Add your action here
-                print('Action cancelled');
-              },
-            );
-          },
-        ):showDialog(context: context, builder: (BuildContext context){
-          return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-            Navigator.of(context).pop();
-          },),);
-        },
-        );
+              );
+              // Add your action here
+              print('Action cancelled');
+            }
+          },);
+        },);
+          // :widget.text!='edit'
+          //   ?showDialog(context: context, builder: (BuildContext context){
+          //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+          //       Navigator.of(context).pop();
+          //       Navigator.of(context).pop();
+          //       Navigator.of(context).pop();
+          //       Navigator.of(context).pop();
+          //   },));})
+          //   :Navigator.of(context).pop();
         return true;
       },
       child: Scaffold(
+        appBar: AppBar(title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+          if(widget.text=='edit'){
+            print('6th Page');
+            saveCardsToDatabase();
+            Navigator.of(context).pop();
+            // Navigator.of(context).pop();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Cards Are Updated Successfully!'),
+              ),
+            );
+          }else{
+            showDialog(context: context, builder: (BuildContext context){
+              return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+                // Navigator.of(context).pop();
+              },),);
+            },
+            );
+          }
+        },),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              ProfileHeader(reqPage: 4,text:'You are all set',profileDataProvider:profileDataProvider),
-              Container(
-                  width: 357,
-                  height: 25,
-                  child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
-              SizedBox(height: 30,),
-              PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:profileDataProvider),
-
-            ],
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                SizedBox(height: 30,),
+                Container(
+                    width: 357,
+                    height: 25,
+                    child: Text('Payments',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
+                SizedBox(height: 30,),
+                PaymentCard(paymentCards:cards,cardForm: cardform,profileDataProvider:widget.profileDataProvider,section: widget.text,),
+              ],
+            ),
           ),
         ),
       ),
@@ -769,9 +970,9 @@ class PaymentSection extends StatelessWidget{
 class CardDetails{
   final String name;
   final String cardNo;
-  final int cardChoosen;
+  int? cardChoosen;
   final String month,year,cvv;
-  bool options;
+  bool? options;
 
   CardDetails({
     required this.name,
@@ -780,16 +981,20 @@ class CardDetails{
     required this.month,
     required this.year,
     required this.cvv,
-    required this.options
+    this.options
   });
 }
 
+
+
 class PaymentCard extends StatefulWidget{
   final List<CardDetails> paymentCards;
+  List<PaymentDetails>? paymentCard;
   ProfileDataProvider? profileDataProvider;
+  String?section;
   bool cardForm;
 
-  PaymentCard({required this.paymentCards,required this.cardForm,this.profileDataProvider});
+  PaymentCard({required this.paymentCards,required this.cardForm,this.profileDataProvider,this.section,this.paymentCard});
 
   @override
   _PaymentCardState createState() => _PaymentCardState();
@@ -893,9 +1098,29 @@ class _PaymentCardState extends State<PaymentCard> {
     // Join the chunks with spaces
     return chunks.join(' ');
   }
+  CardDetails?editCard;
+  List<CardDetails> cards=[];
+  @override
+  void initState(){
+    super.initState();
+    if(widget.paymentCards!=null  && widget.paymentCards.length>0){
+      cards = widget.paymentCards;
+      for(int i=0;i<widget.paymentCards.length;i++){
+        CardDetails card = widget.paymentCards[i];
+        globalCards!.add(PaymentDetails(
+          name: card.name, // Get this from user input
+          month: card.month, // Get this from user input
+          year: card.year, // Get this from user input
+          cardNo: card.cardNo, // Get this from user input
+          cvv: card.cvv, // Get this from user input
+        ));
+      }
+    }
+  }
   @override
   Widget build (BuildContext context){
-    List<CardDetails> cards = widget.paymentCards;
+    cards = widget.paymentCards;
+    print('8th Page');
     double screenHeight = MediaQuery.of(context).size.height;
     return SingleChildScrollView(
       child: Column(
@@ -906,13 +1131,15 @@ class _PaymentCardState extends State<PaymentCard> {
                   return GestureDetector(
                     onTap: (){
                       print('1');
-                      setState(() {
-                        cards[index].options = !cards[index].options;
-                      });
+                      if(cards[index].options!=null){
+                        setState(() {
+                          cards[index].options = !(cards[index].options!);
+                        });
+                      }
                     },
                     child: Container(
                       width: 357,
-                      height: cards[index].options?192:102,
+                      height: cards[index].options!=null && cards[index].options==true?192:102,
                       margin: EdgeInsets.all(10),
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
@@ -958,7 +1185,7 @@ class _PaymentCardState extends State<PaymentCard> {
                               ),
                             ],
                           ),
-                          cards[index].options
+                          cards[index].options!=null && cards[index].options==true
                               ?Container(
                                   height: 27,
                                 width: 357,
@@ -976,14 +1203,22 @@ class _PaymentCardState extends State<PaymentCard> {
                                       cvvController.text = cards[index].cvv;
                                       widget.cardForm = !widget.cardForm;
                                     });
-                                    widget.profileDataProvider!.removeCard(index);
+                                    if(widget.section=='edit'){
+                                      globalCards!.removeAt(index);
+                                    }
+                                    else widget.profileDataProvider!.removeCard(index);
+                                    editCard = CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text,month:expMonthController.text,year: expYearController.text,cvv:cvvController.text,options: false);
                                     widget.paymentCards.removeAt(index);
                                   },
                                 ),
                                 Text('|',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'))),
                                 GestureDetector(
                                     onTap: (){
-                                      widget.profileDataProvider!.removeCard(index);
+                                      if(widget.section=='edit'){
+                                        print('removed');
+                                        globalCards!.removeAt(index);
+                                      }
+                                      else widget.profileDataProvider!.removeCard(index);
                                       setState(() {
                                         widget.paymentCards.removeAt(index);
                                       });
@@ -1000,6 +1235,7 @@ class _PaymentCardState extends State<PaymentCard> {
                 })
             ),
           ),
+
           widget.cardForm
               ? Container(
             width: 357,
@@ -1196,9 +1432,36 @@ class _PaymentCardState extends State<PaymentCard> {
                           children: [
                             GestureDetector(
                               onTap: (){
+                                if(editCard!=null){
+                                  widget.paymentCards.add(editCard!);
+                                  if(widget.profileDataProvider!=null){
+                                    PaymentDetails newPayment = PaymentDetails(
+                                      name: nameController.text, // Get this from user input
+                                      month: expMonthController.text, // Get this from user input
+                                      year: expYearController.text, // Get this from user input
+                                      cardNo: cardNoController.text, // Get this from user input
+                                      cvv: cvvController.text, // Get this from user input
+                                    );
+                                    widget.profileDataProvider!.addCardDetails(newPayment);
+                                  }
+                                  else{
+                                    globalCards!.add(PaymentDetails(
+                                      name: nameController.text, // Get this from user input
+                                      month: expMonthController.text, // Get this from user input
+                                      year: expYearController.text, // Get this from user input
+                                      cardNo: cardNoController.text, // Get this from user input
+                                      cvv: cvvController.text, // Get this from user input
+                                    ));
+                                  }
+                                  editCard = null;
+                                }
                                 setState(() {
+                                  nameController.text = '';
+                                  cardNoController.text = '';
+                                  expMonthController.text = '';
+                                  expYearController.text = '';
+                                  cvvController.text = '';
                                   widget.cardForm = !widget.cardForm;
-                                  print(widget.cardForm);
                                 });
                               },
                               child: Container(
@@ -1223,7 +1486,16 @@ class _PaymentCardState extends State<PaymentCard> {
                                     cardNo: cardNoController.text, // Get this from user input
                                     cvv: cvvController.text, // Get this from user input
                                   );
-                                  widget.profileDataProvider!.addCardDetails(newPayment);
+                                  print(widget.section);
+                                  if(widget.section=='edit') {
+                                    globalCards!.add(newPayment);
+                                  }
+                                  else {
+                                    widget.profileDataProvider!.addCardDetails(newPayment);
+                                  }
+                                  if(editCard!=null){
+                                    editCard = null;
+                                  }
                                   setState(() {
                                     widget.paymentCards.add(CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text,month:expMonthController.text,year: expYearController.text,cvv:cvvController.text,options: false));
                                     nameController.text = '';
@@ -1234,7 +1506,6 @@ class _PaymentCardState extends State<PaymentCard> {
                                     widget.cardForm = !widget.cardForm;
                                   });
                                 }
-
                               },
                               child: Container(
                                   width: 156,
@@ -1294,28 +1565,32 @@ class _PaymentCardState extends State<PaymentCard> {
               ),
             ),
           ),
-          widget.paymentCards.length>0
-          ? Container(
-              width: 326,
-              height: 53,
-              margin: EdgeInsets.only(top: screenHeight * 0.7),
-              child: FiledButton(
-              backgroundColor: HexColor('#FB8C00'),
-              onPressed: () {
-                  showDialog(context: context, builder: (BuildContext context){
-                    return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },),);
-                  },
-                );
-              },
-              child: Center(
-                child: Text('Set Cards',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 18)))),
-            )
-          :SizedBox(height: 0,),
+          // widget.paymentCards.length>0
+          // ? Container(
+          // ? Container(
+          //     width: 326,
+          //     height: 53,
+          //     margin: EdgeInsets.only(top: screenHeight * 0.2 ),
+          //     child: FiledButton(
+          //     backgroundColor: HexColor('#FB8C00'),
+          //     onPressed: () {
+          //         showDialog(context: context, builder: (BuildContext context){
+          //           return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+          //             Navigator.of(context).pop();
+          //             // Navigator.of(context).pop();
+          //             // Navigator.of(context).pop();
+          //             Navigator.of(context).pop();
+          //             if(widget.profileDataProvider!=null){
+          //               widget.profileDataProvider?.setServide1();
+          //             }
+          //           },),);
+          //         },
+          //       );
+          //     },
+          //     child: Center(
+          //       child: Text('Set Cards',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 18)))),
+          //   )
+          // :SizedBox(height: 0,),
         ],
       ),
     );

@@ -22,103 +22,108 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
     ],);
   }
 
-  return Column(
-    crossAxisAlignment: CrossAxisAlignment.start,
-    children: <Widget>[
+  return Container(
+    color : Colors.white,
+    child: Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
 
-      Padding(
-        padding: EdgeInsets.only(left:18.0,right:18,top:18,bottom:10),
-        child: Column(
-          children: [
+        Padding(
+          padding: EdgeInsets.only(left:18.0,right:18,top:18,bottom:10),
+          child: Column(
+            children: [
 
-              if(specificCategoryName!='')
-                Column(
-                  children: [
-                    SizedBox(height : 10),
-                    Row(
+                if(specificCategoryName!='')
+                  Column(
+                    children: [
+                      SizedBox(height : 10),
+                      Row(
 
-                      children: [
-                        Container(
-                          width : 240,
-                          child: Text(
-                            specificCategoryName,
-                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF263238),),
+                        children: [
+                          Container(
+                            width : 240,
+                            child: Text(
+                              specificCategoryName,
+                              style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF263238),),
+                            ),
                           ),
-                        ),
 
 
-                      ],
-                    ),
-                    SizedBox(height : 10),
-                  ],
-                ),
+                        ],
+                      ),
+                      SizedBox(height : 10),
+                    ],
+                  ),
 
 
 
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: <Widget>[
-                Text(
-                  categoryName,
-                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF263238),),
-                ),
-                TextButton(
-                  onPressed: () {
-                    // Handle button press for "View All" in the specific category
-                  },
-                  child: Text(
-                    'View All >',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.orange,
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Text(
+                    categoryName,
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF263238),),
+                  ),
+                  TextButton(
+                    onPressed: () {
+
+                      // Handle button press for "View All" in the specific category
+                    },
+                    child: Text(
+                      'View All >',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                      ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ],
-        ),
-      ),
-      Container(
-        height: 590,
-        child: ListView.builder(
-          scrollDirection: Axis.horizontal,
-          itemCount: storyUrls.length,
-          itemBuilder: (context, index) {
-
-            return GestureDetector(
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => StoryDetailPage(
-                      storyUrls: storyUrls,
-                      storyDetailsList: storyDetailsList,
-                      initialIndex: index,
-                    ),
-                  ),
-                );
-
-              },
-              child: VideoStoryCard(
-                videoUrl: storyUrls[index],
-                distance: storyDistance[index],
-                videoCount: videoCounts[index],
-                location : storyLocation[index],
-
-                category : storyCategory[index],
-                title : storyTitle[index],
-
-
-
+                ],
               ),
-            );
-          },
+            ],
+          ),
         ),
-      ),
+        Container(
+          height: 590,
 
-    ],
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            itemCount: storyUrls.length,
+            itemBuilder: (context, index) {
+
+              return GestureDetector(
+                onTap: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => StoryDetailPage(
+                        storyUrls: storyUrls,
+                        storyDetailsList: storyDetailsList,
+                        initialIndex: index,
+                      ),
+                    ),
+                  );
+
+                },
+                child: VideoStoryCard(
+                  videoUrl: storyUrls[index],
+                  distance: storyDistance[index],
+                  videoCount: videoCounts[index],
+                  location : storyLocation[index],
+
+                  category : storyCategory[index],
+                  title : storyTitle[index],
+
+
+
+                ),
+              );
+            },
+          ),
+        ),
+
+      ],
+    ),
   );
 }
 

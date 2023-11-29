@@ -1,3 +1,4 @@
+import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
@@ -9,6 +10,13 @@ import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'dart:io';
+import 'package:audioplayers/audioplayers.dart';
+
+
+
+
+
+
 
 import 'package:torch_light/torch_light.dart';
 
@@ -50,7 +58,7 @@ class _CameraAppState extends State<CameraApp> {
   Geolocator _geolocator = Geolocator();
   Position? _startPosition;
   bool hasRecordedVideos = false;
-  bool hasVideos = false;
+
 
   CameraController? _controller;
   bool _isRecording = false;
@@ -64,6 +72,7 @@ class _CameraAppState extends State<CameraApp> {
   double liveLatitude = 0.0;
   double liveLongitude = 0.0;
   bool locationgranted = false;
+  final player = AudioPlayer();
 
   @override
   void initState() {
@@ -182,7 +191,25 @@ class _CameraAppState extends State<CameraApp> {
   // }
   //
 
+
+
+  void playSound() async{
+    // AudioPlayer player = AudioPlayer();
+
+    final player = AudioPlayer();
+    await player.play(UrlSource('https://example.com/my-audio.wav'));
+  }
+
+
+
   void startRecording() async {
+
+    try {
+      playSound();
+    } catch (e) {
+      print("Error playing audio: $e");
+    }
+
 
 
     requestLocationPermission();
@@ -234,7 +261,7 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void navigateToPreviewPage(BuildContext context) async{
-    hasVideos = await VideoDatabaseHelper().hasVideos();
+    bool hasVideos = await VideoDatabaseHelper().hasVideos();
     if (hasVideos) {
       // Navigate to VideoPreviewPage with data from the database
       List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
@@ -482,9 +509,10 @@ class _CameraAppState extends State<CameraApp> {
                           padding: const EdgeInsets.only(top:14.0),
                           child: IconButton(
                             onPressed: () {
-                              if(hasVideos){
+
                                 navigateToPreviewPage(context);
-                              }
+                                print('has videos ');
+
 
 
                             },

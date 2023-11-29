@@ -4,6 +4,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 // import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
+import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 import '../BackendStore/BackendStore.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
@@ -18,7 +19,9 @@ class ProfileHeader extends StatefulWidget {
   final String? userId,text,userName;
   final VoidCallback? onButtonPressed;
   ProfileDataProvider?profileDataProvider;
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.userName,this.onButtonPressed});
+  final String? profileStatus;
+
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -47,15 +50,27 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
               GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChangeNotifierProvider(
-                        create: (context) => ProfileDataProvider(),
-                        child: ProfileApp(userId: widget.userId, userName: widget.userName),
+                  if( widget.profileStatus ==''){
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChangeNotifierProvider(
+                          create: (context) => ProfileDataProvider(),
+                          child: ProfileApp(userId: widget.userId, userName: widget.userName),
+                        ),
                       ),
-                    ),
-                  );
+                    );
+                  }
+                  else{
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                        create:(context) => ProfileDataProvider(),
+                        child: FinalProfile(userId: widget.userId!,clickedId: '652bb97a2310b75ec11cd2ed',),
+                      ),),
+                    );
+                  }
+
                 },
                 child: Container(
 
@@ -86,7 +101,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             ],
           ):
           widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
-          ? Container(
+              ? Container(
             // decoration: BoxDecoration(
             //   border: Border.all(
             //     color: Colors.black,
@@ -125,10 +140,10 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               ),
             ),
           )
-          : SizedBox(height: 0,),
+              : SizedBox(height: 0,),
           widget.reqPage>=1
-          ? Image.asset('assets/images/logo.png',width: 145)
-          : Image.asset('assets/images/logo.png',width: 145),
+              ? Image.asset('assets/images/logo.png',width: 145)
+              : Image.asset('assets/images/logo.png',width: 145),
           if (widget.reqPage<=1) Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -145,45 +160,58 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   }
                 },
                 child: Container(
-
                   width: 80,
-                  height: 75,
+                  height: 85,
                   // decoration: BoxDecoration(
                   //   border: Border.all(
                   //     color: Colors.orange,
                   //     width: 2,
                   //   ),
                   // ),
-                  child: Column(
+                  child:Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Stack(
-
-                        children: [
-                          Image.asset('assets/images/ping_image.png',height: 30 ,fit: BoxFit.cover,
-                          ),
-                          if(notificationCount>0)
-                            Positioned(
-                              top: -6,
-                              right: 0,
-                              // height: 20,
-                              child: Container(
-
-
-                                decoration: BoxDecoration(
-                                  color: Colors.red,
-                                  shape: BoxShape.circle,
-                                ),
-                                child: Text(
-                                  notificationCount.toString(),
-                                  style: TextStyle(fontSize: 14,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
-                                ),
+                      InkWell(
+                        onTap: (){
+                          print('Us2e:${widget.userId}');
+                          if(widget.userId!=null){
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => PingsSection(userId: widget.userId!,state: 'schedule',),
                               ),
-                            ),
-                        ],
+                            );
+                          }
+                        },
+                        child: Container(
+                          width: 35,
+                          height: 24,
+                          child: Stack(
+                            children: [
+                              Align(alignment: Alignment.topCenter, child: Image.asset('assets/images/ping_image.png',height: 27 ,width:24,fit: BoxFit.contain,)),
+                              if(notificationCount>0)
+                                Positioned(
+                                  top: -3,
+                                  right: 0,
+                                  // height: 20,
+                                  child: Container(
+                                    padding: EdgeInsets.all(3),
+                                    decoration: BoxDecoration(
+                                      color: Colors.red,
+                                      shape: BoxShape.circle,
+                                    ),
+                                    child: Text(
+                                      notificationCount.toString(),
+                                      style: TextStyle(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
+                                    ),
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
                       ),
-                      SizedBox(height:2),
-                      Text('Pings',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
+                      SizedBox(height: 2,),
+                      Text('Pings',style: TextStyle(fontSize: 12,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
                     ],
                   ),
                 ),
@@ -191,24 +219,24 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
             ],
           ) else widget.reqPage==4 || widget.reqPage==8
-            ?Container(
+              ?Container(
             color : Colors.purple,
             width: widget.reqPage==4? 60:13,
-              height: widget.reqPage==4? 40:13,
-              child: GestureDetector(
+            height: widget.reqPage==4? 40:13,
+            child: GestureDetector(
               onTap: (){
                 if(widget.reqPage==4){
                   showDialog(context: context, builder: (BuildContext context){
                     return Container(
                       color : Colors.brown,
                       child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: widget.text,navigate: 'pop',onButtonPressed: (){
-                      print(2);
-                      widget.profileDataProvider?.removeAllCards();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },),);
+                        print(2);
+                        widget.profileDataProvider?.removeAllCards();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                        Navigator.of(context).pop();
+                      },),);
                   },
                   );
                 }
@@ -217,13 +245,12 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 }
               },
               child:widget.reqPage==4
-              ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
-              : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
-          ),
-            ):SizedBox(width: 0,),
+                  ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
+                  : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
+            ),
+          ):SizedBox(width: 0,),
         ],
       ),
     );
   }
 }
-

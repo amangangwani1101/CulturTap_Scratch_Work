@@ -93,18 +93,12 @@ class _ProfilePageState extends State<ProfilePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: PreferredSize(
-        preferredSize: Size.fromHeight(0), // Set the preferred height to 0
-        child: AppBar(
-          elevation: 0, // Remove the shadow
-          backgroundColor: Colors.transparent, // Make the background transparent
-        ),
-      ),
+      appBar:AppBar(title: ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),automaticallyImplyLeading:false,),
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),
+            widget.reqPage==0?SizedBox(height: 17,):SizedBox(height: 0,),
             widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
             SizedBox(height: 17,),
             CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,name:widget.userName),
@@ -150,7 +144,7 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
           // padding: EdgeInsets.only(top: 12.0),
           decoration: BoxDecoration(
             border: Border.all(
-              color: Color(0xFF263238),
+              color: Colors.black,
               width: 1,
             ),
           ),
@@ -173,7 +167,7 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children:[
-                      Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w900,fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                      Text('Lets Complete\nProfile Section First!',style: TextStyle(fontWeight: FontWeight.w900,fontSize: 14,fontFamily: 'Poppins'),),
                       SizedBox(height: 10,),
                       Text('Profile Strength',style: TextStyle(fontSize: 11,fontFamily: 'Poppins',shadows: <Shadow>[
                         Shadow(
@@ -182,7 +176,7 @@ class _ProfileStrengthCardState extends State<ProfileStrengthCard> {
                           color: Colors.grey, // Specify the color of the shadow
                         ),
                       ],),),
-                      Text('LOW',style: TextStyle(color: Colors.red,fontWeight: FontWeight.w900,fontFamily: 'Poppins',fontSize: 11,),),
+                      Text('LOW',style: TextStyle(color: Colors.red,fontWeight: FontWeight.w900,fontFamily: 'Poppins',fontSize: 11),),
                     ],
                   ),
                 ),
@@ -237,8 +231,7 @@ class UserInformationSection extends StatelessWidget {
           SizedBox(height: 30,),
           reqPage==0?SizedBox(height: 0):SignIn(profileDataProvider:profileDataProvider),
           SizedBox(height: 30.0),
-          reqPage==0?SizedBox(height: 0):LocationEditor(profileDataProvider:profileDataProvider),
-          reqPage==0?SizedBox(height: 0):SizedBox(height: 30),
+          reqPage==0?SizedBox(height: 0):SizedBox(height: 10),
           reqPage==0?UserDetailsTable():ProfileForm(profileDataProvider:profileDataProvider),
           SizedBox(height: 45.0),
           ExpertCardDetails(),
@@ -248,9 +241,9 @@ class UserInformationSection extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
-                    ServiceCard(titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner ',profileDataProvider:profileDataProvider),
-                    ServiceCard(titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'Turn youself ON for Becoming \nSuperhero as a saviour ! ',profileDataProvider:profileDataProvider),
-                    ServiceCard(titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !',profileDataProvider:profileDataProvider),
+                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner ',profileDataProvider:profileDataProvider),
+                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'Turn youself ON for Becoming \nSuperhero as a saviour ! ',profileDataProvider:profileDataProvider),
+                    ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !',profileDataProvider:profileDataProvider),
                   ],
                 ),
               ),
@@ -272,18 +265,18 @@ class UserInformationSection extends StatelessWidget {
                     children: [
                       Text('Other visits',
                         style: TextStyle(fontSize: 24,
-                            fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Color(0xFF263238),),),
+                            fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                       Text('No visits till yet, You can start it now even, Just click on add “ + “ button at the bottom of your screen & '
-                          ' record your outside surroundings.',style: TextStyle(fontSize: 12,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                          ' record your outside surroundings.',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
                       SizedBox(height: 7,),
                       Text('You can make video post private & public as per your choice. ',
-                        style: TextStyle(fontSize: 12,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                        style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
                       SizedBox(height:7,),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text('Profile Strength Now',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily:'Poppins',color: Color(0xFF263238),),),
-                          Text('Medium',style: TextStyle(fontSize: 12,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Color(0xFF263238),),),
+                          Text('Profile Strength Now',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily:'Poppins',),),
+                          Text('Medium',style: TextStyle(fontSize: 12,fontFamily: 'Poppins',color: HexColor('#FB8C00'),fontWeight: FontWeight.bold),),
                         ],
                       ),
                     ],
@@ -315,6 +308,20 @@ class ProfielStatusAndButton  extends StatelessWidget{
     void sendDataToBackend () async{
       print('Status');
       try {
+
+        if(profileDataProvider.retFieldsCnt()>53){
+          if(profileDataProvider.retServide1()==true || profileDataProvider.retServide2()==true)
+            profileDataProvider.setProfileStatus('high');
+          else
+            profileDataProvider.setProfileStatus('medium');
+        }
+        else{
+          if(profileDataProvider.retServide1()==true || profileDataProvider.retServide2()==true){
+            profileDataProvider.setProfileStatus('medium');
+          }else{
+            profileDataProvider.setProfileStatus('low');
+          }
+        }
         final profileData = profileDataProvider.profileData.toJson();
         print('Path is $profileData');
         final String serverUrl = Constant().serverUrl; // Replace with your server's URL

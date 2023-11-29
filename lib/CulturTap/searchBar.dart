@@ -9,11 +9,13 @@ class StoryBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+
       margin: EdgeInsets.all(16.0),
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(30.0),
         border: Border.all(color: Colors.grey),
+        color : Colors.white,
       ),
       child: Row(
         children: [

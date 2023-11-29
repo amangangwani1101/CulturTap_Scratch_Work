@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -55,10 +56,14 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   double? firstVideoLongitude;
   double? userLatitude;
   double? userLongitude;
+  late VideoDatabaseHelper _databaseHelper;
+
 
   @override
   void initState() {
     super.initState();
+
+    _databaseHelper = VideoDatabaseHelper();
 
     // Add videos to videoData when the page loads
 
@@ -80,6 +85,66 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
 
   }
+
+  Future<void> _showAlertDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Continue Previous Story?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Do you want to continue the previous story or start a new one?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // Navigate to VideoPreviewPage with data from the database
+                List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+                // Extract the required data from the list of videos
+                List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                String userLocation = ''; // Replace with your logic to get user location
+                double latitude = allVideos[0].latitude;
+                double longitude = allVideos[0].longitude;
+
+                print('latitude : $latitude');
+                print('longitude : $longitude');
+
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => VideoPreviewPage(
+                      videoPaths: videoPaths,
+                      userLocation: userLocation,
+                      latitude: latitude,
+                      longitude: longitude,
+                    ),
+                  ),
+                );
+
+              },
+              child: Text('Continue'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // Start a new story
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+              },
+              child: Text('New Story'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
 
 
   bool isWithinRadius(double firstLatitude, double firstLongitude, double newLatitude, double newLongitude, double radius) {
@@ -215,43 +280,6 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       Navigator.pop(context);
     }
   }
-
-
-  // void removeVideo(String videoPath) {
-  //   setState(() {
-  //     // Find the location associated with the videoPath
-  //     String location = widget.userLocation;
-  //
-  //     if (videoData.containsKey(location)) {
-  //       // Find the index of the video with the given path within the location
-  //       int index = videoData[location]!.indexWhere((videoInfo) => videoInfo.videoUrl == videoPath);
-  //
-  //       if (index != -1) {
-  //         // Remove the video info from videoData
-  //         videoData[location]!.removeAt(index);
-  //
-  //         // If there are no videos left for that location, remove the location key
-  //         if (videoData[location]!.isEmpty) {
-  //           videoData.remove(location);
-  //         }
-  //       }
-  //     }
-  //
-  //     // Remove the video path from widget.videoPaths
-  //     int pathIndex = widget.videoPaths.indexOf(videoPath);
-  //     if (pathIndex != -1) {
-  //       widget.videoPaths.removeAt(pathIndex);
-  //     }
-  //   });
-  //
-  //   if (widget.videoPaths.isEmpty) {
-  //     Navigator.pop(context);
-  //   }
-  //
-  //
-  //
-  // }
-
 
   BackButtonHandler backButtonHandler4 = BackButtonHandler(
     imagePath: 'assets/images/exit.svg',
@@ -497,10 +525,47 @@ class _VideoItemState extends State<VideoItem> {
   @override
   void initState() {
     super.initState();
+
+
+
     _controller = VideoPlayerController.file(File(widget.videoPath))
       ..initialize().then((_) {
         setState(() {});
       });
+  }
+
+  Future<void> _showAlertDialog() async {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Continue Previous Story?'),
+          content: SingleChildScrollView(
+            child: ListBody(
+              children: <Widget>[
+                Text('Do you want to continue the previous story or start a new one?'),
+              ],
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () async {
+
+              },
+              child: Text('Continue'),
+            ),
+            TextButton(
+              onPressed: () async {
+                Navigator.of(context).pop();
+                // Start a new story
+                Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+              },
+              child: Text('New Story'),
+            ),
+          ],
+        );
+      },
+    );
   }
 
 

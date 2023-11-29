@@ -1,4 +1,5 @@
 import 'dart:core';
+// import 'dart:js_util';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 
@@ -187,20 +188,23 @@ class ProfileData{
   int? followerCnt = 0;
   int? followingCnt = 0;
   int? locations = 1;
+  DateTime?dob;
+  String?profileStatus;
+  int statusCnt=0;
   String? place;
   String?profession;
   String? gender;
   String? age;
-  bool service1 = false;
+  bool service1 = false,service2=false;
   List<String>?languages;
   ServiceTripCallingData? tripCallingData;
-  ServiceTripAssistantData? tripAssistantData;
+  bool? tripAssistantData=false;
   List<RatingEntry>? reviewSection;
   List<PaymentDetails>? paymentDetail;
 
   ProfileData({this.userId,this.name,this.imagePath,this.quote,this.followerCnt,this.locations,this.followingCnt,
     this.place,this.profession,this.age,this.languages,this.gender,
-    this.tripCallingData,this.reviewSection,this.tripAssistantData,this.paymentDetail,this.emailId});
+    this.tripCallingData,this.reviewSection,this.tripAssistantData,this.paymentDetail,this.emailId,this.dob});
 
   Map<String,dynamic> toJson(){
     return {
@@ -208,6 +212,8 @@ class ProfileData{
       'userPhoto':imagePath,
       'userName':name,
       'emailId':emailId,
+      'userDOB':dob?.toUtc()?.toIso8601String(),
+      'profileStatus':profileStatus,
       'userQuote':quote,
       'userFollowers':followerCnt==null?0:followerCnt,
       'userFollowing':followingCnt==null?0:followingCnt,
@@ -218,7 +224,7 @@ class ProfileData{
       'userGender':gender,
       'userLanguages':languages,
       'userServiceTripCallingData':tripCallingData?.toJson(),
-      'userServiceTripAssistantData':tripAssistantData?.toJson(),
+      'userServiceTripAssistantData':tripAssistantData,
       'userReviewsData' : reviewSection?.map((entry)=>entry.toJson()).toList(),
       'userPaymentData' : paymentDetail?.map((entry)=>entry.toJson()).toList(),
     };
@@ -259,6 +265,29 @@ class ProfileDataProvider extends ChangeNotifier {
     _profileData.emailId = emailId;
     print('Path is $emailId');
     notifyListeners();
+  }
+
+
+  void updateFieldCnt(int score){
+    _profileData.statusCnt+=score;
+    notifyListeners();
+    return;
+  }
+
+  int retFieldsCnt(){
+    return _profileData.statusCnt;
+  }
+
+  void updateDOb(DateTime dob){
+    _profileData.dob = dob;
+    notifyListeners();
+    return;
+  }
+
+  void setProfileStatus(String status){
+    _profileData.profileStatus = status;
+    notifyListeners();
+    return;
   }
 
   void updateQuote(String userQuote) {
@@ -305,7 +334,6 @@ class ProfileDataProvider extends ChangeNotifier {
 
   void updateGender(String userGender) {
     _profileData.gender = userGender!;
-    print('Path is ${_profileData.tripCallingData?.setStartTime}');
     notifyListeners();
   }
 
@@ -315,7 +343,13 @@ class ProfileDataProvider extends ChangeNotifier {
     notifyListeners();
   }
 
-  void setStartTime(String startTime) {
+  void unsetTripCalling(){
+    _profileData.tripCallingData = null;
+    print('done it');
+    notifyListeners();
+    return;
+  }
+  void setStartTime(String?startTime) {
     if (_profileData.tripCallingData == null) {
       _profileData.tripCallingData = ServiceTripCallingData(); // Initialize if null
     }
@@ -356,36 +390,48 @@ class ProfileDataProvider extends ChangeNotifier {
     notifyListeners();
   }
   void setServide1(){
-    _profileData.service1 = true;
+    _profileData.service1 = !_profileData.service1;
     print('Set Service');
     notifyListeners();
   }
+
   bool retServide1(){
     print(111);
     return _profileData.service1;
+  }
+
+  void setServide2(){
+    _profileData.service2 = !_profileData.service2;
+    print('Set Service');
+    notifyListeners();
+  }
+
+  bool retServide2(){
+    print(111);
+    return _profileData.service2;
   }
 
   String? retSlots(){
     return _profileData.tripCallingData!.slots;
   }
 
-  void setGuideId(String id){
-    if (_profileData.tripAssistantData == null) {
-      _profileData.tripAssistantData = ServiceTripAssistantData(); // Initialize if null
-    }
-    _profileData.tripAssistantData!.guideId = id!;
-    print('Path is $id');
-    notifyListeners();
-  }
-
-  void setDate(String time){
-    if (_profileData.tripAssistantData == null) {
-      _profileData.tripAssistantData = ServiceTripAssistantData(); // Initialize if null
-    }
-    _profileData.tripAssistantData!.guideId = time!;
-    print('Path is $time');
-    notifyListeners();
-  }
+  // void setGuideId(String id){
+  //   if (_profileData.tripAssistantData == null) {
+  //     _profileData.tripAssistantData = ServiceTripAssistantData(); // Initialize if null
+  //   }
+  //   _profileData.tripAssistantData!.guideId = id!;
+  //   print('Path is $id');
+  //   notifyListeners();
+  // }
+  //
+  // void setDate(String time){
+  //   if (_profileData.tripAssistantData == null) {
+  //     _profileData.tripAssistantData = ServiceTripAssistantData(); // Initialize if null
+  //   }
+  //   _profileData.tripAssistantData!.guideId = time!;
+  //   print('Path is $time');
+  //   notifyListeners();
+  // }
 
 
   void addRatings(RatingEntry rating){

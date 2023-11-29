@@ -2,50 +2,70 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'hexColor.dart';
 
-// rest fields of user
 class CustomDropdown {
-
   static Widget build({
     required String label,
+    String? text,
     required List<String> items,
     required ValueChanged<String?> onChanged,
-    required Function(String?) setSelectedValue, // Callback for setting the selected value
+    required Function(String?) setSelectedValue,
     String? selectedValue,
     required double deviceWidth,
   }) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
-        SizedBox(height: 10,),
+        Text(
+          label,
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Poppins'),
+        ),
+        SizedBox(height: 10),
         Container(
-          width: deviceWidth*0.90,
+          width: deviceWidth,
           height: 60,
-          child: DropdownButtonFormField<String>(
-            value: selectedValue,
-            icon: Icon(Icons.arrow_drop_down_circle,color: HexColor('#FB8C00'),),
-            hint: Text('Select'),
-            decoration: InputDecoration(
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.orange,), // Change the border color here
+          child: Stack(
+            alignment: Alignment.centerRight,
+            children: [
+              DropdownButtonFormField<String>(
+                value: selectedValue,
+                icon: SizedBox.shrink(),
+                hint: Text('Select', style: TextStyle(fontSize: 14, fontFamily: 'Poppins')),
+                decoration: InputDecoration(
+                  focusedBorder: OutlineInputBorder(
+                    borderSide: BorderSide(
+                      color: HexColor('#FB8C00'),
+                    ),
+                  ),
+                  suffixIcon: text!='edit'?Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')):null,
+                  enabledBorder: OutlineInputBorder(
+                    borderSide: BorderSide(color: Colors.grey),
+                  ),
+                ),
+                onChanged: (String? newValue) {
+                  setSelectedValue(newValue);
+                  selectedValue = newValue;
+                },
+                items: items.map((String item) {
+                  return DropdownMenuItem<String>(
+                    value: item,
+                    child: Text(item, style: TextStyle(fontSize: 14, fontFamily: 'Poppins')),
+                  );
+                }).toList(),
               ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF263238),), // Change the border color here
-              ), // Add an outline border
-            ),
-            onChanged: (String? newValue) {
-              // newValue = newValue==''?newValue:selectedValue! +',${newValue}';
-              // onChanged(newValue); // Call the provided onChanged callback
-              setSelectedValue(newValue);
-              selectedValue = newValue;  // Set the selected value using the callback
-
-            },
-            items: items.map((String item) {
-              return DropdownMenuItem<String>(
-                value: item,
-                child: Text(item,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),),
-              );
-            }).toList(),
+              if (text == 'edit')
+                Padding(
+                  padding: const EdgeInsets.only(right: 8.0),
+                  child: Text(
+                    'EDIT',
+                    style: TextStyle(
+                      fontSize: 14,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      color: HexColor('#FB8C00'),
+                    ),
+                  ),
+                ),
+            ],
           ),
         ),
       ],
@@ -56,6 +76,7 @@ class CustomDropdown {
 // specially for DOB
 class CustomDOBDropDown extends StatelessWidget{
   final String label;
+  String?text;
   final DateTime? selectedDate;
   final ValueChanged<DateTime?> onDateSelected;
   double deviceWidth;
@@ -65,6 +86,7 @@ class CustomDOBDropDown extends StatelessWidget{
     required this.onDateSelected,
     required this.selectedDate,
     required this.deviceWidth,
+    this.text,
   });
 
   @override
@@ -72,7 +94,7 @@ class CustomDOBDropDown extends StatelessWidget{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+        Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
         SizedBox(height: 10,),
         InkWell(
           onTap: () async {
@@ -87,10 +109,10 @@ class CustomDOBDropDown extends StatelessWidget{
           },
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(width: 1.0,color: Color(0xFF263238),), // Border style
+              border: Border.all(width: 1.0, color: Colors.grey), // Border style
               borderRadius: BorderRadius.circular(5.0), // Rounded corners
             ),
-            width: deviceWidth*0.86,
+            width: deviceWidth,
             height: 55,
             child: Padding(
               padding: const EdgeInsets.only(left: 11.0,right: 8.0),
@@ -101,8 +123,11 @@ class CustomDOBDropDown extends StatelessWidget{
                     selectedDate != null
                         ? "${selectedDate!.toLocal()}".split(' ')[0]
                         : 'Select Date',
-                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),),),
-                  Icon(Icons.calendar_today_rounded,color: HexColor('#FB8C00'),), // Calendar icon
+                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                    text=='edit'
+                    ? Text('EDIT',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00'),),)
+                    :Icon(Icons.calendar_today_rounded,color: HexColor('#FB8C00'),),
+                  // Calendar icon
                 ],
               ),
             ),
@@ -222,7 +247,7 @@ class _CustomMultiDropdownState extends State<CustomMultiDropdown> {
       children: [
         Text(
           widget.label,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Poppins',color: Color(0xFF263238),),
+          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Poppins'),
         ),
         SizedBox(height: 10),
         Container(
@@ -231,13 +256,13 @@ class _CustomMultiDropdownState extends State<CustomMultiDropdown> {
           child: DropdownButtonFormField<String>(
             value: widget.selectedValue,
             icon: Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
-            hint: Text('Select',style: TextStyle(color: Color(0xFF263238),),),
+            hint: Text('Select'),
             decoration: InputDecoration(
               focusedBorder: OutlineInputBorder(
                 borderSide: BorderSide(color: Colors.orange),
               ),
               enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Color(0xFF263238),),
+                borderSide: BorderSide(color: Colors.grey),
               ),
             ),
             onChanged: (String? newValue) {
@@ -255,7 +280,7 @@ class _CustomMultiDropdownState extends State<CustomMultiDropdown> {
             items: widget.items.map((String field) {
               return DropdownMenuItem<String>(
                 value: field,
-                child: Text(field,style: TextStyle(color: Color(0xFF263238),),),
+                child: Text(field),
               );
             }).toList(),
           ),

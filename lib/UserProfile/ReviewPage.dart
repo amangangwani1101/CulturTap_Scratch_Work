@@ -39,7 +39,7 @@ class _RatingSectionState extends State<RatingSection> {
               Text(
                 'Reviews About ${widget.name==null?'you':widget.name} ( ${widget.reviewCnt} )',
                 style: TextStyle(
-                    fontSize: 18,
+                    fontSize: 14,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins'
                 ),
@@ -62,7 +62,7 @@ class _RatingSectionState extends State<RatingSection> {
                         Text(
                           rating.name!,
                           style: TextStyle(
-                              fontWeight: FontWeight.bold,fontSize: 18,fontFamily: 'Poppins'
+                              fontWeight: FontWeight.bold,fontSize: 14,fontFamily: 'Poppins'
                           ),
                         ),
                         SizedBox(height: 2),
@@ -76,7 +76,7 @@ class _RatingSectionState extends State<RatingSection> {
                           }),
                         ),
                         SizedBox(height: 5),
-                        Text(rating.comment!,style: TextStyle(fontSize: 18,fontFamily: 'Poppins'),),
+                        Text(rating.comment!,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
                         SizedBox(height: 12,),
                       ],
                     );
@@ -90,7 +90,7 @@ class _RatingSectionState extends State<RatingSection> {
                       showAllRatings = !showAllRatings;
                     });
                   },
-                  child: Text(showAllRatings ? 'Show Less' : 'View All',style: TextStyle(fontSize: 18,fontFamily:'Poppins',color: HexColor('#FB8C00'),fontWeight: FontWeight.bold),),
+                  child: Text(showAllRatings ? 'Show Less' : 'View All',style: TextStyle(fontSize: 14,fontFamily:'Poppins',color: HexColor('#FB8C00'),fontWeight: FontWeight.bold),),
                 ),
             ],
           ),

@@ -169,6 +169,7 @@ class _HomePageState extends State<HomePage> {
   bool isLoading = true;
   String userName = '';
   String userID = '';
+  String? profileStatus;
   ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
@@ -375,6 +376,24 @@ class _HomePageState extends State<HomePage> {
     }
   }
 
+  Future<void> fetchDataset() async {
+    final String serverUrl =
+        Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse(
+        '$serverUrl/profileStatus/${userID}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        profileStatus = data['status'];
+      });
+    } else {
+      // Handle error
+      print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
+
 
   Future<void> fetchUserLocationAndDataasync() async {
     await fetchUserLocationAndData();
@@ -490,8 +509,6 @@ class _HomePageState extends State<HomePage> {
       'storyCategory' : <String>[],
       'storyDetailsList': <Map<String, dynamic>>[],
     },
-
-
     {
       'specificName': 'Local Fashion for you !',
       'name': 'Local Stores Near you',
@@ -505,8 +522,6 @@ class _HomePageState extends State<HomePage> {
 
       'storyDetailsList': <Map<String, dynamic>>[],
     },
-
-
     {
       'specificName': 'Local Fashion for you !',
       'name': 'Popular & Trending Here',
@@ -638,6 +653,7 @@ class _HomePageState extends State<HomePage> {
       'storyDetailsList': <Map<String, dynamic>>[],
     },
 
+
   ];
 
 
@@ -665,7 +681,7 @@ class _HomePageState extends State<HomePage> {
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
         appBar: AppBar(
-          title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
+          title: ProfileHeader(reqPage: 0, userId: userID, userName: userName, profileStatus : profileStatus),
           automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
           shadowColor: Colors.transparent,
@@ -681,47 +697,50 @@ class _HomePageState extends State<HomePage> {
               : SingleChildScrollView(
             controller: _scrollController,
             physics: AlwaysScrollableScrollPhysics(),
-            child: Column(
-              children: <Widget>[
-                StoryBar(
-                  controller: _searchController,
-                  onSubmitted: (value) {
-                    fetchUserLocationAndData();
-                  },
-                ),
-                // Your other widgets here
-                Column(
-                  children: categoryData.asMap().entries.map((entry) {
-                    final int categoryIndex = entry.key;
-                    final Map<String, dynamic> category = entry.value;
+            child: Container(
+              color : Colors.white,
+              child: Column(
+                children: <Widget>[
+                  StoryBar(
+                    controller: _searchController,
+                    onSubmitted: (value) {
+                      fetchUserLocationAndData();
+                    },
+                  ),
+                  // Your other widgets here
+                  Column(
+                    children: categoryData.asMap().entries.map((entry) {
+                      final int categoryIndex = entry.key;
+                      final Map<String, dynamic> category = entry.value;
 
-                    final String specificCategoryName = category['specificName'];
-                    final String categoryName = category['name'];
-                    final List<String> storyUrls = category['storyUrls'];
-                    final List<String> videoCounts = category['videoCounts'];
-                    final List<String> storyDistance = category['storyDistance'];
-                    final List<String> storyLocation = category['storyLocation'];
-                    final List<String> storyCategory = category['storyCategory'];
-                    final List<String> storyTitle = category['storyTitle'];
+                      final String specificCategoryName = category['specificName'];
+                      final String categoryName = category['name'];
+                      final List<String> storyUrls = category['storyUrls'];
+                      final List<String> videoCounts = category['videoCounts'];
+                      final List<String> storyDistance = category['storyDistance'];
+                      final List<String> storyLocation = category['storyLocation'];
+                      final List<String> storyCategory = category['storyCategory'];
+                      final List<String> storyTitle = category['storyTitle'];
 
-                    List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+                      List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
 
-                    return buildCategorySection(
-                      specificCategoryName,
-                      categoryName,
-                      storyUrls,
-                      videoCounts,
-                      storyDistance,
-                      storyLocation,
-                      storyTitle,
-                      storyCategory,
-                      storyDetailsList,
+                      return buildCategorySection(
+                        specificCategoryName,
+                        categoryName,
+                        storyUrls,
+                        videoCounts,
+                        storyDistance,
+                        storyLocation,
+                        storyTitle,
+                        storyCategory,
+                        storyDetailsList,
 
 
-                    );
-                  }).toList(),
-                ),
-              ],
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

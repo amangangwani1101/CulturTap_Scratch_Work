@@ -7,7 +7,7 @@
   import 'package:http/http.dart' as http;
   import 'package:learn_flutter/widgets/Constant.dart';
   import 'UserProfile/ProfileHeader.dart';
-  import './widgets/hexColor.dart';
+  import 'widgets/hexColor.dart';
   import 'widgets/01_helpIconCustomWidget.dart';
   // import 'package:video_player/video_player.dart';
   

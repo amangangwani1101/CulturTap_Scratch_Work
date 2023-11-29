@@ -3,7 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_core/firebase_core.dart';
-
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:provider/provider.dart';
@@ -721,7 +721,7 @@ class _TimeSetState extends State<TimeSet>{
                   children: [
                     Text('Set Time',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height: 4,),
-                    Text('Note : the call duration will be  for 20 min so \nmake sure that your questions are planned.',style: TextStyle(fontSize: 13,fontFamily: 'Poppins',color: Color(0xFF263238),),)
+                    Text('Note : the call duration will be  for 20 min so \nmake sure that your questions are planned.',style: TextStyle(fontSize: 13,fontFamily: 'Poppins'),)
                   ],
                 ),
               ],
@@ -734,7 +734,7 @@ class _TimeSetState extends State<TimeSet>{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text('Meeting Title',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Color(0xFF263238),),),
+                  Text('Meeting Title',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                   TextField(
                     style: TextStyle(fontStyle: FontStyle.italic,fontSize: 14),
                     controller: _meetingEditingController,
@@ -759,7 +759,7 @@ class _TimeSetState extends State<TimeSet>{
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  Text('Select your starting time',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w400,color: Color(0xFF263238),),),
+                  Text('Select your starting time',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w400),),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -786,7 +786,7 @@ class _TimeSetState extends State<TimeSet>{
                                 _selectStartTime(context);
                                 print(_startTime);
                               },
-                              child: Text('${_formatTime(_startTime)}',style: TextStyle(fontSize: 27,fontFamily: 'Poppins',color: Color(0xFF263238),),)),
+                              child: Text('${_formatTime(_startTime)}',style: TextStyle(fontSize: 27,fontFamily: 'Poppins'),)),
                         ),
                       ),
                     ],
@@ -801,7 +801,7 @@ class _TimeSetState extends State<TimeSet>{
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('Your selected slot will be',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color: Color(0xFF263238),)),
+                    Text('Your selected slot will be',style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
                     SizedBox(height: 10,),
                     Row(
                       children: [

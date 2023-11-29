@@ -3,7 +3,8 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-// import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
@@ -43,7 +44,6 @@ class _FinalProfileState extends State<FinalProfile> {
       final data = json.decode(response.body);
       print('Fetched Data ${widget.clickedId}');
       print(data);
-      print('Path ${dataset?['userQuote']}');
       setState(() {
         dataset = data;
       });
@@ -102,7 +102,7 @@ class _FinalProfileState extends State<FinalProfile> {
           },
           child: SingleChildScrollView(
             child: Container(
-              padding: EdgeInsets.only(top: 0.0,left: 18.0,right: 18.0 , bottom: 18.00),
+              padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
               child: Center(
                 child: Column(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -111,26 +111,25 @@ class _FinalProfileState extends State<FinalProfile> {
                     ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),
                     SizedBox(height: 20,),
                     CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
-                    SizedBox(height: 20,),
+                    dataset?['userQuote']!=null ?SizedBox(height: 30,):SizedBox(height: 0,),
                     MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,state:'final'),
-                    SizedBox(height: 30,),
                     ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
                     SizedBox(height: 40,),
-                    // Container(
-                    //   width: 360,
-                    //   child: Center(
-                    //     child: UserDetailsTable(place:dataset != null ? dataset!['userPlace'] : null,
-                    //       profession:dataset != null ? dataset!['userProfession'] : null,
-                    //       age:dataset != null ? dataset!['userAge'] : null,
-                    //       gender:dataset != null ? dataset!['userGender'] : null,
-                    //       languageList:dataset != null ? dataset!['userLanguages'] : null,
-                    //     ),
-                    //   ),
-                    // ),
+                    Container(
+                      width: 360,
+                      child: Center(
+                        child: UserDetailsTable(place:dataset != null && dataset?['userPlace']!=null? dataset!['userPlace'] : null,
+                          profession:dataset != null && dataset?['userProfession']!=null? dataset!['userProfession'] : null,
+                          age:dataset != null && dataset?['userAge']!=null? dataset!['userAge'] : null,
+                          gender:dataset != null && dataset?['userGender']!=null? dataset!['userGender'] : null,
+                          languageList:dataset != null && dataset?['userLanguages']!=null? dataset!['userLanguages'] : [],
+                        ),
+                      ),
+                    ),
                     SizedBox(height: 40,),
                     ExpertCardDetails(),
                     SizedBox(height: 40,),
-                    dataset?['userServiceTripCallingData'] != null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
+                    dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
                     SizedBox(height: 50,),
                     RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName'])
                   ],
@@ -172,7 +171,7 @@ class _TripCallingState extends State<TripCalling>{
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('${widget.name}’s provided avilable time for trip planning interaction calls -',
-              style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+              style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
             Container(
               width: 331,
               height: 76,
@@ -192,7 +191,7 @@ class _TripCallingState extends State<TripCalling>{
                         children: [
                           Image.asset('assets/images/time_icon.png',width: 22,height: 22,),
                           SizedBox(width: 10,),
-                          Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                          Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
                         ],
                       ),
                       widget.currentUserId == widget.actualUserId
@@ -204,7 +203,7 @@ class _TripCallingState extends State<TripCalling>{
                           children:[
                             Image.asset('assets/images/edit_icon.png',width: 15,height: 15,),
                             SizedBox(width: 3,),
-                            Text('EDIT',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
+                            Text('EDIT',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
                           ],
                         ),
                       )
@@ -216,7 +215,7 @@ class _TripCallingState extends State<TripCalling>{
                     children: [
                       Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
                       SizedBox(width: 10,),
-                      Text('5 already pending requests for \ninteraction with Hemant',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',color: Color(0xFF263238),),),
+                      Text('5 already pending requests for \ninteraction with Hemant',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
                     ],
                   ),
                 ],
@@ -238,7 +237,7 @@ class _TripCallingState extends State<TripCalling>{
             :SizedBox(height: 0,),
             widget.currentUserId == widget.actualUserId
                 ? Container( 
-                width: 183,
+                width: 163,
                 height: 40,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(10),
@@ -251,7 +250,7 @@ class _TripCallingState extends State<TripCalling>{
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) => CalendarHelper(userName:widget.name,plans:widget.plans,startTime:widget.data?.setStartTime ,endTime: widget.data?.setEndTime,slotChossen: widget.data?.slots,),
+                          builder: (context) => PingsSection(userId:widget.currentUserId!,state:'pending'),
                         ),
                       );
                     },
