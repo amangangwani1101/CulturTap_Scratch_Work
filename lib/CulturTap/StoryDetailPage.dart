@@ -27,6 +27,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   ChewieController? _chewieController;
   late VideoPlayerController _videoPlayerController;
   late List<VideoPlayerController> _videoControllers;
+  bool _isVideoLoading = true;
 
   @override
   void initState() {
@@ -68,15 +69,34 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     _chewieController = ChewieController(
       videoPlayerController: _videoControllers[_currentIndex],
       placeholder: Container(
-        color: Colors.grey,
+        color: Colors.black,
       ),
-      autoPlay: true,
+      autoPlay: false, // Changed to false as autoplay is handled by VideoPlayerController
       looping: false,
       allowMuting: false,
       allowedScreenSleep: false,
-      showControls: true,
+      showControls: false,
+      aspectRatio: _videoControllers[_currentIndex].value.aspectRatio,
+      customControls: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          IconButton(
+            icon: Icon(
+              Icons.play_arrow,
+              color: Colors.white,
+              size: 40,
+            ),
+            onPressed: () {
+              _playNextVideo();
+            },
+          ),
+        ],
+      ),
     );
   }
+
+
 
 
   Future<void> _initializeVideoPlayer() async {
@@ -95,10 +115,17 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     // Wait for the video to initialize
     await _videoPlayerController.initialize();
 
+    _videoPlayerController.addListener(() {
+      if (_videoPlayerController.value.position == _videoPlayerController.value.duration) {
+        _playNextVideo();
+      }
+    });
+
+
     _chewieController = ChewieController(
       videoPlayerController: _videoPlayerController,
       placeholder: Container(
-        color: Colors.grey,
+        color: Colors.black,
       ),
       autoPlay: true,
       looping: false,
@@ -118,29 +145,41 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
     if (response.statusCode == 200) {
 
-      await _videoPlayerController.initialize();
+
       // Dispose the old controllers before creating new ones
-      // _videoPlayerController.dispose();
-      // _chewieController?.dispose();
+      _videoPlayerController.dispose();
+      _chewieController?.dispose();
 
       // Create new controllers
-      // _videoPlayerController = VideoPlayerController.network(fullVideoUrl);
-      //
-      //
-      // _chewieController = ChewieController(
-      //   videoPlayerController: _videoPlayerController,
-      //   placeholder: Container(
-      //     color: Colors.grey,
-      //   ),
-      //   autoPlay: true,
-      //   looping: false,
-      //   allowMuting: false,
-      //   allowedScreenSleep: false,
-      //   showControls: true,
-      // );
+
+      _videoPlayerController = VideoPlayerController.network(fullVideoUrl);
+
+
+
       //
       // // Update the state to reflect the new video
-      // setState(() {});
+      setState(() {
+        _isVideoLoading = true;
+      });
+
+
+      await _videoPlayerController.initialize();
+
+      _chewieController = ChewieController(
+        videoPlayerController: _videoPlayerController,
+        placeholder: Container(
+          color: Colors.black,
+        ),
+        autoPlay: true,
+        looping: false,
+        allowMuting: false,
+        allowedScreenSleep: false,
+        showControls: true,
+      );
+
+      setState(() {
+        _isVideoLoading = false;
+      });
     } else {
       // Handle errors, e.g., video not found, server error, etc.
       print('Failed to fetch video: ${response.statusCode}');
@@ -222,7 +261,19 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               children: [
                 Chewie(
                   controller: _chewieController ?? ChewieController(
+
                     videoPlayerController: _videoPlayerController,
+
+                    aspectRatio: _videoPlayerController.value.aspectRatio,
+                    autoInitialize: true,
+                    showControls: false,
+                    placeholder: Container(
+                      color: Colors.black, // Change color to match your background
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    ),
+
                   ),
                 ),
                 Positioned(
@@ -486,6 +537,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
             ],
           ),
         ),
+        _isVideoLoading
+            ? Center(
+          child: CircularProgressIndicator(),
+        )
+            : SizedBox(), // Show loader when video is loading
       ],
     );
   }

@@ -47,6 +47,7 @@ dependencies:
   path_provider: ^2.1.1
   video_player: ^2.7.1
 
+
   dropdown_search: ^5.0.6
   sqflite: ^2.3.0
   path: ^1.8.3
