@@ -1,15 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
+import 'package:learn_flutter/CulturTap/custom_control.dart';
 import 'package:video_player/video_player.dart';
-import 'package:http/http.dart' as http;
-
-
-
 
 class StoryDetailPage extends StatefulWidget {
-  final List<String> storyUrls;
   final List<Map<String, dynamic>> storyDetailsList;
   final int initialIndex;
+  final List<String> storyUrls;
+
 
   StoryDetailPage({
     required this.storyUrls,
@@ -22,108 +20,51 @@ class StoryDetailPage extends StatefulWidget {
 }
 
 class _StoryDetailPageState extends State<StoryDetailPage> {
+  bool isPlaying = true;
   late PageController _pageController;
   int _currentIndex = 0;
+  List<List<VideoPlayerController>> _videoControllersList = [];
+
   ChewieController? _chewieController;
-  late VideoPlayerController _videoPlayerController;
-  late List<VideoPlayerController> _videoControllers;
   bool _isVideoLoading = true;
+  bool showPlayPauseIcon = true;
+  bool showPauseIcon = false;
+  int currentVideoIndex = 0;
+
+
 
   @override
   void initState() {
     super.initState();
+    print('printing videcontroller list');
+    print(_videoControllersList);
     _pageController = PageController(initialPage: widget.initialIndex);
     _currentIndex = widget.initialIndex;
-    _videoControllers = [];
-
-    _initializeVideoPlayer();
-    _videoPlayerController.addListener(() {
-      if (_videoPlayerController.value.isPlaying &&
-          _videoPlayerController.value.position ==
-              _videoPlayerController.value.duration) {
-        _playNextVideo();
-      }
-    });
-  }
-
-  Future<void> _initializeAllVideoControllers() async {
-    for (int i = 0; i < widget.storyUrls.length; i++) {
-      List<String> videoPaths = widget.storyDetailsList[i]["videoPaths"];
-      String initialVideoPath = videoPaths.first;
-      String fullVideoUrl = 'http://173.212.193.109:8080/videos$initialVideoPath';
-
-      // Create a new video controller for each video in the story
-      VideoPlayerController videoController = VideoPlayerController.network(fullVideoUrl);
-      await videoController.initialize();
-
-      // Add the video controller to the list
-      _videoControllers.add(videoController);
-    }
-
-    // Initialize the Chewie controller for the initial video
-    _initializeChewieController();
-  }
-
-
-  void _initializeChewieController() {
-    _chewieController = ChewieController(
-      videoPlayerController: _videoControllers[_currentIndex],
-      placeholder: Container(
-        color: Colors.black,
-      ),
-      autoPlay: false, // Changed to false as autoplay is handled by VideoPlayerController
-      looping: false,
-      allowMuting: false,
-      allowedScreenSleep: false,
-      showControls: false,
-      aspectRatio: _videoControllers[_currentIndex].value.aspectRatio,
-      customControls: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.center,
-        children: [
-          IconButton(
-            icon: Icon(
-              Icons.play_arrow,
-              color: Colors.white,
-              size: 40,
-            ),
-            onPressed: () {
-              _playNextVideo();
-            },
-          ),
-        ],
-      ),
+    _videoControllersList = List.generate(
+      widget.storyDetailsList.length,
+          (index) => _initializeVideoControllers(widget.storyDetailsList[index]["videoPaths"]),
     );
+
+    _initializeChewieController(_currentIndex, currentVideoIndex);
+
+    print('printing videcontroller list again');
+    print(_videoControllersList);
+
+  }
+
+  List<VideoPlayerController> _initializeVideoControllers(List<String> videoPaths) {
+    return videoPaths.map((path) {
+      String fullVideoUrl = 'http://173.212.193.109:8080/videos/$path';
+      return VideoPlayerController.network(fullVideoUrl)..initialize();
+    }).toList();
   }
 
 
 
-
-  Future<void> _initializeVideoPlayer() async {
-    List<String> videoPaths = widget.storyDetailsList[_currentIndex]["videoPaths"];
-    print('videoPaths in storyDetailsPage $videoPaths');
-    String initialVideoPath = videoPaths.first;
-
-    // Construct the full video URL based on your server URL and video path
-    String fullVideoUrl = 'http://173.212.193.109:8080/videos$initialVideoPath';
-
-    _videoPlayerController = VideoPlayerController.network(fullVideoUrl);
-
-    // Fetch the first video in the list initially
-    await _fetchAndPlayVideo(initialVideoPath);
-
-    // Wait for the video to initialize
-    await _videoPlayerController.initialize();
-
-    _videoPlayerController.addListener(() {
-      if (_videoPlayerController.value.position == _videoPlayerController.value.duration) {
-        _playNextVideo();
-      }
-    });
-
+  void _initializeChewieController(int index, int videoIndex) {
 
     _chewieController = ChewieController(
-      videoPlayerController: _videoPlayerController,
+      videoPlayerController: _videoControllersList[_currentIndex][currentVideoIndex],
       placeholder: Container(
         color: Colors.black,
       ),
@@ -131,81 +72,95 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       looping: false,
       allowMuting: false,
       allowedScreenSleep: false,
-      showControls: true,
+      showControls: false,
+      aspectRatio: _videoControllersList[index][0].value.aspectRatio,
     );
-
-    setState(() {});
   }
 
-  Future<void> _fetchAndPlayVideo(String videoPath) async {
-    String fullVideoUrl = 'http://173.212.193.109:8080/videos/$videoPath';
-    print('this is the video url $fullVideoUrl');
-
-    var response = await http.get(Uri.parse(fullVideoUrl));
-
-    if (response.statusCode == 200) {
-
-
-      // Dispose the old controllers before creating new ones
-      _videoPlayerController.dispose();
-      _chewieController?.dispose();
-
-      // Create new controllers
-
-      _videoPlayerController = VideoPlayerController.network(fullVideoUrl);
-
-
-
-      //
-      // // Update the state to reflect the new video
-      setState(() {
-        _isVideoLoading = true;
-      });
-
-
-      await _videoPlayerController.initialize();
-
-      _chewieController = ChewieController(
-        videoPlayerController: _videoPlayerController,
-        placeholder: Container(
-          color: Colors.black,
-        ),
-        autoPlay: true,
-        looping: false,
-        allowMuting: false,
-        allowedScreenSleep: false,
-        showControls: true,
-      );
-
-      setState(() {
-        _isVideoLoading = false;
-      });
-    } else {
-      // Handle errors, e.g., video not found, server error, etc.
-      print('Failed to fetch video: ${response.statusCode}');
-    }
-  }
 
 
   void _playNextVideo() {
-    if (_currentIndex < widget.storyUrls.length - 1) {
-      _videoControllers[_currentIndex].dispose();
-      _currentIndex++;
+    print('currentVideoIndex $currentVideoIndex');
+    print('this thing ${_videoControllersList[_currentIndex].length - 1}');
+    if (currentVideoIndex < _videoControllersList[_currentIndex].length - 1) {
+      // Move to the next video in the current story
 
-      // Initialize the Chewie controller for the next video
-      _initializeChewieController();
+      currentVideoIndex++;
 
-      setState(() {});
+      _initializeChewieController(_currentIndex, currentVideoIndex);
+
+      setState(() {
+        showPlayPauseIcon = true;
+
+      });
+    } else {
+
+      print('No more videos in the current story');
     }
   }
 
+  void _playPreviousVideo() {
+    print('currentVideoIndex $currentVideoIndex');
+    print('this thing ${_videoControllersList[_currentIndex].length - 1}');
+    if (currentVideoIndex > 0) {
+      // Move to the previous video in the current story
+      currentVideoIndex--;
+
+      _initializeChewieController(_currentIndex, currentVideoIndex);
+
+      setState(() {
+        showPlayPauseIcon = true;
+      });
+    // } else if (_currentIndex > 0) {
+    //   // Move to the previous story and play the last video of the previous story
+    //   _currentIndex--;
+    //
+    //   // Set the currentVideoIndex to the last index of the new story
+    //   currentVideoIndex = _videoControllersList[_currentIndex].length - 1;
+    //
+    //   _initializeChewieController(_currentIndex, currentVideoIndex);
+    //
+    //   setState(() {
+    //     showPlayPauseIcon = true;
+    //   });
+    } else {
+      print('Already at the first video in the current story');
+    }
+  }
+
+
+  // void _playPreviousVideo() {
+  //   // Check if there are more videos in the current story
+  //   if (_videoControllersList[_currentIndex].length > 1) {
+  //     // Move to the previous video in the current story
+  //     if (_currentIndex > 0) {
+  //
+  //       _currentIndex--;
+  //
+  //       _initializeChewieController(_currentIndex,);
+  //
+  //       setState(() {});
+  //     }
+  //   } else if (_currentIndex > 0) {
+  //     // Move to the previous story and play the last video of the previous story
+  //
+  //     _currentIndex--;
+  //
+  //     _initializeChewieController(_currentIndex);
+  //
+  //     setState(() {});
+  //   }
+  // }
+
+
   @override
   void dispose() {
-    _videoPlayerController.dispose();
-    // Check if _chewieController is initialized before disposing
-    if (_chewieController != null) {
-      _chewieController?.dispose();
+    for (var controllers in _videoControllersList) {
+      for (var controller in controllers) {
+        controller.dispose();
+      }
     }
+    _chewieController?.dispose();
     super.dispose();
   }
 
@@ -217,24 +172,47 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           double screenWidth = MediaQuery.of(context).size.width;
           double tapPosition = details.globalPosition.dx / screenWidth;
 
-          if (tapPosition > 0.5) {
-            print('Tapped on the right side');
+          if (tapPosition > 0.7) {
+            print('right side tapped');
             _playNextVideo();
+          } else if (tapPosition < 0.3) {
+            print('left side tapped');
+            // _playPreviousVideo();
+          } else {
+            print('center tapped');
+            // Toggle play/pause here
+            // showPlayPauseIcon = true;
+
+            if (_chewieController?.isPlaying == true) {
+
+              showPlayPauseIcon = true;
+              _chewieController?.pause();
+            } else {
+              _chewieController?.play();
+              showPlayPauseIcon = false;
+            }
+            // Update the play/pause state
+            setState(() {
+              isPlaying = !_chewieController!.isPlaying;
+            });
           }
         },
+
         child: PageView.builder(
           controller: _pageController,
-          itemCount: widget.storyUrls.length,
+          itemCount: widget.storyDetailsList.length,
           onPageChanged: (index) {
             setState(() {
               _currentIndex = index;
+              showPlayPauseIcon = true;
+              currentVideoIndex = 0;
             });
-            _videoPlayerController.dispose();
-            _initializeVideoPlayer();
+            _chewieController?.dispose();
+            _initializeChewieController(_currentIndex, currentVideoIndex);
+
           },
           itemBuilder: (context, index) {
             return buildStoryPage(
-              widget.storyUrls[index],
               widget.storyDetailsList[index],
             );
           },
@@ -243,83 +221,167 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     );
   }
 
-  Widget buildStoryPage(String videoUrl, Map<String, dynamic> storyDetails) {
+  Widget buildStoryPage(Map<String, dynamic> storyDetails) {
     return ListView(
       children: [
-
         GestureDetector(
           onTapUp: (details) {
             double screenWidth = MediaQuery.of(context).size.width;
             double tapPosition = details.globalPosition.dx / screenWidth;
 
-            if (tapPosition > 0.5) {
+            if (tapPosition > 0.7) {
               print('right side tapped');
               _playNextVideo();
+            } else if (tapPosition < 0.3) {
+              print('left side tapped');
+              _playPreviousVideo();
+            } else {
+              print('center tapped');
+              // Toggle play/pause here
+              if (_chewieController?.isPlaying == true) {
+                _chewieController?.pause();
+                showPlayPauseIcon = false;
+              } else {
+                _chewieController?.play();
+                showPlayPauseIcon = true;
+              }
+              // Update the play/pause state
+              setState(() {
+                isPlaying = !_chewieController!.isPlaying;
+              });
+
+              // Ensure that controls remain visible
+              Future.delayed(Duration(seconds: 1), () {
+                if (mounted) {
+                  setState(() {
+                    _isVideoLoading = false; // Assume video is loaded after 2 seconds
+                  });
+                }
+              });
             }
           },
           child: Stack(
-              children: [
-                Chewie(
+            children: [
+              Container(
+                height: MediaQuery.of(context).size.height,
+                width: MediaQuery.of(context).size.width,
+                child: Chewie(
                   controller: _chewieController ?? ChewieController(
-
-                    videoPlayerController: _videoPlayerController,
-
-                    aspectRatio: _videoPlayerController.value.aspectRatio,
+                    videoPlayerController: _videoControllersList[_currentIndex][0],
+                    aspectRatio: _videoControllersList[_currentIndex][0].value.aspectRatio,
                     autoInitialize: true,
                     showControls: false,
+
                     placeholder: Container(
                       color: Colors.black, // Change color to match your background
                       child: Center(
                         child: CircularProgressIndicator(),
                       ),
                     ),
-
                   ),
-                ),
-                Positioned(
-                  top: 0,
-                  left: 5,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        TextButton(onPressed: (){}, child: Text('< back', style:TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color : Colors.white)))
 
-                      ],
+                ),
+              ),
+
+
+              Positioned.fill(
+                child: AnimatedOpacity(
+                  opacity: showPlayPauseIcon ? 0.0 : 1.0, // 1.0 for visible, 0.0 for invisible
+                  duration: Duration(milliseconds: 200), // Adjust the duration as needed
+                  child: Center(
+                    child: Icon(
+                      Icons.play_circle,
+                      size: 58.0,
+                      color: Colors.white70,
                     ),
                   ),
                 ),
-                Positioned(
-                  top: 95,
-                  left: 10,
-                  child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Local Visits',style:TextStyle(color:Colors.white,fontSize: 17)),
-                        Container(
-                          width : 100,
-                          child: Text(
-                            '${storyDetails["storyLocation"]}',
-                            style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 20,),
+              ),
+
+
+
+              Positioned(
+                top: 105,
+                right: 35,
+                child: Container(
+                  height : 30,
+
+                  decoration: BoxDecoration(
+                    color: Colors.orange,
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(10.0), // Adjust the value as needed
+                      bottomRight: Radius.circular(10.0),
+
+                      topRight: Radius.circular(10.0), // Adjust the value as needed
+                      bottomLeft: Radius.circular(0.0),// Adjust the value as needed
+                    ),
+                  ),
+                  padding: EdgeInsets.symmetric(horizontal: 2),
+                  child: Row(
+                    children: [
+                      Icon(
+                        Icons.turn_right,
+                        color: Colors.white,
+                        size: 24,
+                      ),
+                      TextButton(
+                        onPressed: () {},
+                        child: Text(
+                          '${storyDetails["storyDistance"]} km',
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
                 ),
-              ]
-          ),
+              ),
 
+
+              Positioned(
+                top: 0,
+                left: 5,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      TextButton(onPressed: () {}, child: Text('< back', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white))),
+                    ],
+                  ),
+                ),
+              ),
+              Positioned(
+                top: 95,
+                left: 10,
+                child: Container(
+                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Local Visits', style: TextStyle(color: Colors.white, fontSize: 17)),
+                      Container(
+                        width: 100,
+                        child: Text(
+                          '${storyDetails["storyLocation"]}',
+                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
         Container(
           padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [

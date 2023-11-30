@@ -261,8 +261,15 @@ class _HomePageState extends State<HomePage> {
     };
   }
 
+
+  Map<int, bool> categoryLoadingStates = {};
+
   Future<void> fetchDataForCategory(double latitude, double longitude, int categoryIndex) async {
     try {
+      setState(() {
+        categoryLoadingStates[categoryIndex] = true;
+      });
+
       final Map<String, dynamic> category = categoryData[categoryIndex];
       String apiEndpoint = category['apiEndpoint'];
 
@@ -283,12 +290,20 @@ class _HomePageState extends State<HomePage> {
         isLoading = false;
       });
 
+      setState(() {
+        categoryLoadingStates[categoryIndex] = false;
+      });
+
+
       print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
       print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
       print('storyurls');
       print(categoryData[categoryIndex]['storyUrls']);
     } catch (error) {
       print('Error fetching stories for category $categoryIndex: $error');
+      setState(() {
+        categoryLoadingStates[categoryIndex] = false;
+      });
     }
   }
 
@@ -681,47 +696,53 @@ class _HomePageState extends State<HomePage> {
               : SingleChildScrollView(
             controller: _scrollController,
             physics: AlwaysScrollableScrollPhysics(),
-            child: Column(
-              children: <Widget>[
-                StoryBar(
-                  controller: _searchController,
-                  onSubmitted: (value) {
-                    fetchUserLocationAndData();
-                  },
-                ),
-                // Your other widgets here
-                Column(
-                  children: categoryData.asMap().entries.map((entry) {
-                    final int categoryIndex = entry.key;
-                    final Map<String, dynamic> category = entry.value;
+            child: Container(
+              color : Colors.white,
+              child: Column(
+                children: <Widget>[
+                  StoryBar(
+                    controller: _searchController,
+                    onSubmitted: (value) {
+                      fetchUserLocationAndData();
+                    },
+                  ),
+                  // Your other widgets here
+                  Column(
+                    children: categoryData.asMap().entries.map((entry) {
+                      final int categoryIndex = entry.key;
+                      final Map<String, dynamic> category = entry.value;
 
-                    final String specificCategoryName = category['specificName'];
-                    final String categoryName = category['name'];
-                    final List<String> storyUrls = category['storyUrls'];
-                    final List<String> videoCounts = category['videoCounts'];
-                    final List<String> storyDistance = category['storyDistance'];
-                    final List<String> storyLocation = category['storyLocation'];
-                    final List<String> storyCategory = category['storyCategory'];
-                    final List<String> storyTitle = category['storyTitle'];
+                      final bool categoryLoading = categoryLoadingStates[categoryIndex] ?? false;
 
-                    List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+                      final String specificCategoryName = category['specificName'];
+                      final String categoryName = category['name'];
+                      final List<String> storyUrls = category['storyUrls'];
+                      final List<String> videoCounts = category['videoCounts'];
+                      final List<String> storyDistance = category['storyDistance'];
+                      final List<String> storyLocation = category['storyLocation'];
+                      final List<String> storyCategory = category['storyCategory'];
+                      final List<String> storyTitle = category['storyTitle'];
 
-                    return buildCategorySection(
-                      specificCategoryName,
-                      categoryName,
-                      storyUrls,
-                      videoCounts,
-                      storyDistance,
-                      storyLocation,
-                      storyTitle,
-                      storyCategory,
-                      storyDetailsList,
+                      List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+
+                      return buildCategorySection(
+                        specificCategoryName,
+                        categoryName,
+                        storyUrls,
+                        videoCounts,
+                        storyDistance,
+                        storyLocation,
+                        storyTitle,
+                        storyCategory,
+                        storyDetailsList,
+                        categoryLoading,
 
 
-                    );
-                  }).toList(),
-                ),
-              ],
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
           ),
         ),

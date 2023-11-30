@@ -10,6 +10,7 @@ class StoryBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
 
+
       margin: EdgeInsets.all(16.0),
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(

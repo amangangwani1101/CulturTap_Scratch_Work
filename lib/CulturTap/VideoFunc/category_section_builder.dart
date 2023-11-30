@@ -5,7 +5,17 @@ import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
 
 String previousSpecific = '';
 
-Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyTitle, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList, ) {
+Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyTitle, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList,bool isLoading, ) {
+
+  // if (isLoading) {
+  //   // Show loader while the category is still loading
+  //   return Container(
+  //     color: Colors.white,
+  //     child: Center(
+  //       child: CircularProgressIndicator(),
+  //     ),
+  //   );
+  // }
 
   if(previousSpecific == specificCategoryName){
     specificCategoryName = '';
@@ -13,13 +23,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
   previousSpecific = specificCategoryName;
 
   if (storyUrls.isEmpty || storyDistance.isEmpty) {
-
-    specificCategoryName = '';
-
-    return Column(children: [
-
-
-    ],);
+    return SizedBox.shrink(); // Return an empty container if there's no data
   }
 
   return Container(
