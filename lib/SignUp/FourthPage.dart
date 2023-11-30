@@ -15,6 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../BackendStore/BackendStore.dart';
 import '../CustomItems/CostumAppbar.dart';
+import '../ServiceSections/NotificationSection/Notification.dart';
 
 class FourthPage extends StatefulWidget {
   final String userName,phoneNumber,userCredId;
@@ -62,11 +63,19 @@ class UserModel{
 
 class _FourthPageState extends State<FourthPage> {
   var _locationController = TextEditingController();
+  NotificationServices notificationServices  = NotificationServices();
   bool _isLoading = false;
   String?latitude,longitude,token,userId;
   @override
   void initState() {
     super.initState();
+    notificationServices.requestNotificationPermission();
+    f();
+  }
+
+  void f()async{
+    String?token = await notificationServices.getDeviceToken();
+    print('Token $token');
     _fetchLocation();
   }
 
