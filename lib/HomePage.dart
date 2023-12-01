@@ -418,21 +418,8 @@ class _HomePageState extends State<HomePage> {
     },
     {
       'specificName': 'Trending Visits in Nation',
-      'name': 'Festivals Around You',
+      'name': '',
       'apiEndpoint': '/nation/api/trending-visits-in-nation',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': '',
-      'name': 'Festivals Around You',
-      'apiEndpoint': '/festival/api/trending-nearby-places',
       'storyUrls': <String>[],
       'videoCounts': <String>[],
       'storyDistance' : <String>[],
@@ -588,7 +575,7 @@ class _HomePageState extends State<HomePage> {
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
-      'specificName': '',
+      'specificName': 'Other Outlets',
       'name': 'Handy-Crafts',
       'apiEndpoint': '/handy-crafts/api/handyCrafts',
       'storyUrls': <String>[],
@@ -601,7 +588,7 @@ class _HomePageState extends State<HomePage> {
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
-      'specificName': '',
+      'specificName': 'Famous Visiting Places',
       'name': 'Forests Near you',
       'apiEndpoint': 'api/nearby-places/Forests',
       'storyUrls': <String>[],
@@ -614,7 +601,7 @@ class _HomePageState extends State<HomePage> {
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
-      'specificName': '',
+      'specificName': 'Famous Visiting Places',
       'name': 'Famous RiverSides Here',
       'apiEndpoint': 'api/nearby-places/Riverside',
       'storyUrls': <String>[],
@@ -627,7 +614,7 @@ class _HomePageState extends State<HomePage> {
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
-      'specificName': '',
+      'specificName': 'Famous Visiting Places',
       'name': 'Islands Here',
       'apiEndpoint': 'api/nearby-places/Island',
       'storyUrls': <String>[],
@@ -640,7 +627,7 @@ class _HomePageState extends State<HomePage> {
       'storyDetailsList': <Map<String, dynamic>>[],
     },
     {
-      'specificName': '',
+      'specificName': 'Famous Visiting Places',
       'name': 'EcoSystem NearBy',
       'apiEndpoint': 'api/nearby-places/Aquatic Ecosystem',
       'storyUrls': <String>[],
@@ -660,8 +647,8 @@ class _HomePageState extends State<HomePage> {
     imagePath: 'assets/images/exit.svg',
     textField: 'Do you want to exit?',
     what: 'exit',
-    button1: 'EXIT',
-    button2:'NO',
+    button1: 'NO',
+    button2:'EXIT',
   );
 
   Future<void> _refreshHomepage() async {

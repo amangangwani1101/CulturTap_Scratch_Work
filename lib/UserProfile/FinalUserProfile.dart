@@ -34,6 +34,8 @@ class _FinalProfileState extends State<FinalProfile> {
   void initState() {
     super.initState();
     fetchDataset();
+    print('userid is');
+    print(widget.userId);
   }
   Future<void> fetchDataset() async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
@@ -85,16 +87,12 @@ class _FinalProfileState extends State<FinalProfile> {
 
   Widget build(BuildContext context) {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
+
     return RefreshIndicator(
       onRefresh: _refreshPage,
+
       child: Scaffold(
-        appBar: PreferredSize(
-          preferredSize: Size.fromHeight(0), // Set the preferred height to 0
-          child: AppBar(
-            elevation: 0, // Remove the shadow
-            backgroundColor: Colors.transparent, // Make the background transparent
-          ),
-        ),
+        appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),backgroundColor: Colors.white, shadowColor: Colors.transparent,automaticallyImplyLeading:false),
         body: WillPopScope(
           onWillPop: ()async{
             Navigator.of(context).pop();
@@ -102,13 +100,14 @@ class _FinalProfileState extends State<FinalProfile> {
           },
           child: SingleChildScrollView(
             child: Container(
+              color : Colors.white,
               padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
               child: Center(
                 child: Column(
                   // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),
+
                     SizedBox(height: 20,),
                     CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
                     dataset?['userQuote']!=null ?SizedBox(height: 30,):SizedBox(height: 0,),

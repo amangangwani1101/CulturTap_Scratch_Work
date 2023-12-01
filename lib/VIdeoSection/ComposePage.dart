@@ -127,18 +127,42 @@ class _ComposePageState extends State<ComposePage> {
   String transportationPricing = "";
   List<String> finalVideoPaths = [];
 
+  List<String> currencyCode = [
+    '₪', // Israeli New Shekel
+    '¥', // Japanese Yen
+    '€', // Euro
+    '£', // British Pound Sterling
+    '₹', // Indian Rupee
+    '₣', // Swiss Franc
+    '₱', // Philippine Peso
+    '₩', // South Korean Won
+    '₺', // Turkish Lira
+    '฿', // Thai Baht
 
+  ];
+
+  String _selectedCurrencyCode = '₹'; // Default country code
+
+  final List<String> loveAboutHereOptions = [
+    'Beautiful',
+    'Calm',
+    'Party Place',
+    'Pubs',
+    'Restaurant',
+    'Others',
+  ];
+
+
+  bool isFoodFamous = false;
+  bool isFashionFamous = false;
+  String foodType = '';
+  String fashionType = '';
 
 
   Future<void> uploadCompressedVideos(List<File> videoPaths, BuildContext context) async {
     try {
 
 
-      // Navigate to the homepage
-      // Navigator.pushReplacement(
-      //   context,
-      //   MaterialPageRoute(builder: (context) => HomePage()),  // Replace with your homepage
-      // );
       showDialog(
         context: context,
         barrierDismissible: false,
@@ -147,13 +171,6 @@ class _ComposePageState extends State<ComposePage> {
         },
       );
 
-        // // Show loading dialog
-        // showDialog(
-        //   context: context,
-        //   builder: (BuildContext context) {
-        //     return LoadingDialog();
-        //   },
-        // );
 
       List<String> compressedPaths = [];
 
@@ -422,30 +439,7 @@ class _ComposePageState extends State<ComposePage> {
     }
   }
 
-  List<String> currencyCode = [
-    '₪', // Israeli New Shekel
-    '¥', // Japanese Yen
-    '€', // Euro
-    '£', // British Pound Sterling
-    '₹', // Indian Rupee
-    '₣', // Swiss Franc
-    '₱', // Philippine Peso
-    '₩', // South Korean Won
-    '₺', // Turkish Lira
-    '฿', // Thai Baht
 
-  ];
-
-  String _selectedCurrencyCode = '₹'; // Default country code
-
-  final List<String> loveAboutHereOptions = [
-    'Beautiful',
-    'Calm',
-    'Party Place',
-    'Pubs',
-    'Restaurant',
-    'Others',
-  ];
 
   @override
   void initState() {
@@ -708,6 +702,199 @@ class _ComposePageState extends State<ComposePage> {
                       ),
                     ),
                     SizedBox(height: 35),
+
+
+                    // Additional field for famous food if genre is 'Food'
+                    if (selectedGenre == 'Street Foods')
+                      Padding(
+                        padding: EdgeInsets.only(left: 26.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Is this food famous for this place?',
+                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isFoodFamous = true;
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: isFoodFamous ? Colors.orange : Color(0xFF263238),
+                                    elevation: 0, // No shadow
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(color: Colors.orange, width: 2.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Yes',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isFoodFamous = false;
+                                      foodType = ''; // Reset the food type if not famous
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: !isFoodFamous ? Colors.orange : Color(0xFF263238),
+                                    elevation: 0, // No shadow
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(color: Colors.orange, width: 2.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'No',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            if (isFoodFamous)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 20),
+                                  Text(
+                                    'What food is it famous for?',
+                                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
+                                  Container(
+                                    width: 300,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      ),
+                                    ),
+                                    child: TextField(
+                                      onChanged: (text) {
+                                        setState(() {
+                                          foodType = text;
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'e.g., Samosa',
+                                        hintStyle: TextStyle(color: Colors.white),
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                      ),
+                                      style: TextStyle(color: Colors.white),
+                                      maxLines: null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            SizedBox(height : 35),
+                          ],
+                        ),
+                      ),
+
+                    // Additional field for famous fashion if genre is 'Fashion'
+                    if (selectedGenre == 'Fashion')
+                      Padding(
+                        padding: EdgeInsets.only(left: 26.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Is this clothing famous for this place?',
+                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isFashionFamous = true;
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: isFashionFamous ? Colors.orange : Color(0xFF263238),
+                                    elevation: 0, // No shadow
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(color: Colors.orange, width: 2.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Yes',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                SizedBox(width: 10),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isFashionFamous = false;
+                                      fashionType = ''; // Reset the fashion type if not famous
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: !isFashionFamous ? Colors.orange : Color(0xFF263238),
+                                    elevation: 0, // No shadow
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(color: Colors.orange, width: 2.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'No',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height : 20),
+                            if (isFashionFamous)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 10),
+                                  Text(
+                                    'What type of dress or fashion is it famous for?',
+                                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
+                                  Container(
+                                    width: 300,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      ),
+                                    ),
+                                    child: TextField(
+                                      onChanged: (text) {
+                                        setState(() {
+                                          fashionType = text;
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'e.g., Traditional attire',
+                                        hintStyle: TextStyle(color: Colors.white),
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                      ),
+                                      style: TextStyle(color: Colors.white),
+                                      maxLines: null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            SizedBox(height : 35),
+                          ],
+                        ),
+                      ),
+
 
                     //story title for regular story
                     Padding(
@@ -1533,15 +1720,6 @@ class _ComposePageState extends State<ComposePage> {
 
 
 
-//
-// void main() {
-//   runApp(MaterialApp(
-//     home: Scaffold(
-//       body: ComposePage(videoPaths: ['video1.mp4', 'video2.mp4'], latitude: 0.0, longitude: 0.0,videoData: {},),
-//     ),
-//   ));
-// }
-//
 
 
 

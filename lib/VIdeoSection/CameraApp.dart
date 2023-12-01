@@ -424,8 +424,8 @@ class _CameraAppState extends State<CameraApp> {
     imagePath: 'assets/images/exit.svg',
     textField: 'homepage,',
     what: 'Home',
-    button1: 'Yes',
-    button2: 'No',
+    button1: 'NO',
+    button2: 'YES',
   );
 
 

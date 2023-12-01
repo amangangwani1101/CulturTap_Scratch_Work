@@ -17,14 +17,16 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
   //   );
   // }
 
+
+  if (storyUrls.isEmpty || storyDistance.isEmpty) {
+    return SizedBox.shrink(); // Return an empty container if there's no data
+  }
+
   if(previousSpecific == specificCategoryName){
     specificCategoryName = '';
   }
   previousSpecific = specificCategoryName;
 
-  if (storyUrls.isEmpty || storyDistance.isEmpty) {
-    return SizedBox.shrink(); // Return an empty container if there's no data
-  }
 
   return Container(
     color : Colors.white,
@@ -47,7 +49,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
                           Container(
                             width : 240,
                             child: Text(
-                              specificCategoryName,
+                              previousSpecific,
                               style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF263238),),
                             ),
                           ),

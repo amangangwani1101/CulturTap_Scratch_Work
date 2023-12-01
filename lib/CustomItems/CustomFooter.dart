@@ -71,6 +71,83 @@ class _CustomFooterState extends State<CustomFooter> {
     });
   }
 
+  void _showVideoDialog(BuildContext context) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          backgroundColor: Color(0xFF263238),
+
+          content: Column(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+
+              Text(
+                'Continue Previous Story?',
+                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              ),
+              SizedBox(height: 20),
+              Icon(
+                Icons.video_call,
+                color: Colors.orange,
+                size: 60,
+              ),
+
+
+              SizedBox(height: 20),
+              Text(
+                'If you want to start a new story, you can save the current videos as a draft.',
+                style: TextStyle(color: Colors.white),
+              ),
+              SizedBox(height: 10),
+              Text(
+                'You can edit your drafts in the Settings section.',
+                style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+              ),
+            ],
+          ),
+          actions: <Widget>[
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                TextButton(
+                  onPressed: () async {
+                    // Save draft logic
+                    Navigator.pop(context);
+                    _saveDraft();
+                  },
+                  child: Text(
+                    'Save Draft',
+                    style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                  ),
+                ),
+                TextButton(
+                  onPressed: () async {
+                    // Start a new story logic
+                    Navigator.pop(context);
+                    Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                  },
+                  child: Text(
+                    'Continue',
+                    style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
+    );
+  }
+
+  void _saveDraft() {
+
+    print('Draft saved!');
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -165,6 +242,8 @@ class _CustomFooterState extends State<CustomFooter> {
                                 ),
                               ),
                             );
+
+                            _showVideoDialog(context);
                           } else {
                             // Navigate to CameraApp
                             Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));

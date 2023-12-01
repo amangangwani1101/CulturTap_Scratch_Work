@@ -170,8 +170,8 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
     imagePath: 'assets/images/exit.svg',
     textField: 'HomePage',
     what: 'Home',
-    button1: 'Yes',
-    button2: 'No',
+    button1: 'NO',
+    button2: 'YES',
   );
 
   @override

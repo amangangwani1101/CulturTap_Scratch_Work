@@ -129,29 +129,6 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   }
 
 
-  // void _playPreviousVideo() {
-  //   // Check if there are more videos in the current story
-  //   if (_videoControllersList[_currentIndex].length > 1) {
-  //     // Move to the previous video in the current story
-  //     if (_currentIndex > 0) {
-  //
-  //       _currentIndex--;
-  //
-  //       _initializeChewieController(_currentIndex,);
-  //
-  //       setState(() {});
-  //     }
-  //   } else if (_currentIndex > 0) {
-  //     // Move to the previous story and play the last video of the previous story
-  //
-  //     _currentIndex--;
-  //
-  //     _initializeChewieController(_currentIndex);
-  //
-  //     setState(() {});
-  //   }
-  // }
-
 
   @override
   void dispose() {
