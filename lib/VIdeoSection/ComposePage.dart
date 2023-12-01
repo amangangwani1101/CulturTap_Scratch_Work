@@ -156,8 +156,13 @@ class _ComposePageState extends State<ComposePage> {
 
   bool isFoodFamous = false;
   bool isFashionFamous = false;
+  bool isRestaurantFamous = false;
+
   String foodType = '';
   String fashionType = '';
+  String restaurantType = '';
+  String festivalName = '';
+
 
   bool _isVisible = true;
 
@@ -305,6 +310,7 @@ class _ComposePageState extends State<ComposePage> {
           "label": selectedLabel,
           "category": selectedCategory,
           "genre": selectedGenre,
+
         },
         "label": selectedLabel,
         "category": selectedCategory,
@@ -706,6 +712,51 @@ class _ComposePageState extends State<ComposePage> {
                     ),
                     SizedBox(height: 35),
 
+                    // Additional field for famous food if genre is 'Food'
+                    if (selectedGenre == 'Festivals')
+                      Padding(
+                        padding: EdgeInsets.only(left: 26.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+
+                            Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+
+                                  Text(
+                                    'What Festival is Going On ?',
+                                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
+                                  Container(
+                                    width: 300,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      ),
+                                    ),
+                                    child: TextField(
+                                      onChanged: (text) {
+                                        setState(() {
+                                          festivalName = text;
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'e.g., HOLI',
+                                        hintStyle: TextStyle(color: Colors.white),
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                      ),
+                                      style: TextStyle(color: Colors.white),
+                                      maxLines: null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            SizedBox(height : 35),
+                          ],
+                        ),
+                      ),
 
                     // Additional field for famous food if genre is 'Food'
                     if (selectedGenre == 'Street Foods')
@@ -810,7 +861,7 @@ class _ComposePageState extends State<ComposePage> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Is this clothing famous for this place?',
+                              'Is this clothing famous for this place ?',
                               style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 20),
@@ -835,7 +886,7 @@ class _ComposePageState extends State<ComposePage> {
                                     style: TextStyle(color: Colors.white),
                                   ),
                                 ),
-                                SizedBox(width: 10),
+                                SizedBox(width: 20),
                                 ElevatedButton(
                                   onPressed: () {
                                     setState(() {
@@ -858,16 +909,17 @@ class _ComposePageState extends State<ComposePage> {
                                 ),
                               ],
                             ),
-                            SizedBox(height : 20),
+                            SizedBox(height : 0),
                             if (isFashionFamous)
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  SizedBox(height: 10),
+                                  SizedBox(height: 25),
                                   Text(
-                                    'What type of dress or fashion is it famous for?',
+                                    'What Exactly its Famous For ?',
                                     style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
                                   ),
+                                  SizedBox(height : 10),
                                   Container(
                                     width: 300,
                                     decoration: BoxDecoration(
@@ -883,6 +935,104 @@ class _ComposePageState extends State<ComposePage> {
                                       },
                                       decoration: InputDecoration(
                                         hintText: 'e.g., Traditional attire',
+                                        hintStyle: TextStyle(color: Colors.white),
+                                        enabledBorder: InputBorder.none,
+                                        focusedBorder: InputBorder.none,
+                                      ),
+                                      style: TextStyle(color: Colors.white),
+                                      maxLines: null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            SizedBox(height : 35),
+                          ],
+                        ),
+                      ),
+
+
+                    // Additional field for famous Restaurant if genre is 'Restaurant'
+                    if (selectedGenre == 'Restaurants')
+                      Padding(
+                        padding: EdgeInsets.only(left: 26.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              'Is This Restaurant Famous For This Place ?',
+                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            ),
+                            SizedBox(height: 20),
+                            Row(
+                              children: [
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isRestaurantFamous = true;
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: isRestaurantFamous ? Colors.orange : Color(0xFF263238),
+                                    elevation: 0, // No shadow
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(color: Colors.orange, width: 2.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Yes',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                                SizedBox(width: 20),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      isRestaurantFamous = false;
+                                      restaurantType = ''; // Reset the fashion type if not famous
+                                    });
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: !isRestaurantFamous ? Colors.orange : Color(0xFF263238),
+                                    elevation: 0, // No shadow
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                      side: BorderSide(color: Colors.orange, width: 2.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'No',
+                                    style: TextStyle(color: Colors.white),
+                                  ),
+                                ),
+                              ],
+                            ),
+                            SizedBox(height : 0),
+                            if (isRestaurantFamous)
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  SizedBox(height: 25),
+                                  Text(
+                                    'What Exactly its Famous For ?',
+                                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  ),
+                                  SizedBox(height : 10),
+                                  Container(
+                                    width: 300,
+                                    decoration: BoxDecoration(
+                                      border: Border(
+                                        bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      ),
+                                    ),
+                                    child: TextField(
+                                      onChanged: (text) {
+                                        setState(() {
+                                          restaurantType = text;
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'e.g., Traditional Serving',
                                         hintStyle: TextStyle(color: Colors.white),
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,

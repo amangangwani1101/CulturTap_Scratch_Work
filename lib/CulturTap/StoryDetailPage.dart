@@ -75,6 +75,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       showControls: false,
       aspectRatio: _videoControllersList[index][0].value.aspectRatio,
     );
+
+
   }
 
 
@@ -248,6 +250,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     aspectRatio: _videoControllersList[_currentIndex][0].value.aspectRatio,
                     autoInitialize: true,
                     showControls: false,
+                    autoPlay: true,
 
                     placeholder: Container(
                       color: Colors.black, // Change color to match your background
@@ -286,10 +289,10 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                   decoration: BoxDecoration(
                     color: Colors.orange,
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(10.0), // Adjust the value as needed
-                      bottomRight: Radius.circular(10.0),
+                      topLeft: Radius.circular(15.0), // Adjust the value as needed
+                      bottomRight: Radius.circular(15.0),
 
-                      topRight: Radius.circular(10.0), // Adjust the value as needed
+                      topRight: Radius.circular(15.0), // Adjust the value as needed
                       bottomLeft: Radius.circular(0.0),// Adjust the value as needed
                     ),
                   ),

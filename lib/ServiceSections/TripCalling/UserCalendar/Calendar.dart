@@ -32,10 +32,7 @@ class ProfileApps  extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
     return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
-        useMaterial3: true,
-      ),
+
       home: CalendarPage(clickedUser: '652bb97a2310b75ec11cd2ed',currentUser: '652a31f77ff9b6023a14838a',),
       debugShowCheckedModeBanner: false,
     );
@@ -77,7 +74,7 @@ class CalendarPage extends StatefulWidget{
   }
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 1,userId:widget.currentUser,),automaticallyImplyLeading: false,),
+      appBar: AppBar(title: ProfileHeader(reqPage: 1,userId:widget.currentUser,),automaticallyImplyLeading: false,shadowColor: Colors.transparent,backgroundColor: Colors.white,),
       body: WillPopScope(
         onWillPop: () async{
           // Navigator.of(context).pop();

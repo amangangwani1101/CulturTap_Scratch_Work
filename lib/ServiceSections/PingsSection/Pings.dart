@@ -921,10 +921,6 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
     String meetId = meetDetails['meetingId'][widget.index];
     String meetType = meetDetails['meetingType'][widget.index];
     return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
-        useMaterial3: true,
-      ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: ProfileHeader(reqPage: 1,),automaticallyImplyLeading: false,backgroundColor: Colors.white,shadowColor: Colors.transparent,),

@@ -687,6 +687,7 @@ class _HomePageState extends State<HomePage> {
               color : Colors.white,
               child: Column(
                 children: <Widget>[
+
                   StoryBar(
                     controller: _searchController,
                     onSubmitted: (value) {

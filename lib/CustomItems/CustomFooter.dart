@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
@@ -40,8 +41,12 @@ class _CustomFooterState extends State<CustomFooter> {
   void initState() {
     super.initState();
     _databaseHelper = VideoDatabaseHelper();
+    checkVideos();
+
     // You can access userId and userName via widget.userId and widget.userName
   }
+
+
 
   void _changeIconColor(String iconName) {
     setState(() {
@@ -147,11 +152,21 @@ class _CustomFooterState extends State<CustomFooter> {
   }
 
 
+  void checkVideos() async{
+    bool hasVideoss = await VideoDatabaseHelper().hasVideos();
+    if(hasVideoss){
+      setState(() {
+        addIconColor = Colors.orange;
+      });
+    }
 
+  }
   @override
   Widget build(BuildContext context) {
     return Container(
       color: Colors.white,
+
+      height : 50,
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -164,15 +179,11 @@ class _CustomFooterState extends State<CustomFooter> {
                   children: [
                     IconButton(
                       onPressed: () {
-                        Navigator.push(
+                        Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(
-                            builder: (context) => ChangeNotifierProvider(
-                              create: (context) => ProfileDataProvider(),
-                              child: FinalProfile(userId: widget.userId!, clickedId: widget.userId!),
-                            ),
-                          ),
+                          MaterialPageRoute(builder: (context) => HomePage()),
                         );
+
 
                         _changeIconColor('home');
                       },
@@ -183,7 +194,7 @@ class _CustomFooterState extends State<CustomFooter> {
                       style: TextStyle(
                         color: Color(0xFF263238),
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -201,7 +212,7 @@ class _CustomFooterState extends State<CustomFooter> {
                       style: TextStyle(
                         color: Color(0xFF263238),
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -211,50 +222,65 @@ class _CustomFooterState extends State<CustomFooter> {
                   child: Transform.translate(
                     offset: Offset(5, -30.0),
                     child: SizedBox(
+
                       width: 80,
                       height: 80,
-                      child: ElevatedButton(
-                        onPressed: () async{
-                          bool hasVideos = await VideoDatabaseHelper().hasVideos();
+                      child: Container(
 
-                          if (hasVideos) {
-                            // Navigate to VideoPreviewPage with data from the database
-                            List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
-                            List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
 
-                            // Extract the required data from the list of videos
-                            List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
-                            String userLocation = ''; // Replace with your logic to get user location
-                            double latitude = allVideos[0].latitude;
-                            double longitude = allVideos[0].longitude;
+                        // decoration: BoxDecoration(
+                        //   shape: BoxShape.circle,
+                        //   border: Border.all(
+                        //     color: Colors.orange,
+                        //     width: 3.0, // Adjust the width of the border as needed
+                        //   ),
+                        // ),
 
-                            print('latitude : $latitude');
-                            print('longitude : $longitude');
+                        child: ElevatedButton(
+                          onPressed: () async{
+                            bool hasVideos = await VideoDatabaseHelper().hasVideos();
 
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => VideoPreviewPage(
-                                  videoPaths: videoPaths,
-                                  userLocation: userLocation,
-                                  latitude: latitude,
-                                  longitude: longitude,
+                            if (hasVideos) {
+
+                              // Navigate to VideoPreviewPage with data from the database
+                              List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                              List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+                              // Extract the required data from the list of videos
+                              List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                              String userLocation = ''; // Replace with your logic to get user location
+                              double latitude = allVideos[0].latitude;
+                              double longitude = allVideos[0].longitude;
+
+                              print('latitude : $latitude');
+                              print('longitude : $longitude');
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => VideoPreviewPage(
+                                    videoPaths: videoPaths,
+                                    userLocation: userLocation,
+                                    latitude: latitude,
+                                    longitude: longitude,
+                                  ),
                                 ),
-                              ),
-                            );
+                              );
 
-                            _showVideoDialog(context);
-                          } else {
-                            // Navigate to CameraApp
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-                          }
-                          _changeIconColor('add');
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.white,
-                          shape: CircleBorder(),
+                              _showVideoDialog(context);
+                            } else {
+                              // Navigate to CameraApp
+                              Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                            }
+                            _changeIconColor('add');
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.white,
+                            shadowColor: Colors.grey,
+                            shape: CircleBorder(),
+                          ),
+                          child: Icon(Icons.add, color: addIconColor, size: 42),
                         ),
-                        child: Icon(Icons.add, color: addIconColor, size: 42),
                       ),
                     ),
                   ),
@@ -274,14 +300,14 @@ class _CustomFooterState extends State<CustomFooter> {
                         );
                         _changeIconColor('airplane');
                       },
-                      icon: Icon(Icons.airplanemode_active, color: airplaneIconColor, size: 30),
+                      icon: Icon(Icons.snowshoeing, color: airplaneIconColor, size: 24),
                     ),
                     Text(
-                      'Airplane',
+                      'Assistance',
                       style: TextStyle(
                         color: Color(0xFF263238),
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -290,6 +316,7 @@ class _CustomFooterState extends State<CustomFooter> {
                   children: [
                     IconButton(
                       onPressed: () {
+                        print('Ammmm ${widget.userId}');
                         Navigator.of(context).push(
                           MaterialPageRoute(
                             builder: (context) => SettingsPage(userId: widget.userId!),
@@ -297,14 +324,14 @@ class _CustomFooterState extends State<CustomFooter> {
                         );
                         _changeIconColor('settings');
                       },
-                      icon: Icon(Icons.settings, color: settingsIconColor, size: 30),
+                      icon: Icon(Icons.settings, color: settingsIconColor, size: 24),
                     ),
                     Text(
                       'Settings',
                       style: TextStyle(
                         color: Color(0xFF263238),
                         fontWeight: FontWeight.w600,
-                        fontSize: 16,
+                        fontSize: 14,
                       ),
                     ),
                   ],
@@ -320,3 +347,4 @@ class _CustomFooterState extends State<CustomFooter> {
     );
   }
 }
+

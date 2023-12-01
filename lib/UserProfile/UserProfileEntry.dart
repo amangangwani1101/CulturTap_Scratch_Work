@@ -60,10 +60,6 @@ class ProfileApp extends StatelessWidget {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
     // final profileDataProvider = context.watch<ProfileDataProvider>();
     return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
-        useMaterial3: true,
-      ),
       home: ProfilePage(reqPage:0,profileDataProvider: profileDataProvider,userId:userId,userName:userName),
       debugShowCheckedModeBanner: false,
     );

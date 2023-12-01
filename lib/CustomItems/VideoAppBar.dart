@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/HomePage.dart';
 
 class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
@@ -18,57 +19,61 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
       automaticallyImplyLeading: false,
       backgroundColor: Color(0xFF263238),
       titleSpacing: 0.0,
-      title: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+      title: Column(
         children: [
-          Padding(
-            padding: EdgeInsets.all(0),
-            child: TextButton(
-              onPressed: () {
-                if(exit == 'a'){
-                  _showExitConfirmationDialog(context);
-                }
-                if(exit=='b'){
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Padding(
+                padding: EdgeInsets.all(0),
+                child: TextButton(
+                  onPressed: () {
+                    if(exit == 'a'){
+                      _showExitConfirmationDialog(context);
+                    }
+                    if(exit=='b'){
 
-                  Navigator.of(context).pop();
-                }
-                if(exit=='home'){
-                  {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => HomePage()),
-                    );
-                  }
-                }
-                 // Show the exit confirmation dialog
-              },
-              child: Text(
-                '< back',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                  fontSize: 20,
+                      Navigator.of(context).pop();
+                    }
+                    if(exit=='home'){
+                      {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => HomePage()),
+                        );
+                      }
+                    }
+                     // Show the exit confirmation dialog
+                  },
+                  child: Text(
+                    '< back',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ),
-          TextButton(
-            onPressed: () {
-              if (editPressed != null) {
-                editPressed!();
-              }
-            },
-            child: Text(
-              title ?? '',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 25,
+              TextButton(
+                onPressed: () {
+                  if (editPressed != null) {
+                    editPressed!();
+                  }
+                },
+                child: Text(
+                  title ?? '',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 25,
+                  ),
+                ),
               ),
-            ),
-          ),
-          Container(
-            width: 50,
+              Container(
+                width: 50,
+              ),
+            ],
           ),
         ],
       ),

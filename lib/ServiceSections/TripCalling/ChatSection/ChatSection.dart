@@ -336,10 +336,6 @@ class _ChatAppsState extends State<ChatApps> {
     final screenWidth = MediaQuery.of(context).size.width;
     int minutes = remainingTime.inMinutes;
     return MaterialApp(
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
-        useMaterial3: true,
-      ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: ProfileHeader(reqPage: 5,text:'chats',userId:widget.senderId!=''?widget.senderId:widget.receiverId,onButtonPressed:(){
@@ -351,7 +347,7 @@ class _ChatAppsState extends State<ChatApps> {
           }
           Navigator.of(context).pop();
           Navigator.of(context).pop();
-        }),),
+        }),backgroundColor: Colors.white, shadowColor: Colors.transparent,),
         body: WillPopScope(
           onWillPop: ()async{
             if(_isUiEnabled!=true){

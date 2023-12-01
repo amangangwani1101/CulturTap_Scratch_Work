@@ -31,7 +31,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         fontFamily: 'Poppins',
         // colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        // useMaterial3: true,
+
       ),
       home: splashScreen(),
     );

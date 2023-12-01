@@ -86,7 +86,7 @@ class _CalendarHelperState  extends State<CalendarHelper>{
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 5,text: widget.text,),automaticallyImplyLeading: false,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 5,text: widget.text,),automaticallyImplyLeading: false,shadowColor: Colors.transparent,backgroundColor: Colors.white,),
         body: SingleChildScrollView(
           child: Center(
             child: Container(

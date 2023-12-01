@@ -32,14 +32,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   Widget build(BuildContext context) {
     print('Use:${widget.userId}');
     return Container(
-      // decoration: BoxDecoration(
-      //   border: Border.all(
-      //     color: Colors.red,
-      //     width: 2,
-      //   ),
-      // ),
-      height: 145,
-
+      color : Colors.white,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
@@ -66,7 +59,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       context,
                       MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
                         create:(context) => ProfileDataProvider(),
-                        child: FinalProfile(userId: widget.userId!,clickedId: '652bb97a2310b75ec11cd2ed',),
+                        child: FinalProfile(userId: widget.userId!,clickedId: '656a0380ce053746d5e6e534',),
                       ),),
                     );
                   }
@@ -75,23 +68,27 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 child: Container(
 
                   width: 80,
+                  // color : Colors.red,
                   height: 75,
 
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
+                      SizedBox(height : 2),
                       Container(
                         height : 30,
                         width : 30,
+
                         child: CircleAvatar(
 
+                          backgroundColor: Colors.orange,
                           radius: 20.0,
                           backgroundImage: widget.imagePath != null
                               ? FileImage(File(widget.imagePath!)) as ImageProvider<Object>?
-                              : AssetImage('assets/images/profile_image.jpg'), // Use a default asset image
+                              : AssetImage('assets/images/profile_image.jpg',), // Use a default asset image
                         ),
                       ),
-                      SizedBox(height:2),
+                      SizedBox(height:1),
                       Text('Profile',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins',),),
                     ],
                   ),
@@ -108,8 +105,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             //     width: 2,
             //   ),
             // ),
-
-            width: 75,
+            width: 80,
+            // color : Colors.red,
             height: 75,
 
             child: Container(
@@ -161,7 +158,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 },
                 child: Container(
                   width: 80,
-                  height: 85,
+                  // color : Colors.red,
+                  height: 75,
+
                   // decoration: BoxDecoration(
                   //   border: Border.all(
                   //     color: Colors.orange,
@@ -188,7 +187,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           height: 24,
                           child: Stack(
                             children: [
-                              Align(alignment: Alignment.topCenter, child: Image.asset('assets/images/ping_image.png',height: 27 ,width:24,fit: BoxFit.contain,)),
+                              Align(alignment: Alignment.topCenter, child: Image.asset('assets/images/ping_image.png',height: 26 ,width:26 ,fit: BoxFit.contain,)),
                               if(notificationCount>0)
                                 Positioned(
                                   top: -3,
@@ -210,8 +209,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           ),
                         ),
                       ),
-                      SizedBox(height: 2,),
-                      Text('Pings',style: TextStyle(fontSize: 12,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
+                      SizedBox(height: 1,),
+                      Text('Pings',style: TextStyle(fontSize: 14,color:Colors.black, fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
                     ],
                   ),
                 ),

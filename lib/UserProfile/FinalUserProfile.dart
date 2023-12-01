@@ -35,7 +35,7 @@ class _FinalProfileState extends State<FinalProfile> {
     super.initState();
     fetchDataset();
     print('userid is');
-    print(widget.userId);
+    print(widget.clickedId);
   }
   Future<void> fetchDataset() async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL

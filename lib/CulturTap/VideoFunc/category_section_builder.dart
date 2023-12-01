@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/CulturTap/StoryDetailPage.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
+import 'package:learn_flutter/CulturTap/appbar.dart';
 
 
 String previousSpecific = '';
@@ -30,6 +31,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
 
   return Container(
     color : Colors.white,
+
     child: Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: <Widget>[
