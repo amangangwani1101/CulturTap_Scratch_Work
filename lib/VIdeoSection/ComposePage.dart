@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/loading_dialog.dart';
 import 'package:learn_flutter/CustomItems/pulseUpload.dart';
 import 'package:learn_flutter/HomePage.dart';
@@ -157,6 +158,8 @@ class _ComposePageState extends State<ComposePage> {
   bool isFashionFamous = false;
   String foodType = '';
   String fashionType = '';
+
+  bool _isVisible = true;
 
 
   Future<void> uploadCompressedVideos(List<File> videoPaths, BuildContext context) async {
@@ -1615,96 +1618,104 @@ class _ComposePageState extends State<ComposePage> {
 
 
               //save draft or publish button
-              Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children:[
 
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Container(
-                          width: 156,
-                          height: 63,
-                          child: ElevatedButton(
-                            onPressed: () async{
-                              await saveDraft();
-                              setState(() {
-                                isSaveDraftClicked = !isSaveDraftClicked;
-                                isPublishClicked = false; // Reset the other button's state
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              primary: isSaveDraftClicked ? Colors.orange : Colors.transparent, // Change background color
-                              elevation: 0, // No shadow
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                                side: BorderSide(color: Colors.orange, width: 2.0),
-                              ),
-                              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                            ),
-                            child: Text(
-                              'Save Draft',
-                              style: TextStyle(
-                                color: isSaveDraftClicked ? Colors.white : Colors.orange, // Change text color
-                                fontWeight: FontWeight.bold , // Change font weight
-                                fontSize: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          width: 156,
-                          height: 63,
-                          child: ElevatedButton(
-                            // onPressed: () {
-                            //   Navigator.push(
-                            //     context,
-                            //     MaterialPageRoute(builder: (context) => SavedDraftsPage()),
-                            //   );
-                            onPressed: () {
-
-                              sendDataToBackend();
-
-                              // Implement the functionality for publishing here
-                              setState(() {
-                                isPublishClicked = !isPublishClicked;
-                                isSaveDraftClicked = false; // Reset the other button's state
-                              });
-                            },
-                            style: ElevatedButton.styleFrom(
-                              primary: isPublishClicked ? Colors.orange : Colors.transparent, // Change background color
-                              elevation: 0, // No shadow
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(5.0),
-                                side: BorderSide(color: Colors.orange, width: 2.0),
-                              ),
-                              padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                            ),
-                            child: Text(
-                              'Publish',
-                              style: TextStyle(
-                                color: isPublishClicked ? Colors.white : Colors.orange, // Change text color
-                                fontWeight: FontWeight.bold, // Change font weight
-                                fontSize: 22,
-                              ),
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-
-
-                  ]
-              ),
 
               SizedBox(height : 35),
               //for business development
 
 
             ],
+
           ),
         ),
 
+      ),
+      bottomNavigationBar: AnimatedContainer(
+        color : Color(0xFF263238),
+        duration: Duration(milliseconds: 100),
+        height: _isVisible ? kBottomNavigationBarHeight + 25 : 0.0,
+        child:Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children:[
+              SizedBox(height : 10),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Container(
+                    width: 156,
+                    height: 63,
+                    child: ElevatedButton(
+                      onPressed: () async{
+                        await saveDraft();
+                        setState(() {
+                          isSaveDraftClicked = !isSaveDraftClicked;
+                          isPublishClicked = false; // Reset the other button's state
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: isSaveDraftClicked ? Colors.orange : Colors.transparent, // Change background color
+                        elevation: 0, // No shadow
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          side: BorderSide(color: Colors.orange, width: 2.0),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                      ),
+                      child: Text(
+                        'Save Draft',
+                        style: TextStyle(
+                          color: isSaveDraftClicked ? Colors.white : Colors.orange, // Change text color
+                          fontWeight: FontWeight.bold , // Change font weight
+                          fontSize: 22,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Container(
+                    width: 156,
+                    height: 63,
+                    child: ElevatedButton(
+                      // onPressed: () {
+                      //   Navigator.push(
+                      //     context,
+                      //     MaterialPageRoute(builder: (context) => SavedDraftsPage()),
+                      //   );
+                      onPressed: () {
+
+                        sendDataToBackend();
+
+                        // Implement the functionality for publishing here
+                        setState(() {
+                          isPublishClicked = !isPublishClicked;
+                          isSaveDraftClicked = false; // Reset the other button's state
+                        });
+                      },
+                      style: ElevatedButton.styleFrom(
+                        primary: isPublishClicked ? Colors.orange : Colors.transparent, // Change background color
+                        elevation: 0, // No shadow
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5.0),
+                          side: BorderSide(color: Colors.orange, width: 2.0),
+                        ),
+                        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                      ),
+                      child: Text(
+                        'Publish',
+                        style: TextStyle(
+                          color: isPublishClicked ? Colors.white : Colors.orange, // Change text color
+                          fontWeight: FontWeight.bold, // Change font weight
+                          fontSize: 22,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+
+
+            ]
+        ),
       ),
 
     );

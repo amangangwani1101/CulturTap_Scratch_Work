@@ -126,7 +126,7 @@ class _CustomFooterState extends State<CustomFooter> {
                   onPressed: () async {
                     // Start a new story logic
                     Navigator.pop(context);
-                    Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+
                   },
                   child: Text(
                     'Continue',

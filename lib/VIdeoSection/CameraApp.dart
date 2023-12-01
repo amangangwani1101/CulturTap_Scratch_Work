@@ -1,6 +1,7 @@
 import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:learn_flutter/HomePage.dart';
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
@@ -420,6 +421,13 @@ class _CameraAppState extends State<CameraApp> {
     }
   }
 
+  void homepage(){
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
+  }
+
   BackButtonHandler backButtonHandler = BackButtonHandler(
     imagePath: 'assets/images/exit.svg',
     textField: 'homepage,',
@@ -450,7 +458,18 @@ class _CameraAppState extends State<CameraApp> {
       return GestureDetector(
         onScaleUpdate: onScaleUpdate,
         child: WillPopScope(
-          onWillPop: () => backButtonHandler.onWillPop(context, true),
+          onWillPop: () async {
+            // If you want to prevent the user from going back, return false
+            // return false;
+
+            // If you want to navigate directly to the homepage
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HomePage()),
+            );
+
+            return false; // Returning true will allow the user to pop the page
+          },
           child: Scaffold(
 
             body: Column(
