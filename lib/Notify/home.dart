@@ -64,17 +64,17 @@ class _HomeState extends State<Home> {
     return MaterialApp(
       home:Scaffold(
         body: InkWell(
-            onTap: (){
-              notificationServices.getDeviceToken().then((value)async{
+            onTap: ()async{
                 var data = {
-                  'to':value.toString(),
+                  'to':'eAfNtczsSN2z7HgG_91tkW:APA91bGGERhv8g3wiyh4y5bGGOZ5dl_LZYcLYKk--6kicyjc__lyPDWkkU3ISUlix73ZScVVlXLsvfAYif_esfLjGRy5AYvVK_Nu-1QkvqJND26MZtZWqA8v-0u-6tikib1JbM-xLC7X',
                   'priority':'high',
                   'notification':{
-                    'title':'Aman',
-                    'body':'Coders Lifes Bug Ways',
+                    'title':'CulturTap',
+                    'body':'Call requested by | Aishwary',
                   },
                   'data':{
                     'type':'msj',
+                    'innerBody':'<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b> '
                   }
                 };
                 await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
@@ -84,7 +84,6 @@ class _HomeState extends State<Home> {
                       'Authorization':'key=AAAAPpVuKrI:APA91bF7BA61C5dlBD65HIs4KY1Ljw5rHZ1FyNxuqjEpQUjfnQJMkhxf71XKlk2dK3fkjRVYG7gErT4lZj2lluhZVsdaHPeyjWKGQ6AcUZlNeXLTiuKxnnVgO21EowO0ATcxKSBd2EK7',
                   }
                 );
-              });
             },
             child: Center(child: Text('Send Notification'))),
       ),

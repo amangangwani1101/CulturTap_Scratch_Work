@@ -30,7 +30,7 @@ class NotificationServices{
   }
 
   void initLocalNotification(BuildContext context,RemoteMessage message)async{
-    var androidInitializationSettings = const AndroidInitializationSettings('@mipmap/ic_launcher');
+    var androidInitializationSettings = const AndroidInitializationSettings('@drawable/trip_calling_logo');
     var iosInitializationSettings = const DarwinInitializationSettings();
     var initializationSetting = InitializationSettings(
       android: androidInitializationSettings,
@@ -53,13 +53,40 @@ class NotificationServices{
     );
 
 
+    // AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
+    //     channel.id.toString(),
+    //     channel.name.toString(),
+    //     channelDescription: 'Your Description',
+    //     importance: Importance.high,
+    //     priority: Priority.high,
+    //     ticker: 'ticker'
+    // );
+
     AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
-        channel.id.toString(),
-        channel.name.toString(),
-        channelDescription: 'Your Description',
-        importance: Importance.high,
-        priority: Priority.high,
-        ticker: 'ticker'
+      channel.id.toString(),
+      channel.name.toString(),
+      channelDescription: 'Trip Planning Services',
+      importance: Importance.high,
+      priority: Priority.high,
+      ticker: 'ticker',
+      subText: 'Trip Calling Service',
+      ledColor: const Color.fromARGB(255, 255, 0, 0), // Replace with your LED color
+      ledOnMs: 1000, // LED on duration in milliseconds
+      ledOffMs: 500, // LED off duration in milliseconds
+      largeIcon: DrawableResourceAndroidBitmap(
+        '@drawable/culturtap_logo', // Replace with your icon
+      ),
+      styleInformation: BigTextStyleInformation(
+        '${message.data['innerBody']}',
+        htmlFormatBigText: true,
+        contentTitle: '${message.notification!.body.toString()}',
+        htmlFormatContentTitle: true,
+        summaryText: 'Summary text',
+        htmlFormatSummaryText: true,
+        htmlFormatContent: true,
+        htmlFormatTitle: true,
+      ),
+      color: const Color.fromRGBO(255, 165, 0, 1.0), // Orange color
     );
 
     const DarwinNotificationDetails darwinNotificationDetails = DarwinNotificationDetails(
