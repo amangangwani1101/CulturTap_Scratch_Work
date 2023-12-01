@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 
 class Chat  extends StatelessWidget {
-
+  String ? navigationData;
+  Chat({this.navigationData});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home: Scaffold(
-        body: Text('Chatting!!!!!'),
+        body: Center(child: Text('navigationData')),
       ),
     );
   }

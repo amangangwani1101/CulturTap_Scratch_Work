@@ -4,6 +4,7 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/Notify/NotificationHandler.dart';
 import 'package:learn_flutter/Notify/notification.dart';
 import 'package:http/http.dart'as http;
 void main()async{
@@ -54,36 +55,23 @@ class _HomeState extends State<Home> {
     // notificationServices.isTokenRefresh();
     f();
   }
+
   void f()async{
     String?token = await notificationServices.getDeviceToken();
     print('Token $token');
-
   }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       home:Scaffold(
         body: InkWell(
             onTap: ()async{
-                var data = {
-                  'to':'eAfNtczsSN2z7HgG_91tkW:APA91bGGERhv8g3wiyh4y5bGGOZ5dl_LZYcLYKk--6kicyjc__lyPDWkkU3ISUlix73ZScVVlXLsvfAYif_esfLjGRy5AYvVK_Nu-1QkvqJND26MZtZWqA8v-0u-6tikib1JbM-xLC7X',
-                  'priority':'high',
-                  'notification':{
-                    'title':'CulturTap',
-                    'body':'Call requested by | Aishwary',
-                  },
-                  'data':{
-                    'type':'msj',
-                    'innerBody':'<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b> '
-                  }
-                };
-                await http.post(Uri.parse('https://fcm.googleapis.com/fcm/send'),
-                  body: jsonEncode(data),
-                  headers: {
-                      'Content-Type' :'application/json; charset=UTF-8',
-                      'Authorization':'key=AAAAPpVuKrI:APA91bF7BA61C5dlBD65HIs4KY1Ljw5rHZ1FyNxuqjEpQUjfnQJMkhxf71XKlk2dK3fkjRVYG7gErT4lZj2lluhZVsdaHPeyjWKGQ6AcUZlNeXLTiuKxnnVgO21EowO0ATcxKSBd2EK7',
-                  }
-                );
+                sendCustomNotificationToUser(
+                    'dw2WEUNtRJ-8zy3DO_dKd9:APA91bEZXSkhq03cBaKwTCSEd_mKVVDKkK7NqPqKNK2z87rfKHAcAVKkY0-47LmEp7NOv_5tt0nyfnybxXHraS05ekuZv8muK79e2Ky4_Q80fB3ZpXimXNDyZO5Dvf36yFMf4Rv01BkR',
+                    'CulturTap',
+                    'Call requested by | Aishwary',
+                    '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>');
             },
             child: Center(child: Text('Send Notification'))),
       ),

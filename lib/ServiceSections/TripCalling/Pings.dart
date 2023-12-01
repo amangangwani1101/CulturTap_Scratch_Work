@@ -9,6 +9,8 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/widgets/Constant.dart';
 
+import '../../Notify/NotificationHandler.dart';
+import '../../Notify/notification.dart';
 import '../../UserProfile/ProfileHeader.dart';
 import '../../rating.dart';
 import '../../widgets/CustomButton.dart';
@@ -63,12 +65,23 @@ class PingsSection extends StatefulWidget{
 
 class _PingSectionState extends State<PingsSection>{
   late PingsDataStore pingsDataStore;
+  NotificationServices notificationServices  = NotificationServices();
   bool isLoading = true; // Add a boolean flag to indicate loading state
   @override
   void initState() {
     super.initState();
     fetchDatasets(widget.userId);
     initialHandler();
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.setupInteractMessage(context);
+    // notificationServices.isTokenRefresh();
+    f();
+  }
+
+  void f()async{
+    String?token = await notificationServices.getDeviceToken();
+    print('Token $token');
   }
 
   Future<void> initialHandler() async{
@@ -229,7 +242,9 @@ class _PingSectionState extends State<PingsSection>{
             customerEphemeralKeySecret: jsonResponse['ephemeralKey'],
           ));
       final res = await Stripe.instance.presentPaymentSheet();
+
       print('wlhfaui $res');
+
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Payment is successful'),
@@ -735,6 +750,12 @@ class _PingSectionState extends State<PingsSection>{
                                 :(meetStatus=='close' && meetType=='receiver')
                                 ?InkWell(
                                   onTap: (){
+                                    sendCustomNotificationToUser(
+                                        'dw2WEUNtRJ-8zy3DO_dKd9:APA91bEZXSkhq03cBaKwTCSEd_mKVVDKkK7NqPqKNK2z87rfKHAcAVKkY0-47LmEp7NOv_5tt0nyfnybxXHraS05ekuZv8muK79e2Ky4_Q80fB3ZpXimXNDyZO5Dvf36yFMf4Rv01BkR',
+                                        'CulturTap',
+                                        'Call requested by | Aishwary',
+                                        '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>');
+
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
@@ -749,6 +770,11 @@ class _PingSectionState extends State<PingsSection>{
                                 )
                                 : InkWell(
                                   onTap: (){
+                                    sendCustomNotificationToUser(
+                                        'e6S7nPTuRoypWtUYh-OAUf:APA91bG2MrS5FhEy85aCoR5n5QfxQu4ZZXvMQeTS84s1ub7MbG9a2UXwVbcj1o5qecftyciX33sT8Orm1MkwZ4ngb1ihM8zJKwITyj7Q6bb3RLco5insq8eUS104YpJPPJ2PJyvOQnPw',
+                                        'CulturTap',
+                                        'Call requested by | Aishwary',
+                                        '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>');
                                     Navigator.push(
                                       context,
                                       MaterialPageRoute(
