@@ -27,8 +27,8 @@ class NotificationServices{
 
       }
       // showNotification(message);
-      // showProgressBarNotification(100);
-      showChatMessageNotification(message);
+      showProgressBarNotification(100);
+      // showChatMessageNotification(message);
     });
   }
 

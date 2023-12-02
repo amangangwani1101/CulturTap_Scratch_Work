@@ -52,7 +52,7 @@ class _HomeState extends State<Home> {
     notificationServices.requestNotificationPermission();
     notificationServices.firebaseInit(context);
     notificationServices.setupInteractMessage(context);
-    // notificationServices.isTokenRefresh();
+    notificationServices.isTokenRefresh();
     f();
   }
 
