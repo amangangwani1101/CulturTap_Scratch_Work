@@ -1,6 +1,9 @@
+//homepage
+
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/CulturTap/StoryDetailPage.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/dummyHomePage.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
@@ -667,19 +670,43 @@ class _HomePageState extends State<HomePage> {
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
         appBar: AppBar(
+
           title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
           automaticallyImplyLeading: false,
           backgroundColor: Colors.white,
           shadowColor: Colors.transparent,
+          toolbarHeight: 90.0,
         ),
+
         body: RefreshIndicator(
           backgroundColor: Color(0xFF263238),
           color: Colors.orange,
           onRefresh: _refreshHomepage,
           child: isLoading
-              ? Center(
-            child: CircularProgressIndicator(),
-          )
+              ? SingleChildScrollView(
+                controller: _scrollController,
+                physics: AlwaysScrollableScrollPhysics(),
+                child: Container(
+                  color : Colors.white,
+                  child: Column(
+                    children: <Widget>[
+
+                      StoryBar(
+                        controller: _searchController,
+                        onSubmitted: (value) {
+                          fetchUserLocationAndData();
+                        },
+                      ),
+                      // Your other widgets here
+                      Column(
+                        children: [
+                          DummyHomePage(),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              )
               : SingleChildScrollView(
             controller: _scrollController,
             physics: AlwaysScrollableScrollPhysics(),

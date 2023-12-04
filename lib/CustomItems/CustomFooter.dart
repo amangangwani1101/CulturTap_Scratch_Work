@@ -1,3 +1,5 @@
+//customfooter
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/Settings.dart';
@@ -12,6 +14,7 @@ import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_help
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:provider/provider.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/BackendStore/BackendStore.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
 
@@ -29,11 +32,11 @@ class CustomFooter extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CustomFooterState extends State<CustomFooter> {
-  Color homeIconColor = Color(0xFF263238);
-  Color searchIconColor = Color(0xFF263238);
-  Color airplaneIconColor = Color(0xFF263238);
-  Color settingsIconColor = Color(0xFF263238);
-  Color addIconColor = Color(0xFF263238);
+  Color homeIconColor = Color(0xFF001B33);
+  Color searchIconColor = Color(0xFF001B33);
+  Color airplaneIconColor = Color(0xFF001B33);
+  Color settingsIconColor = Color(0xFF001B33);
+  Color addIconColor = Color(0xFF001B33);
 
   late VideoDatabaseHelper _databaseHelper;
 
@@ -50,11 +53,11 @@ class _CustomFooterState extends State<CustomFooter> {
 
   void _changeIconColor(String iconName) {
     setState(() {
-      homeIconColor = Color(0xFF263238);
-      searchIconColor = Color(0xFF263238);
-      airplaneIconColor = Color(0xFF263238);
-      settingsIconColor = Color(0xFF263238);
-      addIconColor = Color(0xFF263238);
+      homeIconColor = Color(0xFF001B33);
+      searchIconColor = Color(0xFF001B33);
+      airplaneIconColor = Color(0xFF001B33);
+      settingsIconColor = Color(0xFF001B33);
+      addIconColor = Color(0xFF001B33);
 
       switch (iconName) {
         case 'home':
@@ -81,7 +84,7 @@ class _CustomFooterState extends State<CustomFooter> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color(0xFF263238),
+          backgroundColor: Color(0xFF001B33),
 
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -164,15 +167,15 @@ class _CustomFooterState extends State<CustomFooter> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.white,
+      color: Color(0xffF2F2F2),
 
-      height : 50,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Padding(
-            padding: const EdgeInsets.only(left: 10),
-            child: Row(
+
+      child: Padding(
+        padding: const EdgeInsets.only(left:8.0,right:8.0),
+        child: Column(
+
+          children: [
+            Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Column(
@@ -192,8 +195,8 @@ class _CustomFooterState extends State<CustomFooter> {
                     Text(
                       'Home',
                       style: TextStyle(
-                        color: Color(0xFF263238),
-                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF001B33),
+                        fontWeight: FontWeight.w800,
                         fontSize: 14,
                       ),
                     ),
@@ -210,8 +213,8 @@ class _CustomFooterState extends State<CustomFooter> {
                     Text(
                       'Search',
                       style: TextStyle(
-                        color: Color(0xFF263238),
-                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF001B33),
+                        fontWeight: FontWeight.w800,
                         fontSize: 14,
                       ),
                     ),
@@ -279,7 +282,12 @@ class _CustomFooterState extends State<CustomFooter> {
                             shadowColor: Colors.grey,
                             shape: CircleBorder(),
                           ),
-                          child: Icon(Icons.add, color: addIconColor, size: 42),
+                          child: SvgPicture.asset(
+                            'assets/images/addIcon.svg',
+                            color: addIconColor,
+                            height: 32,
+                            width: 32,
+                          ),
                         ),
                       ),
                     ),
@@ -300,13 +308,23 @@ class _CustomFooterState extends State<CustomFooter> {
                         );
                         _changeIconColor('airplane');
                       },
-                      icon: Icon(Icons.snowshoeing, color: airplaneIconColor, size: 24),
+
+                      icon: SvgPicture.asset(
+                        'assets/images/tripassit.svg', // Replace with the path to your SVG icon
+                        color: airplaneIconColor,
+                        width: 28,
+                        height: 28,
+
+
+
+                      ),
+
                     ),
                     Text(
-                      'Assistance',
+                      'Assist',
                       style: TextStyle(
-                        color: Color(0xFF263238),
-                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF001B33),
+                        fontWeight: FontWeight.w800,
                         fontSize: 14,
                       ),
                     ),
@@ -324,13 +342,13 @@ class _CustomFooterState extends State<CustomFooter> {
                         );
                         _changeIconColor('settings');
                       },
-                      icon: Icon(Icons.settings, color: settingsIconColor, size: 24),
+                      icon: Icon(Icons.settings_sharp, color: settingsIconColor, size: 24),
                     ),
                     Text(
                       'Settings',
                       style: TextStyle(
-                        color: Color(0xFF263238),
-                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF001B33),
+                        fontWeight: FontWeight.w800,
                         fontSize: 14,
                       ),
                     ),
@@ -338,11 +356,11 @@ class _CustomFooterState extends State<CustomFooter> {
                 ),
               ],
             ),
-          ),
-          SizedBox(
-            height: 0,
-          ),
-        ],
+            SizedBox(
+              height: 0,
+            ),
+          ],
+        ),
       ),
     );
   }

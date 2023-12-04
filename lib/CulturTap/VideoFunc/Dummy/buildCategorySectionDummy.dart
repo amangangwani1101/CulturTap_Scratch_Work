@@ -2,13 +2,14 @@
 
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/CulturTap/StoryDetailPage.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/videoStoryCardDummy.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 
 
 String previousSpecific = '';
 
-Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyTitle, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList,bool isLoading, ) {
+Widget buildCategorySectionDummy( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyTitle, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList,) {
 
   // if (isLoading) {
   //   // Show loader while the category is still loading
@@ -21,9 +22,6 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
   // }
 
 
-  if (storyUrls.isEmpty || storyDistance.isEmpty) {
-    return SizedBox.shrink(); // Return an empty container if there's no data
-  }
 
   if(previousSpecific == specificCategoryName){
     specificCategoryName = '';
@@ -117,7 +115,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
                   );
 
                 },
-                child: VideoStoryCard(
+                child: VideoStoryCardDummy(
                   videoUrl: storyUrls[index],
                   distance: storyDistance[index],
                   videoCount: videoCounts[index],

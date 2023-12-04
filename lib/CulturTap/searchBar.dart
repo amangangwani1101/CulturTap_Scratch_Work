@@ -1,3 +1,5 @@
+//searchbar
+
 import 'package:flutter/material.dart';
 
 class StoryBar extends StatelessWidget {
@@ -10,17 +12,17 @@ class StoryBar extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
 
-
+      height : 60,
       margin: EdgeInsets.all(16.0),
       padding: EdgeInsets.symmetric(horizontal: 16.0),
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(30.0),
-        border: Border.all(color: Colors.grey),
+        borderRadius: BorderRadius.circular(24.0),
+        border: Border.all(color: Color(0xFF2E2C43)),
         color : Colors.white,
       ),
       child: Row(
         children: [
-          Icon(Icons.search, color: Color(0xFF263238)),
+          Icon(Icons.search, color: Color(0xFF2E2C43)),
           SizedBox(width: 8.0),
           Expanded(
             child: TextField(
@@ -29,6 +31,7 @@ class StoryBar extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Serch here your Mood, Food ,Places.....',
                 border: InputBorder.none,
+
               ),
             ),
           ),

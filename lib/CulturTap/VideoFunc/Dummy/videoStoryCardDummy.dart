@@ -1,9 +1,9 @@
 // video_story_card.dart
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
+
 import 'package:flutter_svg/flutter_svg.dart';
 
-class VideoStoryCard extends StatefulWidget {
+class VideoStoryCardDummy extends StatefulWidget {
   final String videoUrl;
   final String distance;
   final String videoCount;
@@ -11,7 +11,7 @@ class VideoStoryCard extends StatefulWidget {
   final String category;
   final String title;
 
-  VideoStoryCard({
+  VideoStoryCardDummy({
     required this.videoUrl,
     required this.distance,
     required this.videoCount,
@@ -21,57 +21,20 @@ class VideoStoryCard extends StatefulWidget {
   });
 
   @override
-  _VideoStoryCardState createState() => _VideoStoryCardState();
+  _VideoStoryCardDummyState createState() => _VideoStoryCardDummyState();
 }
 
-class _VideoStoryCardState extends State<VideoStoryCard> {
-  late Image thumbnail;
+class _VideoStoryCardDummyState extends State<VideoStoryCardDummy> {
 
-  // Cache map to store fetched thumbnails
-  final Map<String, Image> thumbnailCache = {};
 
   @override
   void initState() {
     super.initState();
-    thumbnail = Image.asset('assets/images/home_back.png');
-    _fetchThumbnail(widget.videoUrl);
+
+    
   }
 
-  Future<void> _fetchThumbnail(String thumbnailPath) async {
-    // Check if the thumbnail is already in the cache
-    if (thumbnailCache.containsKey(thumbnailPath)) {
-      setState(() {
-        thumbnail = thumbnailCache[thumbnailPath]!;
-      });
-      return;
-    }
 
-    String fullThumbnailUrl = 'http://173.212.193.109:8080/thumbnails/$thumbnailPath';
-    print('fullThumbnailUrl$fullThumbnailUrl');
-
-    try {
-      var thumbnailResponse = await http.get(Uri.parse(fullThumbnailUrl));
-      if (thumbnailResponse.statusCode == 200) {
-        // Cache the fetched thumbnail
-        final newThumbnail = Image.network(fullThumbnailUrl);
-        thumbnailCache[thumbnailPath] = newThumbnail;
-
-        setState(() {
-          thumbnail = newThumbnail;
-        });
-      } else {
-        print('Failed to fetch thumbnail: ${thumbnailResponse.statusCode}');
-        setState(() {
-          thumbnail = Image.asset('assets/images/home_back.png'); // Replace with the actual path
-        });
-      }
-    } catch (error) {
-      print('Error fetching thumbnail: $error');
-      setState(() {
-        thumbnail = Image.asset('assets/images/home_back.png'); // Replace with the actual path
-      });
-    }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +42,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
       children: [
         Container(
           height: 500,
-          width: 300,
+          width: 280,
           margin: EdgeInsets.only(left : 16,top:8),
           child: Stack(
             clipBehavior: Clip.none,
@@ -92,8 +55,8 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                       topLeft: Radius.circular(20),
                       topRight: Radius.circular(10),
                     ),
-                    child: Image(
-                      image: thumbnail.image,
+                    child: Image.asset(
+                      'assets/images/home_back.png',
                       fit: BoxFit.fill, // Change BoxFit.cover to BoxFit.fill
                     ),
                   ),
@@ -147,7 +110,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                       SvgPicture.asset(
+                      SvgPicture.asset(
                         'assets/images/videoasset.svg', // Replace with the path to your SVG icon
 
                         width: 24,
@@ -215,8 +178,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
             bottom: BorderSide(width: 0.1, color: Colors.blueGrey), // Border on the bottom side
           ),),
           height: 70,
-          width: 300,
-          margin: EdgeInsets.only(left : 16,),
+          width: 280,
           padding: EdgeInsets.only(left:10,right : 10,top:10, bottom : 5),
           child: Column(
             children: [
