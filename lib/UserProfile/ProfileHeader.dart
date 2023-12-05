@@ -2,6 +2,7 @@
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/HomePage.dart';
 // import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
@@ -10,7 +11,7 @@ import '../widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:provider/provider.dart';
 
-
+import 'package:flutter_svg/flutter_svg.dart';
 
 // AppBar Section
 class ProfileHeader extends StatefulWidget {
@@ -74,39 +75,44 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      SizedBox(height : 2),
+
                       Container(
                         height : 30,
                         width : 30,
 
-                        child: CircleAvatar(
 
-                          backgroundColor: Colors.orange,
-                          radius: 20.0,
-                          backgroundImage: widget.imagePath != null
-                              ? FileImage(File(widget.imagePath!)) as ImageProvider<Object>?
-                              : AssetImage('assets/images/profile_image.jpg',), // Use a default asset image
+                        child: Visibility(
+
+                          visible: widget.imagePath != null,
+                          child: CircleAvatar(
+                            backgroundColor: Colors.transparent,
+                            radius: 20.0,
+
+                          ),
+                          replacement: SvgPicture.asset(
+                            'assets/images/profile_icon.svg',
+                            width: 40.0,
+                            height: 40.0,
+                          ),
                         ),
-                      ),
-                      SizedBox(height:1),
-                      Text('Profile',style: TextStyle(fontSize: 14,color:Colors.black,fontWeight: FontWeight.w600,fontFamily: 'Poppins',),),
-                    ],
+
+
+
+
                   ),
+                      SizedBox(height: 1,),
+                      Text('Profile',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                    ]
                 ),
-              ),
+              ),),
 
             ],
           ):
           widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
               ? Container(
-            // decoration: BoxDecoration(
-            //   border: Border.all(
-            //     color: Colors.black,
-            //     width: 2,
-            //   ),
-            // ),
+
             width: 80,
-            // color : Colors.red,
+
             height: 75,
 
             child: Container(
@@ -122,18 +128,28 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   }
                   else if(widget.text=='meetingPings'){
                     print('${widget.userName!}');
-                    // Navigator.push(
-                    //   context,
-                    //   MaterialPageRoute(
-                    //     builder: (context) => HomePage(userId: widget.userId!,userName: widget.userName!,),
-                    //   ),
-                    // );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => HomePage(),
+                      ),
+                    );
                   }
                   else{
                     Navigator.of(context).pop();
                   }
                 },
-                child: Image.asset('assets/images/back.png',width: 60,height: 30,),
+                child: Container(
+                  height: 100, // Adjust the height as needed
+                  width: 100,  // Adjust the width as needed
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  child: SvgPicture.asset(
+                    'assets/images/profile_icon.svg', // Replace with the path to your SVG file
+                    fit: BoxFit.fill, // Change BoxFit.cover to BoxFit.fill
+                  ),
+                ),
               ),
             ),
           )
@@ -158,15 +174,10 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 },
                 child: Container(
                   width: 80,
-                  // color : Colors.red,
+
                   height: 75,
 
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(
-                  //     color: Colors.orange,
-                  //     width: 2,
-                  //   ),
-                  // ),
+
                   child:Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -187,7 +198,15 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           height: 24,
                           child: Stack(
                             children: [
-                              Align(alignment: Alignment.topCenter, child: Image.asset('assets/images/ping_image.png',height: 26 ,width:26 ,fit: BoxFit.contain,)),
+                              Align(alignment: Alignment.topCenter, child: SvgPicture.asset(
+                                'assets/images/pings_icon.svg', // Replace with the path to your SVG icon
+
+                                width: 32,
+                                height: 32,
+
+
+
+                              ),),
                               if(notificationCount>0)
                                 Positioned(
                                   top: -3,
@@ -210,7 +229,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                         ),
                       ),
                       SizedBox(height: 1,),
-                      Text('Pings',style: TextStyle(fontSize: 14,color:Colors.black, fontWeight: FontWeight.w600,fontFamily: 'Poppins'),),
+                      Text('Pings',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
                     ],
                   ),
                 ),
@@ -228,13 +247,10 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   showDialog(context: context, builder: (BuildContext context){
                     return Container(
                       color : Colors.brown,
-                      child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: widget.text,navigate: 'pop',onButtonPressed: (){
+                      child: CustomHelpOverlay(imagePath: 'assets/images/profile_icon.svg',serviceSettings: false,text: widget.text,navigate: 'pop',onButtonPressed: (){
                         print(2);
                         widget.profileDataProvider?.removeAllCards();
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
-                        Navigator.of(context).pop();
+
                       },),);
                   },
                   );

@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
 import 'package:learn_flutter/CulturTap/custom_control.dart';
 import 'package:video_player/video_player.dart';
+import 'package:flutter/services.dart';
+
 
 class StoryDetailPage extends StatefulWidget {
   final List<Map<String, dynamic>> storyDetailsList;
@@ -30,26 +32,57 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   bool showPlayPauseIcon = true;
   bool showPauseIcon = false;
   int currentVideoIndex = 0;
+  bool showNextVideoIcon = false;
+  bool showPreviousVideoIcon = false;
+  bool _isFullScreen = false;
+
+
 
 
 
   @override
   void initState() {
     super.initState();
+
     print('printing videcontroller list');
     print(_videoControllersList);
+
     _pageController = PageController(initialPage: widget.initialIndex);
     _currentIndex = widget.initialIndex;
     _videoControllersList = List.generate(
       widget.storyDetailsList.length,
           (index) => _initializeVideoControllers(widget.storyDetailsList[index]["videoPaths"]),
     );
-
+    _toggleFullScreen();
     _initializeChewieController(_currentIndex, currentVideoIndex);
+    _chewieController?.play();
+
+    _chewieController?.enterFullScreen();
 
     print('printing videcontroller list again');
     print(_videoControllersList);
 
+  }
+
+  @override
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Assuming the video has a 9:16 aspect ratio
+    double videoAspectRatio = 9 / 16;
+
+    _chewieController = ChewieController(
+      videoPlayerController: _videoControllersList[_currentIndex][currentVideoIndex],
+      placeholder: Container(
+        color: Colors.black,
+      ),
+      autoPlay: true,
+      looping: true,
+      allowMuting: true,
+      showControls: false,
+      aspectRatio: videoAspectRatio,
+    );
   }
 
   List<VideoPlayerController> _initializeVideoControllers(List<String> videoPaths) {
@@ -59,6 +92,17 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     }).toList();
   }
 
+  void _toggleFullScreen() {
+    setState(() {
+      _isFullScreen = !_isFullScreen;
+
+      if (_isFullScreen) {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+      } else {
+        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+      }
+    });
+  }
 
 
   void _initializeChewieController(int index, int videoIndex) {
@@ -69,12 +113,21 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
         color: Colors.black,
       ),
       autoPlay: true,
-      looping: false,
-      allowMuting: false,
+      looping: true,
+      allowMuting:true,
       allowedScreenSleep: false,
       showControls: false,
       aspectRatio: _videoControllersList[index][0].value.aspectRatio,
+
     );
+
+    _videoControllersList[_currentIndex][currentVideoIndex].addListener(() {
+      if (_videoControllersList[_currentIndex][currentVideoIndex].value.position ==
+          _videoControllersList[_currentIndex][currentVideoIndex].value.duration) {
+        // Video has ended
+        _playNextVideo();
+      }
+    });
 
 
   }
@@ -93,7 +146,15 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
       setState(() {
         showPlayPauseIcon = true;
+        showNextVideoIcon = true;
+        showPreviousVideoIcon = false;
+      });
 
+      Future.delayed(Duration(milliseconds: 500), () {
+        setState(() {
+          showNextVideoIcon = false;
+
+        });
       });
     } else {
 
@@ -112,6 +173,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
       setState(() {
         showPlayPauseIcon = true;
+        showPreviousVideoIcon = true;
+        showNextVideoIcon = false;
       });
     // } else if (_currentIndex > 0) {
     //   // Move to the previous story and play the last video of the previous story
@@ -125,6 +188,14 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     //   setState(() {
     //     showPlayPauseIcon = true;
     //   });
+
+
+      Future.delayed(Duration(milliseconds: 500), () {
+        setState(() {
+          showPreviousVideoIcon = false;
+
+        });
+      });
     } else {
       print('Already at the first video in the current story');
     }
@@ -244,22 +315,54 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               Container(
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
-                child: Chewie(
-                  controller: _chewieController ?? ChewieController(
-                    videoPlayerController: _videoControllersList[_currentIndex][0],
-                    aspectRatio: _videoControllersList[_currentIndex][0].value.aspectRatio,
-                    autoInitialize: true,
-                    showControls: false,
-                    autoPlay: true,
+                child: GestureDetector(
+                  onDoubleTap: _toggleFullScreen,
+                  child: Chewie(
+                    controller: _chewieController ?? ChewieController(
+                      videoPlayerController: _videoControllersList[_currentIndex][0],
+                      aspectRatio: _videoControllersList[_currentIndex][0].value.aspectRatio,
+                      autoInitialize: true,
+                      showControls: false,
+                      autoPlay: true,
 
-                    placeholder: Container(
-                      color: Colors.black, // Change color to match your background
-                      child: Center(
-                        child: CircularProgressIndicator(),
+
+                      placeholder: Container(
+                        color: Colors.black, // Change color to match your background
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
                     ),
-                  ),
 
+                  ),
+                ),
+              ),
+
+              Visibility(
+                visible: showNextVideoIcon,
+                child: Positioned(
+                  top: MediaQuery.of(context).size.height / 2 - 29,
+                  right: 16,
+
+                  child: Icon(
+                    Icons.keyboard_double_arrow_right_outlined,
+                    size: 58.0,
+                    color: Colors.white70,
+                  ),
+                ),
+              ),
+
+              Visibility(
+                visible: showPreviousVideoIcon,
+                child: Positioned(
+                  top: MediaQuery.of(context).size.height / 2 - 29,
+                  left: 16,
+
+                  child: Icon(
+                    Icons.keyboard_double_arrow_left_outlined,
+                    size: 58.0,
+                    color: Colors.white70,
+                  ),
                 ),
               ),
 
@@ -281,7 +384,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
 
               Positioned(
-                top: 105,
+                top: 100,
                 right: 35,
                 child: Container(
                   height : 30,
@@ -329,7 +432,13 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      TextButton(onPressed: () {}, child: Text('< back', style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold, color: Colors.white))),
+                      IconButton(
+                        icon: Icon(Icons.arrow_back_ios_sharp),
+                        color : Colors.white,
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                      ),
                     ],
                   ),
                 ),

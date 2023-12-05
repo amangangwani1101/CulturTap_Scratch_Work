@@ -52,7 +52,7 @@ Widget buildCategorySectionDummy( String specificCategoryName, String categoryNa
                           width : 240,
                           child: Text(
                             previousSpecific,
-                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF263238),),
+                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF001B33),),
                           ),
                         ),
 
@@ -70,7 +70,7 @@ Widget buildCategorySectionDummy( String specificCategoryName, String categoryNa
                 children: <Widget>[
                   Text(
                     categoryName,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF263238),),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF001B33),),
                   ),
                   TextButton(
                     onPressed: () {
@@ -103,16 +103,16 @@ Widget buildCategorySectionDummy( String specificCategoryName, String categoryNa
 
               return GestureDetector(
                 onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StoryDetailPage(
-                        storyUrls: storyUrls,
-                        storyDetailsList: storyDetailsList,
-                        initialIndex: index,
-                      ),
-                    ),
-                  );
+                  // Navigator.push(
+                  //   context,
+                  //   MaterialPageRoute(
+                  //     builder: (context) => StoryDetailPage(
+                  //       storyUrls: storyUrls,
+                  //       storyDetailsList: storyDetailsList,
+                  //       initialIndex: index,
+                  //     ),
+                  //   ),
+                  // );
 
                 },
                 child: VideoStoryCardDummy(

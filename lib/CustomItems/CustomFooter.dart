@@ -171,59 +171,84 @@ class _CustomFooterState extends State<CustomFooter> {
 
 
       child: Padding(
-        padding: const EdgeInsets.only(left:8.0,right:8.0),
+        padding: const EdgeInsets.only(left:4.0,right:4.0),
         child: Column(
 
           children: [
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Column(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
-                        );
+                Container(
+                  width : 80,
+
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(builder: (context) => HomePage()),
+                          );
 
 
-                        _changeIconColor('home');
-                      },
-                      icon: Icon(Icons.home, color: homeIconColor, size: 30),
-                    ),
-                    Text(
-                      'Home',
-                      style: TextStyle(
-                        color: Color(0xFF001B33),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
+                          _changeIconColor('home');
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/images/home_icon.svg', // Replace with the path to your SVG icon
+                          color: homeIconColor,
+
+                          height: 38,
+
+                        ),
                       ),
-                    ),
-                  ],
+                      Text(
+                        'Home',
+                        style: TextStyle(
+                          color: Color(0xFF001B33),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                Column(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        _changeIconColor('search');
-                      },
-                      icon: Icon(Icons.search, color: searchIconColor, size: 30),
-                    ),
-                    Text(
-                      'Search',
-                      style: TextStyle(
-                        color: Color(0xFF001B33),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
+
+                Container(
+                  width : 80,
+
+                  child: Column(
+                    children: [
+                      SizedBox(height : 2),
+                      IconButton(
+                        onPressed: () {
+                          _changeIconColor('search');
+                        },
+                        icon: SvgPicture.asset(
+                          'assets/images/search_icon.svg', // Replace with the path to your SVG icon
+                          color: searchIconColor,
+
+
+                          height: 25,
+
+
+
+                        ),
                       ),
-                    ),
-                  ],
+                      Text(
+                        'Search',
+                        style: TextStyle(
+                          color: Color(0xFF001B33),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
                 Align(
                   alignment: Alignment(0.0, 1.0),
                   child: Transform.translate(
-                    offset: Offset(5, -30.0),
+                    offset: Offset(0, -30.0),
                     child: SizedBox(
 
                       width: 80,
@@ -293,66 +318,85 @@ class _CustomFooterState extends State<CustomFooter> {
                     ),
                   ),
                 ),
-                Column(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => ChangeNotifierProvider(
-                              create: (context) => ProfileDataProvider(),
-                              child: ProfileApp(userId: widget.userId, userName: widget.userName),
+                Container(
+                  width : 80,
+
+
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => ChangeNotifierProvider(
+                                create: (context) => ProfileDataProvider(),
+                                child: ProfileApp(userId: widget.userId, userName: widget.userName),
+                              ),
                             ),
-                          ),
-                        );
-                        _changeIconColor('airplane');
-                      },
+                          );
+                          _changeIconColor('airplane');
+                        },
 
-                      icon: SvgPicture.asset(
-                        'assets/images/tripassit.svg', // Replace with the path to your SVG icon
-                        color: airplaneIconColor,
-                        width: 28,
-                        height: 28,
+                        icon: SvgPicture.asset(
+                          'assets/images/tripassit.svg', // Replace with the path to your SVG icon
+                          color: airplaneIconColor,
+
+                          height: 34,
 
 
+
+                        ),
 
                       ),
-
-                    ),
-                    Text(
-                      'Assist',
-                      style: TextStyle(
-                        color: Color(0xFF001B33),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
+                      Text(
+                        'Local Assist',
+                        style: TextStyle(
+                          color: Color(0xFF001B33),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
-                Column(
-                  children: [
-                    IconButton(
-                      onPressed: () {
-                        print('Ammmm ${widget.userId}');
-                        Navigator.of(context).push(
-                          MaterialPageRoute(
-                            builder: (context) => SettingsPage(userId: widget.userId!),
-                          ),
-                        );
-                        _changeIconColor('settings');
-                      },
-                      icon: Icon(Icons.settings_sharp, color: settingsIconColor, size: 24),
-                    ),
-                    Text(
-                      'Settings',
-                      style: TextStyle(
-                        color: Color(0xFF001B33),
-                        fontWeight: FontWeight.w800,
-                        fontSize: 14,
+                Container(
+                  width : 80,
+
+                  child: Column(
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          print('${widget.userId}');
+                          Navigator.of(context).push(
+                            MaterialPageRoute(
+                              builder: (context) => SettingsPage(userId: widget.userId!),
+                            ),
+                          );
+                          _changeIconColor('settings');
+                        },
+
+                        icon: SvgPicture.asset(
+                          'assets/images/settings.svg', // Replace with the path to your SVG icon
+                          color: airplaneIconColor,
+
+                          height: 30,
+
+
+
+
+                        ),
                       ),
-                    ),
-                  ],
+                      Text(
+                        'Settings',
+                        style: TextStyle(
+                          color: Color(0xFF001B33),
+                          fontWeight: FontWeight.w800,
+                          fontSize: 14,
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

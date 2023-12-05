@@ -52,8 +52,8 @@ class _VideoStoryCardDummyState extends State<VideoStoryCardDummy> {
                   aspectRatio: 9 / 16,
                   child: ClipRRect(
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(10),
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
                     ),
                     child: Image.asset(
                       'assets/images/home_back.png',

@@ -188,7 +188,8 @@ class _HomePageState extends State<HomePage> {
     List<String> storyLocations = [];
     List<String> storyTitles = [];
     List<String> storyCategories = [];
-
+    int likes = 0;
+    int views = 0;
 
     for (var story in fetchedStoryList) {
       dynamic videoPathData = story['videoPath'];
@@ -206,11 +207,18 @@ class _HomePageState extends State<HomePage> {
       int starRating = story['starRating'];
       String selectedVisibility = story['selectedVisibility'];
 
+
       String productDescription = story['productDescription'];
       String category = story['category'];
       String genre = story['genre'];
 
       String storyCategory = story['category'];
+      if(story['likes'] != null)
+
+        likes = story['likes'];
+
+      if(story['views'] != null)
+        views = story['views'];
 
       double douDistance = calculateDistance(latitude, longitude, storyLat, storyLng);
       String distance = '${douDistance.toStringAsFixed(2)}';
@@ -235,6 +243,8 @@ class _HomePageState extends State<HomePage> {
           'productDescription': productDescription,
           'category': category,
           'genre': genre,
+          'likes' : likes,
+          'views' : views,
         };
 
         totalVideoCounts.add('${videoPaths.length}');
@@ -663,102 +673,74 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-
   Widget build(BuildContext context) {
-
     return WillPopScope(
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
-        appBar: AppBar(
-
-          title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
-          automaticallyImplyLeading: false,
-          backgroundColor: Colors.white,
-          shadowColor: Colors.transparent,
-          toolbarHeight: 90.0,
-        ),
-
         body: RefreshIndicator(
           backgroundColor: Color(0xFF263238),
           color: Colors.orange,
           onRefresh: _refreshHomepage,
-          child: isLoading
-              ? SingleChildScrollView(
-                controller: _scrollController,
-                physics: AlwaysScrollableScrollPhysics(),
-                child: Container(
-                  color : Colors.white,
-                  child: Column(
-                    children: <Widget>[
-
-                      StoryBar(
-                        controller: _searchController,
-                        onSubmitted: (value) {
-                          fetchUserLocationAndData();
-                        },
-                      ),
-                      // Your other widgets here
-                      Column(
-                        children: [
-                          DummyHomePage(),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-              )
-              : SingleChildScrollView(
+          child: CustomScrollView(
             controller: _scrollController,
-            physics: AlwaysScrollableScrollPhysics(),
-            child: Container(
-              color : Colors.white,
-              child: Column(
-                children: <Widget>[
-
-                  StoryBar(
-                    controller: _searchController,
-                    onSubmitted: (value) {
-                      fetchUserLocationAndData();
-                    },
-                  ),
-                  // Your other widgets here
-                  Column(
-                    children: categoryData.asMap().entries.map((entry) {
-                      final int categoryIndex = entry.key;
-                      final Map<String, dynamic> category = entry.value;
-
-                      final bool categoryLoading = categoryLoadingStates[categoryIndex] ?? false;
-
-                      final String specificCategoryName = category['specificName'];
-                      final String categoryName = category['name'];
-                      final List<String> storyUrls = category['storyUrls'];
-                      final List<String> videoCounts = category['videoCounts'];
-                      final List<String> storyDistance = category['storyDistance'];
-                      final List<String> storyLocation = category['storyLocation'];
-                      final List<String> storyCategory = category['storyCategory'];
-                      final List<String> storyTitle = category['storyTitle'];
-
-                      List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
-
-                      return buildCategorySection(
-                        specificCategoryName,
-                        categoryName,
-                        storyUrls,
-                        videoCounts,
-                        storyDistance,
-                        storyLocation,
-                        storyTitle,
-                        storyCategory,
-                        storyDetailsList,
-                        categoryLoading,
-
-
-                      );
-                    }).toList(),
-                  ),
-                ],
+            slivers: [
+              SliverAppBar(
+                title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
+                automaticallyImplyLeading: false,
+                backgroundColor: Colors.white,
+                shadowColor: Colors.transparent,
+                toolbarHeight: 90,// Adjust as needed
+                floating: true,
+                pinned: false,
+                flexibleSpace: FlexibleSpaceBar(
+                  // You can add more customization to the flexible space here
+                ),
               ),
-            ),
+              SliverList(
+                delegate: SliverChildListDelegate(
+                  [
+                    // Your other widgets here
+                    StoryBar(
+                      controller: _searchController,
+                      onSubmitted: (value) {
+                        fetchUserLocationAndData();
+                      },
+                    ),
+                    Column(
+                      children: categoryData.asMap().entries.map((entry) {
+                        final int categoryIndex = entry.key;
+                        final Map<String, dynamic> category = entry.value;
+
+                        final bool categoryLoading = categoryLoadingStates[categoryIndex] ?? false;
+
+                        final String specificCategoryName = category['specificName'];
+                        final String categoryName = category['name'];
+                        final List<String> storyUrls = category['storyUrls'];
+                        final List<String> videoCounts = category['videoCounts'];
+                        final List<String> storyDistance = category['storyDistance'];
+                        final List<String> storyLocation = category['storyLocation'];
+                        final List<String> storyCategory = category['storyCategory'];
+                        final List<String> storyTitle = category['storyTitle'];
+                        List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+
+                        return buildCategorySection(
+                          specificCategoryName,
+                          categoryName,
+                          storyUrls,
+                          videoCounts,
+                          storyDistance,
+                          storyLocation,
+                          storyTitle,
+                          storyCategory,
+                          storyDetailsList,
+                          categoryLoading,
+                        );
+                      }).toList(),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
         ),
         bottomNavigationBar: AnimatedContainer(
@@ -769,9 +751,9 @@ class _HomePageState extends State<HomePage> {
       ),
     );
   }
-
-
 }
+
+
 
 
 

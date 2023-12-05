@@ -54,7 +54,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
                           width : 240,
                           child: Text(
                             previousSpecific,
-                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF263238),),
+                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF001B33),),
                           ),
                         ),
 
@@ -72,7 +72,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
                 children: <Widget>[
                   Text(
                     categoryName,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF263238),),
+                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF001B33),),
                   ),
                   TextButton(
                     onPressed: () {
@@ -125,6 +125,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
 
                   category : storyCategory[index],
                   title : storyTitle[index],
+                  storyDetails : storyDetailsList[index],
 
 
 

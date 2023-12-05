@@ -10,6 +10,7 @@ class VideoStoryCard extends StatefulWidget {
   final String location;
   final String category;
   final String title;
+  final Map<String, dynamic> storyDetails;
 
   VideoStoryCard({
     required this.videoUrl,
@@ -18,6 +19,7 @@ class VideoStoryCard extends StatefulWidget {
     required this.location,
     required this.category,
     required this.title,
+    required this.storyDetails,
   });
 
   @override
@@ -89,8 +91,8 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                   aspectRatio: 9 / 16,
                   child: ClipRRect(
                     borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(20),
-                      topRight: Radius.circular(10),
+                      topLeft: Radius.circular(24),
+                      topRight: Radius.circular(24),
                     ),
                     child: Image(
                       image: thumbnail.image,
@@ -117,7 +119,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFF263238),
+                    color: Color(0xFF001B33),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -141,7 +143,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFF263238),
+                    color: Color(0xFF001B33),
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -170,7 +172,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
               //   child: Container(
               //     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
               //     decoration: BoxDecoration(
-              //       color: Color(0xFF263238),
+              //       color: Color(0xFF001B33),
               //       borderRadius: BorderRadius.circular(10),
               //     ),
               //     child: Row(
@@ -227,11 +229,11 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                     children: [
                       Text(
                         'Title ',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF263238)),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF001B33)),
                       ),
                       Text(
                         ' ${widget.title}',
-                        style: TextStyle(color: Color(0xFF263238)),
+                        style: TextStyle(color: Color(0xFF001B33)),
                       ),
                     ],
                   ),
@@ -240,20 +242,22 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(
-                          Icons.remove_red_eye_sharp,
-                          color: Colors.grey,
-                          size: 24,
+                        SvgPicture.asset(
+                          'assets/images/eyeview.svg', // Replace with the path to your SVG file
+                          // color: Color(0xFF001B33),
+                          height : 24,
+                          width : 24,
                         ),
                         Text(
-                          '89.0K',
-                          style: TextStyle(color: Color(0xFF263238)),
+                         '${widget.storyDetails['views']!}',
+                          style: TextStyle(color: Color(0xFF001B33)),
                         ),
                       ],
                     ),
                   ),
                 ],
               ),
+              SizedBox(height : 2),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -261,11 +265,11 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                     children: [
                       Text(
                         'Category ',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF263238)),
+                        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF001B33)),
                       ),
                       Text(
                         ' ${widget.category}',
-                        style: TextStyle(color: Color(0xFF263238)),
+                        style: TextStyle(color: Color(0xFF001B33)),
                       ),
                     ],
                   ),
@@ -274,14 +278,15 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Icon(
-                          Icons.heart_broken,
-                          color: Colors.grey,
-                          size: 24,
+                        SvgPicture.asset(
+                          'assets/images/heart.svg', // Replace with the path to your SVG file
+                          // color: Color(0xFF001B33),
+                          height : 20,
+                          width : 24,
                         ),
                         Text(
-                          '700.5k',
-                          style: TextStyle(color: Color(0xFF263238)),
+                          '${widget.storyDetails['likes']!}',
+                          style: TextStyle(color: Color(0xFF001B33)),
                         ),
                       ],
                     ),
