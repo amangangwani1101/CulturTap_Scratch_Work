@@ -53,7 +53,9 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       widget.storyDetailsList.length,
           (index) => _initializeVideoControllers(widget.storyDetailsList[index]["videoPaths"]),
     );
-    _toggleFullScreen();
+
+
+    // _toggleFullScreen();
     _initializeChewieController(_currentIndex, currentVideoIndex);
     _chewieController?.play();
 
@@ -121,13 +123,13 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
     );
 
-    _videoControllersList[_currentIndex][currentVideoIndex].addListener(() {
-      if (_videoControllersList[_currentIndex][currentVideoIndex].value.position ==
-          _videoControllersList[_currentIndex][currentVideoIndex].value.duration) {
-        // Video has ended
-        _playNextVideo();
-      }
-    });
+    // _videoControllersList[_currentIndex][currentVideoIndex].addListener(() {
+    //   if (_videoControllersList[_currentIndex][currentVideoIndex].value.position ==
+    //       _videoControllersList[_currentIndex][currentVideoIndex].value.duration) {
+    //     // Video has ended
+    //     _playNextVideo();
+    //   }
+    // });
 
 
   }
@@ -437,7 +439,9 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         color : Colors.white,
                         onPressed: () {
                           Navigator.pop(context);
+                          _isFullScreen = false;
                         },
+
                       ),
                     ],
                   ),

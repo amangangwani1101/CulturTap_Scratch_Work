@@ -378,9 +378,9 @@ class _CustomFooterState extends State<CustomFooter> {
 
                         icon: SvgPicture.asset(
                           'assets/images/settings.svg', // Replace with the path to your SVG icon
-                          color: airplaneIconColor,
+                          color: settingsIconColor,
 
-                          height: 30,
+                          height: 25,
 
 
 

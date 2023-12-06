@@ -700,11 +700,14 @@ class _HomePageState extends State<HomePage> {
                 delegate: SliverChildListDelegate(
                   [
                     // Your other widgets here
-                    StoryBar(
-                      controller: _searchController,
-                      onSubmitted: (value) {
-                        fetchUserLocationAndData();
-                      },
+                    Container(
+                      color : Colors.white,
+                      child: StoryBar(
+                        controller: _searchController,
+                        onSubmitted: (value) {
+                          fetchUserLocationAndData();
+                        },
+                      ),
                     ),
                     Column(
                       children: categoryData.asMap().entries.map((entry) {

@@ -131,7 +131,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                       ),
                       Text(
                         '${widget.distance} km',
-                        style: TextStyle(color: Colors.white),
+                        style: TextStyle(color: Colors.white,fontWeight: FontWeight.w700),
                       ),
                     ],
                   ),

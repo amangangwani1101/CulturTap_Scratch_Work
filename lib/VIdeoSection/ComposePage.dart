@@ -21,6 +21,8 @@ import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_help
 import 'package:http/http.dart' as http;
 import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class UploadPopup extends StatelessWidget {
@@ -82,6 +84,7 @@ class UploadPopup extends StatelessWidget {
 
 
 
+
 class ComposePage extends StatefulWidget {
   VideoDatabaseHelper myDatabaseHelper = VideoDatabaseHelper();
 
@@ -102,6 +105,12 @@ class ComposePage extends StatefulWidget {
 }
 
 class _ComposePageState extends State<ComposePage> {
+
+  final FirebaseAuth _auth = FirebaseAuth.instance;
+  FirebaseFirestore firestore = FirebaseFirestore.instance;
+
+  String userName = '';
+  String userID = '';
 
   late VideoPlayerController _thumbnailController;
   late int randomIndex;
@@ -166,6 +175,22 @@ class _ComposePageState extends State<ComposePage> {
 
   bool _isVisible = true;
 
+
+  Future<void> fetchDataFromMongoDB() async {
+    User? user = _auth.currentUser;
+    if (user != null) {
+      // User is already signed in, navigate to the desired screen
+      var userQuery = await firestore.collection('users').where('uid',isEqualTo:user.uid).limit(1).get();
+
+      var userData = userQuery.docs.first.data();
+      String uName = userData['name'];
+      String uId = userData['userMongoId'];
+      userName = uName;
+      print('userName: $userName');
+      userID =uId;
+      print('userID$userID');
+    }
+  }
 
   Future<void> uploadCompressedVideos(List<File> videoPaths, BuildContext context) async {
     try {
@@ -314,7 +339,8 @@ class _ComposePageState extends State<ComposePage> {
         },
         "label": selectedLabel,
         "category": selectedCategory,
-        "genre": selectedGenre
+        "genre": selectedGenre,
+        "userID" : userID,
       };
 
 
@@ -353,6 +379,7 @@ class _ComposePageState extends State<ComposePage> {
 
   late DatabaseHelper _databaseHelper;
   Future<void> saveDraft() async {
+    print('userIDindraft$userID');
     final status = await Permission.storage.request();
     if(status.isGranted){
       final database = await DatabaseHelper.instance.database;
@@ -453,6 +480,7 @@ class _ComposePageState extends State<ComposePage> {
   @override
   void initState() {
     super.initState();
+    fetchDataFromMongoDB();
     _databaseHelper = DatabaseHelper.instance;
     print("Video Data in initState: ${widget.videoData}");
 
@@ -473,6 +501,9 @@ class _ComposePageState extends State<ComposePage> {
       ..initialize().then((_) {
         setState(() {});
       });
+
+    print('userIDwalahai${userID}');
+    print('userName${userName}');
 
 
   }

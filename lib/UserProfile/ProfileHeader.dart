@@ -69,8 +69,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 child: Container(
 
                   width: 80,
-                  // color : Colors.red,
+
                   height: 75,
+
 
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -100,8 +101,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
 
                   ),
-                      SizedBox(height: 1,),
-                      Text('Profile',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                      SizedBox(height: 2,),
+                      Text('Profile',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w700,fontFamily: 'Poppins'),),
                     ]
                 ),
               ),),
@@ -178,6 +179,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   height: 75,
 
 
+
                   child:Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -193,43 +195,39 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                             );
                           }
                         },
-                        child: Container(
-                          width: 35,
-                          height: 24,
-                          child: Stack(
-                            children: [
-                              Align(alignment: Alignment.topCenter, child: SvgPicture.asset(
-                                'assets/images/pings_icon.svg', // Replace with the path to your SVG icon
+                        child: Stack(
+                          children: [
+                            Align(alignment: Alignment.topCenter, child: SvgPicture.asset(
+                              'assets/images/pings_icon.svg', // Replace with the path to your SVG icon
 
-                                width: 32,
-                                height: 32,
+                              width: 28,
+                              height: 28,
 
 
 
-                              ),),
-                              if(notificationCount>0)
-                                Positioned(
-                                  top: -3,
-                                  right: 0,
-                                  // height: 20,
-                                  child: Container(
-                                    padding: EdgeInsets.all(3),
-                                    decoration: BoxDecoration(
-                                      color: Colors.red,
-                                      shape: BoxShape.circle,
-                                    ),
-                                    child: Text(
-                                      notificationCount.toString(),
-                                      style: TextStyle(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
-                                    ),
+                            ),),
+                            if(notificationCount>0)
+                              Positioned(
+                                top: -3,
+                                right: 21,
+                                // height: 20,
+                                child: Container(
+                                  padding: EdgeInsets.all(3),
+                                  decoration: BoxDecoration(
+                                    color: Colors.red,
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: Text(
+                                    notificationCount.toString(),
+                                    style: TextStyle(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
                                   ),
                                 ),
-                            ],
-                          ),
+                              ),
+                          ],
                         ),
                       ),
-                      SizedBox(height: 1,),
-                      Text('Pings',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
+                      SizedBox(height: 2,),
+                      Text('Pings',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w700,fontFamily: 'Poppins'),),
                     ],
                   ),
                 ),
