@@ -1,33 +1,23 @@
 //homepage
-
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/CulturTap/StoryDetailPage.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/categoryData.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
-import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/dummyHomePage.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
-import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
-import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
-import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
-import 'dart:io';
-import 'dart:math';
 import 'dart:convert';
-import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
-import 'BackendStore/BackendStore.dart';
 import 'UserProfile/ProfileHeader.dart';
-import 'UserProfile/UserProfileEntry.dart';
+
 
 void main() {
   runApp(MyApp());
@@ -132,9 +122,6 @@ class _HomePageState extends State<HomePage> {
 
   Future<void> fetchDataForCategory(double latitude, double longitude, int categoryIndex) async {
     try {
-      setState(() {
-        categoryLoadingStates[categoryIndex] = true;
-      });
 
       final Map<String, dynamic> category = categoryData[categoryIndex];
       String apiEndpoint = category['apiEndpoint'];
@@ -154,10 +141,6 @@ class _HomePageState extends State<HomePage> {
 
       setState(() {
         isLoading = false;
-      });
-
-      setState(() {
-        categoryLoadingStates[categoryIndex] = false;
       });
 
 
@@ -248,246 +231,25 @@ class _HomePageState extends State<HomePage> {
     // Any other asynchronous initialization tasks can be added here
   }
 
-
   List<Map<String, dynamic>> categoryData = [
-    {
-      'specificName': '',
-      'name': 'Trending NearBy',
-      'apiEndpoint': '/main/api/trending-nearby-places',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-
-    },
-    {
-      'specificName': 'Trending Visits in Nation',
-      'name': '',
-      'apiEndpoint': '/nation/api/trending-visits-in-nation',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': '',
-      'name': 'International Trendings',
-      'apiEndpoint': '/international/trending-international',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': '',
-      'name': 'Festivals Around You',
-      'apiEndpoint': 'api/nearby-places/Festivals',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Are you feeling hungry ?',
-      'name': 'Street Foods Nearby',
-      'apiEndpoint': 'api/nearby-places/Street Foods',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Are you feeling hungry ?',
-      'name': 'Restaurants Near you',
-      'apiEndpoint': 'api/nearby-places/Restaurants',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Are you feeling hungry ?',
-      'name': 'Popular & Trending here in foods',
-      'apiEndpoint': 'popular/api/popular-foods',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-
-
-    {
-      'specificName': 'Local Fashion for you !',
-      'name': 'Local Stores Near you',
-      'apiEndpoint': 'api/nearby-places/Fashion',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-
-
-    {
-      'specificName': 'Local Fashion for you !',
-      'name': 'Popular & Trending Here',
-      'apiEndpoint': '/fashion/api/nearby-fashion-places',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Local Fashion for you !',
-      'name': 'Popular & Trending here',
-      'apiEndpoint': '/popularFashion/api/popular-fashion-places',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Party Tonight ?',
-      'name': 'Popular & Trending Clubs Here',
-      'apiEndpoint': 'api/nearby-places/Party-Clubs & Bars',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Party Tonight ?',
-      'name': 'Nearby Hotels & Resorts',
-      'apiEndpoint': 'api/nearby-places/Resorts',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Other Outlets',
-      'name': 'Local Furniture',
-      'apiEndpoint': '/furniture/api/local-furniture',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Other Outlets',
-      'name': 'Handy-Crafts',
-      'apiEndpoint': '/handy-crafts/api/handyCrafts',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Famous Visiting Places',
-      'name': 'Forests Near you',
-      'apiEndpoint': 'api/nearby-places/Forests',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Famous Visiting Places',
-      'name': 'Famous RiverSides Here',
-      'apiEndpoint': 'api/nearby-places/Riverside',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Famous Visiting Places',
-      'name': 'Islands Here',
-      'apiEndpoint': 'api/nearby-places/Island',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-    {
-      'specificName': 'Famous Visiting Places',
-      'name': 'EcoSystem NearBy',
-      'apiEndpoint': 'api/nearby-places/Aquatic Ecosystem',
-      'storyUrls': <String>[],
-      'videoCounts': <String>[],
-      'storyDistance' : <String>[],
-      'storyLocation' : <String>[],
-      'storyTitle' : <String>[],
-      'storyCategory' : <String>[],
-
-      'storyDetailsList': <Map<String, dynamic>>[],
-    },
-
+    ...generateCategoryData(name: 'Trending NearBy', apiEndpoint: '/main/api/trending-nearby-places'),
+    ...generateCategoryData(specificName: 'Trending Visits in Nation', apiEndpoint: '/nation/api/trending-visits-in-nation'),
+    ...generateCategoryData(name: 'International Trendings', apiEndpoint: '/international/trending-international'),
+    ...generateCategoryData(name: 'Festivals Around You', apiEndpoint: 'api/nearby-places/Festivals'),
+    ...generateCategoryData(specificName: 'Are You Feeling Hungry ?',name: 'Street Foods Nearby', apiEndpoint: 'api/nearby-places/Street Foods'),
+    ...generateCategoryData(specificName: 'Are You Feeling Hungry ?',name: 'Restaurants Near you', apiEndpoint: 'api/nearby-places/Restaurants'),
+    ...generateCategoryData(name: 'Popular & Trending here in foods', apiEndpoint: 'popular/api/popular-foods'),
+    ...generateCategoryData(name: 'Local Stores Near you', apiEndpoint: 'api/nearby-places/Fashion'),
+    ...generateCategoryData(specificName: 'Local Fashion for you !', name: 'Popular & Trending Here', apiEndpoint: '/fashion/api/nearby-fashion-places'),
+    ...generateCategoryData(specificName: 'Local Fashion for you !', name: 'Popular & Trending here', apiEndpoint: '/popularFashion/api/popular-fashion-places'),
+    ...generateCategoryData(specificName: 'Party Tonight ?', name: 'Popular & Trending Clubs Here', apiEndpoint: 'api/nearby-places/Party-Clubs & Bars'),
+    ...generateCategoryData(specificName: 'Party Tonight ?', name: 'Nearby Hotels & Resorts', apiEndpoint: 'api/nearby-places/Resorts'),
+    ...generateCategoryData(specificName: 'Other Outlets', name: 'Local Furniture', apiEndpoint: '/furniture/api/local-furniture'),
+    ...generateCategoryData(specificName: 'Other Outlets', name: 'Handy-Crafts', apiEndpoint: '/handy-crafts/api/handyCrafts'),
+    ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Forests Near you', apiEndpoint: 'api/nearby-places/Forests'),
+    ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Famous RiverSides Here', apiEndpoint: 'api/nearby-places/Riverside'),
+    ...generateCategoryData(specificName: '', name: 'Islands Here', apiEndpoint: 'api/nearby-places/Island'),
+    ...generateCategoryData(specificName: '', name: 'EcoSystem NearBy', apiEndpoint: 'api/nearby-places/Aquatic Ecosystem'),
   ];
 
 
@@ -590,9 +352,3 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
-
-
-
-
-
-
