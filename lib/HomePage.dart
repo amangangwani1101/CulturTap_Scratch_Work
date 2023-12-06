@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:learn_flutter/CulturTap/StoryDetailPage.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/dummyHomePage.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/video_story_card.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
@@ -12,6 +14,7 @@ import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
 import 'package:http/http.dart' as http;
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'dart:io';
 import 'dart:math';
 import 'dart:convert';
@@ -21,13 +24,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
-import 'package:learn_flutter/SignUp/FirstPage.dart';
-import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
-import 'package:learn_flutter/widgets/Constant.dart';
-import 'package:learn_flutter/widgets/hexColor.dart';
-import 'package:provider/provider.dart';
 import 'package:flutter/rendering.dart';
 import 'BackendStore/BackendStore.dart';
 import 'UserProfile/ProfileHeader.dart';
@@ -100,52 +96,6 @@ Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async
 }
 
 
-Future<List<dynamic>> fetchDataForStories(double latitude, double longitude, String apiEndpoint) async {
-  final uri = Uri.http('173.212.193.109:8080', apiEndpoint, {
-    'latitude': latitude.toString(),
-    'longitude': longitude.toString(),
-  });
-
-  final response = await http.get(uri);
-
-  if (response.statusCode == 200) {
-    final List<dynamic> data = json.decode(response.body);
-
-    // Calculate distances for each story
-
-
-    // print('Fetched data: $data');
-    return data;
-  } else {
-    print('failure');
-    throw Exception('Failed to load data');
-  }
-}
-
-double calculateDistance(double userLat, double userLng, double storyLat, double storyLng) {
-  const double earthRadius = 6371; // Radius of the Earth in kilometers
-
-  // Convert latitude and longitude from degrees to radians
-  final double userLatRad = userLat * pi / 180.0;
-  final double userLngRad = userLng * pi / 180.0;
-  final double storyLatRad = storyLat * pi / 180.0;
-  final double storyLngRad = storyLng * pi / 180.0;
-
-  // Calculate the differences
-  final double latDiff = storyLatRad - userLatRad;
-  final double lngDiff = storyLngRad - userLngRad;
-
-  // Haversine formula to calculate distance
-  final double a = pow(sin(latDiff / 2), 2) +
-      cos(userLatRad) * cos(storyLatRad) * pow(sin(lngDiff / 2), 2);
-  final double c = 2 * atan2(sqrt(a), sqrt(1 - a));
-
-  // Distance in kilometers
-  final double distance = earthRadius * c;
-
-  return distance;
-}
-
 
 class MyApp extends StatelessWidget {
   @override
@@ -176,103 +126,6 @@ class _HomePageState extends State<HomePage> {
   final TextEditingController _searchController = TextEditingController();
 
 
-
-
-
-
-  Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, double latitude, double longitude) {
-    List<Map<String, dynamic>> storyDetailsList = [];
-    List<String> totalVideoPaths = [];
-    List<String> totalVideoCounts = [];
-    List<String> storyDistances = [];
-    List<String> storyLocations = [];
-    List<String> storyTitles = [];
-    List<String> storyCategories = [];
-    int likes = 0;
-    int views = 0;
-
-    for (var story in fetchedStoryList) {
-      dynamic videoPathData = story['videoPath'];
-
-      double storyLat = story['latitude'];
-      double storyLng = story['longitude'];
-
-      String location = story['location'];
-      String storyTitle = story['storyTitle'];
-      String storyLocation = location?.split(',')?.first ?? '';
-      String expDescription = story['expDescription'];
-      List<String> placeLoveDesc = List.from(story['placeLoveDesc'] ?? []);
-      String dontLikeDesc = story['dontLikeDesc'];
-      String review = story['review'];
-      int starRating = story['starRating'];
-      String selectedVisibility = story['selectedVisibility'];
-
-
-      String productDescription = story['productDescription'];
-      String category = story['category'];
-      String genre = story['genre'];
-
-      String storyCategory = story['category'];
-      if(story['likes'] != null)
-
-        likes = story['likes'];
-
-      if(story['views'] != null)
-        views = story['views'];
-
-      double douDistance = calculateDistance(latitude, longitude, storyLat, storyLng);
-      String distance = '${douDistance.toStringAsFixed(2)}';
-
-      if (videoPathData is List) {
-        List<String> videoPaths = videoPathData
-            .whereType<String>() // Filter out non-string elements
-            .toList();
-
-        Map<String, dynamic> storyDetails = {
-          'videoPaths': videoPaths,
-          'storyDistance': distance,
-          'storyLocation': storyLocation,
-          'storyCategory': storyCategory,
-          'expDescription': expDescription,
-          'placeLoveDesc': placeLoveDesc,
-          'dontLikeDesc': dontLikeDesc,
-          'review': review,
-          'starRating': starRating,
-          'selectedVisibility': selectedVisibility,
-          'storyTitle': storyTitle,
-          'productDescription': productDescription,
-          'category': category,
-          'genre': genre,
-          'likes' : likes,
-          'views' : views,
-        };
-
-        totalVideoCounts.add('${videoPaths.length}');
-        String thumbnailurl = 'thumbnail-' + videoPaths[0].replaceAll('.mp4', '.webp');
-        totalVideoPaths.add('$thumbnailurl');
-        storyDistances.add(distance);
-        storyLocations.add(storyLocation);
-        storyTitles.add(storyTitle);
-
-        storyCategories.add(storyCategory);
-
-
-        storyDetailsList.add(storyDetails);
-      } else {
-        print('Unsupported videoPath format');
-      }
-    }
-
-    return {
-      'storyDetailsList': storyDetailsList,
-      'totalVideoPaths': totalVideoPaths,
-      'totalVideoCounts': totalVideoCounts,
-      'storyDistances': storyDistances,
-      'storyLocations': storyLocations,
-      'storyTitles': storyTitles,
-      'storyCategories': storyCategories,
-    };
-  }
 
 
   Map<int, bool> categoryLoadingStates = {};
@@ -364,8 +217,8 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    fetchDataFromMongoDB();
 
+    fetchDataFromMongoDB();
     requestLocationPermission();
     fetchUserLocationAndData();
     _scrollController.addListener(() {
@@ -387,21 +240,6 @@ class _HomePageState extends State<HomePage> {
 
   //updated code from here
 
-  Future<void> fetchDataFromMongoDB() async {
-    User? user = _auth.currentUser;
-    if (user != null) {
-      // User is already signed in, navigate to the desired screen
-      var userQuery = await firestore.collection('users').where('uid',isEqualTo:user.uid).limit(1).get();
-
-      var userData = userQuery.docs.first.data();
-      String uName = userData['name'];
-      String uId = userData['userMongoId'];
-      userName = uName;
-      print('userName: $userName');
-      userID =uId;
-      print('userID$userID');
-    }
-  }
 
 
   Future<void> fetchUserLocationAndDataasync() async {
@@ -409,9 +247,6 @@ class _HomePageState extends State<HomePage> {
     print(userName);
     // Any other asynchronous initialization tasks can be added here
   }
-
-
-
 
 
   List<Map<String, dynamic>> categoryData = [
