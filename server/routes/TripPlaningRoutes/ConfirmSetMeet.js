@@ -68,6 +68,27 @@ router.post("/updateUserDayPlans", async (req, res) => {
   }
 });
 
+// Endpoint to fetch conversation by meetId
+router.get('/fetchMeetingConversation/:meetId', async (req, res) => {
+  try {
+    const meetId = req.params.meetId;
+
+    const meet = await MeetingsData.findById(meetId);
+
+    if (!meet) {
+      return res.status(404).json({ message: "Meeting Not Found" });
+    }
+
+    // Assuming the conversation array exists within the 'meet' document
+    const conversation = meet.conversation || [];
+
+    res.status(200).json({ conversation });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
 // store meeting conversation
 router.patch('/storeMeetingConversation', async (req, res) => {
   try {
@@ -80,9 +101,11 @@ router.patch('/storeMeetingConversation', async (req, res) => {
     }
 
     if (!meet.conversation) {
-      meet.conversation = conversation;
+      meet.conversation = [];
     }
 
+    // Assuming 'conversation' is an array, use $push to add new elements to the existing array
+    meet.conversation.push(conversation);
     await meet.save();
     res.status(200).json({ message: "Conversation stored successfully" });
   } catch (err) {

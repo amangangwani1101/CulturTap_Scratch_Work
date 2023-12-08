@@ -32,6 +32,7 @@ router.post("/checkMeetingTime", async (req, res) => {
     // Convert chosen time to 24-hour format
     const convertTo24Hour = (time) => {
       const [hour, minute, period] = time.split(/:| /);
+      console.log(hour,minute,period);
       const isPM = period.toUpperCase() === "PM";
       const adjustedHour = isPM && hour !== "12" ? parseInt(hour, 10) + 12 : parseInt(hour, 10);
       return `${adjustedHour.toString().padStart(2, "0")}:${minute}`;

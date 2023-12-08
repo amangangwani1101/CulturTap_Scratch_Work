@@ -80,8 +80,10 @@ io.on("connection", (socket) => {
 
       // Broadcast the message to all connected clients in the same room based on 'user1' and 'user2'
       if (user1 === '') {
+        console.log('time1');
         io.to(socket.room).emit("message", { message: message, user: "receiver" });
       } else {
+        console.log('time2');
         io.to(socket.room).emit("message", { message: message, user: "sender" });
       }
     });

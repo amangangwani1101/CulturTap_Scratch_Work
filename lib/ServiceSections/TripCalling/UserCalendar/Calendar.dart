@@ -36,7 +36,7 @@ class ProfileApps  extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
         useMaterial3: true,
       ),
-      home: CalendarPage(clickedUser: '652bb97a2310b75ec11cd2ed',currentUser: '652a31f77ff9b6023a14838a',),
+      home: CalendarPage(clickedUser: '652b2cfe59629378c2c7dacb',currentUser: '652a578b7ff9b6023a1483ba',),
       debugShowCheckedModeBanner: false,
     );
   }
