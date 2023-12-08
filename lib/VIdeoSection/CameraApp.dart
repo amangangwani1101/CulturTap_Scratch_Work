@@ -1,4 +1,3 @@
-import 'package:assets_audio_player/assets_audio_player.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:learn_flutter/HomePage.dart';
@@ -7,10 +6,8 @@ import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.da
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
-import 'dart:io';
 import 'package:audioplayers/audioplayers.dart';
 
 

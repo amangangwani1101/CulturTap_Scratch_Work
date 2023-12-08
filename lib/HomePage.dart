@@ -312,7 +312,6 @@ class _HomePageState extends State<HomePage> {
                         final Map<String, dynamic> category = entry.value;
 
                         final bool categoryLoading = categoryLoadingStates[categoryIndex] ?? false;
-
                         final String specificCategoryName = category['specificName'];
                         final String categoryName = category['name'];
                         final List<String> storyUrls = category['storyUrls'];

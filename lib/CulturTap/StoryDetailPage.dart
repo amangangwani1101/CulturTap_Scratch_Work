@@ -1,6 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
-import 'package:learn_flutter/CulturTap/custom_control.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/categoryData.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
 
@@ -22,6 +27,11 @@ class StoryDetailPage extends StatefulWidget {
 }
 
 class _StoryDetailPageState extends State<StoryDetailPage> {
+  late List<Map<String, dynamic>> categoryData;
+
+
+
+
   bool isPlaying = true;
   late PageController _pageController;
   int _currentIndex = 0;
@@ -35,6 +45,82 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   bool showNextVideoIcon = false;
   bool showPreviousVideoIcon = false;
   bool _isFullScreen = false;
+  String storyUserID = '';
+
+
+
+
+
+  Future<void> fetchDataForCategory(double latitude, double longitude, int categoryIndex) async {
+    try {
+
+      final Map<String, dynamic> category = categoryData[categoryIndex];
+      String apiEndpoint = category['apiEndpoint'];
+
+      final fetchedStoryList = await fetchDataForStories(latitude, longitude, apiEndpoint);
+
+      Map<String, dynamic> processedData = processFetchedStories(fetchedStoryList, latitude, longitude);
+
+      categoryData[categoryIndex]['storyUrls'] = processedData['totalVideoPaths'];
+      categoryData[categoryIndex]['videoCounts'] = processedData['totalVideoCounts'];
+      categoryData[categoryIndex]['storyDistance'] = processedData['storyDistances'];
+      categoryData[categoryIndex]['storyLocation'] = processedData['storyLocations'];
+      categoryData[categoryIndex]['storyTitle'] = processedData['storyTitles'];
+      categoryData[categoryIndex]['storyCategory'] = processedData['storyCategories'];
+      categoryData[categoryIndex]['thumbnail_url'] = processedData['thumbnail_urls'];
+      categoryData[categoryIndex]['storyDetailsList'] = processedData['storyDetailsList'];
+
+      setState(() {
+
+
+
+
+      });
+
+
+      print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
+      print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
+      print('storyurls');
+      print(categoryData[categoryIndex]['storyUrls']);
+    } catch (error) {
+      print('Error fetching stories for category $categoryIndex: $error');
+      setState(() {
+
+      });
+    }
+  }
+
+
+  Future<void> fetchUserLocationAndData() async {
+    print('I called');
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+      );
+
+      double latitude = position.latitude;
+      double longitude = position.longitude;
+
+
+      print('Latitude is: $latitude');
+
+      // Fetch stories for each category
+
+
+
+        for (int i = 0; i < categoryData.length; i++) {
+          await fetchDataForCategory(latitude, longitude, i);
+
+      }
+
+
+
+    } catch (e) {
+      print('Error fetching location: $e');
+    }
+  }
+
 
 
 
@@ -54,6 +140,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           (index) => _initializeVideoControllers(widget.storyDetailsList[index]["videoPaths"]),
     );
 
+    storyUserID = widget.storyDetailsList[_currentIndex]['userID'];
+
 
     // _toggleFullScreen();
     _initializeChewieController(_currentIndex, currentVideoIndex);
@@ -64,9 +152,25 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     print('printing videcontroller list again');
     print(_videoControllersList);
 
+    fetchUserLocationAndData();
+    fetchingStoriesUserID(storyUserID);
+
+
+
   }
 
-  @override
+  void fetchingStoriesUserID(String storyUserID){
+    print('printitng story user ID');
+    print(storyUserID);
+    categoryData = [
+      ...generateCategoryData(name: 'Other Related Stories', apiEndpoint: 'api/stories/user/$storyUserID'),
+      ...generateCategoryData(specificName: 'other stories by Traveller', apiEndpoint: '/nation/api/trending-visits-in-nation'),
+      // ...generateCategoryData(name: 'International Trendings', apiEndpoint: '/international/trending-international'),
+    ];
+
+  }
+
+
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
@@ -94,17 +198,17 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     }).toList();
   }
 
-  void _toggleFullScreen() {
-    setState(() {
-      _isFullScreen = !_isFullScreen;
-
-      if (_isFullScreen) {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
-      } else {
-        SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
-      }
-    });
-  }
+  // void _toggleFullScreen() {
+  //   setState(() {
+  //     _isFullScreen = !_isFullScreen;
+  //
+  //     if (_isFullScreen) {
+  //       SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersive);
+  //     } else {
+  //       SystemChrome.setEnabledSystemUIMode(SystemUiMode.edgeToEdge);
+  //     }
+  //   });
+  // }
 
 
   void _initializeChewieController(int index, int videoIndex) {
@@ -205,6 +309,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
 
 
+
+
   @override
   void dispose() {
     for (var controllers in _videoControllersList) {
@@ -215,6 +321,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     _chewieController?.dispose();
     super.dispose();
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -246,6 +354,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
             // Update the play/pause state
             setState(() {
               isPlaying = !_chewieController!.isPlaying;
+
             });
           }
         },
@@ -258,6 +367,10 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               _currentIndex = index;
               showPlayPauseIcon = true;
               currentVideoIndex = 0;
+              storyUserID = widget.storyDetailsList[_currentIndex]['userID'];
+              fetchUserLocationAndData();
+              fetchingStoriesUserID(storyUserID);
+
             });
             _chewieController?.dispose();
             _initializeChewieController(_currentIndex, currentVideoIndex);
@@ -274,6 +387,9 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   }
 
   Widget buildStoryPage(Map<String, dynamic> storyDetails) {
+
+
+
     return ListView(
       children: [
         GestureDetector(
@@ -300,6 +416,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               // Update the play/pause state
               setState(() {
                 isPlaying = !_chewieController!.isPlaying;
+
               });
 
               // Ensure that controls remain visible
@@ -318,7 +435,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 height: MediaQuery.of(context).size.height,
                 width: MediaQuery.of(context).size.width,
                 child: GestureDetector(
-                  onDoubleTap: _toggleFullScreen,
+                  // onDoubleTap: _toggleFullScreen,
                   child: Chewie(
                     controller: _chewieController ?? ChewieController(
                       videoPlayerController: _videoControllersList[_currentIndex][0],
@@ -471,6 +588,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           ),
         ),
         Container(
+          color : Colors.white,
           padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -617,7 +735,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     ),
                   ),
                   Text(
-                    '${storyDetails["uploader"]}',
+                    '${storyDetails["userName"]}',
                     style: TextStyle(
                       fontSize: 18,
                       color: Color(0xFF263238),
@@ -625,6 +743,9 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                   ),
                 ],
               ),
+              SizedBox(height: 18),
+              Container(height : 0.2,color : Colors.grey, width : double.infinity),
+
               SizedBox(height: 18),
               Text(
                 'Story Title',
@@ -638,6 +759,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 '${storyDetails["storyTitle"]}',
                 style: TextStyle(fontSize: 18),
               ),
+
+              SizedBox(height: 28),
               Text(
                 'Description',
                 style: TextStyle(
@@ -652,7 +775,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               ),
               SizedBox(height: 18),
               Text(
-                'What ${storyDetails["user"]} Love About This Place',
+                'What ${storyDetails["userName"]} Love About This Place ?',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -665,7 +788,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               ),
               SizedBox(height: 18),
               Text(
-                'What ${storyDetails["user"]} don`t like about About This Place',
+                'What ${storyDetails["userName"]} don`t like about About This Place ?',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
@@ -678,26 +801,86 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               ),
               SizedBox(height: 18),
               Text(
-                'Connect with ${storyDetails["user"]} for trip planning advice & guidance for your upcoming Bengaluru visits.',
+                'Connect with ${storyDetails["userName"]} for trip planning advice & guidance for your upcoming ${storyDetails["storyCityLocation"]} visits.',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
                   color: Color(0xFF263238),
                 ),
               ),
+
+              SizedBox(height: 18),
               Text(
-                '${storyDetails["connectDesc"]}',
-                style: TextStyle(fontSize: 18),
+                'Cost of trip planning interaction call',
+                style: TextStyle(
+                  fontSize: 18,
+                  // fontWeight: FontWeight.bold,
+                  color: Color(0xFF263238),
+                ),
               ),
+              Text(
+                '${storyDetails["dontLikeDesc"]}',
+                style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green,),
+              ),
+
+              SizedBox(height: 18),
+              Text(
+                'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
+                style: TextStyle(
+                  fontSize: 18,
+                  // fontWeight: FontWeight.bold,
+                  color: Color(0xFF263238),
+                ),
+              ),
+              Text(
+                '${storyDetails["dontLikeDesc"]}',
+                style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green,),
+              ),
+
+
+
+
+
+
             ],
           ),
-        ),
-        _isVideoLoading
-            ? Center(
-          child: CircularProgressIndicator(),
-        )
-            : SizedBox(), // Show loader when video is loading
+        ), Column(
+
+          children: categoryData.asMap().entries.map((entry) {
+            final int categoryIndex = entry.key;
+            final Map<String, dynamic> category = entry.value;
+
+
+            final String specificCategoryName = category['specificName'];
+            final String categoryName = category['name'];
+            final List<String> storyUrls = category['storyUrls'];
+            final List<String> videoCounts = category['videoCounts'];
+            final List<String> storyDistance = category['storyDistance'];
+            final List<String> storyLocation = category['storyLocation'];
+            final List<String> storyCategory = category['storyCategory'];
+            final List<String> storyTitle = category['storyTitle'];
+            List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+
+            return buildCategorySection(
+              specificCategoryName,
+              categoryName,
+              storyUrls,
+              videoCounts,
+              storyDistance,
+              storyLocation,
+              storyTitle,
+              storyCategory,
+              storyDetailsList,
+              true,
+
+            );
+          }).toList(),
+        ), // Show loader when video is loading
       ],
     );
   }
 }
+
+
+
+

@@ -335,7 +335,8 @@ class _ComposePageState extends State<ComposePage> {
           "label": selectedLabel,
           "category": selectedCategory,
           "genre": selectedGenre,
-
+          "userID" : userID,
+          "userName" : userName,
         },
         "label": selectedLabel,
         "category": selectedCategory,

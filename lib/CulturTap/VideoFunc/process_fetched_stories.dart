@@ -29,6 +29,7 @@ double calculateDistance(double userLat, double userLng, double storyLat, double
 
 
 Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, double latitude, double longitude) {
+
   List<Map<String, dynamic>> storyDetailsList = [];
   List<String> totalVideoPaths = [];
   List<String> totalVideoCounts = [];
@@ -36,8 +37,6 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
   List<String> storyLocations = [];
   List<String> storyTitles = [];
   List<String> storyCategories = [];
-  int likes = 0;
-  int views = 0;
 
   for (var story in fetchedStoryList) {
     dynamic videoPathData = story['videoPath'];
@@ -48,25 +47,25 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
     String location = story['location'];
     String storyTitle = story['storyTitle'];
     String storyLocation = location?.split(',')?.first ?? '';
+    String countryLocation = location?.split(',')?.last?.trim() ?? '';
+    String cityLocation = location?.split(',')?.elementAt(1)?.trim() ?? '';
     String expDescription = story['expDescription'];
     List<String> placeLoveDesc = List.from(story['placeLoveDesc'] ?? []);
     String dontLikeDesc = story['dontLikeDesc'];
     String review = story['review'];
     int starRating = story['starRating'];
     String selectedVisibility = story['selectedVisibility'];
-
-
     String productDescription = story['productDescription'];
     String category = story['category'];
     String genre = story['genre'];
-
     String storyCategory = story['category'];
-    if(story['likes'] != null)
 
-      likes = story['likes'];
-
-    if(story['views'] != null)
-      views = story['views'];
+    print(story['userID']);
+    print(story['userName']);
+    String userID = story['userID'];
+    String userName = story['userName'];
+    int likes = story['likes'];
+    int views = story['views'];
 
     double douDistance = calculateDistance(latitude, longitude, storyLat, storyLng);
     String distance = '${douDistance.toStringAsFixed(2)}';
@@ -80,6 +79,7 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
         'videoPaths': videoPaths,
         'storyDistance': distance,
         'storyLocation': storyLocation,
+        'storyCityLocation' : cityLocation,
         'storyCategory': storyCategory,
         'expDescription': expDescription,
         'placeLoveDesc': placeLoveDesc,
@@ -91,6 +91,8 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
         'productDescription': productDescription,
         'category': category,
         'genre': genre,
+        'userID' : userID,
+        'userName' : userName,
         'likes' : likes,
         'views' : views,
       };
