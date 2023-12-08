@@ -337,12 +337,13 @@ class _PingSectionState extends State<PingsSection>{
       },
       child: Scaffold(
 
-          appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,),
+          appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent, toolbarHeight: 90,),
       body: !isLoading
           ? RefreshIndicator(
             onRefresh: ()=>_refreshPage(),
             child: SingleChildScrollView(
         child: Container(
+          color : Colors.white,
           width: screenWidth,
           child: Column(
               children: [
@@ -364,6 +365,7 @@ class _PingSectionState extends State<PingsSection>{
                             });
                           },
                           child: Container(
+
                             width: 139,
                             decoration:BoxDecoration(
                               border: Border(

@@ -1,11 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:learn_flutter/BackendStore/BackendStore.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/categoryData.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
+import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
+import 'package:provider/provider.dart';
 import 'package:video_player/video_player.dart';
 import 'package:flutter/services.dart';
 
@@ -327,61 +331,28 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: GestureDetector(
-        onTapUp: (details) {
-          double screenWidth = MediaQuery.of(context).size.width;
-          double tapPosition = details.globalPosition.dx / screenWidth;
+      body: PageView.builder(
+        controller: _pageController,
+        itemCount: widget.storyDetailsList.length,
+        onPageChanged: (index) {
+          setState(() {
+            _currentIndex = index;
+            showPlayPauseIcon = true;
+            currentVideoIndex = 0;
+            storyUserID = widget.storyDetailsList[_currentIndex]['userID'];
+            fetchUserLocationAndData();
+            fetchingStoriesUserID(storyUserID);
 
-          if (tapPosition > 0.7) {
-            print('right side tapped');
-            _playNextVideo();
-          } else if (tapPosition < 0.3) {
-            print('left side tapped');
-            // _playPreviousVideo();
-          } else {
-            print('center tapped');
-            // Toggle play/pause here
-            // showPlayPauseIcon = true;
+          });
+          _chewieController?.dispose();
+          _initializeChewieController(_currentIndex, currentVideoIndex);
 
-            if (_chewieController?.isPlaying == true) {
-
-              showPlayPauseIcon = true;
-              _chewieController?.pause();
-            } else {
-              _chewieController?.play();
-              showPlayPauseIcon = false;
-            }
-            // Update the play/pause state
-            setState(() {
-              isPlaying = !_chewieController!.isPlaying;
-
-            });
-          }
         },
-
-        child: PageView.builder(
-          controller: _pageController,
-          itemCount: widget.storyDetailsList.length,
-          onPageChanged: (index) {
-            setState(() {
-              _currentIndex = index;
-              showPlayPauseIcon = true;
-              currentVideoIndex = 0;
-              storyUserID = widget.storyDetailsList[_currentIndex]['userID'];
-              fetchUserLocationAndData();
-              fetchingStoriesUserID(storyUserID);
-
-            });
-            _chewieController?.dispose();
-            _initializeChewieController(_currentIndex, currentVideoIndex);
-
-          },
-          itemBuilder: (context, index) {
-            return buildStoryPage(
-              widget.storyDetailsList[index],
-            );
-          },
-        ),
+        itemBuilder: (context, index) {
+          return buildStoryPage(
+            widget.storyDetailsList[index],
+          );
+        },
       ),
     );
   }
@@ -395,6 +366,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
         GestureDetector(
           onTapUp: (details) {
             double screenWidth = MediaQuery.of(context).size.width;
+
             double tapPosition = details.globalPosition.dx / screenWidth;
 
             if (tapPosition > 0.7) {
@@ -446,7 +418,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
 
                       placeholder: Container(
-                        color: Colors.black, // Change color to match your background
+                        color: Color(0xFF001B33), // Change color to match your background
                         child: Center(
                           child: CircularProgressIndicator(),
                         ),
@@ -601,14 +573,14 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     children: [
                       Icon(
                         Icons.heart_broken,
-                        color: Colors.grey,
+                        color: Color(0xFF001B33),
                         size: 30,
                       ),
                       Text(
                         ' 21',
                         style: TextStyle(
                           fontSize: 18,
-                          color: Color(0xFF263238),
+                          color: Color(0xFF001B33),
                         ),
                       ),
                     ],
@@ -618,14 +590,14 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     children: [
                       Icon(
                         Icons.remove_red_eye,
-                        color: Colors.grey,
+                        color: Color(0xFF001B33),
                         size: 30,
                       ),
                       Text(
                         ' 21',
                         style: TextStyle(
                           fontSize: 18,
-                          color: Color(0xFF263238),
+                          color: Color(0xFF001B33),
                         ),
                       ),
                     ],
@@ -642,7 +614,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         '${storyDetails["starRating"]}',
                         style: TextStyle(
                           fontSize: 18,
-                          color: Color(0xFF263238),
+                          color: Color(0xFF001B33),
                         ),
                       ),
                     ],
@@ -652,14 +624,14 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     children: [
                       Icon(
                         Icons.share,
-                        color: Colors.grey,
+                        color: Color(0xFF001B33),
                         size: 30,
                       ),
                       Text(
                         ' Share ',
                         style: TextStyle(
                           fontSize: 18,
-                          color: Color(0xFF263238),
+                          color: Color(0xFF001B33),
                         ),
                       ),
                     ],
@@ -674,14 +646,14 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF263238),
+                      color: Color(0xFF001B33),
                     ),
                   ),
                   Text(
                     '${storyDetails["storyLocation"]}',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Color(0xFF263238),
+                      color: Color(0xFF001B33),
                     ),
                   ),
                 ],
@@ -693,14 +665,14 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF263238),
+                      color: Color(0xFF001B33),
                     ),
                   ),
                   Text(
                     '${storyDetails["storyCategory"]}',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Color(0xFF263238),
+                      color: Color(0xFF001B33),
                     ),
                   ),
                 ],
@@ -712,14 +684,14 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF263238),
+                      color: Color(0xFF001B33),
                     ),
                   ),
                   Text(
                     '${storyDetails["genre"]}',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Color(0xFF263238),
+                      color: Color(0xFF001B33),
                     ),
                   ),
                 ],
@@ -731,20 +703,20 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF263238),
+                      color: Color(0xFF001B33),
                     ),
                   ),
                   Text(
                     '${storyDetails["userName"]}',
                     style: TextStyle(
                       fontSize: 18,
-                      color: Color(0xFF263238),
+                      color: Color(0xFF001B33),
                     ),
                   ),
                 ],
               ),
               SizedBox(height: 18),
-              Container(height : 0.2,color : Colors.grey, width : double.infinity),
+              Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
 
               SizedBox(height: 18),
               Text(
@@ -752,7 +724,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF263238),
+                  color: Color(0xFF001B33),
                 ),
               ),
               Text(
@@ -766,7 +738,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF263238),
+                  color: Color(0xFF001B33),
                 ),
               ),
               Text(
@@ -779,7 +751,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF263238),
+                  color: Color(0xFF001B33),
                 ),
               ),
               Text(
@@ -792,7 +764,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF263238),
+                  color: Color(0xFF001B33),
                 ),
               ),
               Text(
@@ -805,7 +777,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.bold,
-                  color: Color(0xFF263238),
+                  color: Color(0xFF001B33),
                 ),
               ),
 
@@ -815,7 +787,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 style: TextStyle(
                   fontSize: 18,
                   // fontWeight: FontWeight.bold,
-                  color: Color(0xFF263238),
+                  color: Color(0xFF001B33),
                 ),
               ),
               Text(
@@ -829,13 +801,127 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 style: TextStyle(
                   fontSize: 18,
                   // fontWeight: FontWeight.bold,
-                  color: Color(0xFF263238),
+                  color: Color(0xFF001B33),
                 ),
               ),
+
               Text(
                 '${storyDetails["dontLikeDesc"]}',
                 style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green,),
               ),
+
+              SizedBox(height : 30),
+              Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+              SizedBox(height : 30),
+              Center(
+                child: Container(
+                  width: 270,
+                  height: 63,
+                  child: ElevatedButton(
+                    onPressed: () async{
+
+                    },
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.orange, // Change background color
+                      elevation: 0, // No shadow
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(5.0),
+                        side: BorderSide(color: Colors.orange, width: 2.0),
+                      ),
+                      padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                    ),
+                    child: Row(
+                      children: [
+                        IconButton(
+                          icon: Icon(Icons.location_on_outlined),
+                          color : Colors.white,
+                          onPressed: () {
+                            FinalProfile(userId:userID,clickedId: storyUserID,);
+
+                          },
+
+                        ),
+                        Text(
+                          'FOLLOW LOCATION',
+                          style: TextStyle(
+                             // Change text color
+                            fontWeight: FontWeight.bold , // Change font weight
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(height : 30),
+              Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+
+              SizedBox(height : 40),
+              Container(
+                child:Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Container(
+                      height : 32,
+                      width : 32,
+
+
+                      child: Visibility(
+
+                        // visible: widget.imagePath != null,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.transparent,
+                          radius: 20.0,
+
+                        ),
+                        replacement: SvgPicture.asset(
+                          'assets/images/profile_icon.svg',
+                          width: 50.0,
+                          height: 50.0,
+                        ),
+                      ),
+
+
+
+
+                    ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text('Check Visitor Profile', style:TextStyle(color : Colors.orange,fontWeight:FontWeight.bold,fontSize: 18)),
+                        Text('${storyDetails["userName"]}',style:TextStyle(fontSize: 16)),
+                      ],
+                    ),
+
+                    IconButton(
+                      icon: Icon(Icons.arrow_forward_ios_outlined),
+                      color : Colors.orange,
+                      onPressed: () {
+                        print('userID');
+                        print(userID);
+                        print('storyuserID');
+                        print(storyUserID);
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                            create:(context) => ProfileDataProvider(),
+                            child: FinalProfile(userId: userID,clickedId: storyUserID,),
+                          ),),
+                        );
+
+                      },
+
+                    ),
+
+
+                  ],
+                )
+
+              ),
+              SizedBox(height : 30),
+
+              Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
 
 
 

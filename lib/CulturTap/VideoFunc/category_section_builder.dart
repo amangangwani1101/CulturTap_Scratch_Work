@@ -83,7 +83,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
                       'View All >',
                       style: TextStyle(
                         fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                        fontWeight: FontWeight.w600,
                         color: Colors.orange,
                       ),
                     ),

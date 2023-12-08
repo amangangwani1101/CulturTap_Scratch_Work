@@ -11,6 +11,7 @@ import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:provider/provider.dart';
@@ -171,7 +172,7 @@ class _CustomFooterState extends State<CustomFooter> {
 
 
       child: Padding(
-        padding: const EdgeInsets.only(left:4.0,right:4.0),
+        padding: const EdgeInsets.only(left:4.0,right:4.0,bottom : 1),
         child: Column(
 
           children: [
@@ -326,15 +327,7 @@ class _CustomFooterState extends State<CustomFooter> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => ChangeNotifierProvider(
-                                create: (context) => ProfileDataProvider(),
-                                child: ProfileApp(userId: widget.userId, userName: widget.userName),
-                              ),
-                            ),
-                          );
+
                           _changeIconColor('airplane');
                         },
 
@@ -367,10 +360,10 @@ class _CustomFooterState extends State<CustomFooter> {
                     children: [
                       IconButton(
                         onPressed: () {
-                          print('${widget.userId}');
+                          print('${userID}');
                           Navigator.of(context).push(
                             MaterialPageRoute(
-                              builder: (context) => SettingsPage(userId: widget.userId!),
+                              builder: (context) => SettingsPage(userId: userID),
                             ),
                           );
                           _changeIconColor('settings');

@@ -6,6 +6,7 @@ import 'package:learn_flutter/HomePage.dart';
 // import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import '../BackendStore/BackendStore.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
@@ -60,7 +61,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       context,
                       MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
                         create:(context) => ProfileDataProvider(),
-                        child: FinalProfile(userId: widget.userId!,clickedId: '656a0380ce053746d5e6e534',),
+                        child: FinalProfile(userId: userID,clickedId: userID,),
                       ),),
                     );
                   }
@@ -73,13 +74,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   height: 75,
 
 
+
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
 
                       Container(
-                        height : 30,
-                        width : 30,
+                        height : 32,
+                        width : 32,
 
 
                         child: Visibility(
@@ -92,8 +94,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           ),
                           replacement: SvgPicture.asset(
                             'assets/images/profile_icon.svg',
-                            width: 40.0,
-                            height: 40.0,
+                            width: 50.0,
+                            height: 50.0,
                           ),
                         ),
 
@@ -105,7 +107,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       Text('Profile',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w700,fontFamily: 'Poppins'),),
                     ]
                 ),
-              ),),
+              ),
+              ),
 
             ],
           ):
@@ -141,23 +144,54 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   }
                 },
                 child: Container(
-                  height: 100, // Adjust the height as needed
-                  width: 100,  // Adjust the width as needed
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: SvgPicture.asset(
-                    'assets/images/profile_icon.svg', // Replace with the path to your SVG file
-                    fit: BoxFit.fill, // Change BoxFit.cover to BoxFit.fill
+
+                  width: 80,
+
+                  height: 75,
+
+
+                  child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+
+                      children: [
+
+                        Container(
+                          height : 35,
+                          width : 35,
+
+
+                          child: Visibility(
+
+                            visible: widget.imagePath != null,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              radius: 20.0,
+
+                            ),
+                            replacement: SvgPicture.asset(
+                              'assets/images/profile_icon.svg',
+                              width: 40.0,
+                              height: 40.0,
+                            ),
+                          ),
+
+
+
+
+                        ),
+                        SizedBox(height: 2,),
+                        Text('Profile',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w700,fontFamily: 'Poppins'),),
+                      ]
                   ),
                 ),
               ),
             ),
           )
-              : SizedBox(height: 0,),
+              : SizedBox(width: 0,),
+
           widget.reqPage>=1
-              ? Image.asset('assets/images/logo.png',width: 145)
-              : Image.asset('assets/images/logo.png',width: 145),
+              ? Image.asset('assets/images/logo.png',width: 155)
+              : Image.asset('assets/images/logo.png',width: 155),
           if (widget.reqPage<=1) Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -168,7 +202,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: widget.userId!,),
+                        builder: (context) => PingsSection(userId: userID,),
                       ),
                     );
                   }
@@ -190,7 +224,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PingsSection(userId: widget.userId!,state: 'schedule',),
+                                builder: (context) => PingsSection(userId: userID,state: 'schedule',),
                               ),
                             );
                           }
@@ -245,6 +279,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   showDialog(context: context, builder: (BuildContext context){
                     return Container(
                       color : Colors.brown,
+
                       child: CustomHelpOverlay(imagePath: 'assets/images/profile_icon.svg',serviceSettings: false,text: widget.text,navigate: 'pop',onButtonPressed: (){
                         print(2);
                         widget.profileDataProvider?.removeAllCards();
