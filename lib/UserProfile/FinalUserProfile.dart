@@ -29,27 +29,32 @@ class FinalProfile extends StatefulWidget{
   _FinalProfileState createState() => _FinalProfileState();
 }
 class _FinalProfileState extends State<FinalProfile> {
-  Map<String, dynamic>? dataset;
+  Future<Map<String, dynamic>>? data;
   @override
   void initState() {
     super.initState();
-    fetchDataset();
+    data = fetchDataset();
   }
-  Future<void> fetchDataset() async {
+  Future<Map<String,dynamic>> fetchDataset() async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
     final url = Uri.parse('$serverUrl/userStoredData/${widget.clickedId}'); // Replace with your backend URL
     final http.Response response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
-      print('Fetched Data ${widget.clickedId}');
-      print(data);
-      setState(() {
-        dataset = data;
-      });
+      print('dats $data');
+      print('dats $data');
+      return data;
     } else {
       // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text ('Try Again!!'),
+        ),
+      );
+      Navigator.of(context).pop();
       print('Failed to fetch dataset: ${response.statusCode}');
+      throw Exception('Failed to fetch profile data');
     }
   }
 
@@ -95,48 +100,70 @@ class _FinalProfileState extends State<FinalProfile> {
             backgroundColor: Colors.transparent, // Make the background transparent
           ),
         ),
-        body: WillPopScope(
-          onWillPop: ()async{
-            Navigator.of(context).pop();
-            return true;
-          },
-          child: SingleChildScrollView(
-            child: Container(
-              padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
-              child: Center(
-                child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),
-                    SizedBox(height: 20,),
-                    CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
-                    dataset?['userQuote']!=null ?SizedBox(height: 30,):SizedBox(height: 0,),
-                    MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,state:'final'),
-                    ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
-                    SizedBox(height: 40,),
-                    Container(
-                      width: 360,
-                      child: Center(
-                        child: UserDetailsTable(place:dataset != null && dataset?['userPlace']!=null? dataset!['userPlace'] : null,
-                          profession:dataset != null && dataset?['userProfession']!=null? dataset!['userProfession'] : null,
-                          age:dataset != null && dataset?['userAge']!=null? dataset!['userAge'] : null,
-                          gender:dataset != null && dataset?['userGender']!=null? dataset!['userGender'] : null,
-                          languageList:dataset != null && dataset?['userLanguages']!=null? dataset!['userLanguages'] : [],
+        body: FutureBuilder<Map<String,dynamic>>(
+          future: data,
+          builder: (context,snapshot){
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              // While waiting for the data to be fetched, you can show a loading indicator or any other placeholder.
+              return Center(child: CircularProgressIndicator());
+            }
+            else if (snapshot.hasError) {
+              // If there's an error during data fetching, you can handle it here.
+              return Center(
+                child: Text('Error: ${snapshot.error}'),
+              );
+            }
+            else{
+              Map<String,dynamic>dataset = snapshot.data!;
+              print('Dataset $dataset');
+              return RefreshIndicator(
+                  onRefresh: _refreshPage,
+                  child: WillPopScope(
+                    onWillPop: ()async{
+                      Navigator.of(context).pop();
+                      return true;
+                    },
+                    child: SingleChildScrollView(
+                      child: Container(
+                        padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
+                        child: Center(
+                          child: Column(
+                            // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),
+                              SizedBox(height: 20,),
+                              CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
+                              dataset?['userQuote']!=null ?SizedBox(height: 30,):SizedBox(height: 0,),
+                              MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,state:'final'),
+                              ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
+                              SizedBox(height: 40,),
+                              Container(
+                                width: 360,
+                                child: Center(
+                                  child: UserDetailsTable(place:dataset != null && dataset?['userPlace']!=null? dataset!['userPlace'] : null,
+                                    profession:dataset != null && dataset?['userProfession']!=null? dataset!['userProfession'] : null,
+                                    age:dataset != null && dataset?['userAge']!=null? dataset!['userAge'] : null,
+                                    gender:dataset != null && dataset?['userGender']!=null? dataset!['userGender'] : null,
+                                    languageList:dataset != null && dataset?['userLanguages']!=null? dataset!['userLanguages'] : [],
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 40,),
+                              ExpertCardDetails(),
+                              SizedBox(height: 40,),
+                              dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
+                              SizedBox(height: 50,),
+                              RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName'])
+                            ],
+                          ),
                         ),
                       ),
                     ),
-                    SizedBox(height: 40,),
-                    ExpertCardDetails(),
-                    SizedBox(height: 40,),
-                    dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
-                    SizedBox(height: 50,),
-                    RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName'])
-                  ],
-                ),
-              ),
-            ),
-          ),
+                  ),
+              );
+            }
+          },
         ),
       ),
     );

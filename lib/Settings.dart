@@ -573,7 +573,8 @@ class _EditProfileState extends State<EditProfile>{
           if (snapshot.connectionState == ConnectionState.waiting) {
             // While waiting for the data to be fetched, you can show a loading indicator or any other placeholder.
             return Center(child: CircularProgressIndicator());
-          } else if (snapshot.hasError) {
+          }
+          else if (snapshot.hasError) {
             // If there's an error during data fetching, you can handle it here.
             return Center(
               child: Text('Error: ${snapshot.error}'),
