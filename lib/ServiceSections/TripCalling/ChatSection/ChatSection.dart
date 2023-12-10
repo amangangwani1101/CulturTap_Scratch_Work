@@ -367,7 +367,6 @@ class _ChatAppsState extends State<ChatApps> {
     await cancelMeeting(widget.date!,widget.index!,'close',widget.receiverId==''?widget.senderId:widget.receiverId,'close');
     // showMeetingEndedAlert();
     Navigator.of(context).pop();
-    Navigator.of(context).pop();
     widget.callbacker!();
     // Navigator.of(context).pop();
     // Navigator.pushReplacement(
