@@ -284,7 +284,7 @@ class _HomePageState extends State<HomePage> {
               SliverAppBar(
                 title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
                 automaticallyImplyLeading: false,
-                backgroundColor: Colors.white,
+                // backgroundColor: Colors.white,
                 shadowColor: Colors.transparent,
                 toolbarHeight: 90,// Adjust as needed
                 floating: true,
@@ -298,7 +298,7 @@ class _HomePageState extends State<HomePage> {
                   [
                     // Your other widgets here
                     Container(
-                      color : Colors.white,
+                      color: Theme.of(context).backgroundColor,
                       child: StoryBar(
                         controller: _searchController,
                         onSubmitted: (value) {
@@ -344,7 +344,9 @@ class _HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
-          height: _isVisible ? kBottomNavigationBarHeight + 25 : 0.0,
+
+
+          height: _isVisible ? 70 : 0.0,
           child: CustomFooter(userName: userName, userId: userID),
         ),
       ),

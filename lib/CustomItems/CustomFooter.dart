@@ -33,6 +33,9 @@ class CustomFooter extends StatefulWidget implements PreferredSizeWidget {
 }
 
 class _CustomFooterState extends State<CustomFooter> {
+
+
+
   Color homeIconColor = Color(0xFF001B33);
   Color searchIconColor = Color(0xFF001B33);
   Color airplaneIconColor = Color(0xFF001B33);
@@ -168,14 +171,12 @@ class _CustomFooterState extends State<CustomFooter> {
   @override
   Widget build(BuildContext context) {
     return Container(
+      height : 50,
+
       color: Color(0xffF2F2F2),
-
-
       child: Padding(
-        padding: const EdgeInsets.only(left:4.0,right:4.0,bottom : 1),
-        child: Column(
-
-          children: [
+        padding: const EdgeInsets.only(left:4.0,right:4.0, ),
+        child:
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
@@ -198,7 +199,7 @@ class _CustomFooterState extends State<CustomFooter> {
                           'assets/images/home_icon.svg', // Replace with the path to your SVG icon
                           color: homeIconColor,
 
-                          height: 38,
+                          height: 24,
 
                         ),
                       ),
@@ -229,7 +230,7 @@ class _CustomFooterState extends State<CustomFooter> {
                           color: searchIconColor,
 
 
-                          height: 25,
+                          height: 24,
 
 
 
@@ -246,6 +247,7 @@ class _CustomFooterState extends State<CustomFooter> {
                     ],
                   ),
                 ),
+
                 Align(
                   alignment: Alignment(0.0, 1.0),
                   child: Transform.translate(
@@ -254,6 +256,7 @@ class _CustomFooterState extends State<CustomFooter> {
 
                       width: 80,
                       height: 80,
+
                       child: Container(
 
 
@@ -319,6 +322,7 @@ class _CustomFooterState extends State<CustomFooter> {
                     ),
                   ),
                 ),
+
                 Container(
                   width : 80,
 
@@ -335,7 +339,7 @@ class _CustomFooterState extends State<CustomFooter> {
                           'assets/images/tripassit.svg', // Replace with the path to your SVG icon
                           color: airplaneIconColor,
 
-                          height: 34,
+                          height: 24,
 
 
 
@@ -373,7 +377,7 @@ class _CustomFooterState extends State<CustomFooter> {
                           'assets/images/settings.svg', // Replace with the path to your SVG icon
                           color: settingsIconColor,
 
-                          height: 25,
+                          height: 24,
 
 
 
@@ -393,11 +397,7 @@ class _CustomFooterState extends State<CustomFooter> {
                 ),
               ],
             ),
-            SizedBox(
-              height: 0,
-            ),
-          ],
-        ),
+
       ),
     );
   }

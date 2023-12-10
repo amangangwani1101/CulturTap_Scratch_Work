@@ -34,7 +34,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   Widget build(BuildContext context) {
     print('Use:${widget.userId}');
     return Container(
-      color : Colors.white,
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

@@ -77,6 +77,10 @@ class _CameraAppState extends State<CameraApp> {
     super.initState();
     initializeCamera();
     _databaseHelper = VideoDatabaseHelper();
+
+    // if(){
+    //   hasRecordedVideos = true;
+    // }
     requestLocationPermission();
 
 
@@ -101,9 +105,15 @@ class _CameraAppState extends State<CameraApp> {
     super.dispose();
   }
 
-  void updateCloseButtonVisibility() {
+  void updateCloseButtonVisibility() async{
+
+    bool hasVideos = await VideoDatabaseHelper().hasVideos();
     setState(() {
-      hasRecordedVideos = recordedVideoPaths.isNotEmpty;
+      if(hasVideos){
+        hasRecordedVideos = true;
+      }
+
+
     });
   }
 
@@ -258,9 +268,13 @@ class _CameraAppState extends State<CameraApp> {
     // });
   }
 
+
+
   void navigateToPreviewPage(BuildContext context) async{
     bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
     if (hasVideos) {
+
       // Navigate to VideoPreviewPage with data from the database
       List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
       List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
@@ -326,6 +340,7 @@ class _CameraAppState extends State<CameraApp> {
   }
 
   void stopRecording() async {
+
     _countdownTimer?.cancel();
     XFile? videoFile = await _controller!.stopVideoRecording();
 
@@ -350,6 +365,8 @@ class _CameraAppState extends State<CameraApp> {
 
 
       recordedVideoPaths.add(videoPath);
+
+
 
       // Save video information to the database
 
@@ -478,20 +495,18 @@ class _CameraAppState extends State<CameraApp> {
                     // Add your widgets for the row content here
                     color: Colors.black, // Replace with your desired background color
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: <Widget>[
                         Padding(
                           padding: const EdgeInsets.only(top:14.0),
-                          child: IconButton(
-                            onPressed: () {
-                              // Add your action for the first icon button
-                            },
-                            icon: Icon(
-                              Icons.settings,
-                              size: 30.0,
-                              color: Colors.white,
-                            ),
+                          child: Row(
+
+                            children: [
+                              TextButton(onPressed: (){
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                              }, child: Text('< back',style:TextStyle(color : Colors.white,fontWeight: FontWeight.bold,fontSize: 20)))
+                            ],
                           ),
                         ),
                         Padding(
@@ -505,40 +520,47 @@ class _CameraAppState extends State<CameraApp> {
                             onPressed: toggleFlashlight,
                           ),
                         ),
-                        Padding(
-                          padding: const EdgeInsets.only(top:14.0),
-                          child: IconButton(
-                            onPressed: () {
 
-                              // Add your action for the third icon button
-                            },
-                            icon: Icon(
-                              Icons.fullscreen_outlined,
-                              size: 30.0,
-                              color: Colors.white,
-                            ),
-                          ),
-                        ),
-
-
-                        Padding(
-                          padding: const EdgeInsets.only(top:14.0),
-                          child: IconButton(
-                            onPressed: () {
+                        if(hasRecordedVideos)
+                          Padding(
+                            padding: const EdgeInsets.only(top:14.0),
+                            child: IconButton(
+                              onPressed: () {
 
                                 navigateToPreviewPage(context);
                                 print('has videos ');
 
 
 
-                            },
-                            icon: Icon(
-                              Icons.chevron_right,
-                              size: 35.0,
-                              color: Colors.white,
+                              },
+                              icon: Icon(
+                                Icons.chevron_right,
+                                size: 35.0,
+                                color: Colors.white,
+                              ),
                             ),
                           ),
-                        ),
+
+                        if(hasRecordedVideos == false)
+                          Padding(
+                            padding: const EdgeInsets.only(top:14.0),
+                            child: IconButton(
+                              onPressed: () {
+
+
+                                print('has videos ');
+
+
+
+                              },
+                              icon: Icon(
+                                Icons.chevron_right,
+                                size: 35.0,
+                                color: Colors.black,
+                              ),
+                            ),
+                          ),
+
                       ],
                     ),
                   ),

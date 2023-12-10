@@ -242,7 +242,7 @@ class _UserImageState extends State<UserImage>{
                 ),
                 widget.reqPages<1?
                 Text(
-                  widget.name!=null?capitalizeWords(widget.name!):'', // Replace with actual user name
+                  widget.name!=null?capitalizeWords(widget.name!):'Hemant Singh', // Replace with actual user name
                   style: TextStyle(
                     color: Colors.black,
                     fontSize: 16,
@@ -318,7 +318,7 @@ class _UploadMethodsState extends State<UploadMethods> {
               Container(
                 width: 411,
                 height: 188,
-                color:Colors.white,
+                color: Theme.of(context).backgroundColor,
                 child: Column(
                   children: [
                     Center(

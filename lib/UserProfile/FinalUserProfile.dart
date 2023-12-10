@@ -107,7 +107,7 @@ class _FinalProfileState extends State<FinalProfile> {
           },
           child: SingleChildScrollView(
             child: Container(
-              color : Colors.white,
+              color: Theme.of(context).backgroundColor,
               padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
               child: Center(
                 child: Column(

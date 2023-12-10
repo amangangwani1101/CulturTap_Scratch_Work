@@ -668,7 +668,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Category',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
 
 
@@ -712,7 +712,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Genre',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Theme(
                             data: Theme.of(context).copyWith(
@@ -758,7 +758,7 @@ class _ComposePageState extends State<ComposePage> {
 
                                   Text(
                                     'What Festival is Going On ?',
-                                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                                   ),
                                   Container(
                                     width: 300,
@@ -799,7 +799,7 @@ class _ComposePageState extends State<ComposePage> {
                           children: [
                             Text(
                               'Is this food famous for this place?',
-                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 20),
                             Row(
@@ -853,7 +853,7 @@ class _ComposePageState extends State<ComposePage> {
                                   SizedBox(height: 20),
                                   Text(
                                     'What food is it famous for?',
-                                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                                   ),
                                   Container(
                                     width: 300,
@@ -894,7 +894,7 @@ class _ComposePageState extends State<ComposePage> {
                           children: [
                             Text(
                               'Is this clothing famous for this place ?',
-                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 20),
                             Row(
@@ -949,7 +949,7 @@ class _ComposePageState extends State<ComposePage> {
                                   SizedBox(height: 25),
                                   Text(
                                     'What Exactly its Famous For ?',
-                                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height : 10),
                                   Container(
@@ -992,7 +992,7 @@ class _ComposePageState extends State<ComposePage> {
                           children: [
                             Text(
                               'Is This Restaurant Famous For This Place ?',
-                              style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                              style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                             ),
                             SizedBox(height: 20),
                             Row(
@@ -1047,7 +1047,7 @@ class _ComposePageState extends State<ComposePage> {
                                   SizedBox(height: 25),
                                   Text(
                                     'What Exactly its Famous For ?',
-                                    style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                    style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                                   ),
                                   SizedBox(height : 10),
                                   Container(
@@ -1089,7 +1089,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Story Title ',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             width: 300,
@@ -1127,7 +1127,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Describe Your Experience : ',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             width: 300,
@@ -1162,7 +1162,7 @@ class _ComposePageState extends State<ComposePage> {
                       padding: EdgeInsets.only(left: 26.0),
                       child: Text(
                         'What You Love About Here',
-                        style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                        style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                       ),
                     ),
                     SizedBox(height: 25),
@@ -1271,7 +1271,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'What you don’t like about this place? ',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             width: 300,
@@ -1310,7 +1310,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Review This Place',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             width: 300,
@@ -1456,7 +1456,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Category',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Theme(
                             data: Theme.of(context).copyWith(
@@ -1501,7 +1501,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Story Title ',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             width: 300,
@@ -1539,7 +1539,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Describe your product or service ',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             width: 300,
@@ -1577,7 +1577,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Do you provide service / product at local’s door steps ?',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           SizedBox(height : 35),
                           Row(
@@ -1624,7 +1624,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Offered price of your product or Service',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
 
 
@@ -1699,7 +1699,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Delivery / transport Charges',
-                            style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                            style: TextStyle(color: Colors.white, fontSize: 18, fontWeight: FontWeight.bold),
                           ),
                           Container(
                             width: 300,

@@ -246,6 +246,20 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
   }
 
+  Future<void> _handleRefresh() async {
+    // Perform any asynchronous operation (e.g., refetching data) here
+    await Future.delayed(Duration(seconds: 1));
+
+
+
+    // Call setState to trigger a rebuild of the widget
+
+
+    // You can print a message if needed
+    print('Page refreshed');
+  }
+
+
   Future<void> removeVideo(String videoPath) async {
     setState(() {
       // Find the location associated with the videoPath
@@ -278,6 +292,9 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
     if (widget.videoPaths.isEmpty) {
       Navigator.pop(context);
+
+    } else {
+      _handleRefresh();
     }
   }
 
@@ -298,207 +315,210 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
         title:'Edit Story',
         exit : 'a',
       ),
-      body: Container(
-        color: Color(0xFF263238),
-        child: Column(
-          children: [
-            Expanded(
-              child: GridView.builder(
-                gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  childAspectRatio: 2 / 3,
-                ),
-                itemCount: widget.videoPaths.length,
-                itemBuilder: (context, index) {
-                  return VideoItem(
-                    videoPath: widget.videoPaths[index],
-                    videoNumber: index + 1,
-                    onClosePressed: () {
-                      showDialog(
-                        context: context,
-                        builder: (context) {
-                          return AlertDialog(
-                            backgroundColor: Color(0xFF263238),
-                            content: Container(
-                              height: 269,
-                              width: 300,
-                              child: Column(
-                                children: [
-                                  SizedBox(height: 30),
-                                  Padding(
-                                    padding: EdgeInsets.all(20),
-                                    child: Center(
-                                      child: Image.asset('assets/images/remove.png'),
+      body: RefreshIndicator(
+        onRefresh: _handleRefresh,
+        child: Container(
+          color: Color(0xFF263238),
+          child: Column(
+            children: [
+              Expanded(
+                child: GridView.builder(
+                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                    crossAxisCount: 2,
+                    childAspectRatio: 2 / 3,
+                  ),
+                  itemCount: widget.videoPaths.length,
+                  itemBuilder: (context, index) {
+                    return VideoItem(
+                      videoPath: widget.videoPaths[index],
+                      videoNumber: index + 1,
+                      onClosePressed: () {
+                        showDialog(
+                          context: context,
+                          builder: (context) {
+                            return AlertDialog(
+                              backgroundColor: Color(0xFF263238),
+                              content: Container(
+                                height: 269,
+                                width: 300,
+                                child: Column(
+                                  children: [
+                                    SizedBox(height: 30),
+                                    Padding(
+                                      padding: EdgeInsets.all(20),
+                                      child: Center(
+                                        child: Image.asset('assets/images/remove.png'),
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 30),
-                                  Text(
-                                    'Are You Sure?',
-                                    style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      color: Colors.white,
-                                      fontSize: 25,
+                                    SizedBox(height: 30),
+                                    Text(
+                                      'Are You Sure?',
+                                      style: TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        color: Colors.white,
+                                        fontSize: 25,
+                                      ),
                                     ),
-                                  ),
-                                  SizedBox(height: 20),
-                                  Center(
-                                    child: Padding(
-                                      padding: const EdgeInsets.only(),
-                                      child: Column(
-                                        children: [
-                                          Text(
-                                            'You are removing a film shoot',
-                                            style: TextStyle(
-                                              fontSize: 16,
-                                              color: Colors.white,
+                                    SizedBox(height: 20),
+                                    Center(
+                                      child: Padding(
+                                        padding: const EdgeInsets.only(),
+                                        child: Column(
+                                          children: [
+                                            Text(
+                                              'You are removing a film shoot',
+                                              style: TextStyle(
+                                                fontSize: 16,
+                                                color: Colors.white,
+                                              ),
                                             ),
-                                          ),
-                                        ],
+                                          ],
+                                        ),
                                       ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
+                              actions: [
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                  children: [
+
+                                    TextButton(
+                                      onPressed: () {
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        'Cancel',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.orange,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                    TextButton(
+                                      onPressed: () {
+                                        // Remove video logic here
+                                        removeVideo(widget.videoPaths[index]);
+                                        Navigator.of(context).pop();
+                                      },
+                                      child: Text(
+                                        'Remove',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: Colors.orange,
+                                          fontSize: 20,
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height: 20),
+                              ],
+                            );
+                          },
+                        );
+
+                      },
+                    );
+                  },
+                ),
+              ),
+              Container(
+                margin: EdgeInsets.only(bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Container(
+                      width: 90,
+                      height: 50,
+                    ),
+                    Column(
+                      children: [
+                        GestureDetector(
+                          child: Container(
+                            margin: EdgeInsets.all(10.0),
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                SizedBox(
+                                  width: 60,
+                                  height: 60,
+                                  child: CircularProgressIndicator(
+                                    value: 1,
+                                    backgroundColor: Colors.transparent,
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.orange,
+                                    ),
+                                    strokeWidth: 10.0,
+                                  ),
+                                ),
+                                SizedBox(
+                                  width: 80,
+                                  height: 80,
+                                  child: IconButton(
+                                    icon: Image.asset("assets/images/addNewButton.png"),
+                                    onPressed: fetchUserLocation,
+                                  ),
+                                ),
+                              ],
                             ),
-                            actions: [
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                children: [
-
-                                  TextButton(
-                                    onPressed: () {
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      'Cancel',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.orange,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                                  TextButton(
-                                    onPressed: () {
-                                      // Remove video logic here
-                                      removeVideo(widget.videoPaths[index]);
-                                      Navigator.of(context).pop();
-                                    },
-                                    child: Text(
-                                      'Remove',
-                                      style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.orange,
-                                        fontSize: 20,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 20),
-                            ],
-                          );
-                        },
-                      );
-
-                    },
-                  );
-                },
-              ),
-            ),
-            Container(
-              margin: EdgeInsets.only(bottom: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Container(
-                    width: 90,
-                    height: 50,
-                  ),
-                  Column(
-                    children: [
-                      GestureDetector(
-                        child: Container(
-                          margin: EdgeInsets.all(10.0),
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              SizedBox(
-                                width: 60,
-                                height: 60,
-                                child: CircularProgressIndicator(
-                                  value: 1,
-                                  backgroundColor: Colors.transparent,
-                                  valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.orange,
-                                  ),
-                                  strokeWidth: 10.0,
-                                ),
-                              ),
-                              SizedBox(
-                                width: 80,
-                                height: 80,
-                                child: IconButton(
-                                  icon: Image.asset("assets/images/addNewButton.png"),
-                                  onPressed: fetchUserLocation,
-                                ),
-                              ),
-                            ],
                           ),
                         ),
-                      ),
-                      Text(
-                        'Add New Film',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 18,
-                        ),
-                      ),
-                    ],
-                  ),
-                  Column(
-                    children: [
-                      SizedBox(
-                        child: Container(
-                          height: 100,
-                          width: 80,
-                          child: IconButton(
-                            icon: Image.asset("assets/images/next_button.png"),
-                            onPressed: () {
-                              // Navigate to the next page
-                              if (firstVideoLatitude != null && firstVideoLongitude != null) {
-                                // Navigate to the custom page with latitude and longitude
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ComposePage(
-                                      latitude: firstVideoLatitude!,
-                                      longitude: firstVideoLongitude!,
-                                      videoPaths: widget.videoPaths,
-                                      videoData: videoData,
-                                    ),
-                                  ),
-                                );
-                              }
-                            },
+                        Text(
+                          'Add New Film',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 18,
                           ),
                         ),
-                      ),
-                      Text(
-                        'Next',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                          fontSize: 18,
+                      ],
+                    ),
+                    Column(
+                      children: [
+                        SizedBox(
+                          child: Container(
+                            height: 100,
+                            width: 80,
+                            child: IconButton(
+                              icon: Image.asset("assets/images/next_button.png"),
+                              onPressed: () {
+                                // Navigate to the next page
+                                if (firstVideoLatitude != null && firstVideoLongitude != null) {
+                                  // Navigate to the custom page with latitude and longitude
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => ComposePage(
+                                        latitude: firstVideoLatitude!,
+                                        longitude: firstVideoLongitude!,
+                                        videoPaths: widget.videoPaths,
+                                        videoData: videoData,
+                                      ),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
                         ),
-                      ),
-                    ],
-                  ),
-                ],
+                        Text(
+                          'Next',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            color: Colors.white,
+                            fontSize: 18,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
               ),
-            ),
-          ],
+            ],
+          ),
         ),
       ),
     )

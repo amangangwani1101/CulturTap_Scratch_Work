@@ -54,6 +54,7 @@ class _splashScreenState extends State<splashScreen>{
   Widget build(BuildContext context){
     return Scaffold(
       body:Container(
+        color : Colors.white,
         width : double.infinity,
         height : double.infinity,
         child : Center(
@@ -61,6 +62,7 @@ class _splashScreenState extends State<splashScreen>{
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Container(
+                color : Colors.white,
                 margin:EdgeInsets.only(bottom : 20),
                 height : 400,
                 width : double.infinity,
@@ -75,7 +77,7 @@ class _splashScreenState extends State<splashScreen>{
                         child : Column(
                           children: [
                             Text('All right reserve to ',style:TextStyle(fontSize : 20)),
-                            Text('Culturtap Tourism India Pvt. Ltd.',style:TextStyle(fontSize : 20,fontWeight: FontWeight.bold)),
+                            Text('Culturtap Tourism India Pvt. Ltd.',style:TextStyle(fontSize : 18,fontWeight: FontWeight.bold)),
                           ],
                         )
                     ),

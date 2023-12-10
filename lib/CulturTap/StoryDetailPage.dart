@@ -7,6 +7,7 @@ import 'package:learn_flutter/CulturTap/VideoFunc/categoryData.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
+import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:provider/provider.dart';
@@ -50,6 +51,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   bool showPreviousVideoIcon = false;
   bool _isFullScreen = false;
   String storyUserID = '';
+  bool _isVisible = true;
 
 
 
@@ -354,6 +356,12 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           );
         },
       ),
+
+      bottomNavigationBar: AnimatedContainer(
+        duration: Duration(milliseconds: 100),
+        height: _isVisible ? 70 : 0.0,
+        child: CustomFooter(userName: userName, userId: userID),
+      ),
     );
   }
 
@@ -404,7 +412,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           child: Stack(
             children: [
               Container(
-                height: MediaQuery.of(context).size.height,
+
+                height: MediaQuery.of(context).size.height-90,
                 width: MediaQuery.of(context).size.width,
                 child: GestureDetector(
                   // onDoubleTap: _toggleFullScreen,
@@ -523,15 +532,10 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      IconButton(
-                        icon: Icon(Icons.arrow_back_ios_sharp),
-                        color : Colors.white,
-                        onPressed: () {
-                          Navigator.pop(context);
-                          _isFullScreen = false;
-                        },
-
-                      ),
+                      TextButton(onPressed: (){
+                        Navigator.pop(context);
+                        _isFullScreen = false;
+                      }, child: Text('< back',style:TextStyle(color : Colors.white,fontSize : 20,fontWeight: FontWeight.bold)))
                     ],
                   ),
                 ),
