@@ -54,7 +54,8 @@ class _PingSectionState extends State<PingsSection>{
   @override
   void initState() {
     super.initState();
-    // fetchDatasets(widget.userId);
+    print('Usss:${widget.userId}');
+    fetchDatasets(widget.userId);
     initialHandler();
     callback();
   }
