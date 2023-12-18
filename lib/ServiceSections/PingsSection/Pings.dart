@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/Payments/UpiPayments.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 
 import '../../UserProfile/FinalUserProfile.dart';
@@ -17,7 +18,9 @@ import '../../widgets/CustomButton.dart';
 import '../../widgets/CustomDialogBox.dart';
 import '../../widgets/hexColor.dart';
 import '../TripCalling/ChatSection/ChatSection.dart';
+import 'package:upi_india/upi_india.dart';
 // void main(){
+
 //   runApp(Pings());
 // }
 
@@ -59,6 +62,9 @@ class _PingSectionState extends State<PingsSection>{
     initialHandler();
     callback();
   }
+
+
+
 
 
   void callback() {
@@ -348,6 +354,12 @@ class _PingSectionState extends State<PingsSection>{
           width: screenWidth,
           child: Column(
               children: [
+                InkWell(
+                    onTap: (){
+                      UpiPayments();
+                    },
+                    child: Text('Upi'),
+                ),
                 // ProfileHeader(reqPage: 0),
                 SizedBox(height: 40,),
                 Center(
