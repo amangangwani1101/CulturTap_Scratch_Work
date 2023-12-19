@@ -6,22 +6,24 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/AlertBox2Option.dart';
 import 'package:learn_flutter/widgets/CustomAutoSuggestionDropDown.dart';
 import 'package:learn_flutter/widgets/CustomButton.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:http/http.dart' as http;
-import 'ServiceSections/ServiceCards.dart';
-import 'SignUp/FirstPage.dart';
-import 'UserProfile/CoverPage.dart';
-import 'UserProfile/UserInfo.dart';
-import 'widgets/Constant.dart';
-import 'widgets/CustomAlertImageBox.dart';
+import '../ServiceSections/ServiceCards.dart';
+import '../SignUp/FirstPage.dart';
+import 'CoverPage.dart';
+import 'UserInfo.dart';
+import '../widgets/Constant.dart';
+import '../widgets/CustomAlertImageBox.dart';
 
 
 
@@ -127,14 +129,10 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context){
     return MaterialApp(
-      theme: ThemeData(
-        fontFamily: 'Poppins',
-        // colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
-        // useMaterial3: true,
-      ),
+
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),automaticallyImplyLeading: false,backgroundColor: Colors.white,shadowColor: Colors.transparent,),
+        appBar: AppBar(title : ProfileHeader(reqPage: 0,)),
         body: WillPopScope(
           onWillPop: ()async{
 
@@ -148,14 +146,18 @@ class _SettingsPageState extends State<SettingsPage> {
           child: SingleChildScrollView(
             child: Center(
               child: Container(
+
                 width: 360,
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   children: [
                     SizedBox(height: 30,),
-                    Container(
-                      child: Text('Settings',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold),),
+                    Padding(
+                      padding: const EdgeInsets.all(4.0),
+                      child: Container(
+                        child: Text('Settings',style: Theme.of(context).textTheme.subtitle1,),
+                      ),
                     ),
                     SizedBox(height: 20,),
                     Container(
@@ -189,7 +191,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         ),
                                         Container(
                                           width: 220,
-                                          child: Text('Edit Profile'),
+                                          child: Text('Edit Profile',style: Theme.of(context).textTheme.bodyText1,),
                                         ),
                                         IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11,), onPressed: () {  },),
                                       ],
@@ -229,7 +231,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         ),
                                         Container(
                                           width: 220,
-                                          child: Text('Services'),
+                                          child: Text('Services',style: Theme.of(context).textTheme.bodyText1,),
                                         ),
                                         IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11,), onPressed: () {  },),
                                       ],
@@ -263,7 +265,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         ),
                                         Container(
                                           width: 220,
-                                          child: Text('Payments'),
+                                          child: Text('Payments',style: Theme.of(context).textTheme.bodyText1,),
                                         ),
                                         IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11,), onPressed: () {  },),
                                       ],
@@ -300,7 +302,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         ),
                                         Container(
                                           width: 220,
-                                          child: Text('Calendar'),
+                                          child: Text('Calendar',style: Theme.of(context).textTheme.bodyText1,),
                                         ),
                                         IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11,), onPressed: () {  },),
                                       ],
@@ -336,7 +338,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         ),
                                         Container(
                                           width: 220,
-                                          child: Text('Drafts'),
+                                          child: Text('Drafts',style: Theme.of(context).textTheme.bodyText1,),
                                         ),
                                         IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11,), onPressed: () {
                                           Navigator.push(
@@ -379,7 +381,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         ),
                                         Container(
                                           width: 220,
-                                          child: Text('About CulturTap'),
+                                          child: Text('About CulturTap',style: Theme.of(context).textTheme.bodyText1,),
                                         ),
                                         IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11,), onPressed: () {  },),
                                       ],
@@ -415,7 +417,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         ),
                                         Container(
                                           width: 220,
-                                          child: Text('Help'),
+                                          child: Text('Help',style: Theme.of(context).textTheme.bodyText1,),
                                         ),
                                         IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11,), onPressed: () {  },),
                                       ],
@@ -446,7 +448,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                         ),
                                         Container(
                                           width: 220,
-                                          child: Text('Logout'),
+                                          child: Text('Logout',style: Theme.of(context).textTheme.bodyText1,),
                                         ),
                                         IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11,), onPressed: () {  },),
                                       ],
@@ -468,8 +470,9 @@ class _SettingsPageState extends State<SettingsPage> {
                           crossAxisAlignment: CrossAxisAlignment.center,
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
-                            Text('All right reserve to',style: TextStyle(fontSize: 16,fontFamily: 'Poppins'),),
-                            Text('Culturtap Tourism India Pvt. Ltd.',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                            SizedBox(height : 30),
+                            Text('All right reserve to', style: Theme.of(context).textTheme.headline6,),
+                            Text('Culturtap Tourism India Pvt. Ltd.', style: Theme.of(context).textTheme.headline6,),
                           ],
                         ),
                       ),
@@ -535,7 +538,7 @@ class _EditProfileState extends State<EditProfile>{
         print(responseData);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Profile Updated Successfully!'),
+            content: Text('Profile Updated Successfully!',style: Theme.of(context).textTheme.bodyText1,),
           ),
         );
         Navigator.of(context).pop();
@@ -543,7 +546,7 @@ class _EditProfileState extends State<EditProfile>{
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Try Again!!'),
+            content: Text('Try Again!!',style: Theme.of(context).textTheme.bodyText1,),
           ),
         );
         print('Failed to save data: ${response.statusCode}');
@@ -551,7 +554,7 @@ class _EditProfileState extends State<EditProfile>{
     }catch(err){
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Try Again!!'),
+          content: Text('Try Again!!',style: Theme.of(context).textTheme.bodyText1,),
         ),
       );
       print("Error: $err");
@@ -580,7 +583,7 @@ class _EditProfileState extends State<EditProfile>{
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Try Again!!'),
+          content: Text('Try Again!!',style: Theme.of(context).textTheme.bodyText1,),
         ),
       );
       Navigator.of(context).pop();
@@ -594,7 +597,7 @@ class _EditProfileState extends State<EditProfile>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false,toolbarHeight: 90,backgroundColor: Colors.white,shadowColor: Colors.transparent,),
+      // appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),automaticallyImplyLeading: false, toolbarHeight: 90),
       body: WillPopScope(
         onWillPop: ()async{
 
@@ -614,7 +617,7 @@ class _EditProfileState extends State<EditProfile>{
             } else if (snapshot.hasError) {
               // If there's an error during data fetching, you can handle it here.
               return Center(
-                child: Text('Error: ${snapshot.error}'),
+                child: Text('Error: ${snapshot.error}',style: Theme.of(context).textTheme.bodyText1,),
               );
             }
             else{
@@ -645,7 +648,7 @@ class _EditProfileState extends State<EditProfile>{
                               mainAxisAlignment: MainAxisAlignment.spaceAround,
                               children: [
                                 SizedBox(height: 30,),
-                                Text('Edit Profile',style:TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins')),
+                                Text('Edit Profile',style: Theme.of(context).textTheme.bodyText1,),
                                 SizedBox(height: 20,),
                                 UserImage(
                                   reqPages:1,
@@ -691,10 +694,10 @@ class _EditProfileState extends State<EditProfile>{
                                       },
                                       child: Center(
                                           child: Text('SUBMIT',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.bold,
-                                                color: Colors.white,
-                                                fontSize: 18,)))),
+                                              style: Theme.of(context).textTheme.bodyText1,
+                                          )
+                                      )
+                                  ),
                                 ),
                               ),
                             ],

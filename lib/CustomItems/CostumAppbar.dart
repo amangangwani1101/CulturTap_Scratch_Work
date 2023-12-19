@@ -8,12 +8,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
   @override
   Widget build(BuildContext context) {
     return AppBar(
-      backgroundColor: Colors.white,
-shadowColor:Colors.white,
+      backgroundColor: Colors.white, shadowColor:Colors.transparent,
 
       title: Container(
-        color: Colors.white,
-        height : 48.6,
+
+        height : 90.6,
         width : 156,
         margin:EdgeInsets.only(left : 56,top : 10),
         child:Image.asset('assets/images/logo.png'),

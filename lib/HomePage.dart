@@ -1,5 +1,7 @@
 //homepage
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/dummyHomePage.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/categoryData.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
@@ -46,7 +48,7 @@ class ImageScroll extends StatelessWidget {
         itemCount: imageUrls.length,
         itemBuilder: (context, index) {
           return Padding(
-            padding: EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(1.0),
             child: Image.network(
               imageUrls[index],
               width: 150.0, // Adjust the width as needed
@@ -90,12 +92,9 @@ Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Poppins',
-        primaryColor: Colors.orange, // Set your primary color
-      ),
       home: HomePage(),
     );
   }
@@ -249,7 +248,6 @@ class _HomePageState extends State<HomePage> {
     ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Forests Near you', apiEndpoint: 'api/nearby-places/Forests'),
     ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Famous RiverSides Here', apiEndpoint: 'api/nearby-places/Riverside'),
     ...generateCategoryData(specificName: '', name: 'Islands Here', apiEndpoint: 'api/nearby-places/Island'),
-    ...generateCategoryData(specificName: '', name: 'EcoSystem NearBy', apiEndpoint: 'api/nearby-places/Aquatic Ecosystem'),
   ];
 
 
@@ -274,6 +272,7 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
+        backgroundColor: Theme.of(context).backgroundColor,
         body: RefreshIndicator(
           backgroundColor: Color(0xFF263238),
           color: Colors.orange,
@@ -284,9 +283,9 @@ class _HomePageState extends State<HomePage> {
               SliverAppBar(
                 title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
                 automaticallyImplyLeading: false,
-                // backgroundColor: Colors.white,
                 shadowColor: Colors.transparent,
-                toolbarHeight: 90,// Adjust as needed
+                toolbarHeight: 90,
+                // Adjust as needed
                 floating: true,
                 pinned: false,
                 flexibleSpace: FlexibleSpaceBar(
@@ -306,6 +305,15 @@ class _HomePageState extends State<HomePage> {
                         },
                       ),
                     ),
+                    isLoading ? Container(
+                      height : 500,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
+                        ],
+                      ),
+                    ) :
                     Column(
                       children: categoryData.asMap().entries.map((entry) {
                         final int categoryIndex = entry.key;
@@ -347,7 +355,7 @@ class _HomePageState extends State<HomePage> {
 
 
           height: _isVisible ? 70 : 0.0,
-          child: CustomFooter(userName: userName, userId: userID),
+          child: CustomFooter(userName: userName, userId: userID, lode: 'home',),
         ),
       ),
     );

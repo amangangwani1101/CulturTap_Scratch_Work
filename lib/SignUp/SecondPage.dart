@@ -74,8 +74,10 @@ class _SecondPageState extends State<SecondPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+
       appBar: CustomAppBar(title: ""),
       body: Container(
+        color : Colors.white,
         width: double.infinity,
         height: double.infinity,
         child: Center(
@@ -225,7 +227,7 @@ class _SecondPageState extends State<SecondPage> {
       phoneNumber: _selectedCountryCode + widget.phoneNumberController.text,
       verificationCompleted: (PhoneAuthCredential credential) async {
         await auth.signInWithCredential(credential).then((value) {
-          print("You are logged in successfully");
+
           Navigator.push(
             context,
             MaterialPageRoute(

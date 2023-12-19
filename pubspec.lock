@@ -1286,26 +1286,26 @@ packages:
     dependency: transitive
     description:
       name: stripe_android
-      sha256: c3a4398a777e4378bbc528e7244a73bcd3e6c6d807fce5bb8bcabc21d31abe8c
+      sha256: "1de36b35c50f33e538c8e4bd6173f0ab8d7d8e6b9e05388488775e439c29b7d2"
       url: "https://pub.dev"
     source: hosted
-    version: "9.5.0+1"
+    version: "9.6.0+2"
   stripe_ios:
     dependency: transitive
     description:
       name: stripe_ios
-      sha256: "2756ea9bb3ced403bb7bd97b8bfd3ff2d44e481d613f6150fedb38f70947af11"
+      sha256: "4b176f4ee7eaf229815b90c3ff78935da9e01765f4d3153b76fd0d3d64680294"
       url: "https://pub.dev"
     source: hosted
-    version: "9.5.0+1"
+    version: "9.6.0"
   stripe_js:
     dependency: transitive
     description:
       name: stripe_js
-      sha256: "6b57069395b6e9551aa531090a6c77b2d7c3edc585ce390abb433bf03d869206"
+      sha256: "010796771e3c8b4625ea6bb8c36a54f8d68758b3a09a39ef542161b72f02bb06"
       url: "https://pub.dev"
     source: hosted
-    version: "3.2.0"
+    version: "3.3.0"
   stripe_platform_interface:
     dependency: transitive
     description:

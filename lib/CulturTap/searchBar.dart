@@ -26,17 +26,17 @@ class StoryBar extends StatelessWidget {
           ),
         ],
         borderRadius: BorderRadius.circular(24.0),
-        border: Border.all(color: Color(0xFF001B33).withOpacity(0.2)),
+        border: Border.all(color: Color(0xFF001B33).withOpacity(0)),
 
-        color : Colors.white,
+        color : Theme.of(context).backgroundColor,
       ),
       child: Row(
         children: [
           SvgPicture.asset(
             'assets/images/search_icon.svg', // Replace with the path to your SVG icon
-
-            width: 28,
-            height: 28,
+            color :   Theme.of(context).primaryColor,
+            width: 18,
+            height: 18,
           ),
           SizedBox(width: 20.0),
           Expanded(
@@ -44,7 +44,11 @@ class StoryBar extends StatelessWidget {
               controller: controller,
               onSubmitted: onSubmitted,
               decoration: InputDecoration(
+                fillColor: Colors.white,
+                focusColor: Colors.orange,
+
                 hintText: 'Serch here your Mood, Food ,Places.....',
+                hintStyle: TextStyle(color: Colors.grey),
                 border: InputBorder.none,
 
               ),

@@ -7,8 +7,6 @@ import 'package:geocoding/geocoding.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/SignUp/FirstPage.dart';
 import 'package:http/http.dart' as http;
-import 'dart:io';
-import 'package:flutter/foundation.dart';
 
 class splashScreen extends StatefulWidget {
   @override
@@ -45,7 +43,7 @@ class _splashScreenState extends State<splashScreen>{
     else {
       Timer(Duration(seconds: 3), () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => FirstPage()));
+            context, MaterialPageRoute(builder: (context) => HomePage()));
       });
     }
   }
@@ -54,7 +52,7 @@ class _splashScreenState extends State<splashScreen>{
   Widget build(BuildContext context){
     return Scaffold(
       body:Container(
-        color : Colors.white,
+        color : Theme.of(context).backgroundColor,
         width : double.infinity,
         height : double.infinity,
         child : Center(
@@ -62,7 +60,7 @@ class _splashScreenState extends State<splashScreen>{
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Container(
-                color : Colors.white,
+                color : Theme.of(context).backgroundColor,
                 margin:EdgeInsets.only(bottom : 20),
                 height : 400,
                 width : double.infinity,
@@ -70,14 +68,16 @@ class _splashScreenState extends State<splashScreen>{
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
+                        color : Theme.of(context).backgroundColor,
                         width : 215,
                         child: Image.asset('assets/images/logo.png')
                     ),
                     Container(
+                        color : Theme.of(context).backgroundColor,
                         child : Column(
                           children: [
-                            Text('All right reserve to ',style:TextStyle(fontSize : 20)),
-                            Text('Culturtap Tourism India Pvt. Ltd.',style:TextStyle(fontSize : 18,fontWeight: FontWeight.bold)),
+                            Text('All right reserve to ', style : Theme.of(context).textTheme.bodyText1,),
+                            Text('Culturtap Tourism India Pvt. Ltd.', style:Theme.of(context).textTheme.bodyText1,),
                           ],
                         )
                     ),

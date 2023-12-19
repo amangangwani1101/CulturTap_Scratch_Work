@@ -366,6 +366,7 @@ class _PingSectionState extends State<PingsSection>{
                           },
                           child: Container(
 
+
                             width: 139,
                             decoration:BoxDecoration(
                               border: Border(

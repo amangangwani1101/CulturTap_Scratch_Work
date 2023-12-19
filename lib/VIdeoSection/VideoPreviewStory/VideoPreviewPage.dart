@@ -318,7 +318,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       body: RefreshIndicator(
         onRefresh: _handleRefresh,
         child: Container(
-          color: Color(0xFF263238),
+          color: Theme.of(context).primaryColorLight,
           child: Column(
             children: [
               Expanded(

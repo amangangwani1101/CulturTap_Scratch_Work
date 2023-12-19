@@ -28,115 +28,125 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
   if(previousSpecific == specificCategoryName){
     specificCategoryName = '';
   }
-  previousSpecific = specificCategoryName;
+  else{
+    previousSpecific = specificCategoryName;
+  }
 
 
-  return Container(
-    color : Colors.white,
 
-    child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: <Widget>[
+  return Builder(
+    builder: (context) {
+      return Container(
+        color: Theme.of(context).backgroundColor,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
 
-        Padding(
-          padding: EdgeInsets.only(left:23.0,right:20,top:18,bottom:10),
-          child: Column(
-            children: [
+            Padding(
+              padding: EdgeInsets.only(left:18.0,right:10,top:18,bottom:10),
+              child: Column(
+                children: [
 
-              if(specificCategoryName!='')
-                Column(
-                  children: [
-                    SizedBox(height : 10),
-                    Row(
-
+                  if(specificCategoryName!='')
+                    Column(
                       children: [
-                        Container(
-                          width : 240,
-                          child: Text(
-                            previousSpecific,
-                            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold, color: Color(0xFF001B33),),
-                          ),
+                        SizedBox(height : 10),
+                        Row(
+
+                          children: [
+                            Container(
+                              width : 240,
+                              child: Text(
+                                specificCategoryName,
+                                style: Theme.of(context).textTheme.headline1,
+                              ),
+                            ),
+
+
+                          ],
                         ),
-
-
+                        SizedBox(height : 10),
                       ],
                     ),
-                    SizedBox(height : 10),
-                  ],
-                ),
 
 
 
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: <Widget>[
-                  Text(
-                    categoryName,
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold,  color: Color(0xFF001B33),),
-                  ),
-                  TextButton(
-                    onPressed: () {
-
-                      // Handle button press for "View All" in the specific category
-                    },
-                    child: Text(
-                      'View All >',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.orange,
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      Text(
+                        categoryName,
+                        style: Theme.of(context).textTheme.headline2,
                       ),
-                    ),
+                      TextButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => StoryDetailPage(
+                                storyUrls: storyUrls,
+                                storyDetailsList: storyDetailsList,
+                                initialIndex: 07,
+                              ),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          'View All >',
+                          style: Theme.of(context).textTheme.headline4,
+                        ),
+                      ),
+                    ],
                   ),
+
                 ],
               ),
-
-            ],
-          ),
-        ),
-        Container(
-          height: 590,
+            ),
+            Container(
+              height: 590,
 
 
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: storyUrls.length,
-            itemBuilder: (context, index) {
+              child: ListView.builder(
+                scrollDirection: Axis.horizontal,
+                itemCount: storyUrls.length,
+                itemBuilder: (context, index) {
 
-              return GestureDetector(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => StoryDetailPage(
-                        storyUrls: storyUrls,
-                        storyDetailsList: storyDetailsList,
-                        initialIndex: index,
-                      ),
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => StoryDetailPage(
+                            storyUrls: storyUrls,
+                            storyDetailsList: storyDetailsList,
+                            initialIndex: index,
+                          ),
+                        ),
+                      );
+
+                    },
+                    child: VideoStoryCard(
+                      videoUrl: storyUrls[index],
+                      distance: storyDistance[index],
+                      videoCount: videoCounts[index],
+                      location : storyLocation[index],
+
+                      category : storyCategory[index],
+                      title : storyTitle[index],
+                      storyDetails : storyDetailsList[index],
+
+
+
                     ),
                   );
-
                 },
-                child: VideoStoryCard(
-                  videoUrl: storyUrls[index],
-                  distance: storyDistance[index],
-                  videoCount: videoCounts[index],
-                  location : storyLocation[index],
+              ),
+            ),
 
-                  category : storyCategory[index],
-                  title : storyTitle[index],
-                  storyDetails : storyDetailsList[index],
-
-
-
-                ),
-              );
-            },
-          ),
+          ],
         ),
-
-      ],
-    ),
+      );
+    }
   );
 }
 

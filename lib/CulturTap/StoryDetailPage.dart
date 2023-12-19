@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:chewie/chewie.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/BackendStore/BackendStore.dart';
@@ -8,6 +9,7 @@ import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart'
 import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:provider/provider.dart';
@@ -33,7 +35,8 @@ class StoryDetailPage extends StatefulWidget {
 
 class _StoryDetailPageState extends State<StoryDetailPage> {
   late List<Map<String, dynamic>> categoryData;
-
+  late ScrollController _scrollController;
+  bool _isScrollingDown = false;
 
 
 
@@ -135,6 +138,9 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   @override
   void initState() {
     super.initState();
+
+    _scrollController = ScrollController();
+    _scrollController.addListener(_scrollListener);
 
     print('printing videcontroller list');
     print(_videoControllersList);
@@ -319,6 +325,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
   @override
   void dispose() {
+    _scrollController.dispose();
     for (var controllers in _videoControllersList) {
       for (var controller in controllers) {
         controller.dispose();
@@ -329,38 +336,90 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   }
 
 
+  void _scrollListener() {
+    if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+      if (!_isScrollingDown) {
+        _isScrollingDown = true;
+        _pauseVideo();
+      }
+    } else {
+      if (_isScrollingDown) {
+        _isScrollingDown = false;
+        _playVideo();
+      }
+    }
+  }
+
+  void _pauseVideo() {
+    if (_chewieController != null) {
+      _chewieController?.pause();
+    }
+  }
+
+  void _playVideo() {
+    if (_chewieController != null) {
+      _chewieController?.play();
+    }
+  }
+
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: PageView.builder(
-        controller: _pageController,
-        itemCount: widget.storyDetailsList.length,
-        onPageChanged: (index) {
-          setState(() {
-            _currentIndex = index;
-            showPlayPauseIcon = true;
-            currentVideoIndex = 0;
-            storyUserID = widget.storyDetailsList[_currentIndex]['userID'];
-            fetchUserLocationAndData();
-            fetchingStoriesUserID(storyUserID);
+    return WillPopScope(
+      onWillPop: () async {
 
-          });
-          _chewieController?.dispose();
-          _initializeChewieController(_currentIndex, currentVideoIndex);
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
 
-        },
-        itemBuilder: (context, index) {
-          return buildStoryPage(
-            widget.storyDetailsList[index],
+        return false; // Returning true will allow the user to pop the page
+      },
+      child: WillPopScope(
+        onWillPop: () async {
+          // If you want to prevent the user from going back, return false
+          // return false;
+
+          // If you want to navigate directly to the homepage
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
           );
-        },
-      ),
 
-      bottomNavigationBar: AnimatedContainer(
-        duration: Duration(milliseconds: 100),
-        height: _isVisible ? 70 : 0.0,
-        child: CustomFooter(userName: userName, userId: userID),
+          return false; // Returning true will allow the user to pop the page
+        },
+        child: Scaffold(
+          body: PageView.builder(
+            controller: _pageController,
+            itemCount: widget.storyDetailsList.length,
+            onPageChanged: (index) {
+              setState(() {
+                _currentIndex = index;
+                showPlayPauseIcon = true;
+                currentVideoIndex = 0;
+                storyUserID = widget.storyDetailsList[_currentIndex]['userID'];
+                fetchUserLocationAndData();
+                fetchingStoriesUserID(storyUserID);
+
+              });
+              _chewieController?.dispose();
+              _initializeChewieController(_currentIndex, currentVideoIndex);
+
+            },
+            itemBuilder: (context, index) {
+              return buildStoryPage(
+                widget.storyDetailsList[index],
+              );
+            },
+          ),
+
+          bottomNavigationBar: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            height: _isVisible ? 70 : 0.0,
+            child: CustomFooter(userName: userName, userId: userID, lode : 'dark'),
+          ),
+        ),
       ),
     );
   }
@@ -413,7 +472,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
             children: [
               Container(
 
-                height: MediaQuery.of(context).size.height-90,
+                height: MediaQuery.of(context).size.height-101,
                 width: MediaQuery.of(context).size.width,
                 child: GestureDetector(
                   // onDoubleTap: _toggleFullScreen,
@@ -427,7 +486,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
 
                       placeholder: Container(
-                        color: Color(0xFF001B33), // Change color to match your background
+                        color: Theme.of(context).backgroundColor, // Change color to match your background
                         child: Center(
                           child: CircularProgressIndicator(),
                         ),
@@ -484,8 +543,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
 
               Positioned(
-                top: 100,
-                right: 35,
+                top: 60,
+                right: 15,
                 child: Container(
                   height : 30,
 
@@ -511,11 +570,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         onPressed: () {},
                         child: Text(
                           '${storyDetails["storyDistance"]} km',
-                          style: TextStyle(
-                            fontSize: 15,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                          ),
+                          style: Theme.of(context).textTheme.headline3,
                         ),
                       ),
                     ],
@@ -535,25 +590,28 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                       TextButton(onPressed: (){
                         Navigator.pop(context);
                         _isFullScreen = false;
-                      }, child: Text('< back',style:TextStyle(color : Colors.white,fontSize : 20,fontWeight: FontWeight.bold)))
+                      }, child: Text('< back',style: Theme.of(context).textTheme.headline5,))
                     ],
                   ),
                 ),
               ),
               Positioned(
-                top: 95,
+                top: 60,
                 left: 10,
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Local Visits', style: TextStyle(color: Colors.white, fontSize: 17)),
+
+                      Text('Location',style: Theme.of(context).textTheme.headline5,
+                      ),
+
                       Container(
                         width: 100,
                         child: Text(
                           '${storyDetails["storyLocation"]}',
-                          style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 20),
+                          style: Theme.of(context).textTheme.headline5,
                         ),
                       ),
                     ],
@@ -564,7 +622,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           ),
         ),
         Container(
-          color : Colors.white,
+          color: Theme.of(context).backgroundColor,
           padding: EdgeInsets.all(16),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -577,15 +635,12 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     children: [
                       Icon(
                         Icons.heart_broken,
-                        color: Color(0xFF001B33),
+                        color: Theme.of(context).primaryColor,
                         size: 30,
                       ),
                       Text(
                         ' 21',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF001B33),
-                        ),
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ],
                   ),
@@ -594,15 +649,12 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     children: [
                       Icon(
                         Icons.remove_red_eye,
-                        color: Color(0xFF001B33),
+                        color: Theme.of(context).primaryColor,
                         size: 30,
                       ),
                       Text(
                         ' 21',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF001B33),
-                        ),
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ],
                   ),
@@ -616,10 +668,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                       ),
                       Text(
                         '${storyDetails["starRating"]}',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF001B33),
-                        ),
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ],
                   ),
@@ -628,15 +677,12 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     children: [
                       Icon(
                         Icons.share,
-                        color: Color(0xFF001B33),
+                        color: Theme.of(context).primaryColor,
                         size: 30,
                       ),
                       Text(
                         ' Share ',
-                        style: TextStyle(
-                          fontSize: 18,
-                          color: Color(0xFF001B33),
-                        ),
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                     ],
                   ),
@@ -647,18 +693,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 children: [
                   Text(
                     'Location : ',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF001B33),
-                    ),
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                   Text(
                     '${storyDetails["storyLocation"]}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFF001B33),
-                    ),
+                    style: Theme.of(context).textTheme.subtitle2,
                   ),
                 ],
               ),
@@ -666,18 +705,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 children: [
                   Text(
                     'Category : ',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF001B33),
-                    ),
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                   Text(
                     '${storyDetails["storyCategory"]}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFF001B33),
-                    ),
+                    style: Theme.of(context).textTheme.subtitle2,
                   ),
                 ],
               ),
@@ -685,18 +717,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 children: [
                   Text(
                     'Genre : ',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF001B33),
-                    ),
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                   Text(
                     '${storyDetails["genre"]}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFF001B33),
-                    ),
+                    style: Theme.of(context).textTheme.subtitle2,
                   ),
                 ],
               ),
@@ -704,18 +729,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 children: [
                   Text(
                     'Uploader : ',
-                    style: TextStyle(
-                      fontSize: 18,
-                      fontWeight: FontWeight.bold,
-                      color: Color(0xFF001B33),
-                    ),
+                    style: Theme.of(context).textTheme.subtitle1,
                   ),
                   Text(
                     '${storyDetails["userName"]}',
-                    style: TextStyle(
-                      fontSize: 18,
-                      color: Color(0xFF001B33),
-                    ),
+                    style: Theme.of(context).textTheme.subtitle2,
                   ),
                 ],
               ),
@@ -725,74 +743,50 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               SizedBox(height: 18),
               Text(
                 'Story Title',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF001B33),
-                ),
+                style: Theme.of(context).textTheme.subtitle1,
               ),
               Text(
                 '${storyDetails["storyTitle"]}',
-                style: TextStyle(fontSize: 18),
+                style: Theme.of(context).textTheme.subtitle2,
               ),
 
               SizedBox(height: 28),
               Text(
                 'Description',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF001B33),
-                ),
+                style: Theme.of(context).textTheme.subtitle1,
               ),
               Text(
                 '${storyDetails["storyDescription"]}',
-                style: TextStyle(fontSize: 18),
+                  style: Theme.of(context).textTheme.subtitle2,
               ),
               SizedBox(height: 18),
               Text(
                 'What ${storyDetails["userName"]} Love About This Place ?',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF001B33),
-                ),
+                style: Theme.of(context).textTheme.subtitle1,
               ),
               Text(
                 '${storyDetails["placeLoveDesc"]}',
-                style: TextStyle(fontSize: 18),
+                style: Theme.of(context).textTheme.subtitle2,
               ),
               SizedBox(height: 18),
               Text(
                 'What ${storyDetails["userName"]} don`t like about About This Place ?',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF001B33),
-                ),
+                style: Theme.of(context).textTheme.subtitle1,
               ),
               Text(
                 '${storyDetails["dontLikeDesc"]}',
-                style: TextStyle(fontSize: 18),
+                style: Theme.of(context).textTheme.subtitle2,
               ),
               SizedBox(height: 18),
               Text(
                 'Connect with ${storyDetails["userName"]} for trip planning advice & guidance for your upcoming ${storyDetails["storyCityLocation"]} visits.',
-                style: TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold,
-                  color: Color(0xFF001B33),
-                ),
+                style: Theme.of(context).textTheme.subtitle1,
               ),
 
               SizedBox(height: 18),
               Text(
                 'Cost of trip planning interaction call',
-                style: TextStyle(
-                  fontSize: 18,
-                  // fontWeight: FontWeight.bold,
-                  color: Color(0xFF001B33),
-                ),
+                style: Theme.of(context).textTheme.subtitle1,
               ),
               Text(
                 '${storyDetails["dontLikeDesc"]}',
@@ -802,11 +796,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               SizedBox(height: 18),
               Text(
                 'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
-                style: TextStyle(
-                  fontSize: 18,
-                  // fontWeight: FontWeight.bold,
-                  color: Color(0xFF001B33),
-                ),
+                style: Theme.of(context).textTheme.subtitle1,
               ),
 
               Text(
@@ -819,7 +809,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               SizedBox(height : 30),
               Center(
                 child: Container(
-                  width: 270,
+                  width : 250,
                   height: 63,
                   child: ElevatedButton(
                     onPressed: () async{
@@ -846,11 +836,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
                         ),
                         Text(
-                          'FOLLOW LOCATION',
+                          'Follow Location',
                           style: TextStyle(
                              // Change text color
                             fontWeight: FontWeight.bold , // Change font weight
-                            fontSize: 20,
+                            fontSize: 16,
                           ),
                         ),
                       ],
@@ -864,7 +854,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               SizedBox(height : 40),
               Container(
                 child:Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Container(
                       height : 32,
@@ -893,8 +883,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text('Check Visitor Profile', style:TextStyle(color : Colors.orange,fontWeight:FontWeight.bold,fontSize: 18)),
-                        Text('${storyDetails["userName"]}',style:TextStyle(fontSize: 16)),
+                        Text('Check Visitor Profile', style:TextStyle(color : Colors.orange,fontWeight:FontWeight.bold,fontSize: 16)),
+                        Text('${storyDetails["userName"]}',style:TextStyle(fontSize: 14)),
                       ],
                     ),
 
@@ -934,7 +924,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
             ],
           ),
-        ), Column(
+        ),  Column(
 
           children: categoryData.asMap().entries.map((entry) {
             final int categoryIndex = entry.key;

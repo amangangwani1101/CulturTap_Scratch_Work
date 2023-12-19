@@ -63,10 +63,13 @@ class _MyHomePageState extends State<MyHomePage> {
       appBar: AppBar(
         title: Center(
           child: Container(
-              width: 156, height: 48.6, child: Image.asset('assets/images/logo.png')),
+              width: 156, height: 90.6, child: Image.asset('assets/images/logo.png')),
         ),
+        backgroundColor: Colors.white,
+        shadowColor: Colors.transparent,
       ),
       body: Container(
+        color : Colors.white,
         width: double.infinity,
         height: double.infinity,
         child: Center(

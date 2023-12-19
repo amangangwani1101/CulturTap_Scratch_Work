@@ -69,6 +69,7 @@ class _OtpScreenState extends State<OtpScreen>{
     return Scaffold(
       appBar: CustomAppBar(title:""),
       body: Container(
+        color : Colors.white,
           width: double.infinity,
           height : double.infinity,
           child: Center(
