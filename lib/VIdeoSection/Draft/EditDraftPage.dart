@@ -169,7 +169,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
         title: 'Compose Story',
       ),
       body: Container(
-        color: Color(0xFF263238),
+        color:Theme.of(context).primaryColorLight,
         width: double.infinity,
         child: SingleChildScrollView(
           child: Column(
@@ -309,7 +309,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                           selectedCategory = newValue!;
                                         });
                                       },
-                                      items: <String>['Category 1','Solo trip', 'Trip With Friends', 'Trip With Family', 'Office Trip', 'School Trip', 'Picnic']
+                                      items: <String>['Select','Solo trip','Romantic Trip', 'Trip With Friends', 'Trip With Family', 'Office Trip', 'School Trip', 'Picnic']
                                           .map<DropdownMenuItem<String>>((String value) {
                                         return DropdownMenuItem<String>(
                                           value: value,
@@ -358,7 +358,8 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                           selectedGenre = newValue!;
                                         });
                                       },
-                                      items: <String>['Genre 1', 'Lifestyle', 'Street Foods', 'Restaurants' ,  'Party - Clubs & Bars',  'Fashion',  'Historical / Heritage',  'Festivals',  'Art & Culture', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem',    ]
+                                      items: <String>['Select', 'Lifestyle', 'Street Foods', 'Restaurants' , 'Party - Clubs & Bars',  'Fashion', 'Handicraft',  'Historical / Heritage',  'Festivals', 'Market',  'Art & Culture', 'Museum', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem',    ]
+
                                           .map<DropdownMenuItem<String>>((String value) {
                                         return DropdownMenuItem<String>(
                                           value: value,

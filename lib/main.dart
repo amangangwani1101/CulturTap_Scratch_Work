@@ -17,7 +17,7 @@ Future<void> onSelectNotification(String? payload) async {
   // Handle notification click here (optional)
 }
 
-String darkMode = 'yes';
+String darkMode = 's';
 
 
 
@@ -84,7 +84,8 @@ class MyApp extends StatelessWidget {
         // Optional: Define colors for specific components
         appBarTheme: AppBarTheme(
           backgroundColor: Color(0xFF1E2529) , // Change the AppBar background color
-          foregroundColor: Colors.white, // Change the AppBar text color
+          foregroundColor: Colors.white,
+          // Change the AppBar text color
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: Colors.orange, // Change the FloatingActionButton color

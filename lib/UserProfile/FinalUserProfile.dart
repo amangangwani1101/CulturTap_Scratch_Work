@@ -38,6 +38,7 @@ class _FinalProfileState extends State<FinalProfile> {
   late List<Map<String, dynamic>> categoryData;
   Map<String, dynamic>? dataset;
   bool isLoading = true;
+  bool isDataLoading = true;
 
   @override
   void initState() {
@@ -75,7 +76,7 @@ class _FinalProfileState extends State<FinalProfile> {
 
       setState(() {
 
-isLoading = false;
+          isLoading = false;
 
 
       });
@@ -130,12 +131,16 @@ isLoading = false;
     final http.Response response = await http.get(url);
 
     if (response.statusCode == 200) {
+      setState(() {
+
+        isDataLoading = true;
+      });
       final data = json.decode(response.body);
       print('Fetched Data ${widget.clickedId}');
       print(data);
       setState(() {
         dataset = data;
-        isLoading = false;
+        isDataLoading = false;
       });
     } else {
       // Handle error
@@ -177,7 +182,7 @@ isLoading = false;
     print('printitng story user ID hahahaha');
     print(storyUserID);
     categoryData = [
-      ...generateCategoryData(name: 'Most Recent Visits', apiEndpoint: 'api/stories/user/$storyUserID/category/'),
+      ...generateCategoryData(name: 'Most Recent Visits', apiEndpoint: 'api/stories/user/$storyUserID'),
       ...generateCategoryData(name: 'Solo Trips', apiEndpoint: 'api/stories/user/$storyUserID/category/Solo trip'),
       ...generateCategoryData(name: 'Trip With Friends', apiEndpoint: 'api/stories/user/$storyUserID/category/Trip With Friends'),
       ...generateCategoryData(name: 'Trip With Family', apiEndpoint: 'api/stories/user/$storyUserID/category/Trip With Family'),
@@ -203,9 +208,25 @@ isLoading = false;
               MaterialPageRoute(builder: (context) => HomePage()),
             );
 
-            return true;
+            return false;
           },
-          child: SingleChildScrollView(
+          child: isDataLoading ?
+
+          Center(
+            child: Container(
+              color : Theme.of(context).backgroundColor,
+              height : double.infinity,
+              width : double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
+                ],
+              ),
+            ),
+          )
+
+              : SingleChildScrollView(
             child: Column(
               children: [
                 Container(
@@ -241,7 +262,7 @@ isLoading = false;
                         SizedBox(height: 50,),
                         RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName']),
 
-
+                        SizedBox(height : 40),
                       ],
                     ),
                   ),
@@ -249,40 +270,70 @@ isLoading = false;
 
                 isLoading ? Center(
                   child: Container( height : 40,
-                      child: CircularProgressIndicator(color: Colors.orange, backgroundColor: Colors.black,)),
+                      child: CircularProgressIndicator(color: Colors.orange, )),
                 ):
 
                 Column(
+                  children: [
 
-                  children: categoryData.asMap().entries.map((entry) {
-                    final int categoryIndex = entry.key;
-                    final Map<String, dynamic> category = entry.value;
+                    Column(
+                      children: [
+                        SizedBox(height : 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left:16.0),
+                          child: Row(
+
+                            children: [
+                              Container(
+                                width : 240,
+                                child: Text(
+                                  widget.userId == widget.clickedId ? "Your Story Tree" :  "Other Stories By ${dataset?['userName']?.split(' ')[0] } ?"
+                                 ,
+                                  style: Theme.of(context).textTheme.headline1,
+                                ),
+                              ),
 
 
-                    final String specificCategoryName = category['specificName'];
-                    final String categoryName = category['name'];
-                    final List<String> storyUrls = category['storyUrls'];
-                    final List<String> videoCounts = category['videoCounts'];
-                    final List<String> storyDistance = category['storyDistance'];
-                    final List<String> storyLocation = category['storyLocation'];
-                    final List<String> storyCategory = category['storyCategory'];
-                    final List<String> storyTitle = category['storyTitle'];
-                    List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+                            ],
+                          ),
+                        ),
+                        SizedBox(height : 40),
+                      ],
+                    ),
+                    Column(
 
-                    return buildCategorySection(
-                      specificCategoryName,
-                      categoryName,
-                      storyUrls,
-                      videoCounts,
-                      storyDistance,
-                      storyLocation,
-                      storyTitle,
-                      storyCategory,
-                      storyDetailsList,
-                      true,
 
-                    );
-                  }).toList(),
+                      children: categoryData.asMap().entries.map((entry) {
+                        final int categoryIndex = entry.key;
+                        final Map<String, dynamic> category = entry.value;
+
+
+                        final String specificCategoryName = category['specificName'];
+                        final String categoryName = category['name'];
+                        final List<String> storyUrls = category['storyUrls'];
+                        final List<String> videoCounts = category['videoCounts'];
+                        final List<String> storyDistance = category['storyDistance'];
+                        final List<String> storyLocation = category['storyLocation'];
+                        final List<String> storyCategory = category['storyCategory'];
+                        final List<String> storyTitle = category['storyTitle'];
+                        List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+
+                        return buildCategorySection(
+                          specificCategoryName,
+                          categoryName,
+                          storyUrls,
+                          videoCounts,
+                          storyDistance,
+                          storyLocation,
+                          storyTitle,
+                          storyCategory,
+                          storyDetailsList,
+                          true,
+
+                        );
+                      }).toList(),
+                    ),
+                  ],
                 )
               ],
             ),

@@ -254,7 +254,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                                   ),
                                   child: Text(
                                     notificationCount.toString(),
-                                    style: Theme.of(context).textTheme.headline3,
+                                    // style: Theme.of(context).textTheme.headline3,
                                   ),
                                 ),
                               ),

@@ -216,6 +216,7 @@ class _HomePageState extends State<HomePage> {
     });
     setState(() {
 
+
     });
 
   }
@@ -349,6 +350,7 @@ class _HomePageState extends State<HomePage> {
               ),
             ],
           ),
+
         ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
