@@ -234,7 +234,7 @@ packages:
     source: hosted
     version: "0.3.3+7"
   crypto:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: crypto
       sha256: ff625774173754681d66daaf4a448684fb04b78f902da9cb3d308c19cc5e8bab
@@ -273,6 +273,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.10"
+  decimal:
+    dependency: transitive
+    description:
+      name: decimal
+      sha256: "7e6735d63c3fdeff3d20b60fde7fd974145110fef414256dd53d5cfc4c1fa1b4"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.5.0"
   dropdown_search:
     dependency: "direct main"
     description:
@@ -430,6 +438,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.4.2"
+  flutter_inappwebview:
+    dependency: transitive
+    description:
+      name: flutter_inappwebview
+      sha256: d198297060d116b94048301ee6749cd2e7d03c1f2689783f52d210a6b7aba350
+      url: "https://pub.dev"
+    source: hosted
+    version: "5.8.0"
   flutter_keyboard_visibility:
     dependency: transitive
     description:
@@ -515,6 +531,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_paypal_checkout:
+    dependency: "direct main"
+    description:
+      name: flutter_paypal_checkout
+      sha256: "5cc8bd4e67acb9befbbc935a0f2d4d468ddb8e5120a24ad21ed7518b44b47b2e"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
   flutter_plugin_android_lifecycle:
     dependency: transitive
     description:
@@ -737,10 +761,10 @@ packages:
     dependency: "direct main"
     description:
       name: http
-      sha256: "759d1a329847dd0f39226c688d3e06a6b8679668e350e2891a6474f8b4bb8525"
+      sha256: "5895291c13fa8a3bd82e76d5627f69e0d85ca6a30dcac95c4ea19a5d555879c2"
       url: "https://pub.dev"
     source: hosted
-    version: "1.1.0"
+    version: "0.13.6"
   http_parser:
     dependency: transitive
     description:
@@ -753,26 +777,26 @@ packages:
     dependency: "direct main"
     description:
       name: image_cropper
-      sha256: f4bad5ed2dfff5a7ce0dfbad545b46a945c702bb6182a921488ef01ba7693111
+      sha256: "542c3453109d16bcc388e43ae2276044d2cd6a6d20c68bdcff2c94ab9363ea15"
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.1"
+    version: "4.0.1"
   image_cropper_for_web:
     dependency: transitive
     description:
       name: image_cropper_for_web
-      sha256: "865d798b5c9d826f1185b32e5d0018c4183ddb77b7b82a931e1a06aa3b74974e"
+      sha256: "89c936aa772a35b69ca67b78049ae9fa163a4fb8da2f6dee3893db8883fb49d2"
       url: "https://pub.dev"
     source: hosted
-    version: "3.0.0"
+    version: "2.0.0"
   image_cropper_platform_interface:
     dependency: transitive
     description:
       name: image_cropper_platform_interface
-      sha256: ee160d686422272aa306125f3b6fb1c1894d9b87a5e20ed33fa008e7285da11e
+      sha256: b232175c132b2f7ede3e1f101652bcd635cb4079a77c6dded8e6d32e6578d685
       url: "https://pub.dev"
     source: hosted
-    version: "5.0.0"
+    version: "4.0.0"
   image_picker:
     dependency: "direct main"
     description:
@@ -1021,6 +1045,38 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.2.1"
+  pay:
+    dependency: "direct main"
+    description:
+      name: pay
+      sha256: d7525538a66af1982a0932d3969416e835a6aeafda59e280ed2d1f410b4aaa09
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
+  pay_android:
+    dependency: transitive
+    description:
+      name: pay_android
+      sha256: "1018a21650109a829bfc35794aa548a087dde5170b14bcb5c603f8b723f985d2"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.11"
+  pay_ios:
+    dependency: transitive
+    description:
+      name: pay_ios
+      sha256: eb83e70282de8aed3ceca31ed045ee1d80bf4b50d331411a9d62ad0428a91808
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.9"
+  pay_platform_interface:
+    dependency: transitive
+    description:
+      name: pay_platform_interface
+      sha256: "12580f960066855d4821c4eaf2ef77093c0b20bce623db33104f76db16642e3b"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.3"
   permission_handler:
     dependency: "direct main"
     description:
@@ -1069,6 +1125,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "5.4.0"
+  phonepe_payment_sdk:
+    dependency: "direct main"
+    description:
+      name: phonepe_payment_sdk
+      sha256: "61babeb91f968cd996ec76fb1e53a4fc6b3298a219ba7b28cee3529674a09ddc"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.4"
   pigeon:
     dependency: transitive
     description:
@@ -1133,6 +1197,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.4"
+  qr:
+    dependency: transitive
+    description:
+      name: qr
+      sha256: "64957a3930367bf97cc211a5af99551d630f2f4625e38af10edd6b19131b64b3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "3.0.1"
+  qr_flutter:
+    dependency: transitive
+    description:
+      name: qr_flutter
+      sha256: "5095f0fc6e3f71d08adef8feccc8cea4f12eec18a2e31c2e8d82cb6019f4b097"
+      url: "https://pub.dev"
+    source: hosted
+    version: "4.1.0"
   quiver:
     dependency: transitive
     description:
@@ -1141,6 +1221,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.2.1"
+  rational:
+    dependency: transitive
+    description:
+      name: rational
+      sha256: "49ba0eb1a7b0d39358998cbbd4d4a384382a83ac02f433aefc567853c84ed975"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.1"
   rxdart:
     dependency: transitive
     description:
@@ -1370,6 +1458,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.3.2"
+  universal_io:
+    dependency: transitive
+    description:
+      name: universal_io
+      sha256: "1722b2dcc462b4b2f3ee7d188dad008b6eb4c40bbd03a3de451d82c78bba9aad"
+      url: "https://pub.dev"
+    source: hosted
+    version: "2.2.2"
   upi_india:
     dependency: "direct main"
     description:
@@ -1378,6 +1474,22 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "3.0.1"
+  upi_pay:
+    dependency: "direct main"
+    description:
+      name: upi_pay
+      sha256: "10be44346523cdfa1d8578d30230e9809e17a3e2cabf04e9eceac375d2ab7b4f"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.1"
+  upi_payment_qrcode_generator:
+    dependency: "direct main"
+    description:
+      name: upi_payment_qrcode_generator
+      sha256: cf6e53d71c57f18acb53e1c4a39331db21ee3c27388b7c1bc2f3260a8f471944
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.4.0"
   uuid:
     dependency: transitive
     description:

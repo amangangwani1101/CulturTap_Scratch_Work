@@ -30,8 +30,8 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  http: ^1.1.0
-
+#  http: ^1.1.0
+  http: ^0.13.6
 
 
   # The following adds the Cupertino Icons font to your application.
@@ -69,7 +69,8 @@ dependencies:
   shared_preferences: ^2.2.2
 
   image_picker: ^1.0.4
-  image_cropper: ^5.0.0
+  # image_cropper: ^5.0.0
+  image_cropper: ^4.0.1
   flutter_local_notifications: ^16.2.0
 
   torch_light: ^1.0.0
@@ -80,8 +81,11 @@ dependencies:
   assets_audio_player: ^3.1.1
   easy_upi_payment: ^0.1.6
   upi_india: ^3.0.1
-#  upi_pay_x: ^0.0.8
-#  upi_pay: ^1.0.1
+  flutter_paypal_checkout: ^1.0.1
+  pay: ^1.1.2
+  phonepe_payment_sdk: ^1.0.4
+  crypto: ^3.0.3
+  upi_payment_qrcode_generator: ^1.4.0
 
 dev_dependencies:
   flutter_test:

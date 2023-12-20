@@ -791,8 +791,14 @@ class _PingSectionState extends State<PingsSection>{
                                             child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
                                         SizedBox(width: screenWidth*0.08,),
                                         InkWell(
-                                            onTap: (){
-                                              paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
+                                            onTap: ()async{
+                                              await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
+                                                ),
+                                              );
+                                              // paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
                                               cancelMeeting(date,index,'schedule',userId,'schedule');
                                               _refreshPage(time:0,state:'Scheduled');
                                               print('$date,$index');
