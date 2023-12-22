@@ -61,13 +61,13 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       context,
                       MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
                         create:(context) => ProfileDataProvider(),
-                        child: FinalProfile(userId: userID,clickedId: userID,),
+                        child: FinalProfile(userId: widget.userId!,clickedId: widget.userId!,),
                       ),),
                     );
                   }
 
                 },
-                child: Container(
+                child: Container( 
 
                   width: 80,
 

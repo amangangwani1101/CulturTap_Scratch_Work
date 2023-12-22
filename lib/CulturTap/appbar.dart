@@ -3,6 +3,7 @@ import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
@@ -140,7 +141,15 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       height: 24,
                       child: Stack(
                         children: [
-                          Align(alignment: Alignment.topCenter, child: Image.asset('assets/images/ping_image.png',height: 24 ,width:24,fit: BoxFit.contain,)),
+                          Align(alignment: Alignment.topCenter, child: SvgPicture.asset(
+                            'assets/images/pings_icon.svg', // Replace with the path to your SVG icon
+                            color : Theme.of(context).primaryColor,
+                            width: 28,
+                            height: 28,
+
+
+
+                          ),),
                           if(notificationCount>0)
                             Positioned(
                               top: -4,

@@ -17,7 +17,7 @@ Future<void> onSelectNotification(String? payload) async {
   // Handle notification click here (optional)
 }
 
-String darkMode = 's';
+String darkMode = 'ys';
 
 
 

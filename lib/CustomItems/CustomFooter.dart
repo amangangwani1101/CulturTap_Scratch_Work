@@ -2,6 +2,8 @@
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
+import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import 'package:learn_flutter/UserProfile/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
@@ -23,17 +25,21 @@ import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
 String? mode = '';
 String? orange = '';
 String? page = '';
+String? addButtonadd = '';
 
 class CustomFooter extends StatefulWidget implements PreferredSizeWidget {
   final String? userId;
   final String? userName;
   final String? lode;
+  final String? addButtonAdd;
 
 
-  CustomFooter({this.userId, this.userName, this.lode});
+  CustomFooter({this.userId, this.userName, this.lode, this.addButtonAdd});
 
   @override
   _CustomFooterState createState() => _CustomFooterState();
+
+
 
 
 
@@ -61,6 +67,10 @@ class _CustomFooterState extends State<CustomFooter> {
 
     print('mode : $mode');
 
+
+setState(() {
+  addButtonadd = widget.addButtonAdd;
+});
 
 
     // You can access userId and userName via widget.userId and widget.userName
@@ -237,6 +247,12 @@ class _CustomFooterState extends State<CustomFooter> {
 
                         IconButton(
                           onPressed: () {
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => SearchPage()),
+                            );
+
                             _changeIcon('search');
                           },
                           icon: SvgPicture.asset(
@@ -261,7 +277,7 @@ class _CustomFooterState extends State<CustomFooter> {
                   ),
                 ),
 
-                Expanded(
+                addButtonadd == 'add' ? Container(): Expanded(
                   child: Align(
                     alignment: Alignment(0.0, 0.0),
                     child: Transform.translate(
@@ -348,7 +364,11 @@ class _CustomFooterState extends State<CustomFooter> {
                       children: [
                         IconButton(
                           onPressed: () {
-
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => LocalAssist(),
+                              ),
+                            );
 
                             _changeIcon('trip');
                           },

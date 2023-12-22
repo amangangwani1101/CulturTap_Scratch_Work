@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
@@ -478,6 +479,13 @@ class _SettingsPageState extends State<SettingsPage> {
             ),
           ),
         ),
+      ),
+      bottomNavigationBar: AnimatedContainer(
+          duration: Duration(milliseconds: 100),
+
+
+          height:  70 ,
+          child: CustomFooter(addButtonAdd: 'add',)
       ),
     );
   }
