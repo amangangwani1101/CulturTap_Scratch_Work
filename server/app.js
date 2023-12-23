@@ -280,10 +280,13 @@ localAssistantNamespace.on("connection", (socket) => {
       console.log("User2:", user2);
 
       // Broadcast the message to all connected clients in the same room based on 'user1' and 'user2'
-      if (user1 === '') {
+      if (user1 === '' && user2==='helper') {
         localAssistantNamespace.to(socket.room).emit("message", { message: message, user: "helper" });
-      } else {
+      } else if(user1==='user' && user2===''){
         localAssistantNamespace.to(socket.room).emit("message", { message: message, user: "user" });
+      }
+      else{
+        localAssistantNamespace.to(socket.room).emit("message", { message: message, user: user1 });
       }
     });
 

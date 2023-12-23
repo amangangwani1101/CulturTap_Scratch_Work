@@ -31,7 +31,7 @@ class _MaainState extends State<Maain> {
         final data = json.decode(response.body);
         print(data);
         setState(() {
-          if(data['meetId']!=null){
+          if(data['meetId'].length>0){
             meetId = data['meetId'];
           }
         });

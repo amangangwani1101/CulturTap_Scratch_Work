@@ -202,7 +202,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: widget.userId!,),
+                        builder: (context) => PingsSection(userId: widget.userId!),
                       ),
                     );
                   }
@@ -224,7 +224,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                             Navigator.push(
                               context,
                               MaterialPageRoute(
-                                builder: (context) => PingsSection(userId: userID,state: 'schedule',),
+                                builder: (context) => PingsSection(userId: '656754b3bf6b875d1ef7e879',state: 'All',),
                               ),
                             );
                           }

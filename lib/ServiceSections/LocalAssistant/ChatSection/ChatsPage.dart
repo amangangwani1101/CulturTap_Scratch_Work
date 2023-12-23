@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -6,6 +7,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 
 import '../../../UserProfile/ProfileHeader.dart';
 import '../../../widgets/Constant.dart';
+import '../../../widgets/CustomButton.dart';
 import '../../../widgets/hexColor.dart';
 import 'package:http/http.dart'as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
@@ -37,7 +39,7 @@ class _ChatsPageState extends State<ChatsPage> {
   late RTCPeerConnection _peerConnection;
 
   bool _isUiEnabled = true;
-  String userName = '',userPhoto = '';
+  String userName = '',userPhoto = '',helperName='',helperPhoto='',helperLatitude='',helperLongitude='',helperNumber='',meetStatus='',helperId='';
   final String serverUrl = Constant().serverUrl;  // Replace with your server's URL
   final TextEditingController _controller = TextEditingController();
   bool pageVisitor = true; // true means person coming to this page is user while in else condition its helper
@@ -217,6 +219,10 @@ class _ChatsPageState extends State<ChatsPage> {
             return (list as List<dynamic>).map<String>((e) => e.toString()).toList();
           }).toList();
         });
+        if(responseData['helperId']!=null && helperName==''){
+          fetchHelperDataset(responseData['helperId']);
+          getMeetStatus();
+        }
         seperateList(messages);
       } else {
         print('Failed to retrive data: ${response.statusCode}');
@@ -253,6 +259,22 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
+  Future<void> getMeetStatus() async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/getLocalUserPingsStatus/${widget.userId}/${widget.meetId}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+          meetStatus = data['meetStatus'];
+      });
+    } else {
+      // Handle error
+      print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
+
   void func(dynamic data)async{
 
     setState(() {
@@ -260,9 +282,13 @@ class _ChatsPageState extends State<ChatsPage> {
       messages.add([data['message'],data['user']]);
       if(data['user']=='user')
         sender.add(data['message']);
-      else
+      else if(data['user']=='helper')
         receiver.add(data['message']);
     });
+    if(data['user'].contains('admin')){
+      await fetchHelperDataset(data['message']);
+      await getMeetStatus();
+    }
   }
   // Function to handle the incoming offer
   Future<void> handleOffer(String offerSdp, String callerId) async {
@@ -302,6 +328,60 @@ class _ChatsPageState extends State<ChatsPage> {
     } else {
       // Handle error
       print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
+
+  Future<void> fetchHelperDataset(String userId) async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/userStoredData/${userId}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      setState(() {
+        helperId = userId;
+        helperName = data['userName'];
+        helperPhoto = data['userPhoto'];
+        helperLatitude = data['latitude'];
+        helperLongitude = data['longitude'];
+        helperNumber = data['phoneNumber'];
+      });
+    } else {
+      // Handle error
+      print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
+
+  Future<void> updateLocalUserPings(String userId,String meetId,String meetStatus) async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/updateLocalUserPings');
+    // Replace with your data
+    Map<String, dynamic> requestData = {
+      "userId": userId,
+      'meetId':meetId,
+      'meetStatus':meetStatus,
+    };
+    print('Messa::$requestData');
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        final responseData = jsonDecode(response.body);
+        print("Response: $responseData");
+      } else {
+        print("Failed to update pings. Status code: ${response.statusCode}");
+        throw Exception("Failed to update pings");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Error during API call");
     }
   }
 
@@ -418,7 +498,7 @@ class _ChatsPageState extends State<ChatsPage> {
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 5,userId: '',),),
+        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),),
         body: SingleChildScrollView(
           child: Row(
             children: [
@@ -502,44 +582,44 @@ class _ChatsPageState extends State<ChatsPage> {
                           children: messages.map((message) {
                             return ListTile(
                               title: message[1] == 'user'
-                                  ? widget.state != 'user'
-                                  ? Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  width: screenWidth*0.70,
-                                  decoration: BoxDecoration(
-                                    color: HexColor('#E9EAEB').withOpacity(1),
-                                  ),
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        child: CircleAvatar(
-                                          radius: 20.0,
-                                          backgroundImage: AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                  ? widget.state == 'helper'
+                                    ? Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    width: screenWidth*0.70,
+                                    decoration: BoxDecoration(
+                                      color: HexColor('#E9EAEB').withOpacity(1),
+                                    ),
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          child: CircleAvatar(
+                                            radius: 20.0,
+                                            backgroundImage: AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(width: 10,),
-                                      Expanded(
-                                        child: Column(
-                                          children: [
-                                            Text('Name Of User'),
-                                            Text(
-                                              message[0],
-                                              style: TextStyle(
-                                                fontFamily: 'Poppins',
-                                                fontSize: 14,
-                                                color: Colors.black,
+                                        SizedBox(width: 10,),
+                                        Expanded(
+                                          child: Column(
+                                            children: [
+                                              Text('Name Of User'),
+                                              Text(
+                                                message[0],
+                                                style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontSize: 14,
+                                                  color: Colors.black,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              )
-                                  : Align(
+                                )
+                                    : Align(
                                 alignment: Alignment.centerRight,
                                 child: Container(
                                   width: screenWidth*0.70,
@@ -577,44 +657,45 @@ class _ChatsPageState extends State<ChatsPage> {
                                 ),
                               )
                                   : widget.state == 'user'
-                                  ? Align(
-                                alignment: Alignment.centerLeft,
-                                child: Container(
-                                  width: screenWidth*0.70,
-                                  decoration: BoxDecoration(
-                                    color: HexColor('#E9EAEB').withOpacity(1),
-                                  ),
-                                  padding: EdgeInsets.all(10),
-                                  child: Row(
-                                    children: [
-                                      Container(
-                                        child: CircleAvatar(
-                                          radius: 20.0,
-                                          backgroundImage: AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                    ? Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Container(
+                                    width: screenWidth*0.70,
+                                    decoration: BoxDecoration(
+                                      color: HexColor('#E9EAEB').withOpacity(1),
+                                    ),
+                                    padding: EdgeInsets.all(10),
+                                    child: Row(
+                                      children: [
+                                        Container(
+                                          child: CircleAvatar(
+                                            radius: 20.0,
+                                            backgroundImage: AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(width: 10,),
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text('Name Of Helper'),
-                                            Text(
-                                              message[0],
-                                              style: TextStyle(
-                                                fontFamily: 'Poppins',
-                                                fontSize: 14,
-                                                color: Colors.black,
+                                        SizedBox(width: 10,),
+                                        Expanded(
+                                          child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text('Name Of Helper'),
+                                              Text(
+                                                message[0],
+                                                style: TextStyle(
+                                                  fontFamily: 'Poppins',
+                                                  fontSize: 14,
+                                                  color: Colors.black,
+                                                ),
                                               ),
-                                            ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                    ],
+                                      ],
+                                    ),
                                   ),
-                                ),
-                              )
-                                  : Align(
+                                )
+                                    : message[1].contains('admin-user')==false
+                                        ?Align(
                                 alignment: Alignment.centerRight,
                                 child: Container(
                                   decoration: BoxDecoration(
@@ -649,14 +730,153 @@ class _ChatsPageState extends State<ChatsPage> {
                                     ],
                                   ),
                                 ),
-                              ),
+                              )
+                                        :widget.state=='user' && message[1].contains('admin-user')==true
+                                          ?message[1]=='admin-user-1'
+                                            ? Align(
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  children: [
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: HexColor('#E9EAEB').withOpacity(1),
+                                      ),
+                                      padding: EdgeInsets.all(10),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            child: CircleAvatar(
+                                              radius: 20.0,
+                                              backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>,// Use a default asset image
+                                            ),
+                                          ),
+                                          SizedBox(width: 10,),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              children: [
+                                                Row(
+                                                  children: [
+                                                    Text(userName,style: TextStyle(fontSize: 13,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
+                                                    Text('( Allotment Successful )',style:TextStyle(fontSize: 12,fontStyle: FontStyle.italic,fontFamily: 'Poppins',color: Colors.green),),
+                                                  ],
+                                                ),
+                                                Text(
+                                                  'Hey ${userName},\nI get your problem, let’s connect first on call. be calm down.',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                Container(
+                                                  color: Colors.green,
+                                                  child: Row(
+                                                    children: [
+                                                      Text('This service will cost you\t',
+                                                        style: TextStyle(
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: 13,)),
+                                                      Text('500 Rs,\t',
+                                                          style: TextStyle(
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: 13,
+                                                        fontWeight: FontWeight.bold)),
+                                                      Text('you successfully get assistant !',
+                                                          style: TextStyle(
+                                                              fontFamily: 'Poppins',
+                                                              fontSize: 13,),
+                                                      ),
+                                                    ],
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    Container(
+                                      decoration: BoxDecoration(
+                                        color: HexColor('#E9EAEB').withOpacity(1),
+                                      ),
+                                      padding: EdgeInsets.all(10),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Column(
+                                            children: [
+                                              Text('What you will get ?',style: TextStyle(fontFamily: 'Poppins',fontSize: 13,fontWeight: FontWeight.bold),),
+                                              Text('You can connect with the person with multiple channel as like message , call even video call,and ask for the problem you facing, if needed than person will be available physically with the nature of help. ',
+                                                style: TextStyle(fontFamily: 'Poppins',fontSize: 13),)
+                                            ],
+                                          ),
+                                          Column(
+                                            children: [
+                                              Text('*Terms & conditions',style: TextStyle(fontFamily: 'Poppins',fontSize: 13,fontWeight: FontWeight.bold),),
+                                              Text('This 500 Rs payment is for the person allotment only, other extra expenditure will cost you separately.\nYou can talk clearly with your savior ,may communication itself a solution of your problems.\nLet’s Connect  !',
+                                                style: TextStyle(fontFamily: 'Poppins',fontSize: 13),)
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                                            : SizedBox(height: 0,)
+                                          :SizedBox(height: 0,),
                             );
                           }).toList(),
                         ),
                       ),
                     )
                     :SizedBox(height: 10,),
-                    Row(
+
+                    (widget.state=='user' && meetStatus=='pending')
+                    ?Padding(
+                      padding: const EdgeInsets.only(left: 16.0),
+                      child: Column(
+                        children: [
+                          GestureDetector(
+                            onTap:(){
+
+                            },
+                            child: Container(
+                              width: 400,
+                              height: 70,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(10),
+                                border: Border.all(color: Colors.orange)
+                              ),
+                              child: Center(child:Text('Cancel Request',style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                  fontSize: 18))),
+                            ),
+                          ),
+                          Container(
+                            width: 400,
+                            height: 70,
+                            child: FiledButton(
+                                backgroundColor: HexColor('#FB8C00'),
+                                onPressed: () async{
+                                  // Payment Gateway Open
+                                  // payment success then true else false
+                                  await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
+                                  await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
+                                },
+                                child: Center(
+                                    child: Text('Continue to pay',
+                                        style: TextStyle(
+                                            fontWeight: FontWeight.bold,
+                                            color: Colors.white,
+                                            fontSize: 18)))),
+                          ),
+                        ],
+                      ),
+                    )
+                    :Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
                         SizedBox(width: 20,),

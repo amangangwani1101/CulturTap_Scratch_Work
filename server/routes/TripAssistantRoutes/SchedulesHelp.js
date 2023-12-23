@@ -136,6 +136,35 @@ router.patch("/updateLocalUserPings", async (req, res) => {
   }
 });
 
+router.get("/getLocalUserPingsStatus/:userId/:meetId", async (req, res) => {
+  try {
+    const { userId, meetId } = req.params;
+    console.log(req.params);
+    const user = await ProfileData.findById(userId).lean();
+
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const userData = await ProfileData.findOne(
+      { _id: userId, 'userServiceTripAssistantData.meetId': meetId },
+      { 'userServiceTripAssistantData.meetStatus': 1, _id: 0 }
+    ).lean();
+
+    if (!userData) {
+      return res.status(404).json({ message: "MeetId not found for the user" });
+    }
+
+    const meetStatus = userData.userServiceTripAssistantData[0].meetStatus;
+
+    res.status(200).json({ meetStatus });
+  } catch (error) {
+    console.error(error);
+    return res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+
 
 
 module.exports = router;
