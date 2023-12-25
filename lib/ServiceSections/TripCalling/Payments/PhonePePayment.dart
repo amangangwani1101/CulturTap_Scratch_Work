@@ -57,27 +57,12 @@ class _PhonePePaymentState extends State<PhonePePayment> {
     super.initState();
     phonePeInit();
     body = getCheckSum().toString();
+    startTransaction();
   }
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(title:Text('Flutter App')),
-        body: Column(
-          children: [
-            Container(
-              child: ElevatedButton(
-                onPressed: (){
-                  startTransaction();
-                },
-                child: Text('Proceed To Pay'),
-              ),
-            ),
-            SizedBox(height: 20,),
-            Text('Result is $result'),
-          ],
-        ),
-      ),
+      home: Scaffold(),
     );
   }
 
@@ -107,13 +92,15 @@ class _PhonePePaymentState extends State<PhonePePayment> {
             String error = val['error'].toString();
 
             if(status == 'SUCCESS'){
-              result = 'UPI Loaded - And Success';
+              result = true;
+              Navigator.of(context).pop(result);
             }else{
-              result = 'UPI Loaded - But Error $error';
+              result = false;
+              Navigator.of(context).pop(result);
             }
-
           }else{
-            result = 'A Problem Occur';
+            result = false;
+            Navigator.of(context).pop(result);
           }
         })
       })
@@ -123,6 +110,7 @@ class _PhonePePaymentState extends State<PhonePePayment> {
       });
     } catch (error) {
       handleError(error);
+      Navigator.of(context).pop(false);
     }
   }
 

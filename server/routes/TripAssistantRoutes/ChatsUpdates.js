@@ -43,7 +43,28 @@ router.get('/fetchLocalMeetingConversation/:meetId', async (req, res) => {
     // Assuming the conversation array exists within the 'meet' document
     const conversation = meet.conversation || [];
 
-    res.status(200).json({ conversation });
+    res.status(200).json(meet);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ message: "Internal Server Error" });
+  }
+});
+
+router.patch('/updateLocalMeetingHelperIds/:meetId', async (req, res) => {
+  try {
+    const meetId = req.params.meetId;
+
+    const meet = await MeetData.findById(meetId);
+
+    if (!meet) {
+      return res.status(404).json({ message: "Meeting Not Found" });
+    }
+    console.log('Its going');
+    console.log(meet);
+    meet.helperIds = undefined;
+
+    await meet.save();
+    res.status(200).json({ message: "Ids updated successfully" });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: "Internal Server Error" });

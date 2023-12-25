@@ -204,7 +204,8 @@ class _FourthPageState extends State<FourthPage> {
       if (kIsWeb) {
         fullAddress = await fetchAddressFromCoordinates(position.latitude,position.longitude);
         print('Running on the web');
-      } else if (Platform.isAndroid) {
+      }
+      else if (Platform.isAndroid) {
         List<Placemark> placemarks = await placemarkFromCoordinates(
           position.latitude,
           position.longitude,
@@ -220,7 +221,8 @@ class _FourthPageState extends State<FourthPage> {
         }
         print('Running on Android');
         // Your Android-specific code here
-      } else if (Platform.isIOS) {
+      }
+      else if (Platform.isIOS) {
         print('Running on iOS');
         // Your iOS-specific code here
       } else {

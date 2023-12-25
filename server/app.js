@@ -285,7 +285,7 @@ localAssistantNamespace.on("connection", (socket) => {
       } else if(user1==='user' && user2===''){
         localAssistantNamespace.to(socket.room).emit("message", { message: message, user: "user" });
       }
-      else{
+      else {
         localAssistantNamespace.to(socket.room).emit("message", { message: message, user: user1 });
       }
     });

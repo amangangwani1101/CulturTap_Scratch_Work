@@ -1,17 +1,27 @@
 import 'dart:convert';
 import 'dart:io';
-
+import 'package:open_file/open_file.dart';
+import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_pdfview/flutter_pdfview.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:geocoding/geocoding.dart';
+import 'package:photo_view/photo_view.dart';
 
+import '../../../UserProfile/CoverPage.dart';
 import '../../../UserProfile/ProfileHeader.dart';
 import '../../../widgets/Constant.dart';
 import '../../../widgets/CustomButton.dart';
+import '../../../widgets/CustomDialogBox.dart';
 import '../../../widgets/hexColor.dart';
 import 'package:http/http.dart'as http;
 import 'package:socket_io_client/socket_io_client.dart' as IO;
+import 'package:url_launcher/url_launcher.dart';
 
+import '../../TripCalling/Payments/UpiPayments.dart';
+import 'Uploader.dart';
 
 void main(){
   runApp(ChatsPage(userId:'652a31f77ff9b6023a14838a',state:'user',meetId: '65844f69318c03e09ec1c5e0',));
@@ -28,6 +38,14 @@ class ChatsPage extends StatefulWidget {
 class _ChatsPageState extends State<ChatsPage> {
   List<String>userIds = [];
   List<String>distance = [];
+
+  File? _userProfileImage;
+
+  void handleImageUpdated(File image) {
+    setState(() {
+      _userProfileImage = image; // Update the parameter in the main class
+    });
+  }
   List<String>suggestedTexts = [
     'Need Mechanical help for my car ',
     'My Vehicle get Puncture  ',
@@ -39,7 +57,8 @@ class _ChatsPageState extends State<ChatsPage> {
   late RTCPeerConnection _peerConnection;
 
   bool _isUiEnabled = true;
-  String userName = '',userPhoto = '',helperName='',helperPhoto='',helperLatitude='',helperLongitude='',helperNumber='',meetStatus='',helperId='';
+  String userName = '',userPhoto = '',helperId='',helperAddress='',helperName='',helperPhoto='',helperLongitude='',helperNumber='',meetStatus='',helperLatitude='';
+  bool helperMessage=false;
   final String serverUrl = Constant().serverUrl;  // Replace with your server's URL
   final TextEditingController _controller = TextEditingController();
   bool pageVisitor = true; // true means person coming to this page is user while in else condition its helper
@@ -150,6 +169,31 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
+  Future<void> updateHelperIds() async {
+    final url = Uri.parse('$serverUrl/updateLocalMeetingHelperIds/${widget.meetId}');
+    print(url);
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        final responseData = jsonDecode(response.body);
+        print('its done');
+        print(responseData);
+      } else {
+        print("Failed to save meet. Status code: ${response.statusCode}");
+        throw Exception("Failed to save meet");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Error during API call");
+    }
+  }
   Future<void> createUpdateLocalHelperPings(String meetId,String meetStatus) async {
     final url = Uri.parse('$serverUrl/setLocalHelpersPings');
     // Replace with your data
@@ -191,19 +235,20 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   void seperateList(List<List<String>> msg){
-      List<String>user=[],helper=[];
-      for (List<String> item in msg) {
-        if (item[1] == 'user') {
-          user.add(item[0]);
-        }else{
-          helper.add(item[0]);
-        }
+    List<String>user=[],helper=[];
+    for (List<String> item in msg) {
+      if (item[1] == 'user') {
+        user.add(item[0]);
+      }else{
+        helper.add(item[0]);
       }
-      setState(() {
-        sender = user;
-        receiver = helper;
-      });
     }
+    setState(() {
+      sender = user;
+      receiver = helper;
+    });
+  }
+
   Future<void> retriveMeetingConversation(String meetId) async {
     try {
       final http.Response response = await http.get(
@@ -213,22 +258,35 @@ class _ChatsPageState extends State<ChatsPage> {
         final responseData = json.decode(response.body);
         print('Red:::');
         print(responseData);
+
         final List<dynamic> conversationJson = responseData['conversation'];
         setState(() {
+          // if(widget.state=='helper' && responseData['helperIds'].length==0){
+          //   print('okaaa');
+          //   helperMessage=true;
+          // }
           messages = conversationJson.map<List<String>>((list) {
             return (list as List<dynamic>).map<String>((e) => e.toString()).toList();
           }).toList();
+          if(responseData['helperId']!=null){
+            helperId = responseData['helperId'];
+          }
         });
-        if(responseData['helperId']!=null && helperName==''){
-          fetchHelperDataset(responseData['helperId']);
-          getMeetStatus();
+        print('Help $helperId');
+        print('Help $helperName');
+        if(helperId!=null && helperName==''){
+          if(widget.state=='user')
+            await fetchHelperDataset(responseData['helperId']);
+          else
+            await fetchHelperDataset(responseData['userId']);
+          print('Inside');
         }
         seperateList(messages);
       } else {
         print('Failed to retrive data: ${response.statusCode}');
       }
     }catch(err){
-      print("Error is 2: $err");
+      print("Error is aa2: $err");
     }
   }
 
@@ -323,7 +381,7 @@ class _ChatsPageState extends State<ChatsPage> {
       final data = json.decode(response.body);
       setState(() {
         userName = data['userName'];
-        userPhoto = data['userPhoto'];
+        userPhoto = data['userPhoto']!=null?data['userPhoto']:'';
       });
     } else {
       // Handle error
@@ -338,14 +396,17 @@ class _ChatsPageState extends State<ChatsPage> {
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
+      print('Data us :$data');
       setState(() {
         helperId = userId;
+        helperLatitude=data['latitude']==null?'25.4622095':data['latitude'];
+        helperLongitude=data['longitude']==null?'78.6419707':data['longitude'];
         helperName = data['userName'];
-        helperPhoto = data['userPhoto'];
-        helperLatitude = data['latitude'];
-        helperLongitude = data['longitude'];
-        helperNumber = data['phoneNumber'];
+        helperPhoto = data['userPhoto']!=null?data['userPhoto']:'';
+        helperNumber = data['phoneNumber'].toString();
       });
+      print('HelperId :$helperId');
+      await getAddress(helperLatitude, helperLongitude);
     } else {
       // Handle error
       print('Failed to fetch dataset: ${response.statusCode}');
@@ -393,17 +454,36 @@ class _ChatsPageState extends State<ChatsPage> {
       pageVisitor = false;
     }
     if(pageVisitor){
-      userIds = ['656754b3bf6b875d1ef7e879','656050b3030772278b8b54cd'];
+      userIds = ['6587944352bea38528b313d7','656050b3030772278b8b54cd'];
       distance = ['0.05','0.09'];
     }
     if(widget.meetId!=null) {
-      retriveMeetingConversation(widget.meetId!);
-      socketConnection();
+      startConnectionCards();
     }
-
   }
 
-  void socketConnection(){
+  Future<void> startConnectionCards()async{
+    await retriveMeetingConversation(widget.meetId!);
+    await socketConnection();
+    await getMeetStatus();
+    if(helperMessage==true) {
+      await updateHelperIds();
+    }
+    if(widget.state=='user'){
+
+    }else{
+      if(meetStatus=='pending' && helperMessage){
+        updateMeetingChats(widget.meetId!,[widget.userId,'admin-user-1']);
+        // hey see this ther can be prblm as u are passing only userIf not helperId
+        socket.emit('message', {'message':widget.userId,'user1':'admin-user-1','user2':''});
+        setState(() {});
+      }else{
+
+      }
+    }
+  }
+
+  Future<void> socketConnection()async{
     socket = IO.io(serverUrl+'/localAssistant', <String, dynamic>{
       'transports': ['websocket'],
       'autoConnect': true,
@@ -470,6 +550,13 @@ class _ChatsPageState extends State<ChatsPage> {
     });
   }
 
+  void _openFileWithDefaultApp(String message) {
+    print('work');
+    if (message != null) {
+      OpenFile.open(message);
+    }
+  }
+
   void _handleSend() {
     String message = _controller.text;
     if (message.isNotEmpty) {
@@ -494,11 +581,47 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
+  Future<void> getAddress(String latitude,String longitude)async{
+    List<Placemark> placemarks = await placemarkFromCoordinates(
+      double.parse(latitude),
+      double.parse(longitude),
+    );
+
+    if (placemarks.isNotEmpty) {
+      Placemark place = placemarks.first;
+      helperAddress = "${place.street}, ${place.locality}, ${place.postalCode}, ${place.country}";
+      print('AAA::$helperAddress');
+    }
+    else{
+      print('None');
+    }
+    print('Running on Android');
+    // Your Android-specific code here
+  }
+
+
+  Future<bool> showConfirmationDialog(BuildContext context, String receiverName) async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ConfirmationDialog(
+          message: 'Are You Sure To Cancel Meet With $receiverName',
+          onCancel: () {
+            Navigator.of(context).pop(false); // Return false when canceled
+          },
+          onConfirm: () {
+            Navigator.of(context).pop(true); // Return true when confirmed
+          },
+        );
+      },
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),),
+        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
           child: Row(
             children: [
@@ -581,17 +704,316 @@ class _ChatsPageState extends State<ChatsPage> {
                           crossAxisAlignment:CrossAxisAlignment.center,
                           children: messages.map((message) {
                             return ListTile(
-                              title: message[1] == 'user'
+                              title: message[1]=='admin-helper-1'
+                                  ?widget.state=='user'
+                                    ? Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      GestureDetector(
+                                        onTap:()async{
+                                          String mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                          if (await canLaunch(mapsUrl)) {
+                                          await launch(mapsUrl);
+                                          } else {
+                                          throw 'Could not launch $mapsUrl';
+                                          }
+                                        },
+                                        child: Container(
+                                          width:screenWidth*0.80,
+                                          decoration: BoxDecoration(
+                                            color: HexColor('#E9EAEB').withOpacity(1),
+                                          ),
+                                          padding: EdgeInsets.all(10),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                child: CircleAvatar(
+                                                  radius: 20.0,
+                                                  backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>,// Use a default asset image
+                                                ),
+                                              ),
+                                              SizedBox(width: 10,),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                  children: [
+                                                    SizedBox(height: 10,),
+                                                    Row(
+                                                      children: [
+                                                        Image.asset('assets/images/heart.png',width: 18,height: 22,),
+                                                        Text('( Payment Successful )',style:TextStyle(fontSize: 13,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.green),),
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 10,),
+                                                    Text(
+                                                      'We already share your location with your Savior.',
+                                                      style: TextStyle(
+                                                        fontFamily: 'Poppins',
+                                                        fontSize: 14,
+                                                        color: Colors.black,
+                                                      ),
+                                                    ),
+                                                    SizedBox(height: 10,),
+                                                    Row(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      children:[
+                                                        Image.asset('assets/images/heart.png',width: 20,height: 20,) ,
+                                                        SizedBox(width: 10,),
+                                                        Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          children: [
+                                                            Text('Location',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600),),
+                                                            Container(width: screenWidth*0.50, child: Text(helperAddress,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600),))
+                                                          ],
+                                                        ),
+                                                      ],
+
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                      SizedBox(height: 15,),
+                                      GestureDetector(
+                                        onTap: (){
+                                          FlutterClipboard.copy('jhkas').then((value) {
+                                            Fluttertoast.showToast(
+                                              msg: 'Copied to clipboard: $helperNumber',
+                                              toastLength: Toast.LENGTH_SHORT,
+                                              gravity: ToastGravity.BOTTOM,
+                                              backgroundColor: Colors.green,
+                                              textColor: Colors.white,
+                                              fontSize: 16.0,
+                                            );
+                                          });
+                                        },
+                                        child: Container(
+                                          width: screenWidth*0.80,
+                                          decoration: BoxDecoration(
+                                            color: HexColor('#E9EAEB').withOpacity(1),
+                                          ),
+                                          padding: EdgeInsets.all(10),
+                                          child: Row(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                child: CircleAvatar(
+                                                  radius: 20.0,
+                                                  backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>,// Use a default asset image
+                                                ),
+                                              ),
+                                              SizedBox(width: 10,),
+                                              Expanded(
+                                                child: Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text('Call Your Saviour',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                                                    SizedBox(height: 20,),
+                                                    Column(
+                                                      children: [
+                                                        Text(helperName,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                                        Text(helperNumber,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,fontFamily: 'Poppins',color: Colors.green),)
+                                                      ],
+                                                    ),
+                                                    SizedBox(height: 20,),
+                                                    Row(
+                                                      children: [
+                                                        Image.asset('assets/images/heart.png',width: 20,height: 22,),
+                                                        Text('Copy Contact',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: Colors.orange,fontFamily: 'Poppins'),)
+                                                      ],
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                )
+                                    :Align(
+                                alignment: Alignment.centerLeft,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    GestureDetector(
+                                      onTap: (){
+                                        FlutterClipboard.copy('vakfvba').then((value) {
+                                          Fluttertoast.showToast(
+                                            msg: 'Copied to clipboard: $helperNumber',
+                                            toastLength: Toast.LENGTH_SHORT,
+                                            gravity: ToastGravity.BOTTOM,
+                                            backgroundColor: Colors.green,
+                                            textColor: Colors.white,
+                                            fontSize: 16.0,
+                                          );
+                                        });
+                                      },
+                                      child: Container(
+                                        width: screenWidth*0.80,
+                                        decoration: BoxDecoration(
+                                          color: HexColor('#E9EAEB').withOpacity(1),
+                                        ),
+                                        padding: EdgeInsets.all(10),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              child: CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>,// Use a default asset image
+                                              ),
+                                            ),
+                                            SizedBox(width: 10,),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text('Call Tourist Now',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                                                  SizedBox(height: 10,),
+                                                  Text('first, get connect with user and understand his issue , Plan accordingly to rescue or help them.',
+                                                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                                  SizedBox(height: 20,),
+                                                  Column(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children: [
+                                                      Text(helperName,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                                      Text(helperNumber,style: TextStyle(fontWeight: FontWeight.bold,fontSize: 14,fontFamily: 'Poppins',color: Colors.green),)
+                                                    ],
+                                                  ),
+                                                  SizedBox(height: 20,),
+                                                  Row(
+                                                    children: [
+                                                      Image.asset('assets/images/heart.png',width: 20,height: 22,),
+                                                      Text('Copy Contact',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: Colors.orange,fontFamily: 'Poppins'),)
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                    SizedBox(height: 15,),
+                                    GestureDetector(
+                                      onTap:()async{
+                                        String mapsUrl = 'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                        if (await canLaunch(mapsUrl)) {
+                                          await launch(mapsUrl);
+                                        } else {
+                                          throw 'Could not launch $mapsUrl';
+                                        }
+                                      },
+                                      child: Container(
+                                        width:screenWidth*0.80,
+                                        decoration: BoxDecoration(
+                                          color: HexColor('#E9EAEB').withOpacity(1),
+                                        ),
+                                        padding: EdgeInsets.all(10),
+                                        child: Row(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            Container(
+                                              child: CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>,// Use a default asset image
+                                              ),
+                                            ),
+                                            SizedBox(width: 10,),
+                                            Expanded(
+                                              child: Column(
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                                children: [
+                                                  SizedBox(height: 10,),
+                                                  Text('Tourist Location',style:TextStyle(fontSize: 13,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.green),),
+                                                  SizedBox(height: 10,),
+                                                  Text(
+                                                    "Hurry up, it may be the concern of someone's life. ",
+                                                    style: TextStyle(
+                                                      fontFamily: 'Poppins',
+                                                      fontSize: 14,
+                                                      color: Colors.black,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 10,),
+                                                  Row(
+                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                    children:[
+                                                      Image.asset('assets/images/heart.png',width: 20,height: 20,) ,
+                                                      SizedBox(width: 10,),
+                                                      Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                        children: [
+                                                          Text('Location',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600),),
+                                                          Container(width:screenWidth*0.50,child: Text(helperAddress,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600),))
+                                                        ],
+                                                      ),
+                                                    ],
+
+                                                  ),
+                                                  SizedBox(height: 20,),
+                                                  Row(
+                                                    children: [
+                                                      Text('Go to The Map',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: Colors.orange,fontFamily: 'Poppins'),),
+                                                      Image.asset('assets/images/arrow_fwd.png',width: 16,height: 16,)
+                                                    ],
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              )
+                                  : message[1]=='admin-cancel'
+                                  ?widget.state=='user'
+                                  ? Align(alignment: Alignment.centerRight,
+                                    child: Container(
+                                      width: screenWidth*0.80,
+                                      alignment: Alignment.center,
+                                      decoration: BoxDecoration(
+                                        color: HexColor('#E9EAEB').withOpacity(1),
+                                      ),
+                                      padding: EdgeInsets.all(10),
+                                      child: Text('Meeting Is Cancelled By You',
+                                        style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                    ),)
+                                  :Align(alignment: Alignment.centerLeft,
+                                child: Container(
+                                  width: screenWidth*0.80,
+                                  alignment: Alignment.center,
+                                  decoration: BoxDecoration(
+                                    color: HexColor('#E9EAEB').withOpacity(1),
+                                  ),
+                                  padding: EdgeInsets.all(10),
+                                  child: Text('Meeting Is Cancelled By ${helperName}',
+                                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                ),)
+                                  :message[1] == 'user'
                                   ? widget.state == 'helper'
                                     ? Align(
                                   alignment: Alignment.centerLeft,
                                   child: Container(
-                                    width: screenWidth*0.70,
+                                    width: screenWidth*0.80,
                                     decoration: BoxDecoration(
                                       color: HexColor('#E9EAEB').withOpacity(1),
                                     ),
                                     padding: EdgeInsets.all(10),
                                     child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Container(
                                           child: CircleAvatar(
@@ -602,9 +1024,25 @@ class _ChatsPageState extends State<ChatsPage> {
                                         SizedBox(width: 10,),
                                         Expanded(
                                           child: Column(
+                                            crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text('Name Of User'),
-                                              Text(
+                                              Text(helperName,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                                              (message[0]).contains('.jpg') || (message[0]).contains('.jpeg') || (message[0]).contains('.png')
+                                                ?Image.file(
+                                                File(message[0]),
+                                                fit: BoxFit.cover,
+                                                )
+                                                :message[0].contains('.pdf')
+                                                  ?GestureDetector(
+                                                    onTap: (){
+                                                      _openFileWithDefaultApp(message[0]);
+                                                    },
+                                                    child: Container(
+                                                    width: 200,
+                                                    height: 200,
+                                                    child: PDFView(filePath: message[0],)),
+                                                  )
+                                                  :Text(
                                                 message[0],
                                                 style: TextStyle(
                                                   fontFamily: 'Poppins',
@@ -622,12 +1060,13 @@ class _ChatsPageState extends State<ChatsPage> {
                                     : Align(
                                 alignment: Alignment.centerRight,
                                 child: Container(
-                                  width: screenWidth*0.70,
+                                  width: screenWidth*0.80,
                                   decoration: BoxDecoration(
                                     color: HexColor('#E9EAEB').withOpacity(1),
                                   ),
                                   padding: EdgeInsets.all(10),
                                   child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         child: CircleAvatar(
@@ -640,8 +1079,23 @@ class _ChatsPageState extends State<ChatsPage> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text('You'),
-                                            Text(
+                                            Text('You',style: TextStyle(fontFamily: 'Poppins',fontWeight: FontWeight.bold,fontSize: 14),),
+                                            (message[0]).contains('.jpg') || (message[0]).contains('.jpeg') || (message[0]).contains('.png')
+                                                ?Image.file(
+                                              File(message[0]),
+                                              fit: BoxFit.cover,
+                                            )
+                                                :message[0].contains('.pdf')
+                                                ?GestureDetector(
+                                              onTap: (){
+                                                _openFileWithDefaultApp(message[0]);
+                                              },
+                                              child: Container(
+                                                  width: 200,
+                                                  height: 200,
+                                                  child: PDFView(filePath: message[0],)),
+                                            )
+                                                :Text(
                                               message[0],
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
@@ -656,16 +1110,17 @@ class _ChatsPageState extends State<ChatsPage> {
                                   ),
                                 ),
                               )
-                                  : widget.state == 'user'
+                                  : widget.state == 'user' && message[1].contains('admin')==false
                                     ? Align(
                                   alignment: Alignment.centerLeft,
                                   child: Container(
-                                    width: screenWidth*0.70,
+                                    width: screenWidth*0.80,
                                     decoration: BoxDecoration(
                                       color: HexColor('#E9EAEB').withOpacity(1),
                                     ),
                                     padding: EdgeInsets.all(10),
                                     child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
                                         Container(
                                           child: CircleAvatar(
@@ -678,8 +1133,23 @@ class _ChatsPageState extends State<ChatsPage> {
                                           child: Column(
                                             crossAxisAlignment: CrossAxisAlignment.start,
                                             children: [
-                                              Text('Name Of Helper'),
-                                              Text(
+                                              Text(helperName,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                                              (message[0]).contains('.jpg') || (message[0]).contains('.jpeg') || (message[0]).contains('.png')
+                                                  ?Image.file(
+                                                File(message[0]),
+                                                fit: BoxFit.cover,
+                                              )
+                                                  :message[0].contains('.pdf')
+                                                  ?GestureDetector(
+                                                onTap: (){
+                                                  _openFileWithDefaultApp(message[0]);
+                                                },
+                                                child: Container(
+                                                    width: 200,
+                                                    height: 200,
+                                                    child: PDFView(filePath: message[0],)),
+                                              )
+                                                  :Text(
                                                 message[0],
                                                 style: TextStyle(
                                                   fontFamily: 'Poppins',
@@ -694,15 +1164,17 @@ class _ChatsPageState extends State<ChatsPage> {
                                     ),
                                   ),
                                 )
-                                    : message[1].contains('admin-user')==false
+                                    : message[1].contains('admin')==false
                                         ?Align(
                                 alignment: Alignment.centerRight,
                                 child: Container(
+                                  width: screenWidth*0.80,
                                   decoration: BoxDecoration(
                                     color: HexColor('#E9EAEB').withOpacity(1),
                                   ),
                                   padding: EdgeInsets.all(10),
                                   child: Row(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       Container(
                                         child: CircleAvatar(
@@ -715,8 +1187,23 @@ class _ChatsPageState extends State<ChatsPage> {
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            Text('You'),
-                                            Text(
+                                            Text('You',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                                            (message[0]).contains('.jpg') || (message[0]).contains('.jpeg') || (message[0]).contains('.png')
+                                                ?Image.file(
+                                              File(message[0]),
+                                              fit: BoxFit.cover,
+                                            )
+                                                :message[0].contains('.pdf')
+                                                ?GestureDetector(
+                                              onTap: (){
+                                                _openFileWithDefaultApp(message[0]);
+                                              },
+                                              child: Container(
+                                                  width: 200,
+                                                  height: 200,
+                                                  child: PDFView(filePath: message[0],)),
+                                            )
+                                                :Text(
                                               message[0],
                                               style: TextStyle(
                                                 fontFamily: 'Poppins',
@@ -731,18 +1218,72 @@ class _ChatsPageState extends State<ChatsPage> {
                                   ),
                                 ),
                               )
-                                        :widget.state=='user' && message[1].contains('admin-user')==true
+                                        :widget.state=='user'
                                           ?message[1]=='admin-user-1'
                                             ? Align(
                                 alignment: Alignment.centerLeft,
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
                                     Container(
+                                      width:screenWidth*0.80,
                                       decoration: BoxDecoration(
                                         color: HexColor('#E9EAEB').withOpacity(1),
                                       ),
                                       padding: EdgeInsets.all(10),
                                       child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            child: CircleAvatar(
+                                              radius: 20.0,
+                                              backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>,// Use a default asset image
+                                            ),
+                                          ),
+                                          SizedBox(width: 10,),
+                                          Expanded(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                              children: [
+                                                SizedBox(height: 10,),
+                                                Row(
+                                                  children: [
+                                                    Text(helperName,style: TextStyle(fontSize: 13,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
+                                                    Text('( Allotment Successful )',style:TextStyle(fontSize: 12,fontStyle: FontStyle.italic,fontFamily: 'Poppins',color: Colors.green),),
+                                                  ],
+                                                ),
+                                                SizedBox(height: 10,),
+                                                Text(
+                                                  'Hey ${userName},I get your problem, let’s connect first on call. be calm down.',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                    color: Colors.black,
+                                                  ),
+                                                ),
+                                                SizedBox(height: 10,),
+                                                Text('This service will cost you 500 Rs, you successfully get assistant !',
+                                                  style: TextStyle(
+                                                    fontFamily: 'Poppins',
+                                                    fontSize: 14,
+                                                    color: Colors.green,
+                                                  ),),
+                                              ],
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 15,),
+                                    Container(
+                                      width: screenWidth*0.80,
+                                      decoration: BoxDecoration(
+                                        color: HexColor('#E9EAEB').withOpacity(1),
+                                      ),
+                                      padding: EdgeInsets.all(10),
+                                      child: Row(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Container(
                                             child: CircleAvatar(
@@ -755,68 +1296,30 @@ class _ChatsPageState extends State<ChatsPage> {
                                             child: Column(
                                               crossAxisAlignment: CrossAxisAlignment.start,
                                               children: [
-                                                Row(
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
                                                   children: [
-                                                    Text(userName,style: TextStyle(fontSize: 13,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-                                                    Text('( Allotment Successful )',style:TextStyle(fontSize: 12,fontStyle: FontStyle.italic,fontFamily: 'Poppins',color: Colors.green),),
+                                                    Text('What you will get ?',style: TextStyle(fontFamily: 'Poppins',fontSize: 13,fontWeight: FontWeight.bold),),
+                                                    SizedBox(height: 10,),
+                                                    Text('You can connect with the person with multiple channel as like message , call even video call,and ask for the problem you facing, if needed than person will be available physically with the nature of help. ',
+                                                      style: TextStyle(fontFamily: 'Poppins',fontSize: 13),)
                                                   ],
                                                 ),
-                                                Text(
-                                                  'Hey ${userName},\nI get your problem, let’s connect first on call. be calm down.',
-                                                  style: TextStyle(
-                                                    fontFamily: 'Poppins',
-                                                    fontSize: 14,
-                                                    color: Colors.black,
-                                                  ),
-                                                ),
-                                                Container(
-                                                  color: Colors.green,
-                                                  child: Row(
-                                                    children: [
-                                                      Text('This service will cost you\t',
-                                                        style: TextStyle(
-                                                        fontFamily: 'Poppins',
-                                                        fontSize: 13,)),
-                                                      Text('500 Rs,\t',
-                                                          style: TextStyle(
-                                                        fontFamily: 'Poppins',
-                                                        fontSize: 13,
-                                                        fontWeight: FontWeight.bold)),
-                                                      Text('you successfully get assistant !',
-                                                          style: TextStyle(
-                                                              fontFamily: 'Poppins',
-                                                              fontSize: 13,),
-                                                      ),
-                                                    ],
-                                                  ),
+                                                SizedBox(height: 20,),
+                                                Column(
+                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text('*Terms & conditions',style: TextStyle(fontFamily: 'Poppins',fontSize: 13,fontWeight: FontWeight.bold),),
+                                                    SizedBox(height: 10,),
+                                                    Text('This 500 Rs payment is for the person allotment only, other extra expenditure will cost you separately.\n\nYou can talk clearly with your savior ,may communication itself a solution of your problems.',
+                                                      style: TextStyle(fontFamily: 'Poppins',fontSize: 13),),
+                                                    SizedBox(height: 20,),
+                                                    Text("Let's Connect",style: TextStyle(fontFamily: 'Poppins',fontSize: 13,fontWeight: FontWeight.bold),),
+                                                    SizedBox(height: 20,),
+                                                  ],
                                                 ),
                                               ],
                                             ),
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                    Container(
-                                      decoration: BoxDecoration(
-                                        color: HexColor('#E9EAEB').withOpacity(1),
-                                      ),
-                                      padding: EdgeInsets.all(10),
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Column(
-                                            children: [
-                                              Text('What you will get ?',style: TextStyle(fontFamily: 'Poppins',fontSize: 13,fontWeight: FontWeight.bold),),
-                                              Text('You can connect with the person with multiple channel as like message , call even video call,and ask for the problem you facing, if needed than person will be available physically with the nature of help. ',
-                                                style: TextStyle(fontFamily: 'Poppins',fontSize: 13),)
-                                            ],
-                                          ),
-                                          Column(
-                                            children: [
-                                              Text('*Terms & conditions',style: TextStyle(fontFamily: 'Poppins',fontSize: 13,fontWeight: FontWeight.bold),),
-                                              Text('This 500 Rs payment is for the person allotment only, other extra expenditure will cost you separately.\nYou can talk clearly with your savior ,may communication itself a solution of your problems.\nLet’s Connect  !',
-                                                style: TextStyle(fontFamily: 'Poppins',fontSize: 13),)
-                                            ],
                                           ),
                                         ],
                                       ),
@@ -825,7 +1328,54 @@ class _ChatsPageState extends State<ChatsPage> {
                                 ),
                               )
                                             : SizedBox(height: 0,)
-                                          :SizedBox(height: 0,),
+                                          : message[1]=='admin-user-1'
+                                        ?Align(
+                  alignment: Alignment.centerRight,
+                  child: Column(
+                    children: [
+                      Container(
+                        width:screenWidth*0.80,
+                        decoration: BoxDecoration(
+                          color: HexColor('#E9EAEB').withOpacity(1),
+                        ),
+                        padding: EdgeInsets.all(10),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: CircleAvatar(
+                                radius: 20.0,
+                                backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>,// Use a default asset image
+                              ),
+                            ),
+                            SizedBox(width: 10,),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Text('You',style: TextStyle(fontSize: 13,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
+                                    ],
+                                  ),
+                                  Text(
+                                    'Hey ${helperName},I get your problem, let’s connect first on call. be calm down.',
+                                    style: TextStyle(
+                                      fontFamily: 'Poppins',
+                                      fontSize: 14,
+                                      color: Colors.black,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+                                        :SizedBox(height: 0,),
                             );
                           }).toList(),
                         ),
@@ -833,18 +1383,29 @@ class _ChatsPageState extends State<ChatsPage> {
                     )
                     :SizedBox(height: 10,),
 
-                    (widget.state=='user' && meetStatus=='pending')
-                    ?Padding(
-                      padding: const EdgeInsets.only(left: 16.0),
+                    (widget.state=='user' && meetStatus=='accept')
+                    ?Center(
                       child: Column(
                         children: [
                           GestureDetector(
-                            onTap:(){
-
+                            onTap: ()async{
+                              bool userConfirmed = await showConfirmationDialog(context, userName!);
+                              if (userConfirmed) {
+                                // User confirmed, do something
+                                print('User confirmed');
+                                await updateLocalUserPings(widget.userId, widget.meetId!, 'cancel');
+                                await updateLocalUserPings(helperId, widget.meetId!, 'cancel');
+                                updateMeetingChats(widget.meetId!,['','admin-cancel']);
+                                socket.emit('message', {'message':'','user1':'admin-cancel','user2':''});
+                                setState(() {});
+                              } else {
+                                // User canceled, do something else
+                                print('User canceled');
+                              }
                             },
                             child: Container(
-                              width: 400,
-                              height: 70,
+                              width: 325,
+                              height: 63,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                                 border: Border.all(color: Colors.orange)
@@ -855,27 +1416,50 @@ class _ChatsPageState extends State<ChatsPage> {
                                   fontSize: 18))),
                             ),
                           ),
-                          Container(
-                            width: 400,
-                            height: 70,
-                            child: FiledButton(
-                                backgroundColor: HexColor('#FB8C00'),
-                                onPressed: () async{
-                                  // Payment Gateway Open
-                                  // payment success then true else false
-                                  await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
-                                  await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
-                                },
-                                child: Center(
-                                    child: Text('Continue to pay',
-                                        style: TextStyle(
-                                            fontWeight: FontWeight.bold,
-                                            color: Colors.white,
-                                            fontSize: 18)))),
+                          SizedBox(height: 20,),
+                          GestureDetector(
+                            onTap:()async{
+                              // Payment Gateway Open
+                              // payment success then true else false
+
+                              bool res = await Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => UpiPayments(name:userName,merchant:helperName,amount:500,phoneNo:helperNumber),
+                                ),
+                              );
+                              if(res){
+                                await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
+                                await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
+                                updateMeetingChats(widget.meetId!,['','admin-helper-1']);
+                                socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
+                                setState(() {});
+                              }else{
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                  const SnackBar(
+                                    content: Text('Payment UnSuccessful. Try Again!'),
+                                  ),
+                                );
+                              }
+                            },
+                            child: Container(
+                              width: 325,
+                              height: 63,
+                              decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(10),
+                                color: Colors.orange,
+                              ),
+                              child: Center(child:Text('Continue to pay',style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 18))),
+                            ),
                           ),
                         ],
                       ),
                     )
+                    :meetStatus=='cancel' || meetStatus=='close'
+                    ?SizedBox(height: 0,)
                     :Row(
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
@@ -909,10 +1493,24 @@ class _ChatsPageState extends State<ChatsPage> {
                                   ),
                                 ),
                                 SizedBox(width: 10,),
-                                GestureDetector(
-                                    onTap: (){
+                                (meetStatus=='schedule' ||  sender.length<=1)?GestureDetector(
+                                    onTap: ()async{
+                                      String ?path = await showDialog(context: context, builder: (BuildContext context){
+                                        return Container(child: UploadMethod());
+                                      },);
+                                      if(path!=null && path.length>0){
+                                        if(widget.state=='helper'){
+                                          updateMeetingChats(widget.meetId!,[path,'helper']);
+                                          socket.emit('message', {'message':path,'user1':'','user2':'helper'});
+                                        }
+                                        else{
+                                          updateMeetingChats(widget.meetId!,[path,'user']);
+                                        socket.emit('message', {'message':path,'user1':'user','user2':''});
+                                      }
+                                        setState(() {});
+                                      }
                                     },
-                                    child: !(receiver.length==0 && sender.length>1)?Image.asset('assets/images/attach_icon.png'):SizedBox(width: 0,)),
+                                    child: Image.asset('assets/images/attach_icon.png')):SizedBox(width: 0,),
                                 messageTyping==false?SizedBox(width: 10,):SizedBox(width: 5,),
                                 // messageTyping==false?Image.asset('assets/images/send_icon.png'):SizedBox(width: 0,),
                               ],
@@ -920,7 +1518,7 @@ class _ChatsPageState extends State<ChatsPage> {
                           ),
                         ),
                         SizedBox(width: 5,),
-                        messageTyping==false && !(receiver.length==0 && sender.length>1)? Container(
+                        messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)? Container(
                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
                           child: IconButton(
                             icon: Icon(Icons.call),
@@ -929,14 +1527,14 @@ class _ChatsPageState extends State<ChatsPage> {
                           ),
                         ):SizedBox(width: 0,),
                         messageTyping==false? SizedBox(width: 0,):SizedBox(width: 5,),
-                        if (messageTyping==false && !(receiver.length==0 && sender.length>1)) Container(
+                        if (messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)) Container(
                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
                           child: IconButton(
                             icon: Icon(Icons.videocam),
                             // onPressed:initiateVideoCall,
                             onPressed: (){},
                           ),
-                        ) else if(!(receiver.length==0 && sender.length>1)) GestureDetector(
+                        ) else if((meetStatus=='schedule' ||  sender.length<=1)) GestureDetector(
                           onTap: ()async{
                             if(receiver.length==0 && sender.length>1){
 
@@ -949,7 +1547,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   _handleSend();
                                 }
                               }else{
-
+                                _handleSend();
                               }
                               setState(() {
                                 messageTyping = false;
