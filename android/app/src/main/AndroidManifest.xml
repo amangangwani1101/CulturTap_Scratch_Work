@@ -8,7 +8,6 @@
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher"
         android:usesCleartextTraffic="true">
-
         <activity
             android:name=".MainActivity"
             android:exported="true"
@@ -43,6 +42,13 @@
 <!--        <meta-data android:name="com.phonepe.android.sdk.AppId" android:value="appId"/>-->
 
     </application>
+
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
     <!-- ... other manifest elements ... -->
 
     <uses-feature android:name="android.hardware.camera" android:required="false" /> <!-- Add this line for camera hardware feature -->
