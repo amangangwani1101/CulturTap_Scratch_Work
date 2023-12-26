@@ -21,6 +21,8 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../TripCalling/Payments/UpiPayments.dart';
+import '../../VideoCalling/CallingScreen.dart';
+import '../../VideoCalling/SignallingService.dart';
 import 'Uploader.dart';
 
 void main(){
@@ -66,6 +68,7 @@ class _ChatsPageState extends State<ChatsPage> {
   bool messagesStarted = false;
   List<List<String>> messages = [];
   List<String>sender=[],receiver=[];
+  dynamic incomingSDPOffer;
 
   Future<String> createMeetRequest() async {
     final url = Uri.parse('$serverUrl/updateLocalAssistantMeetDetails');
@@ -459,7 +462,41 @@ class _ChatsPageState extends State<ChatsPage> {
     }
     if(widget.meetId!=null) {
       startConnectionCards();
+      SignallingService.instance.init(
+        websocketUrl: serverUrl,
+        selfCallerID: widget.meetId!,
+      );
+      // listen for incoming video call
+      SignallingService.instance.socket!.on("newCall", (data) {
+        if (mounted) {
+          print('comingdddd');
+          // set SDP Offer of incoming call
+          setState(() => incomingSDPOffer = data);
+        }
+      });
     }
+  }
+
+  // join Call
+  _joinCall({
+    required String callerId,
+    required String calleeId,
+    required String section,imageOwn,imageOther,
+    dynamic offer,
+  }) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (_) => CallScreen(
+          callerId: callerId,
+          calleeId: calleeId,
+          section:section,
+          offer: offer,
+          imageOwn:userPhoto,
+          imageOther:helperPhoto,
+        ),
+      ),
+    );
   }
 
   Future<void> startConnectionCards()async{
@@ -690,6 +727,44 @@ class _ChatsPageState extends State<ChatsPage> {
                                 ),
                               ],
                             ):SizedBox(height: 0,),
+                            if (incomingSDPOffer != null)
+                              Column(
+                                children: [
+                                  Text(
+                                    "Incoming Call from $userName",
+                                    style: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      IconButton(
+                                        icon: const Icon(Icons.call_end),
+                                        color: Colors.redAccent,
+                                        onPressed: () {
+                                          setState(() => incomingSDPOffer = null);
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.call),
+                                        color: Colors.greenAccent,
+                                        onPressed: () {
+                                          _joinCall(
+                                            callerId: incomingSDPOffer["callerId"]!,
+                                            calleeId: widget.meetId!,
+                                            offer: incomingSDPOffer["sdpOffer"],
+                                            section: incomingSDPOffer["section"],
+                                            imageOwn:incomingSDPOffer["imageOther"],
+                                            imageOther:incomingSDPOffer["imageOwn"],
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
                           ],
                         ),
                       ],
@@ -1522,7 +1597,15 @@ class _ChatsPageState extends State<ChatsPage> {
                           decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
                           child: IconButton(
                             icon: Icon(Icons.call),
-                            onPressed:(){},
+                            onPressed:(){
+                              _joinCall(
+                                callerId: widget.meetId!,
+                                calleeId: widget.meetId!,
+                                section: 'audio',
+                                imageOwn:userPhoto,
+                                imageOther:helperPhoto,
+                              );
+                            },
                             // onPressed: !_isUiEnabled ? startCall : null,
                           ),
                         ):SizedBox(width: 0,),
@@ -1532,7 +1615,15 @@ class _ChatsPageState extends State<ChatsPage> {
                           child: IconButton(
                             icon: Icon(Icons.videocam),
                             // onPressed:initiateVideoCall,
-                            onPressed: (){},
+                            onPressed: (){
+                              _joinCall(
+                                callerId: widget.meetId!,
+                                calleeId: widget.meetId!,
+                                section: 'video',
+                                imageOwn:userPhoto,
+                                imageOther:helperPhoto,
+                              );
+                            },
                           ),
                         ) else if((meetStatus=='schedule' ||  sender.length<=1)) GestureDetector(
                           onTap: ()async{

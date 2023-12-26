@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_flutter/CulturTap/appbar.dart';
 import '../../../widgets/Constant.dart';
 import 'ChatsPage.dart';
 
@@ -64,7 +65,7 @@ class _MaainState extends State<Maain>  {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(automaticallyImplyLeading: false,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: '652a31f77ff9b6023a14838a',),automaticallyImplyLeading: false,),
         body: Builder(
           builder: (context) {
             return GestureDetector(

@@ -31,7 +31,11 @@ class _ReceiverState extends State<Receiver>{
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+        useMaterial3: true,
+      ),
       home:Scaffold(
       // debugShowCheckedModeBanner: false,
       body : PingsSection(userId:id,state: 'All',),
