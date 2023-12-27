@@ -2,7 +2,12 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_flutter/CulturTap/VideoFunc/categoryData.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
+import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
@@ -10,7 +15,6 @@ import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarH
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:provider/provider.dart';
-
 import '../BackendStore/BackendStore.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
 import '../widgets/CustomButton.dart';
@@ -30,27 +34,113 @@ class FinalProfile extends StatefulWidget{
   _FinalProfileState createState() => _FinalProfileState();
 }
 class _FinalProfileState extends State<FinalProfile> {
+
+  late List<Map<String, dynamic>> categoryData;
   Map<String, dynamic>? dataset;
+  bool isLoading = true;
+  bool isDataLoading = true;
+
   @override
   void initState() {
     super.initState();
+
     fetchDataset();
     // print('userid is');
     // print(widget.userId);
     // print('clickedid is');
-
+    fetchingStoriesUserID(widget.clickedId);
+    fetchUserLocationAndData();
+    print("clicked ID");
+    print(widget.clickedId);
   }
+
+
+  Future<void> fetchDataForCategory(double latitude, double longitude, int categoryIndex) async {
+    try {
+
+      final Map<String, dynamic> category = categoryData[categoryIndex];
+      String apiEndpoint = category['apiEndpoint'];
+
+      final fetchedStoryList = await fetchDataForStories(latitude, longitude, apiEndpoint);
+
+      Map<String, dynamic> processedData = processFetchedStories(fetchedStoryList, latitude, longitude);
+
+      categoryData[categoryIndex]['storyUrls'] = processedData['totalVideoPaths'];
+      categoryData[categoryIndex]['videoCounts'] = processedData['totalVideoCounts'];
+      categoryData[categoryIndex]['storyDistance'] = processedData['storyDistances'];
+      categoryData[categoryIndex]['storyLocation'] = processedData['storyLocations'];
+      categoryData[categoryIndex]['storyTitle'] = processedData['storyTitles'];
+      categoryData[categoryIndex]['storyCategory'] = processedData['storyCategories'];
+      categoryData[categoryIndex]['thumbnail_url'] = processedData['thumbnail_urls'];
+      categoryData[categoryIndex]['storyDetailsList'] = processedData['storyDetailsList'];
+
+      setState(() {
+
+          isLoading = false;
+
+
+      });
+
+
+      print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
+      print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
+      print('storyurls');
+      print(categoryData[categoryIndex]['storyUrls']);
+    } catch (error) {
+      print('Error fetching stories for category $categoryIndex: $error');
+      setState(() {
+
+      });
+    }
+  }
+
+
+  Future<void> fetchUserLocationAndData() async {
+    print('I called');
+
+    try {
+      Position position = await Geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+      );
+
+      double latitude = position.latitude;
+      double longitude = position.longitude;
+
+
+      print('Latitude is: $latitude');
+
+      // Fetch stories for each category
+
+
+
+      for (int i = 0; i < categoryData.length; i++) {
+        await fetchDataForCategory(latitude, longitude, i);
+
+      }
+
+
+
+    } catch (e) {
+      print('Error fetching location: $e');
+    }
+  }
+
   Future<void> fetchDataset() async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
     final url = Uri.parse('$serverUrl/userStoredData/${widget.clickedId}'); // Replace with your backend URL
     final http.Response response = await http.get(url);
 
     if (response.statusCode == 200) {
+      setState(() {
+
+        isDataLoading = true;
+      });
       final data = json.decode(response.body);
       print('Fetched Data ${widget.clickedId}');
       print(data);
       setState(() {
         dataset = data;
+        isDataLoading = false;
       });
     } else {
       // Handle error
@@ -88,6 +178,21 @@ class _FinalProfileState extends State<FinalProfile> {
     });
   }
 
+  void fetchingStoriesUserID(String storyUserID){
+    print('printitng story user ID hahahaha');
+    print(storyUserID);
+    categoryData = [
+      ...generateCategoryData(name: 'Most Recent Visits', apiEndpoint: 'api/stories/user/$storyUserID'),
+      ...generateCategoryData(name: 'Solo Trips', apiEndpoint: 'api/stories/user/$storyUserID/category/Solo trip'),
+      ...generateCategoryData(name: 'Trip With Friends', apiEndpoint: 'api/stories/user/$storyUserID/category/Trip With Friends'),
+      ...generateCategoryData(name: 'Trip With Family', apiEndpoint: 'api/stories/user/$storyUserID/category/Trip With Family'),
+      ...generateCategoryData(name: 'Food And Restaurants', apiEndpoint: 'api/stories/user/$storyUserID/genres/Street Foods,Restaurants'),
+      ...generateCategoryData(name: 'Fashion', apiEndpoint: 'api/stories/user/$storyUserID/genres/Fashion'),
+
+    ];
+
+  }
+
   Widget build(BuildContext context) {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
 
@@ -95,7 +200,7 @@ class _FinalProfileState extends State<FinalProfile> {
       onRefresh: _refreshPage,
 
       child: Scaffold(
-        appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,),backgroundColor: Colors.white, shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
+        appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
         body: WillPopScope(
           onWillPop: ()async{
             Navigator.pushReplacement(
@@ -103,44 +208,134 @@ class _FinalProfileState extends State<FinalProfile> {
               MaterialPageRoute(builder: (context) => HomePage()),
             );
 
-            return true;
+            return false;
           },
-          child: SingleChildScrollView(
+          child: isDataLoading ?
+
+          Center(
             child: Container(
-              color: Theme.of(context).backgroundColor,
-              padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
-              child: Center(
-                child: Column(
-                  // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
+              color : Theme.of(context).backgroundColor,
+              height : double.infinity,
+              width : double.infinity,
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
+                ],
+              ),
+            ),
+          )
+
+              : SingleChildScrollView(
+            child: Column(
+              children: [
+                Container(
+                  color: Theme.of(context).backgroundColor,
+                  padding: EdgeInsets.only(top: 0.0,left: 16.0,right: 16.0 , bottom: 16.00),
+                  child: Center(
+                    child: Column(
+                      // mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+
+                        SizedBox(height: 20,),
+                        CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
+                        dataset?['userQuote']!=null ?SizedBox(height: 30,):SizedBox(height: 0,),
+                        MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,state:'final'),
+                        ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
+                        SizedBox(height: 40,),
+                        Container(
+                          width: 360,
+                          child: Center(
+                            child: UserDetailsTable(place:dataset != null && dataset?['userPlace']!=null? dataset!['userPlace'] : null,
+                              profession:dataset != null && dataset?['userProfession']!=null? dataset!['userProfession'] : null,
+                              age:dataset != null && dataset?['userAge']!=null? dataset!['userAge'] : null,
+                              gender:dataset != null && dataset?['userGender']!=null? dataset!['userGender'] : null,
+                              languageList:dataset != null && dataset?['userLanguages']!=null? dataset!['userLanguages'] : [],
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 40,),
+                        ExpertCardDetails(),
+                        SizedBox(height: 40,),
+                        dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
+                        SizedBox(height: 50,),
+                        RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName']),
+
+                        SizedBox(height : 40),
+                      ],
+                    ),
+                  ),
+                ),
+
+                isLoading ? Center(
+                  child: Container( height : 40,
+                      child: CircularProgressIndicator(color: Colors.orange, )),
+                ):
+
+                Column(
                   children: [
 
-                    SizedBox(height: 20,),
-                    CoverPage(reqPage: 0,profileDataProvider: profileDataProvider,imagePath:dataset != null ? dataset!['userPhoto'] : null,name:dataset != null ? dataset!['userName'] : null),
-                    dataset?['userQuote']!=null ?SizedBox(height: 30,):SizedBox(height: 0,),
-                    MotivationalQuote(profileDataProvider: profileDataProvider,quote:dataset != null ? dataset!['userQuote'] : null,state:'final'),
-                    ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
-                    SizedBox(height: 40,),
-                    Container(
-                      width: 360,
-                      child: Center(
-                        child: UserDetailsTable(place:dataset != null && dataset?['userPlace']!=null? dataset!['userPlace'] : null,
-                          profession:dataset != null && dataset?['userProfession']!=null? dataset!['userProfession'] : null,
-                          age:dataset != null && dataset?['userAge']!=null? dataset!['userAge'] : null,
-                          gender:dataset != null && dataset?['userGender']!=null? dataset!['userGender'] : null,
-                          languageList:dataset != null && dataset?['userLanguages']!=null? dataset!['userLanguages'] : [],
+                    Column(
+                      children: [
+                        SizedBox(height : 40),
+                        Padding(
+                          padding: const EdgeInsets.only(left:16.0),
+                          child: Row(
+
+                            children: [
+                              Container(
+                                width : 240,
+                                child: Text(
+                                  widget.userId == widget.clickedId ? "Your Story Tree" :  "Other Stories By ${dataset?['userName']?.split(' ')[0] } ?"
+                                 ,
+                                  style: Theme.of(context).textTheme.headline1,
+                                ),
+                              ),
+
+
+                            ],
+                          ),
                         ),
-                      ),
+                        SizedBox(height : 40),
+                      ],
                     ),
-                    SizedBox(height: 40,),
-                    ExpertCardDetails(),
-                    SizedBox(height: 40,),
-                    dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
-                    SizedBox(height: 50,),
-                    RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName'])
+                    Column(
+
+
+                      children: categoryData.asMap().entries.map((entry) {
+                        final int categoryIndex = entry.key;
+                        final Map<String, dynamic> category = entry.value;
+
+
+                        final String specificCategoryName = category['specificName'];
+                        final String categoryName = category['name'];
+                        final List<String> storyUrls = category['storyUrls'];
+                        final List<String> videoCounts = category['videoCounts'];
+                        final List<String> storyDistance = category['storyDistance'];
+                        final List<String> storyLocation = category['storyLocation'];
+                        final List<String> storyCategory = category['storyCategory'];
+                        final List<String> storyTitle = category['storyTitle'];
+                        List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+
+                        return buildCategorySection(
+                          specificCategoryName,
+                          categoryName,
+                          storyUrls,
+                          videoCounts,
+                          storyDistance,
+                          storyLocation,
+                          storyTitle,
+                          storyCategory,
+                          storyDetailsList,
+                          true,
+
+                        );
+                      }).toList(),
+                    ),
                   ],
-                ),
-              ),
+                )
+              ],
             ),
           ),
         ),
@@ -286,6 +481,7 @@ class _TripCallingState extends State<TripCalling>{
             ),
                   ],
                 ),
+
           ],
         ),
       ),

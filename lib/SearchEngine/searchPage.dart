@@ -1,8 +1,7 @@
 //homepage
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/dummyHomePage.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+
 import 'package:learn_flutter/CulturTap/VideoFunc/categoryData.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
@@ -10,6 +9,9 @@ import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/SearchEngine/SearchDatabaseHelper.dart';
+import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
 import 'package:http/http.dart' as http;
@@ -24,10 +26,7 @@ import 'package:learn_flutter/widgets/Constant.dart';
 
 
 
-Future<void> main() async{
-  WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
-
+void main() {
   runApp(MyApp());
 }
 
@@ -36,37 +35,7 @@ Future<void> main() async{
 
 //inside this
 
-class ImageScroll extends StatelessWidget {
-  final List<String> imageUrls = [
-    'assets/images/home_one.png',
-    'assets/images/home_two.png',
-    'assets/images/home_three.png',
-    'assets/images/home_four.png',
-    'assets/images/home_five.png',
-  ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 200.0, // Adjust the height as needed
-      child: ListView.builder(
-        scrollDirection: Axis.horizontal,
-        itemCount: imageUrls.length,
-        itemBuilder: (context, index) {
-          return Padding(
-            padding: EdgeInsets.all(1.0),
-            child: Image.network(
-              imageUrls[index],
-              width: 150.0, // Adjust the width as needed
-              height: 150.0, // Adjust the height as needed
-              fit: BoxFit.cover,
-            ),
-          );
-        },
-      ),
-    );
-  }
-}
 
 Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async {
   try {
@@ -101,29 +70,68 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: HomePage(),
+      home: SearchPage(),
     );
   }
 }
 
-class HomePage extends StatefulWidget {
+class SearchPage extends StatefulWidget {
   @override
-  _HomePageState createState() => _HomePageState();
+  _SearchPageState createState() => _SearchPageState();
 }
 
 
-class _HomePageState extends State<HomePage> {
+class _SearchPageState extends State<SearchPage> {
   bool _isVisible = true;
   bool isLoading = true;
   String userName = '';
   String userID = '';
   ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-
-
+  List<String> suggestions = ['Lemon'];
+  String selectedFilter = 'Location';
+  late FocusNode _searchFocusNode;
+  late SearchDatabaseHelper _databaseHelper;
+  bool isSearching = true;
+  String location = 'India';
 
 
   Map<int, bool> categoryLoadingStates = {};
+
+
+  Future<void> updateSuggestions(String query, String selectedFilter) async {
+    print('this is called');
+    if (query.isEmpty) {
+      print('query is empty');
+      // If the search bar is empty, show suggestions from the local database
+      List<String> searchHistory = await _databaseHelper.getSearchHistory();
+      setState(() {
+        print('search History $searchHistory');
+        suggestions = searchHistory;
+      });
+      return;
+    }
+
+    final apiUrl = '${Constant().serverUrl}';
+
+
+
+    final response = await http.get(
+      Uri.parse('$apiUrl?filter=$selectedFilter&query=$query'),
+    );
+
+
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      setState(() {
+        suggestions = List<String>.from(jsonResponse['suggestions']);
+        isSearching = true;
+      });
+    } else {
+      print('Error fetching suggestions: ${response.statusCode}');
+    }
+  }
+
 
   Future<void> fetchDataForCategory(double latitude, double longitude, int categoryIndex) async {
     try {
@@ -188,7 +196,7 @@ class _HomePageState extends State<HomePage> {
   }
 
 
-// Inside your _HomePageState class
+// Inside your _SearchPageState class
 
   Future<void> fetchUserLocationAndData() async {
     print('I called');
@@ -234,6 +242,10 @@ class _HomePageState extends State<HomePage> {
   void initState() {
     super.initState();
 
+    _searchFocusNode = FocusNode();
+    _searchFocusNode.requestFocus();
+    _databaseHelper = SearchDatabaseHelper();
+
     fetchDataFromMongoDB();
     requestLocationPermission();
     fetchUserLocationAndData();
@@ -257,42 +269,42 @@ class _HomePageState extends State<HomePage> {
 
   //updated code from here
 
+  @override
+  void dispose() {
+    _searchFocusNode.dispose();
+    _searchController.dispose();
+    super.dispose();
+  }
+
+
+
 
 
   Future<void> fetchUserLocationAndDataasync() async {
     await fetchUserLocationAndData();
     print(userName);
+
     // Any other asynchronous initialization tasks can be added here
   }
 
+
+
+
   List<Map<String, dynamic>> categoryData = [
-    ...generateCategoryData(name: 'Trending NearBy', apiEndpoint: '/main/api/trending-nearby-places'),
-    ...generateCategoryData(specificName: 'Trending Visits in Nation', apiEndpoint: '/nation/api/trending-visits-in-nation'),
-    ...generateCategoryData(name: 'International Trendings', apiEndpoint: '/international/trending-international'),
-    ...generateCategoryData(name: 'Festivals Around You', apiEndpoint: 'api/nearby-places/Festivals'),
-    ...generateCategoryData(specificName: 'Are You Feeling Hungry ?',name: 'Street Foods Nearby', apiEndpoint: 'api/nearby-places/Street Foods'),
-    ...generateCategoryData(specificName: 'Are You Feeling Hungry ?',name: 'Restaurants Near you', apiEndpoint: 'api/nearby-places/Restaurants'),
-    ...generateCategoryData(name: 'Popular & Trending here in foods', apiEndpoint: 'popular/api/popular-foods'),
-    ...generateCategoryData(name: 'Local Stores Near you', apiEndpoint: 'api/nearby-places/Fashion'),
-    ...generateCategoryData(specificName: 'Local Fashion for you !', name: 'Popular & Trending Here', apiEndpoint: '/fashion/api/nearby-fashion-places'),
-    ...generateCategoryData(specificName: 'Local Fashion for you !', name: 'Popular & Trending here', apiEndpoint: '/popularFashion/api/popular-fashion-places'),
-    ...generateCategoryData(specificName: 'Party Tonight ?', name: 'Popular & Trending Clubs Here', apiEndpoint: 'api/nearby-places/Party-Clubs & Bars'),
-    ...generateCategoryData(specificName: 'Party Tonight ?', name: 'Nearby Hotels & Resorts', apiEndpoint: 'api/nearby-places/Resorts'),
-    ...generateCategoryData(specificName: 'Other Outlets', name: 'Local Furniture', apiEndpoint: '/furniture/api/local-furniture'),
-    ...generateCategoryData(specificName: 'Other Outlets', name: 'Handy-Crafts', apiEndpoint: '/handy-crafts/api/handyCrafts'),
-    ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Forests Near you', apiEndpoint: 'api/nearby-places/Forests'),
-    ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Famous RiverSides Here', apiEndpoint: 'api/nearby-places/Riverside'),
-    ...generateCategoryData(specificName: '', name: 'Islands Here', apiEndpoint: 'api/nearby-places/Island'),
+  // /stories/best/genre/:genre/location/:location
+    ...generateCategoryData(name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle/location/India'),
+    ...generateCategoryData(name: 'Most Trending Visits', apiEndpoint: '/api/stories/best/location/India'),
+    ...generateCategoryData(name: 'Historical/Heritage', apiEndpoint: '/api/stories/best/genre/Historical/Heritage/location/India'),
+    ...generateCategoryData(name: 'Art & Culture/Museum', apiEndpoint: '/api/stories/best/genre/Art & Culture/location/India'),
+    ...generateCategoryData(name: 'Wildlife attractions', apiEndpoint: '/api/stories/best/genre/WildLife attractions/location/India'),
+    ...generateCategoryData(name: 'Advanture Places', apiEndpoint: '/api/stories/best/genre/Advanture Places/location/India'),
+    ...generateCategoryData(name: 'Festival', apiEndpoint: '/api/stories/best/genre/Festival/location/India'),
+    ...generateCategoryData(name: 'Fashion', apiEndpoint: '/api/stories/best/genre/Fashion/location/India'),
+
   ];
 
 
-  BackButtonHandler backButtonHandler1 = BackButtonHandler(
-    imagePath: 'assets/images/exit.svg',
-    textField: 'Do you want to exit?',
-    what: 'exit',
-    button1: 'NO',
-    button2:'EXIT',
-  );
+
 
   Future<void> _refreshHomepage() async {
     await fetchUserLocationAndData();
@@ -305,7 +317,15 @@ class _HomePageState extends State<HomePage> {
 
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => backButtonHandler1.onWillPop(context, true),
+      onWillPop: () async {
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+
+        return false; // Returning true will allow the user to pop the page
+      },
       child: Scaffold(
         backgroundColor: Theme.of(context).backgroundColor,
         body: RefreshIndicator(
@@ -333,7 +353,72 @@ class _HomePageState extends State<HomePage> {
                 delegate: SliverChildListDelegate(
                   [
                     // Your other widgets here
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
+
+
+
+                        SizedBox(height : 40),
+                        SearchBarWithSuggestions(
+                          focusNode: _searchFocusNode,
+                          controller: _searchController,
+                          onSearch: (query) => updateSuggestions(query, selectedFilter), // Pass the selected filter
+                        ),
+
+                        SizedBox(height: 20),
+                        FiltersWithHorizontalScroll(
+                          selectedFilter: selectedFilter,
+                          onFilterSelected: (filter) {
+                            setState(() {
+                              selectedFilter = filter;
+                            });
+                          },
+                        ),
+                        SizedBox(height: 30),
+
+                        // Expanded(
+                        //   child: SingleChildScrollView(
+                        //     child: Column(
+                        //       children: suggestions.map((suggestion) {
+                        //         return Container(
+                        //           margin: EdgeInsets.only(left: 20, right: 20),
+                        //           height: 50,
+                        //           child: Row(
+                        //             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        //             crossAxisAlignment: CrossAxisAlignment.center,
+                        //             children: [
+                        //               Row(
+                        //                 children: [
+                        //                   IconButton(
+                        //                     icon: Icon(Icons.watch_later_outlined, size: 25, color: Theme.of(context).primaryColor),
+                        //                     onPressed: () {},
+                        //                   ),
+                        //                   Text(
+                        //                     suggestion,
+                        //                     style: TextStyle(color: Colors.black, fontSize: 16, fontWeight: FontWeight.w600),
+                        //                   ),
+                        //                 ],
+                        //               ),
+                        //               IconButton(
+                        //                 icon: Icon(Icons.watch_later_outlined, size: 25, color: Theme.of(context).primaryColor),
+                        //                 onPressed: () {},
+                        //               ),
+                        //             ],
+                        //           ),
+                        //         );
+                        //       }).toList(),
+                        //     ),
+                        //   ),
+                        // ),
+
+
+
+
+
+                      ],
+                    ),
                     isLoading ? Container(
                       height : 500,
                       child: Column(
@@ -391,3 +476,135 @@ class _HomePageState extends State<HomePage> {
     );
   }
 }
+
+
+
+
+
+
+class SearchBarWithSuggestions extends StatelessWidget {
+  final FocusNode focusNode;
+  final TextEditingController controller;
+  final Function(String) onSearch;
+
+  SearchBarWithSuggestions({
+    required this.focusNode,
+    required this.controller,
+    required this.onSearch,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(left: 15, right: 15, top: 15),
+      child: Column(
+        children: [
+          TextFormField(
+            focusNode: focusNode,
+            controller: controller,
+            onEditingComplete: () {
+              // Hide the keyboard when the "Done" button is pressed
+              FocusScope.of(context).unfocus();
+              onSearch(controller.text);
+            },
+            style: TextStyle(color: Colors.black),
+            decoration: InputDecoration(
+              filled: true,
+              fillColor: Colors.white,
+              focusedBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderSide: BorderSide(color: Colors.grey),
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              hintText: 'Search here your Mood, Food, Places...',
+              hintStyle: TextStyle(color: Colors.grey),
+              prefixIcon: Icon(Icons.search, color: Colors.grey), // Add search icon
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+
+
+class FiltersWithHorizontalScroll extends StatelessWidget {
+  final String selectedFilter;
+  final Function(String) onFilterSelected;
+
+  FiltersWithHorizontalScroll({
+    required this.selectedFilter,
+    required this.onFilterSelected,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
+        child: Row(
+          children: [
+
+            FilterButton('Location', selected: selectedFilter == 'Location', onPressed: onFilterSelected),
+            FilterButton('Profiles', selected: selectedFilter == 'Profiles', onPressed: onFilterSelected),
+            FilterButton('Stories', selected: selectedFilter == 'Stories', onPressed: onFilterSelected),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+class FilterButton extends StatelessWidget {
+  final String filterName;
+  final bool selected;
+  final Function(String) onPressed;
+
+  FilterButton(this.filterName, {required this.selected, required this.onPressed});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.only(left : 16),
+      child: ElevatedButton(
+        onPressed: () {
+          onPressed(filterName);
+        },
+        style: ElevatedButton.styleFrom(
+          primary: selected ? Colors.orange : Colors.white,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(26.0),
+            side: BorderSide(
+              color : selected ? Colors.transparent : Colors.black, // Set the border color
+              width: 0.5,          // Set the border width
+            ),
+            // Adjust the value as needed
+          ),
+          elevation: 0.0,
+        ),
+        child: Row(
+          children: [
+            Icon(
+              Icons.sports_baseball_sharp, // Use the Icons class for Material Design icons
+              size: 10.0, // Set the size of the icon
+              color: Colors.yellow, // Set the color of the icon
+            ),
+
+            Text(
+              filterName,
+              style: TextStyle(color: selected ? Colors.white : Colors.black, fontWeight: FontWeight.w600, fontSize: 14),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+

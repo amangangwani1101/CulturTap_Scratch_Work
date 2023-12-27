@@ -113,6 +113,7 @@ class _UserImageState extends State<UserImage>{
                     //   ),
                     // ),
                     child: Container(
+                      color : Theme.of(context).primaryColorLight,
                       width: 373,
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
@@ -187,7 +188,7 @@ class _UserImageState extends State<UserImage>{
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
-                            color: Colors.white, // Border color
+                            color: Theme.of(context).backgroundColor, // Border color
                             width: 15.0, // Border width
                           ),
                         ),
@@ -242,14 +243,14 @@ class _UserImageState extends State<UserImage>{
                 ),
                 widget.reqPages<1?
                 Text(
-                  widget.name!=null?capitalizeWords(widget.name!):'Hemant Singh', // Replace with actual user name
+                  widget.name!=null?capitalizeWords(widget.name!):'', // Replace with actual user name
                   style: TextStyle(
-                    color: Colors.black,
+                    color : Theme.of(context).primaryColor,
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                     fontFamily: 'Poppins',
                   ),
-                ):EditNameForm(text: widget.text,profileDataProvider:widget.profileDataProvider,name:widget.name==null?'Hemant Singh':capitalizeWords(widget.name!),callback: (value){
+                ):EditNameForm(text: widget.text,profileDataProvider:widget.profileDataProvider,name:widget.name==null?'':capitalizeWords(widget.name!),callback: (value){
                   widget.nameCallback!(value);
                 },),
               ],

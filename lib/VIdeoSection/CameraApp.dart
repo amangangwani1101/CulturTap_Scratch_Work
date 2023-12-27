@@ -493,7 +493,7 @@ class _CameraAppState extends State<CameraApp> {
                 Expanded(
                   child: Container(
                     // Add your widgets for the row content here
-                    color: Colors.black, // Replace with your desired background color
+                    color: Theme.of(context).primaryColorLight, // Replace with your desired background color
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -534,8 +534,8 @@ class _CameraAppState extends State<CameraApp> {
 
                               },
                               icon: Icon(
-                                Icons.chevron_right,
-                                size: 35.0,
+                                Icons.close_rounded,
+                                size: 30,
                                 color: Colors.white,
                               ),
                             ),
@@ -554,9 +554,9 @@ class _CameraAppState extends State<CameraApp> {
 
                               },
                               icon: Icon(
-                                Icons.chevron_right,
-                                size: 35.0,
-                                color: Colors.black,
+                                Icons.close_rounded,
+                                size: 25.0,
+                                color: Theme.of(context).primaryColorLight,
                               ),
                             ),
                           ),

@@ -10,9 +10,11 @@ class ExpertCardDetails extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Container(
+
       decoration: BoxDecoration(
+        color: Theme.of(context).backgroundColor,
         // border: Border.all(
-        //   color: Colors.black,
+        //   color: Colors.white70,
         //   width: 2,
         // ),
         boxShadow: [
@@ -31,104 +33,107 @@ class ExpertCardDetails extends StatelessWidget{
         ],
       ),
       child: Padding(
-        padding: const EdgeInsets.only(left: 20.0,right: 20.0,top: 5.0,bottom: 9.0),
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Your Expert Cards' ,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined)),
-              ],
-            ),
-            Column(
-              // crossAxisAlignment: CrossAxisAlignment.end,
-              // mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Row(
-                  children: [
-                    Text('Expert in locations -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                    SizedBox(width: 31,),
-                    Container(
-                      child: expertLocations.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
-                      Wrap(
-                        runSpacing: 8.0, // Vertical spacing between lines of items
-                        children: [
-                          Row(
-                            children: [
-                              for (int i = 0; i < expertLocations.length; i++)
-                                Container(
-                                  margin: EdgeInsets.only(right: 8.0),
-                                  child: Row(
-                                    children: [
-                                      Text(expertLocations[i]),
-                                      if (i < expertLocations.length - 1)
-                                        Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20,),
-                Row(
-                  children: [
-                    Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                    SizedBox(width: 60,),
-                    Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                    SizedBox(width: 23,),
-                    Text('${coveredLocation}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                    SizedBox(width: 37,),
-                    Container(
-                      child: ratings == 0
-                          ? Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+        padding: const EdgeInsets.only(left: 20.0,right: 20.0,top: 10.0,bottom: 20.0),
+        child: Container(
+
+          child: Column(
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Your Expert Cards' ,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                  IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined, color : Theme.of(context).primaryColor,)),
+                ],
+              ),
+              Column(
+                // crossAxisAlignment: CrossAxisAlignment.end,
+                // mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Row(
+                    children: [
+                      Text('Expert in locations -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 31,),
+                      Container(
+                        child: expertLocations.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
+                        Wrap(
+                          runSpacing: 8.0, // Vertical spacing between lines of items
                           children: [
-                            Icon(Icons.star,color: HexColor('#FB8C00'),),
-                            SizedBox(width: 5),
-                            Text('N/A'),
+                            Row(
+                              children: [
+                                for (int i = 0; i < expertLocations.length; i++)
+                                  Container(
+                                    margin: EdgeInsets.only(right: 8.0),
+                                    child: Row(
+                                      children: [
+                                        Text(expertLocations[i]),
+                                        if (i < expertLocations.length - 1)
+                                          Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
                           ],
                         ),
-                      )
-                          : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(ratings, (index) {
-                          return Icon(Icons.star, color: HexColor('#FB8C00'));
-                        }),
                       ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 40,),
-                Row(
-                  children: [
-                    Text('Your Culturtap Status',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                    SizedBox(width: 30,),
-                    Container(
-                      child: visitedplace==0 || coveredLocation==0?
-                      Text('N/A',style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
-                      Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
-                    ),
-                  ],
-                ),
-              ],
-            ),
-          ],
+                    ],
+                  ),
+                  SizedBox(height: 20,),
+                  Row(
+                    children: [
+                      Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 60,),
+                      Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 23,),
+                      Text('${coveredLocation}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 37,),
+                      Container(
+                        child: ratings == 0
+                            ? Container(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(Icons.star,color: HexColor('#FB8C00'),),
+                              SizedBox(width: 5),
+                              Text('N/A'),
+                            ],
+                          ),
+                        )
+                            : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(ratings, (index) {
+                            return Icon(Icons.star, color: HexColor('#FB8C00'));
+                          }),
+                        ),
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 40,),
+                  Row(
+                    children: [
+                      Text('Your Culturtap Status',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                      SizedBox(width: 30,),
+                      Container(
+                        child: visitedplace==0 || coveredLocation==0?
+                        Text('N/A',style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
+                        Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

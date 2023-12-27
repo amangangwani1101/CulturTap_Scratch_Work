@@ -82,7 +82,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
         Container(
           height: 500,
           width: 300,
-          margin: EdgeInsets.only(left : 16,top:8),
+          margin: EdgeInsets.only(left : 12,top:8),
           child: Stack(
             clipBehavior: Clip.none,
             children: [
@@ -119,7 +119,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFF001B33),
+                    color: Theme.of(context).primaryColorLight,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -143,7 +143,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Color(0xFF001B33),
+                    color: Theme.of(context).primaryColorLight,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -198,7 +198,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Local',style:TextStyle(color:Colors.white,fontSize: 14)),
+                      Text('Location',style:TextStyle(color:Colors.white,fontSize: 14)),
                       Text(
                         '${widget.location}',
                         style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold,fontSize: 16,),
@@ -218,8 +218,8 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
           ),),
           height: 70,
           width: 300,
-          margin: EdgeInsets.only(left : 16,),
-          padding: EdgeInsets.only(left:10,right : 10,top:10, bottom : 5),
+          margin: EdgeInsets.only(left : 12,),
+          padding: EdgeInsets.only(left:10,right : 8,top:10, bottom : 5),
           child: Column(
             children: [
               Row(
@@ -229,11 +229,11 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                     children: [
                       Text(
                         'Title ',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF001B33)),
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                       Text(
                         ' ${widget.title}',
-                        style: TextStyle(color: Color(0xFF001B33)),
+                        style: Theme.of(context).textTheme.bodyText2,
                       ),
                     ],
                   ),
@@ -244,13 +244,13 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                       children: [
                         SvgPicture.asset(
                           'assets/images/eyeview.svg', // Replace with the path to your SVG file
-                          // color: Color(0xFF001B33),
+                          color : Theme.of(context).primaryColor,
                           height : 24,
                           width : 24,
                         ),
                         Text(
                          '${widget.storyDetails['views']!}',
-                          style: TextStyle(color: Color(0xFF001B33)),
+                          style: Theme.of(context).textTheme.subtitle1,
                         ),
                       ],
                     ),
@@ -265,11 +265,11 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                     children: [
                       Text(
                         'Category ',
-                        style: TextStyle(fontWeight: FontWeight.bold, color: Color(0xFF001B33)),
+                        style: Theme.of(context).textTheme.subtitle1,
                       ),
                       Text(
                         ' ${widget.category}',
-                        style: TextStyle(color: Color(0xFF001B33)),
+                        style: Theme.of(context).textTheme.bodyText2,
                       ),
                     ],
                   ),
@@ -286,7 +286,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                         ),
                         Text(
                           '${widget.storyDetails['likes']!}',
-                          style: TextStyle(color: Color(0xFF001B33)),
+                          style: Theme.of(context).textTheme.bodyText1,
                         ),
                       ],
                     ),

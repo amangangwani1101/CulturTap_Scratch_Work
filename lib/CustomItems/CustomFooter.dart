@@ -2,7 +2,9 @@
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/HomePage.dart';
-import 'package:learn_flutter/Settings.dart';
+import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
+import 'package:learn_flutter/SearchEngine/searchPage.dart';
+import 'package:learn_flutter/UserProfile/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/Utils/location_utils.dart';
@@ -19,14 +21,27 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/BackendStore/BackendStore.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
 
+
+String? mode = '';
+String? orange = '';
+String? page = '';
+String? addButtonadd = '';
+
 class CustomFooter extends StatefulWidget implements PreferredSizeWidget {
   final String? userId;
   final String? userName;
+  final String? lode;
+  final String? addButtonAdd;
 
-  CustomFooter({this.userId, this.userName});
+
+  CustomFooter({this.userId, this.userName, this.lode, this.addButtonAdd});
 
   @override
   _CustomFooterState createState() => _CustomFooterState();
+
+
+
+
 
   @override
   Size get preferredSize => AppBar().preferredSize;
@@ -36,11 +51,11 @@ class _CustomFooterState extends State<CustomFooter> {
 
 
 
-  Color homeIconColor = Color(0xFF001B33);
-  Color searchIconColor = Color(0xFF001B33);
-  Color airplaneIconColor = Color(0xFF001B33);
-  Color settingsIconColor = Color(0xFF001B33);
-  Color addIconColor = Color(0xFF001B33);
+  Color homeIconColor = mode == 'dark' ? Colors.black : Colors.white;
+  Color searchIconColor = mode == 'dark' ? Colors.black : Colors.white;
+  Color airplaneIconColor = mode == 'dark' ? Colors.black : Colors.white;
+  Color settingsIconColor = mode == 'dark' ? Colors.black : Colors.white;
+  Color addIconColor = mode == 'dark' ? Colors.black : Colors.white;
 
   late VideoDatabaseHelper _databaseHelper;
 
@@ -50,34 +65,38 @@ class _CustomFooterState extends State<CustomFooter> {
     _databaseHelper = VideoDatabaseHelper();
     checkVideos();
 
+    print('mode : $mode');
+
+
+setState(() {
+  addButtonadd = widget.addButtonAdd;
+});
+
+
     // You can access userId and userName via widget.userId and widget.userName
   }
 
 
 
-  void _changeIconColor(String iconName) {
+  void _changeIcon(String iconName) {
     setState(() {
-      homeIconColor = Color(0xFF001B33);
-      searchIconColor = Color(0xFF001B33);
-      airplaneIconColor = Color(0xFF001B33);
-      settingsIconColor = Color(0xFF001B33);
-      addIconColor = Color(0xFF001B33);
+
 
       switch (iconName) {
         case 'home':
-          homeIconColor = Colors.orange;
+          page = 'home';
           break;
         case 'search':
-          searchIconColor = Colors.orange;
+          page = 'search';
           break;
-        case 'airplane':
-          airplaneIconColor = Colors.orange;
+        case 'trip':
+          page = 'trip';
           break;
         case 'settings':
-          settingsIconColor = Colors.orange;
+          page = 'settings';
           break;
         case 'add':
-          addIconColor = Colors.orange;
+          page = 'add';
           break;
       }
     });
@@ -88,7 +107,7 @@ class _CustomFooterState extends State<CustomFooter> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          backgroundColor: Color(0xFF001B33),
+          backgroundColor: Color(0xFF1E2529),
 
           content: Column(
             crossAxisAlignment: CrossAxisAlignment.center,
@@ -121,7 +140,7 @@ class _CustomFooterState extends State<CustomFooter> {
           ),
           actions: <Widget>[
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextButton(
                   onPressed: () async {
@@ -160,10 +179,14 @@ class _CustomFooterState extends State<CustomFooter> {
 
 
   void checkVideos() async{
+
+    setState(() {
+      mode = widget.lode;
+    });
     bool hasVideoss = await VideoDatabaseHelper().hasVideos();
     if(hasVideoss){
       setState(() {
-        addIconColor = Colors.orange;
+        orange = 'yes';
       });
     }
 
@@ -173,149 +196,158 @@ class _CustomFooterState extends State<CustomFooter> {
     return Container(
       height : 50,
 
-      color: Color(0xffF2F2F2),
+
+      color: mode == 'dark' ? Colors.black : Theme.of(context).backgroundColor,
       child: Padding(
-        padding: const EdgeInsets.only(left:4.0,right:4.0, ),
+        padding: const EdgeInsets.only(left:6.0,right:6.0,),
         child:
             Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Container(
-                  width : 80,
+                Expanded(
+                  child: Container(
+                    
 
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          Navigator.pushReplacement(
-                            context,
-                            MaterialPageRoute(builder: (context) => HomePage()),
-                          );
-
-
-                          _changeIconColor('home');
-                        },
-                        icon: SvgPicture.asset(
-                          'assets/images/home_icon.svg', // Replace with the path to your SVG icon
-                          color: homeIconColor,
-
-                          height: 24,
-
-                        ),
-                      ),
-                      Text(
-                        'Home',
-                        style: TextStyle(
-                          color: Color(0xFF001B33),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Container(
-                  width : 80,
-
-                  child: Column(
-                    children: [
-                      SizedBox(height : 2),
-                      IconButton(
-                        onPressed: () {
-                          _changeIconColor('search');
-                        },
-                        icon: SvgPicture.asset(
-                          'assets/images/search_icon.svg', // Replace with the path to your SVG icon
-                          color: searchIconColor,
+                    child: Column(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => HomePage()),
+                            );
 
 
-                          height: 24,
-
-
-
-                        ),
-                      ),
-                      Text(
-                        'Search',
-                        style: TextStyle(
-                          color: Color(0xFF001B33),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-
-                Align(
-                  alignment: Alignment(0.0, 1.0),
-                  child: Transform.translate(
-                    offset: Offset(0, -30.0),
-                    child: SizedBox(
-
-                      width: 80,
-                      height: 80,
-
-                      child: Container(
-
-
-                        // decoration: BoxDecoration(
-                        //   shape: BoxShape.circle,
-                        //   border: Border.all(
-                        //     color: Colors.orange,
-                        //     width: 3.0, // Adjust the width of the border as needed
-                        //   ),
-                        // ),
-
-                        child: ElevatedButton(
-                          onPressed: () async{
-                            bool hasVideos = await VideoDatabaseHelper().hasVideos();
-
-                            if (hasVideos) {
-
-                              // Navigate to VideoPreviewPage with data from the database
-                              List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
-                              List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
-
-                              // Extract the required data from the list of videos
-                              List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
-                              String userLocation = ''; // Replace with your logic to get user location
-                              double latitude = allVideos[0].latitude;
-                              double longitude = allVideos[0].longitude;
-
-                              print('latitude : $latitude');
-                              print('longitude : $longitude');
-
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => VideoPreviewPage(
-                                    videoPaths: videoPaths,
-                                    userLocation: userLocation,
-                                    latitude: latitude,
-                                    longitude: longitude,
-                                  ),
-                                ),
-                              );
-
-                              _showVideoDialog(context);
-                            } else {
-                              // Navigate to CameraApp
-                              Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-                            }
-                            _changeIconColor('add');
+                             _changeIcon('home');
                           },
-                          style: ElevatedButton.styleFrom(
-                            primary: Colors.white,
-                            shadowColor: Colors.grey,
-                            shape: CircleBorder(),
+                          icon: SvgPicture.asset(
+                            page=='home' ? 'assets/images/home_oicon.svg'  : 'assets/images/home_icon.svg', // Replace with the path to your SVG icon
+                            color: page == 'home' ? Colors.orange :mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+
+
+
                           ),
-                          child: SvgPicture.asset(
-                            'assets/images/addIcon.svg',
-                            color: addIconColor,
-                            height: 32,
-                            width: 32,
+                        ),
+                        Text(
+                          'Home',
+                          style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+
+                Expanded(
+                  child: Container(
+
+
+                    child: Column(
+                      children: [
+
+                        IconButton(
+                          onPressed: () {
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => SearchPage()),
+                            );
+
+                            _changeIcon('search');
+                          },
+                          icon: SvgPicture.asset(
+                              page=='search' ? 'assets/images/search_oicon.svg'  : 'assets/images/search_icon.svg', // Replace with the path to your SVG icon
+                            color: page == 'search' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+
+
+                            height: 24,
+
+
+
+
+
+                          ),
+                        ),
+                        Text(
+                          'Search',
+                          style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                addButtonadd == 'add' ? Container(): Expanded(
+                  child: Align(
+                    alignment: Alignment(0.0, 0.0),
+                    child: Transform.translate(
+                      offset: Offset(0, -30.0),
+                      child: SizedBox(
+                        width : 100,
+                        height : 100,
+
+
+                        child: Container(
+
+
+                          // decoration: BoxDecoration(
+                          //   shape: BoxShape.circle,
+                          //   border: Border.all(
+                          //     color: Colors.orange,
+                          //     width: 3.0, // Adjust the width of the border as needed
+                          //   ),
+                          // ),
+
+                          child: ElevatedButton(
+                            onPressed: () async{
+
+                              bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
+                              if (hasVideos) {
+
+                                // Navigate to VideoPreviewPage with data from the database
+                                List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                                List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+                                // Extract the required data from the list of videos
+                                List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                                String userLocation = ''; // Replace with your logic to get user location
+                                double latitude = allVideos[0].latitude;
+                                double longitude = allVideos[0].longitude;
+
+                                print('latitude : $latitude');
+                                print('longitude : $longitude');
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => VideoPreviewPage(
+                                      videoPaths: videoPaths,
+                                      userLocation: userLocation,
+                                      latitude: latitude,
+                                      longitude: longitude,
+                                    ),
+                                  ),
+                                );
+
+                                _showVideoDialog(context);
+                              } else {
+                                // Navigate to CameraApp
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                              }
+                              // _changeIconColor('add');
+                            },
+                            style: ElevatedButton.styleFrom(
+                              primary: mode == 'dark' ? Colors.black : Theme.of(context).backgroundColor,
+
+                              shape: CircleBorder(),
+                            ),
+                            child: SvgPicture.asset(
+                              'assets/images/addIcon.svg',
+                              color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor ,
+                              height: 24,
+                              width: 24,
+                            ),
                           ),
                         ),
                       ),
@@ -323,76 +355,77 @@ class _CustomFooterState extends State<CustomFooter> {
                   ),
                 ),
 
-                Container(
-                  width : 80,
+                Expanded(
+                  child: Container(
 
 
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () {
 
-                          _changeIconColor('airplane');
-                        },
+                    child: Column(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => LocalAssist(),
+                              ),
+                            );
 
-                        icon: SvgPicture.asset(
-                          'assets/images/tripassit.svg', // Replace with the path to your SVG icon
-                          color: airplaneIconColor,
+                            _changeIcon('trip');
+                          },
 
-                          height: 24,
+                          icon: SvgPicture.asset(
+                            page=='trip' ? 'assets/images/trip_oicon.svg'  : 'assets/images/tripassit.svg',  // Replace with the path to your SVG icon
+                            color: page=='trip' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
 
+                            height: 24,
 
+                          ),
 
                         ),
-
-                      ),
-                      Text(
-                        'Local Assist',
-                        style: TextStyle(
-                          color: Color(0xFF001B33),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
+                        Text(
+                          'Local Assist',
+                          style:  mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
-                Container(
-                  width : 80,
-
-                  child: Column(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          print('${userID}');
-                          Navigator.of(context).push(
-                            MaterialPageRoute(
-                              builder: (context) => SettingsPage(userId: userID),
-                            ),
-                          );
-                          _changeIconColor('settings');
-                        },
-
-                        icon: SvgPicture.asset(
-                          'assets/images/settings.svg', // Replace with the path to your SVG icon
-                          color: settingsIconColor,
-
-                          height: 24,
 
 
+                Expanded(
+                  child: Container(
+                    
+
+                    child: Column(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            print('${userID}');
+                            Navigator.of(context).push(
+                              MaterialPageRoute(
+                                builder: (context) => SettingsPage(userId: userID),
+                              ),
+                            );
+                            _changeIcon('settings');
+                          },
+
+                          icon: SvgPicture.asset(
+                            page=='settings' ? 'assets/images/setting_oicon.svg'  : 'assets/images/settings.svg',  // Replace with the path to your SVG icon
+                            color: page=='settings' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+
+                            height: 24,
 
 
+
+
+                          ),
                         ),
-                      ),
-                      Text(
-                        'Settings',
-                        style: TextStyle(
-                          color: Color(0xFF001B33),
-                          fontWeight: FontWeight.w800,
-                          fontSize: 14,
+                        Text(
+                          'Settings',
+                          style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ],

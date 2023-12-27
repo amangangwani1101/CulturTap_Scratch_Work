@@ -17,7 +17,8 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Color(0xFF263238),
+      backgroundColor: Theme.of(context).primaryColorLight,
+      shadowColor: Colors.transparent,
       titleSpacing: 0.0,
       title: Column(
         children: [
@@ -47,11 +48,7 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
                   },
                   child: Text(
                     '< back',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                    ),
+                    style: Theme.of(context).textTheme.caption,
                   ),
                 ),
               ),
@@ -63,11 +60,7 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
                 },
                 child: Text(
                   title ?? '',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 25,
-                  ),
+                  style:Theme.of(context).textTheme.caption,
                 ),
               ),
               Container(

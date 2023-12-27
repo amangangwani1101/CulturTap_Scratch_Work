@@ -62,22 +62,13 @@ class _VideoStoryCardDummyState extends State<VideoStoryCardDummy> {
                   ),
                 ),
               ),
-              Center(
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    Icon(
-                      Icons.play_circle,
-                      color: Colors.white70,
-                      size: 64,
-                    ),
-                  ],
-                ),
-              ),
+
               Positioned(
                 top: -8,
                 right: 10,
                 child: Container(
+                  height : 20,
+                  width : 40,
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
                     color: Color(0xFF263238),
@@ -85,15 +76,8 @@ class _VideoStoryCardDummyState extends State<VideoStoryCardDummy> {
                   ),
                   child: Row(
                     children: [
-                      Icon(
-                        Icons.turn_right,
-                        color: Colors.white,
-                        size: 18,
-                      ),
-                      Text(
-                        '${widget.distance} km',
-                        style: TextStyle(color: Colors.white),
-                      ),
+
+
                     ],
                   ),
                 ),
@@ -110,19 +94,7 @@ class _VideoStoryCardDummyState extends State<VideoStoryCardDummy> {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      SvgPicture.asset(
-                        'assets/images/videoasset.svg', // Replace with the path to your SVG icon
 
-                        width: 24,
-                        height: 24,
-
-
-                      ),
-                      SizedBox(width :2),
-                      Text(
-                        ' +${widget.videoCount}',
-                        style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold,fontSize: 16),
-                      ),
                     ],
                   ),
                 ),
@@ -159,11 +131,7 @@ class _VideoStoryCardDummyState extends State<VideoStoryCardDummy> {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Local',style:TextStyle(color:Colors.white,fontSize: 14)),
-                      Text(
-                        '${widget.location}',
-                        style: TextStyle(color: Colors.white70, fontWeight: FontWeight.bold,fontSize: 16,),
-                      ),
+
                     ],
                   ),
                 ),

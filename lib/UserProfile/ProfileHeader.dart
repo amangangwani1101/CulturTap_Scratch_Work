@@ -61,13 +61,13 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       context,
                       MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
                         create:(context) => ProfileDataProvider(),
-                        child: FinalProfile(userId: userID,clickedId: userID,),
+                        child: FinalProfile(userId: widget.userId!,clickedId: widget.userId!,),
                       ),),
                     );
                   }
 
                 },
-                child: Container(
+                child: Container( 
 
                   width: 80,
 
@@ -94,6 +94,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           ),
                           replacement: SvgPicture.asset(
                             'assets/images/profile_icon.svg',
+                            color : Theme.of(context).primaryColor,
                             width: 50.0,
                             height: 50.0,
                           ),
@@ -104,7 +105,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                   ),
                       SizedBox(height: 2,),
-                      Text('Profile',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w700,fontFamily: 'Poppins'),),
+                      Text('Profile',style: Theme.of(context).textTheme.bodyText1),
                     ]
                 ),
               ),
@@ -180,7 +181,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                         ),
                         SizedBox(height: 2,),
-                        Text('Profile',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w700,fontFamily: 'Poppins'),),
+                        Text('Profile',style: Theme.of(context).textTheme.bodyText1),
                       ]
                   ),
                 ),
@@ -190,8 +191,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               : SizedBox(width: 0,),
 
           widget.reqPage>=1
-              ? Image.asset('assets/images/logo.png',width: 155)
-              : Image.asset('assets/images/logo.png',width: 155),
+              ? Image.asset('assets/images/logo.png',width: 155,)
+              : Image.asset('assets/images/logo.png',width: 155,),
           if (widget.reqPage<=1) Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -233,7 +234,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           children: [
                             Align(alignment: Alignment.topCenter, child: SvgPicture.asset(
                               'assets/images/pings_icon.svg', // Replace with the path to your SVG icon
-
+                              color : Theme.of(context).primaryColor,
                               width: 28,
                               height: 28,
 
@@ -253,7 +254,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                                   ),
                                   child: Text(
                                     notificationCount.toString(),
-                                    style: TextStyle(fontSize: 12,color: Colors.white,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),
+                                    // style: Theme.of(context).textTheme.headline3,
                                   ),
                                 ),
                               ),
@@ -261,7 +262,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                         ),
                       ),
                       SizedBox(height: 2,),
-                      Text('Pings',style: TextStyle(fontSize: 14,color:Color(0xFF001B33), fontWeight: FontWeight.w700,fontFamily: 'Poppins'),),
+                      Text('Pings',style: Theme.of(context).textTheme.bodyText1),
                     ],
                   ),
                 ),
@@ -270,7 +271,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             ],
           ) else widget.reqPage==4 || widget.reqPage==8
               ?Container(
-            color : Colors.purple,
+
             width: widget.reqPage==4? 60:13,
             height: widget.reqPage==4? 40:13,
             child: GestureDetector(
