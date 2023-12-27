@@ -13,7 +13,6 @@ class PhoneNumberValidator extends StatefulWidget {
 
 class _PhoneNumberValidatorState extends State<PhoneNumberValidator> {
   final TextEditingController _phoneNumberController = TextEditingController();
-
   @override
   void dispose() {
     _phoneNumberController.dispose();
@@ -60,13 +59,14 @@ class _SecondPageState extends State<SecondPage> {
   FirebaseAuth auth = FirebaseAuth.instance;
   String verificationIDReceived = "";
   bool _isPhoneNumberValid = true; // Default to true
-
+  String numberPhone ='';
   // List of country codes
   List<String> countryCodes = ['+91', '+1', '+44', '+61'];
   String _selectedCountryCode = '+91'; // Default country code
 
   // Function to validate phone number using regex
   bool validatePhoneNumber(String input) {
+    print('Number : $input');
     final RegExp regex = RegExp(r'^\d{10}$');
     return regex.hasMatch(input);
   }
@@ -160,9 +160,9 @@ class _SecondPageState extends State<SecondPage> {
                               controller: widget.phoneNumberController,
                               keyboardType: TextInputType.phone,
                               onChanged: (value) {
-                                setState(() {
-                                  _isPhoneNumberValid = true; // Reset to true on change
-                                });
+                                // setState(() {
+                                //   _isPhoneNumberValid = true; // Reset to true on change
+                                // });
                               },
                               decoration: InputDecoration(
                                 filled: true,
@@ -192,14 +192,14 @@ class _SecondPageState extends State<SecondPage> {
                     child: FilledButton(
                       backgroundColor: Colors.orange,
                       onPressed: () {
-
+                        numberPhone = widget.phoneNumberController.text;
                         String number =
                             _selectedCountryCode + widget.phoneNumberController.text;
                         bool isValid = validatePhoneNumber(widget.phoneNumberController.text);
-
+                        print('Phoen Number ${widget.phoneNumberController.text},{$number}');
                         if (isValid) {
                           // For verifying the number using Firebase
-                          verifyNumber();
+                          verifyNumber(numberPhone);
                         }
                       },
                       child: Center(
@@ -222,16 +222,16 @@ class _SecondPageState extends State<SecondPage> {
       ),
     );
   }
-  void verifyNumber() {
+  void verifyNumber(String number) {
     auth.verifyPhoneNumber(
-      phoneNumber: _selectedCountryCode + widget.phoneNumberController.text,
+      phoneNumber: _selectedCountryCode + number,
       verificationCompleted: (PhoneAuthCredential credential) async {
         await auth.signInWithCredential(credential).then((value) {
 
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => OtpScreen(userName:widget.userName,phoneNumber:widget.phoneNumberController.text),
+              builder: (context) => OtpScreen(userName:widget.userName,phoneNumber:number),
             ),
           );
         });
@@ -259,10 +259,11 @@ class _SecondPageState extends State<SecondPage> {
           print("verification id recieved" + verificationIDReceived);
           // registerUser();
         });
+        print('Phoen Number ${number}');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => OtpScreen(otp: verificationIDReceived,userName:widget.userName,phoneNumber:widget.phoneNumberController.text),
+            builder: (context) => OtpScreen(otp: verificationIDReceived,userName:widget.userName,phoneNumber:number),
           ),
         );
       },
