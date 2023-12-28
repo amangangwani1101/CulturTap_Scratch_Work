@@ -1,8 +1,13 @@
 import 'dart:async';
 import 'dart:io';
-
+import 'package:audio_session/audio_session.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_sound/flutter_sound.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:flutter_sound_platform_interface/flutter_sound_recorder_platform_interface.dart';
+import 'package:permission_handler/permission_handler.dart';
 import './SignallingService.dart';
 
 class CallScreen extends StatefulWidget  implements PreferredSizeWidget{
@@ -25,6 +30,9 @@ class CallScreen extends StatefulWidget  implements PreferredSizeWidget{
   Size get preferredSize => Size.fromHeight(kToolbarHeight);
 
 }
+
+const theSource = AudioSource.microphone;
+typedef _Fn = void Function();
 
 class _CallScreenState extends State<CallScreen> {
   // socket instance
@@ -50,6 +58,39 @@ class _CallScreenState extends State<CallScreen> {
   late Timer _timer;
   int _seconds = 0;
 
+  Codec _codec = Codec.aacMP4;
+  String _mPath = 'tau_file.mp4';
+  FlutterSoundPlayer? _mPlayer = FlutterSoundPlayer();
+  FlutterSoundRecorder? _mRecorder = FlutterSoundRecorder();
+
+
+
+  Future<String> get _localPath async {
+    final downloadsDirectory = await getExternalStorageDirectory();
+    final appFolderName = 'CulturTap'; // Replace with your app's name
+
+    if (downloadsDirectory != null) {
+      final appFolderPath = '${downloadsDirectory.path}/$appFolderName';
+      final appDir = Directory(appFolderPath);
+
+      if (!(await appDir.exists())) {
+        await appDir.create(recursive: true);
+      }
+      print('Apps Created');
+      return appFolderPath;
+    } else {
+      throw Exception('Could not access the downloads directory.');
+    }
+  }
+
+  Future<File> get _localFile async {
+    final path = await _localPath;
+    print('Path ${path}/${_mPath}');
+    return File('$path/$_mPath');
+  }
+
+
+
   @override
   void initState() {
     // initializing renderers
@@ -58,8 +99,63 @@ class _CallScreenState extends State<CallScreen> {
 
     // setup Peer Connection
     _setupPeerConnection();
+
+    // setup of recorder
+    openTheRecorder();
+    record();
+
     super.initState();
   }
+
+
+
+  Future<void> openTheRecorder() async {
+    if (!kIsWeb) {
+      var status = await Permission.microphone.request();
+      if (status != PermissionStatus.granted) {
+        throw RecordingPermissionException('Microphone permission not granted');
+      }
+    }
+    await _mRecorder!.openRecorder();
+    if (!await _mRecorder!.isEncoderSupported(_codec) && kIsWeb) {
+      _codec = Codec.opusWebM;
+      _mPath = 'audio.webm';
+      if (!await _mRecorder!.isEncoderSupported(_codec) && kIsWeb) {
+        return;
+      }
+    }
+    final session = await AudioSession.instance;
+    await session.configure(AudioSessionConfiguration(
+      avAudioSessionCategory: AVAudioSessionCategory.playAndRecord,
+      avAudioSessionCategoryOptions:
+      AVAudioSessionCategoryOptions.allowBluetooth |
+      AVAudioSessionCategoryOptions.defaultToSpeaker,
+      avAudioSessionMode: AVAudioSessionMode.spokenAudio,
+      avAudioSessionRouteSharingPolicy:
+      AVAudioSessionRouteSharingPolicy.defaultPolicy,
+      avAudioSessionSetActiveOptions: AVAudioSessionSetActiveOptions.none,
+      androidAudioAttributes: const AndroidAudioAttributes(
+        contentType: AndroidAudioContentType.speech,
+        flags: AndroidAudioFlags.none,
+        usage: AndroidAudioUsage.voiceCommunication,
+      ),
+      androidAudioFocusGainType: AndroidAudioFocusGainType.gain,
+      androidWillPauseWhenDucked: true,
+    ));
+  }
+
+  void record() {
+    _mRecorder!
+        .startRecorder(
+      toFile: _mPath,
+      codec: _codec,
+      audioSource: theSource,
+    )
+        .then((value) {
+      setState(() {});
+    });
+  }
+
 
   @override
   void setState(fn) {

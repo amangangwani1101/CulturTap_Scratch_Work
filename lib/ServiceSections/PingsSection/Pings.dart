@@ -922,16 +922,24 @@ class _PingSectionState extends State<PingsSection>{
                                         SizedBox(width: screenWidth*0.08,),
                                         InkWell(
                                             onTap: ()async{
-                                              await Navigator.push(
+                                              bool res = await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
                                                   builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
                                                 ),
                                               );
-                                              paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
-                                              cancelMeeting(date,index,'schedule',userId,'schedule');
-                                              _refreshPage(time:0,state:'Scheduled');
-                                              print('$date,$index');
+                                              if(res){
+                                                paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
+                                                cancelMeeting(date,index,'schedule',userId,'schedule');
+                                                _refreshPage(time:0,state:'Scheduled');
+                                                print('$date,$index');
+                                              }else{
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Try Again!'),
+                                                  ),
+                                                );
+                                              }
                                             },
                                             child: Container(child: Text('Unlock Calendar',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
                                       ],
@@ -1265,17 +1273,26 @@ class _PingSectionState extends State<PingsSection>{
                                       InkWell(
                                           onTap: ()async{
                                             // payment ka funda
-                                            await updateLocalUserPings(widget.userId, meetId, 'schedule');
-                                            await updateLocalUserPings(userId, meetId, 'schedule');
-                                            // await Navigator.push(
-                                            //   context,
-                                            //   MaterialPageRoute(
-                                            //     builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
-                                            //   ),
-                                            // );
+                                            bool res = await Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
+                                              ),
+                                            );
                                             // paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber())
+                                            if(res){
+                                              await updateLocalUserPings(widget.userId, meetId, 'schedule');
+                                              await updateLocalUserPings(userId, meetId, 'schedule');
+                                            }else{
+                                              ScaffoldMessenger.of(context).showSnackBar(
+                                                const SnackBar(
+                                                  content: Text('Payment is successful'),
+                                                ),
+                                              );
+                                            }
                                           },
                                           child: Container(child: Text('Pay Charge',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
+
                                     ],
                                   ),
                                 )

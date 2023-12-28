@@ -7,6 +7,8 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/Payments/PhonePePayment.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/Payments/RazorPay.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:upi_india/upi_india.dart';
 import 'package:upi_india/upi_response.dart';
 import 'package:http/http.dart' as http;
@@ -28,9 +30,10 @@ class _UpiPaymentsState extends State<UpiPayments> {
   Future<UpiResponse>? _transaction;
   final UpiIndia _upiIndia = UpiIndia();
   List<UpiApp>?apps;
-
+  var _razorPay = Razorpay();
   @override
   void initState() {
+
     print('Comming');
     _upiIndia.getAllUpiApps(mandatoryTransactionId: false).then((value){
       setState(() {
@@ -328,19 +331,27 @@ class _UpiPaymentsState extends State<UpiPayments> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text('NetBanking',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 12),),
-                              GestureDetector(
-                                onTap: ()async{
-                                  bool res = await Navigator.push(context, MaterialPageRoute(builder: (context) =>PhonePePayment()
-                                  ));
-                                  print('Resultttt $res');
-                                  Navigator.of(context).pop(res);
-                                },
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Image.asset('assets/images/net_banking_logo.png',width: 60,height: 70,),
-                                  ],
-                                ),
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.start,
+                                children: [
+                                  GestureDetector(
+                                      onTap:()async{
+                                        bool res = await Navigator.push(context, MaterialPageRoute(builder: (context) =>PhonePePayment()
+                                        ));
+                                        print('Resultttt $res');
+                                        Navigator.of(context).pop(res);
+                                      },
+                                      child: Image.asset('assets/images/net_banking_logo.png',width: 60,height: 70,)),
+                                  SizedBox(width: 20,),
+                                  GestureDetector(
+                                      onTap:()async{
+                                        bool res = await Navigator.push(context, MaterialPageRoute(builder: (context) =>RazorPayIntegration()
+                                        ));
+                                        print('Resultttt $res');
+                                        Navigator.of(context).pop(res);
+                                      },
+                                      child: Image.asset('assets/images/net_banking_logo.png',width: 60,height: 70,)),
+                                ],
                               ),
                             ],
                           ),
