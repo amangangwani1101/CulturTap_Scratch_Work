@@ -50,8 +50,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
         transactions: const [
           {
             "amount": {
-              "total": '70',
-              "currency": "USD",
+              "total": '700',
+              "currency": "INR",
               "details": {
                 "subtotal": '70',
                 "shipping": '0',

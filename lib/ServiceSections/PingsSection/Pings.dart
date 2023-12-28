@@ -1276,7 +1276,7 @@ class _PingSectionState extends State<PingsSection>{
                                             bool res = await Navigator.push(
                                               context,
                                               MaterialPageRoute(
-                                                builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
+                                                builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:pingsDataStore.userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
                                               ),
                                             );
                                             // paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber())

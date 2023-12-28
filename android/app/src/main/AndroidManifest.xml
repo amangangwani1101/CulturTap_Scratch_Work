@@ -34,7 +34,9 @@
         <meta-data
             android:name="flutterEmbedding"
             android:value="2" />
-
+        <meta-data
+            android:name="com.google.android.gms.wallet.api.enabled"
+            android:value="true" />
 <!--        in production of phonepe sdk make isUAT and isSimulator to false-->
         <meta-data android:name="com.phonepe.android.sdk.isUAT" android:value="true"/>
         <meta-data android:name="com.phonepe.android.sdk.isSimulator" android:value="true"/>

@@ -73,6 +73,7 @@ flutter {
 dependencies {
     implementation platform('com.google.firebase:firebase-bom:32.2.2')
     implementation 'com.google.firebase:firebase-analytics'
+    implementation 'com.stripe:stripe-android:17.1.1'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
     implementation "com.google.android.exoplayer:exoplayer-hls:2.4.0"
     implementation "dev.shreyaspatil.EasyUpiPayment:EasyUpiPayment:3.0.3"

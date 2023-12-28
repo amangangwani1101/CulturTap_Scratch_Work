@@ -466,7 +466,6 @@ class _ChatsPageState extends State<ChatsPage> {
         websocketUrl: serverUrl,
         selfCallerID: widget.meetId!,
       );
-      // listen for incoming video call
       SignallingService.instance.socket!.on("newCall", (data) {
         if (mounted) {
           print('comingdddd');
@@ -474,6 +473,8 @@ class _ChatsPageState extends State<ChatsPage> {
           setState(() => incomingSDPOffer = data);
         }
       });
+      // listen for incoming video call
+
     }
   }
 
@@ -608,6 +609,7 @@ class _ChatsPageState extends State<ChatsPage> {
         }
         _controller.clear();
         print('Message Is $message');
+        setState(() {});
       } catch (e) {
         print('Error sending messagesss: $e');
         // Handle the error, e.g., display an error message to the user

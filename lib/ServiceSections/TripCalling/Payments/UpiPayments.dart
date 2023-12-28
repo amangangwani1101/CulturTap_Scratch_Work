@@ -30,7 +30,7 @@ class _UpiPaymentsState extends State<UpiPayments> {
   Future<UpiResponse>? _transaction;
   final UpiIndia _upiIndia = UpiIndia();
   List<UpiApp>?apps;
-  var _razorPay = Razorpay();
+
   @override
   void initState() {
 
@@ -73,13 +73,54 @@ class _UpiPaymentsState extends State<UpiPayments> {
       // 2. Initialize the payment sheet
       final res2 = await Stripe.instance.initPaymentSheet(
           paymentSheetParameters: SetupPaymentSheetParameters(
+            primaryButtonLabel: 'CULTURTAP',
+            intentConfiguration: IntentConfiguration(
+              mode: IntentMode(
+                currencyCode: 'INR',
+                amount: 50000,
+                setupFutureUsage: IntentFutureUsage.OnSession,
+              ),
+            ),
+            billingDetails:BillingDetails(
+              name: 'aman',
+              phone: '8175902793',
+              email: 'aman@gmail.com',
+              address: Address(
+                city: 'Kanpur',
+                country: 'India',
+                line1: '11',
+                line2: '11',
+                postalCode: '208006',
+                state: 'UP',
+              ),
+            ) ,
+            billingDetailsCollectionConfiguration: BillingDetailsCollectionConfiguration(
+              // name: CollectionMode.automatic,
+              phone: CollectionMode.automatic,
+              email: CollectionMode.automatic,
+              address: AddressCollectionMode.automatic,
+              attachDefaultsToPaymentMethod: true,
+              // name:CollectBankAccountParams(
+              // ),
+              // phone: '8175902793',
+              // email: 'aman@gamil.com',
+
+            ),
             paymentIntentClientSecret: jsonResponse['paymentIntent'],
             merchantDisplayName: merchantName,
             customerId: jsonResponse['customer'],
             customerEphemeralKeySecret: jsonResponse['ephemeralKey'],
+            googlePay: const PaymentSheetGooglePay(
+              merchantCountryCode: 'US',
+              testEnv: true,
+            ),
           ));
       print('Res2 : $res2');
-      final res3 = await Stripe.instance.presentPaymentSheet();
+      final res3 = await Stripe.instance.presentPaymentSheet(
+        options: PaymentSheetPresentOptions(
+          timeout:  120000,
+        ),
+      );
       print('Res3  $res3');
       if(res3 != null){
         ScaffoldMessenger.of(context).showSnackBar(
@@ -306,6 +347,16 @@ class _UpiPaymentsState extends State<UpiPayments> {
                                         Navigator.of(context).pop(res);
                                       },
                                       child: Image.asset('assets/images/paypal_logo.png',width: 50,height: 70,)),
+                                  SizedBox(width: 20,),
+                                  GestureDetector(
+                                    onTap:()async{
+                                      bool res = await Navigator.push(context, MaterialPageRoute(builder: (context) =>RazorPayIntegration()
+                                      ));
+                                      print('Resultttt $res');
+                                      Navigator.of(context).pop(res);
+                                    },
+                                    child: Image.asset('assets/images/net_banking_logo.png',width: 60,height: 70,),
+                                  ),
                                 ],
                               ),
                             ],
@@ -337,15 +388,6 @@ class _UpiPaymentsState extends State<UpiPayments> {
                                   GestureDetector(
                                       onTap:()async{
                                         bool res = await Navigator.push(context, MaterialPageRoute(builder: (context) =>PhonePePayment()
-                                        ));
-                                        print('Resultttt $res');
-                                        Navigator.of(context).pop(res);
-                                      },
-                                      child: Image.asset('assets/images/net_banking_logo.png',width: 60,height: 70,)),
-                                  SizedBox(width: 20,),
-                                  GestureDetector(
-                                      onTap:()async{
-                                        bool res = await Navigator.push(context, MaterialPageRoute(builder: (context) =>RazorPayIntegration()
                                         ));
                                         print('Resultttt $res');
                                         Navigator.of(context).pop(res);
