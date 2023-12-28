@@ -72,6 +72,8 @@ class _CameraAppState extends State<CameraApp> {
   bool locationgranted = false;
   final player = AudioPlayer();
 
+  bool locationFetched = false;
+
   @override
   void initState() {
     super.initState();
@@ -182,11 +184,19 @@ class _CameraAppState extends State<CameraApp> {
       double latitude = position.latitude;
       double longitude = position.longitude;
 
-      setState(() {
-        liveLocation = location;
-        liveLatitude = latitude;
-        liveLongitude = longitude;
-      });
+      if(latitude != 0.0 && longitude != 0.0 ){
+        setState(() {
+          liveLocation = location;
+          liveLatitude = latitude;
+          liveLongitude = longitude;
+          locationFetched = true;
+        });
+      } else(){
+        print('finding users lcoation when user start recording');
+        fetchUserLocation();
+      };
+
+
     } catch (e) {
       print('Error fetching location: $e');
     }
@@ -209,19 +219,13 @@ class _CameraAppState extends State<CameraApp> {
   }
 
 
-
   void startRecording() async {
-
-    try {
-      playSound();
-    } catch (e) {
-      print("Error playing audio: $e");
-    }
 
 
 
     requestLocationPermission();
 
+    if(locationFetched == true){
       await _controller!.startVideoRecording();
 
       setState(() {
@@ -251,21 +255,11 @@ class _CameraAppState extends State<CameraApp> {
           timer.cancel();
         }
       });
+    }
 
 
 
 
-    //for smooth timing
-    // Timer.periodic(Duration(milliseconds: 100), (timer) {
-    //   setState(() {
-    //     _currentProgress += 0.00166666667;
-    //   });
-    //
-    //   if (_currentProgress >= 1.0) {
-    //     stopRecording();
-    //     timer.cancel();
-    //   }
-    // });
   }
 
 

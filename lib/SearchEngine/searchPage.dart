@@ -93,7 +93,7 @@ class _SearchPageState extends State<SearchPage> {
   late FocusNode _searchFocusNode;
   late SearchDatabaseHelper _databaseHelper;
   bool isSearching = true;
-  String location = 'India';
+  String location = 'Gwalior';
 
 
   Map<int, bool> categoryLoadingStates = {};
@@ -292,8 +292,8 @@ class _SearchPageState extends State<SearchPage> {
 
   List<Map<String, dynamic>> categoryData = [
   // /stories/best/genre/:genre/location/:location
-    ...generateCategoryData(name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle/location/India'),
-    ...generateCategoryData(name: 'Most Trending Visits', apiEndpoint: '/api/stories/best/location/India'),
+    ...generateCategoryData(name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle/location/Gwalior'),
+    ...generateCategoryData(name: 'Most Trending Visits', apiEndpoint: '/api/stories/best/location/Gwalior'),
     ...generateCategoryData(name: 'Historical/Heritage', apiEndpoint: '/api/stories/best/genre/Historical/Heritage/location/India'),
     ...generateCategoryData(name: 'Art & Culture/Museum', apiEndpoint: '/api/stories/best/genre/Art & Culture/location/India'),
     ...generateCategoryData(name: 'Wildlife attractions', apiEndpoint: '/api/stories/best/genre/WildLife attractions/location/India'),
