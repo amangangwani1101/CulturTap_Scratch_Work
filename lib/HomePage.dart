@@ -1,4 +1,5 @@
 //homepage
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/dummyHomePage.dart';
@@ -23,7 +24,10 @@ import 'package:learn_flutter/widgets/Constant.dart';
 
 
 
-void main() {
+Future<void> main() async{
+  WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp();
+
   runApp(MyApp());
 }
 
@@ -312,7 +316,7 @@ class _HomePageState extends State<HomePage> {
             controller: _scrollController,
             slivers: [
               SliverAppBar(
-                title: ProfileHeader(reqPage: 0, userId: '6572cc23e816febdac42873b', userName: userName),
+                title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
                 automaticallyImplyLeading: false,
                 shadowColor: Colors.transparent,
                 toolbarHeight: 90,

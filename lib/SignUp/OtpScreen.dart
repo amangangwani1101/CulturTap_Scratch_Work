@@ -37,7 +37,7 @@ class _OtpScreenState extends State<OtpScreen>{
 
 
   void checkUserSaved(String phoneNumber,String userCredId) async {
-
+    print('Phoen Number ${widget.phoneNumber},${phoneNumber}');
     try{
       var userQuery = await firestore.collection('users').where('phoneNo',isEqualTo:int.parse(phoneNumber)).limit(1).get();
 

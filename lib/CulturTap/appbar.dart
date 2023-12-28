@@ -56,6 +56,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   GestureDetector(
                     onTap: () {
                       // Handle profile image click
+
                     },
                     child: Container(
                       width: 24,
