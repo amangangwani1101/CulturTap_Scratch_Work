@@ -361,6 +361,7 @@ class _HomePageState extends State<HomePage> {
                         final bool categoryLoading = categoryLoadingStates[categoryIndex] ?? false;
                         final String specificCategoryName = category['specificName'];
                         final String categoryName = category['name'];
+                        final String whereTo = 'home';
                         final List<String> storyUrls = category['storyUrls'];
                         final List<String> videoCounts = category['videoCounts'];
                         final List<String> storyDistance = category['storyDistance'];
@@ -372,6 +373,7 @@ class _HomePageState extends State<HomePage> {
                         return buildCategorySection(
                           specificCategoryName,
                           categoryName,
+                          whereTo,
                           storyUrls,
                           videoCounts,
                           storyDistance,

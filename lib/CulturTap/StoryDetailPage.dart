@@ -10,6 +10,7 @@ import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:provider/provider.dart';
@@ -21,12 +22,14 @@ class StoryDetailPage extends StatefulWidget {
   final List<Map<String, dynamic>> storyDetailsList;
   final int initialIndex;
   final List<String> storyUrls;
+  final String where;
 
 
   StoryDetailPage({
     required this.storyUrls,
     required this.storyDetailsList,
     required this.initialIndex,
+    required this.where,
   });
 
   @override
@@ -361,10 +364,20 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           _chewieController?.pause();
         }
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => HomePage()),
-        );
+        if(widget.where == 'home'){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
+        }
+        if(widget.where == 'search'){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SearchPage()),
+          );
+        }
+
+
 
         return false; // Returning true will allow the user to pop the page
       },
@@ -942,6 +955,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
               final String specificCategoryName = category['specificName'];
               final String categoryName = category['name'];
+              final String whereTo = '';
               final List<String> storyUrls = category['storyUrls'];
               final List<String> videoCounts = category['videoCounts'];
               final List<String> storyDistance = category['storyDistance'];
@@ -953,6 +967,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               return buildCategorySection(
                 specificCategoryName,
                 categoryName,
+                whereTo,
                 storyUrls,
                 videoCounts,
                 storyDistance,

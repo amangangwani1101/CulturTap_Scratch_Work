@@ -67,6 +67,10 @@ class _SearchPageState extends State<SearchPage> {
 
   Map<int, bool> categoryLoadingStates = {};
 
+
+
+
+
   List<Map<String, dynamic>> categoryData = [
     ...generateCategoryData(name: 'Near You', apiEndpoint: '/api/search'),
     ...generateCategoryData(name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
@@ -200,8 +204,31 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<void> fetchUserLocationAndData() async {
     setState(() {
+
       isLoading = true;
+      categoryData.clear();
+
+
     });
+
+
+    categoryData = [
+      ...generateCategoryData(name: 'NearBy You', apiEndpoint: '/api/search'),
+      ...generateCategoryData(name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
+      ...generateCategoryData(name: 'Most Trending Visits', apiEndpoint: '/api/stories/best'),
+      ...generateCategoryData(name: 'Historical/Heritage', apiEndpoint: '/api/stories/best/genre/Historical/Heritage'),
+      ...generateCategoryData(name: 'Art & Culture/Museum', apiEndpoint: '/api/stories/best/genre/Art & Culture'),
+      ...generateCategoryData(name: 'Wildlife attractions', apiEndpoint: '/api/stories/best/genre/WildLife attractions'),
+      ...generateCategoryData(name: 'Advanture Places', apiEndpoint: '/api/stories/best/genre/Advanture Places'),
+      ...generateCategoryData(name: 'Festival', apiEndpoint: '/api/stories/best/genre/Festival'),
+      ...generateCategoryData(name: 'Fashion', apiEndpoint: '/api/stories/best/genre/Fashion'),
+      ...generateCategoryData(name: 'Market', apiEndpoint: '/api/stories/best/genre/Market'),
+    ];
+
+
+
+
+
     print('I called');
 
     try {
@@ -340,9 +367,13 @@ class _SearchPageState extends State<SearchPage> {
                           onFilterSelected: (filter) {
                             setState(() {
                               selectedFilter = filter;
+                              isLoading = true;
+                              // Set loading state when changing the filter
                             });
+                            fetchUserLocationAndData(); // Fetch data based on the new filter
                           },
                         ),
+
                         SizedBox(height: 30),
                       ],
                     ),
@@ -363,6 +394,8 @@ class _SearchPageState extends State<SearchPage> {
                           : Column(
                               children:
                                   categoryData.asMap().entries.map((entry) {
+
+
                                 final int categoryIndex = entry.key;
                                 final Map<String, dynamic> category =
                                     entry.value;
@@ -372,7 +405,9 @@ class _SearchPageState extends State<SearchPage> {
                                         false;
                                 final String specificCategoryName =
                                     category['specificName'];
+
                                 final String categoryName = category['name'];
+                                final String whereTo = 'search';
                                 final List<String> storyUrls =
                                     category['storyUrls'];
                                 final List<String> videoCounts =
@@ -388,9 +423,11 @@ class _SearchPageState extends State<SearchPage> {
                                 List<Map<String, dynamic>> storyDetailsList =
                                     category['storyDetailsList'];
 
+
                                 return buildCategorySection(
                                   specificCategoryName,
                                   categoryName,
+                                  whereTo,
                                   storyUrls,
                                   videoCounts,
                                   storyDistance,
@@ -399,6 +436,7 @@ class _SearchPageState extends State<SearchPage> {
                                   storyCategory,
                                   storyDetailsList,
                                   categoryLoading,
+
                                 );
                               }).toList(),
                             ),
@@ -490,6 +528,11 @@ class SearchBarWithSuggestions extends StatelessWidget {
     );
   }
 }
+
+
+
+
+
 
 class FiltersWithHorizontalScroll extends StatelessWidget {
   final String selectedFilter;

@@ -8,7 +8,7 @@ import 'package:learn_flutter/CulturTap/appbar.dart';
 
 String previousSpecific = '';
 
-Widget buildCategorySection( String specificCategoryName, String categoryName, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyTitle, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList,bool isLoading, ) {
+Widget buildCategorySection( String specificCategoryName, String categoryName, String whereTo, List<String> storyUrls, List<String> videoCounts, List<String> storyDistance, List<String> storyLocation, List<String> storyTitle, List<String> storyCategory, List<Map<String, dynamic>> storyDetailsList,bool isLoading, ) {
 
   // if (isLoading) {
   //   // Show loader while the category is still loading
@@ -84,6 +84,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
                             context,
                             MaterialPageRoute(
                               builder: (context) => StoryDetailPage(
+                                where: whereTo,
                                 storyUrls: storyUrls,
                                 storyDetailsList: storyDetailsList,
                                 initialIndex: 07,
@@ -117,6 +118,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, L
                         context,
                         MaterialPageRoute(
                           builder: (context) => StoryDetailPage(
+                            where: whereTo,
                             storyUrls: storyUrls,
                             storyDetailsList: storyDetailsList,
                             initialIndex: index,
