@@ -58,7 +58,7 @@ class _SearchPageState extends State<SearchPage> {
   String userID = '';
   ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  List<String> suggestions = ['Trending Stories NearMe', 'Exciting Trips'];
+  List<String> suggestions = [];
   String selectedFilter = '';
   late FocusNode _searchFocusNode;
   late SearchDatabaseHelper _databaseHelper;
@@ -67,24 +67,60 @@ class _SearchPageState extends State<SearchPage> {
 
   Map<int, bool> categoryLoadingStates = {};
 
-
-
-
-
   List<Map<String, dynamic>> categoryData = [
     ...generateCategoryData(name: 'Near You', apiEndpoint: '/api/search'),
-    ...generateCategoryData(name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
-    ...generateCategoryData(name: 'Most Trending Visits', apiEndpoint: '/api/stories/best'),
-    ...generateCategoryData(name: 'Historical/Heritage', apiEndpoint: '/api/stories/best/genre/Historical/Heritage'),
-    ...generateCategoryData(name: 'Art & Culture/Museum', apiEndpoint: '/api/stories/best/genre/Art & Culture'),
-    ...generateCategoryData(name: 'Wildlife attractions', apiEndpoint: '/api/stories/best/genre/WildLife attractions'),
-    ...generateCategoryData(name: 'Advanture Places', apiEndpoint: '/api/stories/best/genre/Advanture Places'),
-    ...generateCategoryData(name: 'Festival', apiEndpoint: '/api/stories/best/genre/Festival'),
-    ...generateCategoryData(name: 'Fashion', apiEndpoint: '/api/stories/best/genre/Fashion'),
-    ...generateCategoryData(name: 'Market', apiEndpoint: '/api/stories/best/genre/Market'),
+    ...generateCategoryData(
+        name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
+    ...generateCategoryData(
+        name: 'Most Trending Visits', apiEndpoint: '/api/stories/best'),
+    ...generateCategoryData(
+        name: 'Historical/Heritage',
+        apiEndpoint: '/api/stories/best/genre/Historical/Heritage'),
+    ...generateCategoryData(
+        name: 'Art & Culture/Museum',
+        apiEndpoint: '/api/stories/best/genre/Art & Culture'),
+    ...generateCategoryData(
+        name: 'Wildlife attractions',
+        apiEndpoint: '/api/stories/best/genre/WildLife attractions'),
+    ...generateCategoryData(
+        name: 'Advanture Places',
+        apiEndpoint: '/api/stories/best/genre/Advanture Places'),
+    ...generateCategoryData(
+        name: 'Festival', apiEndpoint: '/api/stories/best/genre/Festival'),
+    ...generateCategoryData(
+        name: 'Fashion', apiEndpoint: '/api/stories/best/genre/Fashion'),
+    ...generateCategoryData(
+        name: 'Market', apiEndpoint: '/api/stories/best/genre/Market'),
   ];
 
+  Future<List<String>> fetchSuggestions(String query) async {
+    final String serverUrl = Constant().serverUrl;
+    final apiUrl = '$serverUrl/api/suggestions?query=$query';
 
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+      print('here is the response');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        print(jsonResponse);
+        final List<String> suggestionsList =
+            List<String>.from(jsonResponse['suggestions']);
+        setState(() {
+          suggestions = suggestionsList;
+        });
+
+        return suggestionsList;
+      } else {
+        print('Error fetching suggestions: ${response.statusCode}');
+        return [];
+      }
+    } catch (error) {
+      print('Error fetching suggestions: $error');
+      return [];
+    }
+  }
 
   Future<void> updateSuggestions(String query, String selectedFilter) async {
     print('this is called');
@@ -120,13 +156,11 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<void> fetchDataForCategory(double latitude, double longitude,
       int categoryIndex, String searchQuery) async {
-
     try {
       final Map<String, dynamic> category = categoryData[categoryIndex];
       String apiEndpointsmall = category['apiEndpoint'];
 
       String apiEndpoint = "$apiEndpointsmall/$selectedFilter/$searchQuery";
-
 
       print('apiENdpoint hai yeh');
       print(apiEndpointsmall);
@@ -200,34 +234,37 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-// Inside your _SearchPageState class
-
   Future<void> fetchUserLocationAndData() async {
     setState(() {
-
       isLoading = true;
       categoryData.clear();
-
-
     });
-
 
     categoryData = [
       ...generateCategoryData(name: 'NearBy You', apiEndpoint: '/api/search'),
-      ...generateCategoryData(name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
-      ...generateCategoryData(name: 'Most Trending Visits', apiEndpoint: '/api/stories/best'),
-      ...generateCategoryData(name: 'Historical/Heritage', apiEndpoint: '/api/stories/best/genre/Historical/Heritage'),
-      ...generateCategoryData(name: 'Art & Culture/Museum', apiEndpoint: '/api/stories/best/genre/Art & Culture'),
-      ...generateCategoryData(name: 'Wildlife attractions', apiEndpoint: '/api/stories/best/genre/WildLife attractions'),
-      ...generateCategoryData(name: 'Advanture Places', apiEndpoint: '/api/stories/best/genre/Advanture Places'),
-      ...generateCategoryData(name: 'Festival', apiEndpoint: '/api/stories/best/genre/Festival'),
-      ...generateCategoryData(name: 'Fashion', apiEndpoint: '/api/stories/best/genre/Fashion'),
-      ...generateCategoryData(name: 'Market', apiEndpoint: '/api/stories/best/genre/Market'),
+      ...generateCategoryData(
+          name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
+      ...generateCategoryData(
+          name: 'Most Trending Visits', apiEndpoint: '/api/stories/best'),
+      ...generateCategoryData(
+          name: 'Historical/Heritage',
+          apiEndpoint: '/api/stories/best/genre/Historical/Heritage'),
+      ...generateCategoryData(
+          name: 'Art & Culture/Museum',
+          apiEndpoint: '/api/stories/best/genre/Art & Culture'),
+      ...generateCategoryData(
+          name: 'Wildlife attractions',
+          apiEndpoint: '/api/stories/best/genre/WildLife attractions'),
+      ...generateCategoryData(
+          name: 'Advanture Places',
+          apiEndpoint: '/api/stories/best/genre/Advanture Places'),
+      ...generateCategoryData(
+          name: 'Festival', apiEndpoint: '/api/stories/best/genre/Festival'),
+      ...generateCategoryData(
+          name: 'Fashion', apiEndpoint: '/api/stories/best/genre/Fashion'),
+      ...generateCategoryData(
+          name: 'Market', apiEndpoint: '/api/stories/best/genre/Market'),
     ];
-
-
-
-
 
     print('I called');
 
@@ -265,7 +302,9 @@ class _SearchPageState extends State<SearchPage> {
   @override
   void initState() {
     super.initState();
+    print('suggestions fetched');
 
+    print('here is iss');
     _searchFocusNode = FocusNode();
     _searchFocusNode.requestFocus();
     _databaseHelper = SearchDatabaseHelper();
@@ -348,17 +387,51 @@ class _SearchPageState extends State<SearchPage> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 40),
-                        Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: SearchBarWithSuggestions(
-                            focusNode: _searchFocusNode,
-                            controller: _searchController,
-                            onSearch: (query) =>
-                                fetchUserLocationAndData(),
-                            isSearchInitiated:
-                                isSearchInitiated,
+                        Container(
+                          margin: EdgeInsets.only(left: 15, right: 15, top: 15),
+                          child: Column(
+                            children: [
+                              TextFormField(
+                                focusNode: _searchFocusNode,
+                                controller: _searchController,
+                                onChanged: (query) {
+                                  fetchSuggestions(_searchController.text);
+                                },
+                                onEditingComplete: () {
+                                  requestLocationPermission();
+                                  FocusScope.of(context).unfocus();
+                                  fetchUserLocationAndData();
 
-                            // Pass the variable
+                                  setState(() {
+                                    isSearchInitiated = true;
+                                  });
+                                },
+                                style: TextStyle(
+                                  color: Theme.of(context).primaryColor,
+                                  fontWeight: FontWeight.w600,
+                                ),
+                                decoration: InputDecoration(
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  focusedBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  ),
+                                  enabledBorder: OutlineInputBorder(
+                                    borderSide: BorderSide(color: Colors.grey),
+                                    borderRadius: BorderRadius.circular(30.0),
+                                  ),
+                                  hintText:
+                                      'Search here your Mood, Food, Places...',
+                                  hintStyle: TextStyle(
+                                    color: Colors.grey,
+                                    fontWeight: FontWeight.w600,
+                                  ),
+                                  prefixIcon: Icon(Icons.search,
+                                      color: Theme.of(context).primaryColor),
+                                ),
+                              ),
+                            ],
                           ),
                         ),
                         SizedBox(height: 20),
@@ -373,29 +446,25 @@ class _SearchPageState extends State<SearchPage> {
                             fetchUserLocationAndData(); // Fetch data based on the new filter
                           },
                         ),
-
                         SizedBox(height: 30),
                       ],
                     ),
                     if (!_searchController.text.isEmpty)
                       isLoading
-                          ? Container(
-                              height: 500,
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Container(
-                                      child: CircularProgressIndicator(
-                                    color: Theme.of(context).primaryColor,
-                                  )),
-                                ],
-                              ),
+                          ? SuggestionList(
+                              suggestions: suggestions,
+                              searchController: _searchController,
+                              onSuggestionSelected: (selectedSuggestion) {
+                                // Handle the selected suggestion
+                                print(
+                                    'Selected suggestion: $selectedSuggestion');
+                                // Set the search input value
+                                _searchController.text = selectedSuggestion;
+                              },
                             )
                           : Column(
                               children:
                                   categoryData.asMap().entries.map((entry) {
-
-
                                 final int categoryIndex = entry.key;
                                 final Map<String, dynamic> category =
                                     entry.value;
@@ -423,7 +492,6 @@ class _SearchPageState extends State<SearchPage> {
                                 List<Map<String, dynamic>> storyDetailsList =
                                     category['storyDetailsList'];
 
-
                                 return buildCategorySection(
                                   specificCategoryName,
                                   categoryName,
@@ -436,7 +504,6 @@ class _SearchPageState extends State<SearchPage> {
                                   storyCategory,
                                   storyDetailsList,
                                   categoryLoading,
-
                                 );
                               }).toList(),
                             ),
@@ -470,69 +537,6 @@ class _SearchPageState extends State<SearchPage> {
     );
   }
 }
-
-class SearchBarWithSuggestions extends StatelessWidget {
-  final FocusNode focusNode;
-  final TextEditingController controller;
-  final Function(String) onSearch;
-  bool isSearchInitiated; // Add this line
-
-  SearchBarWithSuggestions({
-    required this.focusNode,
-    required this.controller,
-    required this.onSearch,
-    required this.isSearchInitiated, // Add this line
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(left: 15, right: 15, top: 15),
-      child: Column(
-        children: [
-          TextFormField(
-            focusNode: focusNode,
-            controller: controller,
-            onEditingComplete: () {
-              // Hide the keyboard when the "Done" button is pressed
-              requestLocationPermission();
-              FocusScope.of(context).unfocus();
-              onSearch(controller.text);
-
-              // Set the flag to true when the user initiates a search
-              isSearchInitiated = true; // Now, you can use isSearchInitiated
-            },
-            style: TextStyle(
-                color: Theme.of(context).primaryColor,
-                fontWeight: FontWeight.w600),
-            decoration: InputDecoration(
-              filled: true,
-              fillColor: Colors.white,
-              focusedBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              enabledBorder: OutlineInputBorder(
-                borderSide: BorderSide(color: Colors.grey),
-                borderRadius: BorderRadius.circular(30.0),
-              ),
-              hintText: 'Search here your Mood, Food, Places...',
-              hintStyle:
-                  TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
-              prefixIcon:
-                  Icon(Icons.search, color: Theme.of(context).primaryColor),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-
-
-
-
 
 class FiltersWithHorizontalScroll extends StatelessWidget {
   final String selectedFilter;

@@ -65,7 +65,6 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       ),),
                     );
                   }
-
                 },
                 child: Container( 
 

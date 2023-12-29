@@ -57,13 +57,13 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 children: [
                   GestureDetector(
                     onTap: () {
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
-                      //     create:(context) => ProfileDataProvider(),
-                      //     child: FinalProfile(userId: userID,clickedId: userID,),
-                      //   ),),
-                      // );
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                          create:(context) => ProfileDataProvider(),
+                          child: FinalProfile(userId: userID,clickedId: userID,),
+                        ),),
+                      );
                       // Handle profile image click
 
                     },

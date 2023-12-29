@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 
 import '../../UserProfile/FinalUserProfile.dart';
@@ -337,7 +338,7 @@ class _PingSectionState extends State<PingsSection>{
       },
       child: Scaffold(
 
-          appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent, toolbarHeight: 90,),
+          appBar: AppBar(title: ProfileHeader(reqPage: 0 ,text: widget.text,userName:widget.userName,userId:userID),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent, toolbarHeight: 90,),
       body: !isLoading
           ? RefreshIndicator(
             onRefresh: ()=>_refreshPage(),
