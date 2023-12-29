@@ -46,7 +46,7 @@ class _FinalProfileState extends State<FinalProfile> {
 
     fetchDataset();
     // print('userid is');
-    // print(widget.userId);
+    // print(userID);
     // print('clickedid is');
     fetchingStoriesUserID(widget.clickedId);
     fetchUserLocationAndData();
@@ -200,7 +200,7 @@ class _FinalProfileState extends State<FinalProfile> {
       onRefresh: _refreshPage,
 
       child: Scaffold(
-        appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: widget.userId,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
+        appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: userID,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
         body: WillPopScope(
           onWillPop: ()async{
             Navigator.pushReplacement(
@@ -258,7 +258,7 @@ class _FinalProfileState extends State<FinalProfile> {
                         SizedBox(height: 40,),
                         ExpertCardDetails(),
                         SizedBox(height: 40,),
-                        dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : widget.userId,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
+                        dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : userID,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
                         SizedBox(height: 50,),
                         RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName']),
 
@@ -287,7 +287,7 @@ class _FinalProfileState extends State<FinalProfile> {
                               Container(
                                 width : 240,
                                 child: Text(
-                                  widget.userId == widget.clickedId ? "Your Story Tree" :  "Other Stories By ${dataset?['userName']?.split(' ')[0] } ?"
+                                  userID == widget.clickedId ? "Your Story Tree" :  "Other Stories By ${dataset?['userName']?.split(' ')[0] } ?"
                                  ,
                                   style: Theme.of(context).textTheme.headline1,
                                 ),

@@ -7,6 +7,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
+import 'package:provider/provider.dart';
 
 import '../BackendStore/BackendStore.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
@@ -55,6 +57,13 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 children: [
                   GestureDetector(
                     onTap: () {
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                      //     create:(context) => ProfileDataProvider(),
+                      //     child: FinalProfile(userId: userID,clickedId: userID,),
+                      //   ),),
+                      // );
                       // Handle profile image click
 
                     },

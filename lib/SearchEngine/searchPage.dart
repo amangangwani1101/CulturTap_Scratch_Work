@@ -1,6 +1,3 @@
-//homepage
-import 'dart:html';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -25,54 +22,21 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
+
 import 'package:flutter/rendering.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
-
-
 
 void main() {
   runApp(MyApp());
 }
 
-
 //new stuff
 
 //inside this
 
-
-
-Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async {
-  try {
-    // Modify the search API endpoint based on your backend implementation
-    final Map<String, dynamic> queryParams = {'query': query};
-    final uri = Uri.http('173.212.193.109:8080', apiEndpoint, queryParams);
-
-    final response = await http.get(uri);
-
-    if (response.statusCode == 200) {
-      final List<dynamic> searchResults = json.decode(response.body);
-      print('Search results: $searchResults');
-
-      return searchResults;
-      // Process and update the UI with the search results
-
-    } else {
-      print('Failure');
-      throw Exception('Failed to load search results');
-    }
-  } catch (error) {
-    print('Error fetching search results: $error');
-    throw error; // Add this line to explicitly return an error
-  }
-}
-
-
-
 class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: SearchPage(),
@@ -85,7 +49,6 @@ class SearchPage extends StatefulWidget {
   _SearchPageState createState() => _SearchPageState();
 }
 
-
 class _SearchPageState extends State<SearchPage> {
   bool _isVisible = true;
   bool isSearchInitiated = false;
@@ -95,29 +58,28 @@ class _SearchPageState extends State<SearchPage> {
   String userID = '';
   ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  List<String> suggestions = ['Trending Stories NearMe','Exciting Trips'];
+  List<String> suggestions = ['Trending Stories NearMe', 'Exciting Trips'];
   String selectedFilter = '';
   late FocusNode _searchFocusNode;
   late SearchDatabaseHelper _databaseHelper;
   bool isSearching = true;
   String location = 'Gwalior';
 
-
   Map<int, bool> categoryLoadingStates = {};
 
-
-
-
   List<Map<String, dynamic>> categoryData = [
+    ...generateCategoryData(name: 'Near You', apiEndpoint: '/api/search'),
     ...generateCategoryData(name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
-    // ...generateCategoryData(name: 'Most Trending Visits', apiEndpoint: '/api/stories/best/selectedFilter/India'),
-    // ...generateCategoryData(name: 'Historical/Heritage', apiEndpoint: '/api/stories/best/genre/Historical/Heritage/selectedFilter/India'),
-    // ...generateCategoryData(name: 'Art & Culture/Museum', apiEndpoint: '/api/stories/best/genre/Art & Culture/selectedFilter/India'),
-    // ...generateCategoryData(name: 'Wildlife attractions', apiEndpoint: '/api/stories/best/genre/WildLife attractions/selectedFilter/India'),
-    // ...generateCategoryData(name: 'Advanture Places', apiEndpoint: '/api/stories/best/genre/Advanture Places/selectedFilter/India'),
-    // ...generateCategoryData(name: 'Festival', apiEndpoint: '/api/stories/best/genre/Festival/selectedFilter/India'),
-    // ...generateCategoryData(name: 'Fashion', apiEndpoint: '/api/stories/best/genre/Fashion/selectedFilter/India'),
+    ...generateCategoryData(name: 'Most Trending Visits', apiEndpoint: '/api/stories/best'),
+    ...generateCategoryData(name: 'Historical/Heritage', apiEndpoint: '/api/stories/best/genre/Historical/Heritage'),
+    ...generateCategoryData(name: 'Art & Culture/Museum', apiEndpoint: '/api/stories/best/genre/Art & Culture'),
+    ...generateCategoryData(name: 'Wildlife attractions', apiEndpoint: '/api/stories/best/genre/WildLife attractions'),
+    ...generateCategoryData(name: 'Advanture Places', apiEndpoint: '/api/stories/best/genre/Advanture Places'),
+    ...generateCategoryData(name: 'Festival', apiEndpoint: '/api/stories/best/genre/Festival'),
+    ...generateCategoryData(name: 'Fashion', apiEndpoint: '/api/stories/best/genre/Fashion'),
+    ...generateCategoryData(name: 'Market', apiEndpoint: '/api/stories/best/genre/Market'),
   ];
+
 
 
   Future<void> updateSuggestions(String query, String selectedFilter) async {
@@ -136,57 +98,69 @@ class _SearchPageState extends State<SearchPage> {
 
     final apiUrl = '${Constant().serverUrl}';
 
-
-
     final response = await http.get(
       Uri.parse('$apiUrl?filter=$selectedFilter&query=$query'),
     );
-
 
     if (response.statusCode == 200) {
       final jsonResponse = json.decode(response.body);
       setState(() {
         suggestions = List<String>.from(jsonResponse['suggestions']);
         isSearching = true;
+        isLoading = false;
       });
     } else {
       print('Error fetching suggestions: ${response.statusCode}');
     }
   }
 
+  Future<void> fetchDataForCategory(double latitude, double longitude,
+      int categoryIndex, String searchQuery) async {
 
-  Future<void> fetchDataForCategory(double latitude, double longitude, int categoryIndex) async {
     try {
-
       final Map<String, dynamic> category = categoryData[categoryIndex];
-      String apiEndpoint = category['apiEndpoint'];
-      // String apiEndpoint = "$apiEndpointsmall/$selectedFilter/'India'";
+      String apiEndpointsmall = category['apiEndpoint'];
 
-      final fetchedStoryList = await fetchDataForStories(latitude, longitude, apiEndpoint);
+      String apiEndpoint = "$apiEndpointsmall/$selectedFilter/$searchQuery";
 
-      Map<String, dynamic> processedData = processFetchedStories(fetchedStoryList, latitude, longitude);
 
-      categoryData[categoryIndex]['storyUrls'] = processedData['totalVideoPaths'];
-      categoryData[categoryIndex]['videoCounts'] = processedData['totalVideoCounts'];
-      categoryData[categoryIndex]['storyDistance'] = processedData['storyDistances'];
-      categoryData[categoryIndex]['storyLocation'] = processedData['storyLocations'];
+      print('apiENdpoint hai yeh');
+      print(apiEndpointsmall);
+      print(apiEndpoint);
+
+      final fetchedStoryList =
+          await fetchDataForStories(latitude, longitude, apiEndpoint);
+
+      Map<String, dynamic> processedData =
+          processFetchedStories(fetchedStoryList, latitude, longitude);
+
+      // Update the category data with the fetched information
+      categoryData[categoryIndex]['storyUrls'] =
+          processedData['totalVideoPaths'];
+      categoryData[categoryIndex]['videoCounts'] =
+          processedData['totalVideoCounts'];
+      categoryData[categoryIndex]['storyDistance'] =
+          processedData['storyDistances'];
+      categoryData[categoryIndex]['storyLocation'] =
+          processedData['storyLocations'];
       categoryData[categoryIndex]['storyTitle'] = processedData['storyTitles'];
-      categoryData[categoryIndex]['storyCategory'] = processedData['storyCategories'];
-      categoryData[categoryIndex]['thumbnail_url'] = processedData['thumbnail_urls'];
-      categoryData[categoryIndex]['storyDetailsList'] = processedData['storyDetailsList'];
+      categoryData[categoryIndex]['storyCategory'] =
+          processedData['storyCategories'];
+      categoryData[categoryIndex]['thumbnail_url'] =
+          processedData['thumbnail_urls'];
+      categoryData[categoryIndex]['storyDetailsList'] =
+          processedData['storyDetailsList'];
 
       setState(() {
         isLoading = false;
       });
 
-
-      print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
-      print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
+      print(
+          'Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
+      print(
+          'All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
       print('storyurls');
       print(categoryData[categoryIndex]['storyUrls']);
-
-
-
     } catch (error) {
       print('Error fetching stories for category $categoryIndex: $error');
       setState(() {
@@ -195,7 +169,8 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-  Future<void> updateLiveLocation(String userId, double liveLatitude, double liveLongitude) async {
+  Future<void> updateLiveLocation(
+      String userId, double liveLatitude, double liveLongitude) async {
     final String serverUrl = Constant().serverUrl;
     final Uri uri = Uri.parse('$serverUrl/updateLiveLocation');
     final Map<String, dynamic> data = {
@@ -221,10 +196,12 @@ class _SearchPageState extends State<SearchPage> {
     }
   }
 
-
 // Inside your _SearchPageState class
 
   Future<void> fetchUserLocationAndData() async {
+    setState(() {
+      isLoading = true;
+    });
     print('I called');
 
     try {
@@ -236,33 +213,27 @@ class _SearchPageState extends State<SearchPage> {
       double longitude = position.longitude;
       String query = _searchController.text;
 
-      updateLiveLocation('6572cc23e816febdac42873b', position.latitude, position.longitude);
+      updateLiveLocation(userID, position.latitude, position.longitude);
 
       print('Latitude is: $latitude');
 
       // Fetch stories for each category
 
-      if(query.isNotEmpty){
+      if (!query.isNotEmpty) {
         print('wow');
-
-      }
-      else{
+      } else {
         for (int i = 0; i < categoryData.length; i++) {
-          await fetchDataForCategory(latitude, longitude, i);
+          await fetchDataForCategory(
+              latitude, longitude, i, _searchController.text);
         }
       }
-
-
-
     } catch (e) {
       print('Error fetching location: $e');
     }
   }
 
-
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-
 
   @override
   void initState() {
@@ -272,28 +243,24 @@ class _SearchPageState extends State<SearchPage> {
     _searchFocusNode.requestFocus();
     _databaseHelper = SearchDatabaseHelper();
 
-    selectedFilter = 'Stories';
-
     fetchDataFromMongoDB();
 
     _scrollController.addListener(() {
-      if (_scrollController.position.userScrollDirection == ScrollDirection.forward) {
+      if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.forward) {
         setState(() {
           _isVisible = true;
         });
-      } else if (_scrollController.position.userScrollDirection == ScrollDirection.reverse) {
+      } else if (_scrollController.position.userScrollDirection ==
+          ScrollDirection.reverse) {
         setState(() {
           _isVisible = false;
         });
       }
     });
     setState(() {
-
-      selectedFilter = 'Stories';
-
-
+      selectedFilter = 'Location';
     });
-
   }
 
   //updated code from here
@@ -305,23 +272,7 @@ class _SearchPageState extends State<SearchPage> {
     super.dispose();
   }
 
-
-
-
-
-  Future<void> fetchUserLocationAndDataasync() async {
-    await fetchUserLocationAndData();
-    print(userName);
-
-    // Any other asynchronous initialization tasks can be added here
-  }
-
-
-
-
-
-
-  Future<void> _refreshHomepage() async {
+  Future<void> _refreshSearchPage() async {
     await fetchUserLocationAndData();
     fetchDataFromMongoDB();
 
@@ -329,11 +280,9 @@ class _SearchPageState extends State<SearchPage> {
     print(userID);
   }
 
-
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
@@ -346,23 +295,23 @@ class _SearchPageState extends State<SearchPage> {
         body: RefreshIndicator(
           backgroundColor: Color(0xFF263238),
           color: Colors.orange,
-          onRefresh: _refreshHomepage,
+          onRefresh: _refreshSearchPage,
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              SliverAppBar(
-                title: ProfileHeader(reqPage: 0, userId: '6572cc23e816febdac42873b', userName: userName),
-                automaticallyImplyLeading: false,
-                shadowColor: Colors.transparent,
-                toolbarHeight: 90,
-                // Adjust as needed
-                floating: true,
-                pinned: false,
-                flexibleSpace: FlexibleSpaceBar(
-
-                  // You can add more customization to the flexible space here
-                ),
-              ),
+              // SliverAppBar(
+              //   title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
+              //   automaticallyImplyLeading: false,
+              //   shadowColor: Colors.transparent,
+              //   toolbarHeight: 90,
+              //   // Adjust as needed
+              //   floating: true,
+              //   pinned: false,
+              //   flexibleSpace: FlexibleSpaceBar(
+              //
+              //     // You can add more customization to the flexible space here
+              //   ),
+              // ),
 
               SliverList(
                 delegate: SliverChildListDelegate(
@@ -371,17 +320,20 @@ class _SearchPageState extends State<SearchPage> {
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        SizedBox(height: 40),
+                        Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: SearchBarWithSuggestions(
+                            focusNode: _searchFocusNode,
+                            controller: _searchController,
+                            onSearch: (query) =>
+                                fetchUserLocationAndData(),
+                            isSearchInitiated:
+                                isSearchInitiated,
 
-
-
-
-                        SizedBox(height : 40),
-                        SearchBarWithSuggestions(
-                          focusNode: _searchFocusNode,
-                          controller: _searchController,
-                          onSearch: (query) => updateSuggestions(query, selectedFilter), // Pass the selected filter
+                            // Pass the variable
+                          ),
                         ),
-
                         SizedBox(height: 20),
                         FiltersWithHorizontalScroll(
                           selectedFilter: selectedFilter,
@@ -392,50 +344,65 @@ class _SearchPageState extends State<SearchPage> {
                           },
                         ),
                         SizedBox(height: 30),
-
-
-
-
                       ],
                     ),
-                    if (!_searchController.text.isEmpty && isSearchInitiated)
-                      isLoading ? Container(
-      height : 500,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
-        ],
-      ),
-    ) : Column(children: categoryData.asMap().entries.map((entry) {
-    final int categoryIndex = entry.key;
-    final Map<String, dynamic> category = entry.value;
+                    if (!_searchController.text.isEmpty)
+                      isLoading
+                          ? Container(
+                              height: 500,
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Container(
+                                      child: CircularProgressIndicator(
+                                    color: Theme.of(context).primaryColor,
+                                  )),
+                                ],
+                              ),
+                            )
+                          : Column(
+                              children:
+                                  categoryData.asMap().entries.map((entry) {
+                                final int categoryIndex = entry.key;
+                                final Map<String, dynamic> category =
+                                    entry.value;
 
-    final bool categoryLoading = categoryLoadingStates[categoryIndex] ?? false;
-    final String specificCategoryName = category['specificName'];
-    final String categoryName = category['name'];
-    final List<String> storyUrls = category['storyUrls'];
-    final List<String> videoCounts = category['videoCounts'];
-    final List<String> storyDistance = category['storyDistance'];
-    final List<String> storyLocation = category['storyLocation'];
-    final List<String> storyCategory = category['storyCategory'];
-    final List<String> storyTitle = category['storyTitle'];
-    List<Map<String, dynamic>> storyDetailsList = category['storyDetailsList'];
+                                final bool categoryLoading =
+                                    categoryLoadingStates[categoryIndex] ??
+                                        false;
+                                final String specificCategoryName =
+                                    category['specificName'];
+                                final String categoryName = category['name'];
+                                final List<String> storyUrls =
+                                    category['storyUrls'];
+                                final List<String> videoCounts =
+                                    category['videoCounts'];
+                                final List<String> storyDistance =
+                                    category['storyDistance'];
+                                final List<String> storyLocation =
+                                    category['storyLocation'];
+                                final List<String> storyCategory =
+                                    category['storyCategory'];
+                                final List<String> storyTitle =
+                                    category['storyTitle'];
+                                List<Map<String, dynamic>> storyDetailsList =
+                                    category['storyDetailsList'];
 
-    return buildCategorySection(
-    specificCategoryName,
-    categoryName,
-    storyUrls,
-    videoCounts,
-    storyDistance,
-    storyLocation,
-    storyTitle,
-    storyCategory,
-    storyDetailsList,
-    categoryLoading,
-    );
-    }).toList(),),
-                    if (_searchController.text.isEmpty && !isSearchInitiated)
+                                return buildCategorySection(
+                                  specificCategoryName,
+                                  categoryName,
+                                  storyUrls,
+                                  videoCounts,
+                                  storyDistance,
+                                  storyLocation,
+                                  storyTitle,
+                                  storyCategory,
+                                  storyDetailsList,
+                                  categoryLoading,
+                                );
+                              }).toList(),
+                            ),
+                    if (_searchController.text.isEmpty)
                       SuggestionList(
                         suggestions: suggestions,
                         searchController: _searchController,
@@ -446,41 +413,37 @@ class _SearchPageState extends State<SearchPage> {
                           _searchController.text = selectedSuggestion;
                         },
                       ),
-
-
                   ],
                 ),
               ),
             ],
           ),
-
         ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
-
-
           height: _isVisible ? 70 : 0.0,
-          child: CustomFooter(userName: userName, userId: userID, lode: 'home',),
+          child: CustomFooter(
+            userName: userName,
+            userId: userID,
+            lode: 'home',
+          ),
         ),
       ),
     );
   }
 }
 
-
-
-
-
-
 class SearchBarWithSuggestions extends StatelessWidget {
   final FocusNode focusNode;
   final TextEditingController controller;
   final Function(String) onSearch;
+  bool isSearchInitiated; // Add this line
 
   SearchBarWithSuggestions({
     required this.focusNode,
     required this.controller,
     required this.onSearch,
+    required this.isSearchInitiated, // Add this line
   });
 
   @override
@@ -498,11 +461,12 @@ class SearchBarWithSuggestions extends StatelessWidget {
               FocusScope.of(context).unfocus();
               onSearch(controller.text);
 
-
               // Set the flag to true when the user initiates a search
-
+              isSearchInitiated = true; // Now, you can use isSearchInitiated
             },
-            style: TextStyle(color: Theme.of(context).primaryColor,fontWeight: FontWeight.w600),
+            style: TextStyle(
+                color: Theme.of(context).primaryColor,
+                fontWeight: FontWeight.w600),
             decoration: InputDecoration(
               filled: true,
               fillColor: Colors.white,
@@ -515,8 +479,10 @@ class SearchBarWithSuggestions extends StatelessWidget {
                 borderRadius: BorderRadius.circular(30.0),
               ),
               hintText: 'Search here your Mood, Food, Places...',
-              hintStyle: TextStyle(color: Colors.grey,fontWeight: FontWeight.w600),
-              prefixIcon: Icon(Icons.search, color: Theme.of(context).primaryColor), // Add search icon
+              hintStyle:
+                  TextStyle(color: Colors.grey, fontWeight: FontWeight.w600),
+              prefixIcon:
+                  Icon(Icons.search, color: Theme.of(context).primaryColor),
             ),
           ),
         ],
@@ -524,8 +490,6 @@ class SearchBarWithSuggestions extends StatelessWidget {
     );
   }
 }
-
-
 
 class FiltersWithHorizontalScroll extends StatelessWidget {
   final String selectedFilter;
@@ -543,16 +507,18 @@ class FiltersWithHorizontalScroll extends StatelessWidget {
         scrollDirection: Axis.horizontal,
         child: Row(
           children: [
-            FilterButton('Stories', selected: selectedFilter == 'Stories', onPressed: onFilterSelected),
-            FilterButton('Location', selected: selectedFilter == 'Location', onPressed: onFilterSelected),
-            FilterButton('Profiles', selected: selectedFilter == 'Profiles', onPressed: onFilterSelected),
-
+            FilterButton('Location',
+                selected: selectedFilter == 'Location',
+                onPressed: onFilterSelected),
+            FilterButton('Stories',
+                selected: selectedFilter == 'Stories',
+                onPressed: onFilterSelected),
+            FilterButton('Profiles',
+                selected: selectedFilter == 'Profiles',
+                onPressed: onFilterSelected),
           ],
         ),
       ),
     );
   }
 }
-
-
-

@@ -10,6 +10,7 @@ import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
 import 'package:http/http.dart' as http;
@@ -18,7 +19,6 @@ import 'dart:convert';
 import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/rendering.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 
@@ -116,7 +116,7 @@ class _HomePageState extends State<HomePage> {
   bool _isVisible = true;
   bool isLoading = true;
   String userName = '';
-  String userID = '';
+  String userId = '';
   ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
 
@@ -299,7 +299,7 @@ class _HomePageState extends State<HomePage> {
     fetchDataFromMongoDB();
 
     print(userName);
-    print(userID);
+    print(userId);
   }
 
 
@@ -307,6 +307,7 @@ class _HomePageState extends State<HomePage> {
     return WillPopScope(
       onWillPop: () => backButtonHandler1.onWillPop(context, true),
       child: Scaffold(
+
         backgroundColor: Theme.of(context).backgroundColor,
         body: RefreshIndicator(
           backgroundColor: Color(0xFF263238),
@@ -316,23 +317,32 @@ class _HomePageState extends State<HomePage> {
             controller: _scrollController,
             slivers: [
               SliverAppBar(
-                title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
+                title: ProfileHeader(reqPage: 0, userId:userID , userName: userName),
                 automaticallyImplyLeading: false,
                 shadowColor: Colors.transparent,
+                foregroundColor: Colors.white,
                 toolbarHeight: 90,
                 // Adjust as needed
                 floating: true,
                 pinned: false,
                 flexibleSpace: FlexibleSpaceBar(
 
+
+
                   // You can add more customization to the flexible space here
                 ),
               ),
 
+
               SliverList(
                 delegate: SliverChildListDelegate(
                   [
-                    // Your other widgets here
+
+
+                    StoryBar(),
+
+
+
 
                     isLoading ? Container(
                       height : 500,

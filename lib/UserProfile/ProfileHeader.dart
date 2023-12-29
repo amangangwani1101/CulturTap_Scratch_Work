@@ -51,7 +51,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       MaterialPageRoute(
                         builder: (context) => ChangeNotifierProvider(
                           create: (context) => ProfileDataProvider(),
-                          child: ProfileApp(userId: widget.userId, userName: widget.userName),
+                          child: ProfileApp(userId: userID, userName: widget.userName),
                         ),
                       ),
                     );
@@ -61,7 +61,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       context,
                       MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
                         create:(context) => ProfileDataProvider(),
-                        child: FinalProfile(userId: widget.userId!,clickedId: widget.userId!,),
+                        child: FinalProfile(userId: userID,clickedId: userID,),
                       ),),
                     );
                   }

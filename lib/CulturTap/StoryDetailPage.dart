@@ -841,7 +841,6 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                             color : Colors.white,
                             onPressed: () {
                               FinalProfile(userId:userID,clickedId: storyUserID,);
-
                             },
 
                           ),
