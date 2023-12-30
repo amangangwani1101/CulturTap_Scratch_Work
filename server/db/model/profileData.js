@@ -36,6 +36,9 @@ const userTripAssistantSchema = new mongoose.Schema({
     time : {
         type: String,
     },
+    date:{
+        type:String,
+    },
     title : {
         type : String,
     },

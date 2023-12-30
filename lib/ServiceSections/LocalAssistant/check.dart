@@ -9,7 +9,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:photo_view/photo_view.dart';
 import 'package:photo_view/photo_view_gallery.dart';
 import 'package:share_plus/share_plus.dart';
-
+import 'package:http/http.dart' as http;
 class AttachmentButton extends StatefulWidget {
   int? option;
   AttachmentButton({this.option});
@@ -387,6 +387,9 @@ class _AttachmentButtonState extends State<AttachmentButton> {
                   ? GestureDetector(
                     onTap: (){
                       if(_pickedFile!=null){
+                        if(_textController.text!=null){
+                          generatePaymentLink();
+                        }
                         Navigator.of(context).pop(_pickedFile!.path);
                       }
                     },
@@ -415,6 +418,21 @@ class _AttachmentButtonState extends State<AttachmentButton> {
   void dispose() {
     _textController.dispose(); // Dispose the controller when the widget is disposed
     super.dispose();
+  }
+
+
+  void generatePaymentLink()async{
+    try{
+      final response = await http.post(
+        Uri.parse('https://api.razorpay.com/v1/payment_links'),
+        headers: {
+
+        }
+
+      );
+    }catch(err){
+      print('Error is $err');
+    }
   }
 }
 

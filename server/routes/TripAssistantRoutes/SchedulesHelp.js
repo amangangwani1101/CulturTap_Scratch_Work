@@ -7,8 +7,8 @@ const MeetData = require("../../db/model/localAssistantChatDetails.js");
 
 router.post("/updateLocalAssistantMeetDetails", async (req, res) => {
   try {
-    const { userId, helperIds,meetTitle } = req.body;
-    const meet = new MeetData({userId,helperIds,meetTitle});
+    const { userId, helperIds,meetTitle,paymentStatus } = req.body;
+    const meet = new MeetData({userId,helperIds,meetTitle,paymentStatus});
     const meetData = await meet.save();
     console.log(meetData);
     res.status(200).json({ message: 'Meets saved successfully',id: meetData['_id']});
@@ -20,7 +20,7 @@ router.post("/updateLocalAssistantMeetDetails", async (req, res) => {
 
 router.post("/setLocalHelpersPings", async (req, res) => {
   try {
-    const { userId, time, title ,distances,helperIds,meetId,meetStatus,userName,userPhoto} = req.body;
+    const { userId, time, title ,distances,helperIds,meetId,meetStatus,userName,userPhoto,date} = req.body;
 
     for (let i = 0; i < helperIds.length; i++) {
         const helperId = helperIds[i];
@@ -31,11 +31,11 @@ router.post("/setLocalHelpersPings", async (req, res) => {
         if(!user.userServiceTripAssistantData || user.userServiceTripAssistantData === null){
             user.userServiceTripAssistantData = [];
         }
-        const setCard =  {userId:userId,title:title,time:time,distance:distances[i],meetId:meetId,meetStatus:meetStatus,userName,userPhoto};
+        const setCard =  {userId:userId,title:title,time:time,date:date,distance:distances[i],meetId:meetId,meetStatus:meetStatus,userName,userPhoto};
         user.userServiceTripAssistantData.push(setCard);
         await ProfileData.findByIdAndUpdate(helperId, user);
     }
-    res.status(200).json({ message: "Pings updated successfully" });
+    res.status(200).json({ message: "Request sent successfully" });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -54,9 +54,8 @@ router.patch("/updateLocalHelpersPings", async (req, res) => {
 
 
     if(!user || !meet){
-        return res.status(404).json({ message: "Something Gone Wrong!" });
+        return res.status(404).json({ message: "Either userid/meetid not exist" });
     }
-
 
     let listUser = meet.helperIds;
 
@@ -82,7 +81,7 @@ router.patch("/updateLocalHelpersPings", async (req, res) => {
 
 router.put("/setUpdateUserPings", async (req, res) => {
   try {
-    const { userId, time, title ,distance,helperId,meetId,meetStatus,userName,userPhoto} = req.body;
+    const { userId, time, title ,distance,helperId,meetId,meetStatus,userName,userPhoto,date} = req.body;
 
         const user = await ProfileData.findById(userId).lean();
         console.log(user);
@@ -95,19 +94,25 @@ router.put("/setUpdateUserPings", async (req, res) => {
 
         let setCard;
         if(!userName){
-            setCard =  {userId:userId,title:title,time:time,meetId:meetId,meetStatus:meetStatus};
+            setCard =  {userId:userId,title:title,time:time,meetId:meetId,meetStatus:meetStatus,date:date};
             user.userServiceTripAssistantData.push(setCard);
             await ProfileData.findByIdAndUpdate(userId, user);
-        }else{
+            res.status(200).json({ message: "New Meeting created successfully" });
+        }
+        else{
             await ProfileData.updateOne(
                 { _id: userId, 'userServiceTripAssistantData.meetId': meetId },
-                { $set: { 'userServiceTripAssistantData.$.distance': distance,'userServiceTripAssistantData.$.userName': userName,'userServiceTripAssistantData.$.userPhoto': userPhoto, }}
+                { $set: { 'userServiceTripAssistantData.$.distance': distance,
+                'userServiceTripAssistantData.$.userName': userName,
+                'userServiceTripAssistantData.$.userPhoto': userPhoto,
+                 'userServiceTripAssistantData.$.meetStatus': meetStatus
+                 }}
             );
+            res.status(200).json({ message: "Found helper and details updated successfully" });
         }
-        res.status(200).json({ message: "Pings updated successfully" });
   } catch (error) {
     console.log(error);
-    return res.status(500).json({ message: "Internal Server Error" });
+    return res.status(500).json({ message: "not able to create/update user meeting details" });
   }
 });
 
@@ -145,17 +150,23 @@ router.get("/getLocalUserPingsStatus/:userId/:meetId", async (req, res) => {
     if (!user) {
       return res.status(404).json({ message: "User not found" });
     }
-
-    const userData = await ProfileData.findOne(
-      { _id: userId, 'userServiceTripAssistantData.meetId': meetId },
-      { 'userServiceTripAssistantData.meetStatus': 1, _id: 0 }
-    ).lean();
-
-    if (!userData) {
-      return res.status(404).json({ message: "MeetId not found for the user" });
+    let meetStatus;
+    let savedData = user.userServiceTripAssistantData;
+    for(let i=0;i<savedData.length;i++){
+        if(savedData[i]['meetId']==meetId){
+            meetStatus=savedData[i]['meetStatus'];
+        }
     }
-
-    const meetStatus = userData.userServiceTripAssistantData[0].meetStatus;
+//    const userData = await ProfileData.findOne(
+//      { _id: userId, 'userServiceTripAssistantData.meetId': meetId },
+//      { 'userServiceTripAssistantData.meetStatus': 1, _id: 0 }
+//    ).lean();
+//    console.log('Users Data :: ',userData);
+//    if (!userData) {
+//      return res.status(404).json({ message: "MeetId not found for the user" });
+//    }
+//
+//    const meetStatus = userData.userServiceTripAssistantData[0].meetStatus;
 
     res.status(200).json({ meetStatus });
   } catch (error) {

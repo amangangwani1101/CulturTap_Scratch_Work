@@ -13,7 +13,7 @@ const getStoriesByGenre = require('./routes/getStoriesByGenre.js');
 const getStoriesByGenres = require('./routes/getStoriesByGenres.js');
 const multer = require('multer');
 const path = require('path');
-
+const axios = require('axios');
 
 const videosFolder = path.join(__dirname, '../videos');
 const thumbnailsFolder = path.join(__dirname, '../thumbnails');
@@ -52,6 +52,7 @@ const LocalAssisatntUpdates = require('./routes/TripAssistantRoutes/SchedulesHel
 const LocalAssisatntChatsUpdates = require('./routes/TripAssistantRoutes/ChatsUpdates.js');
 const UserData = require('./db/model/UserData.js');
 const LocalAssisatntPings = require('./routes/TripAssistantRoutes/PingsChecker.js')
+const localAssistantPayment = require('./routes/TripAssistantRoutes/LocalAssistantPaymentSection.js');
 
 app.use(cors());
 app.use(express.json());
@@ -150,6 +151,73 @@ app.use('/',LocalAssisatntChatsUpdates);
 
 // local assitant pings check
 app.use('/',LocalAssisatntPings);
+
+// payment link section in local assistant
+app.use('/',localAssistantPayment);
+
+
+//instance.paymentLink.create({
+//  amount: 500,
+//  currency: "INR",
+//  accept_partial: true,
+//  first_min_partial_amount: 100,
+//  description: "For XYZ purpose",
+//  customer: {
+//    name: "Gaurav Kumar",
+//    email: "gaurav.kumar@example.com",
+//    contact: "+919000090000"
+//  },
+//  notify: {
+//    sms: true,
+//    email: true
+//  },
+//  reminder_enable: true,
+//  notes: {
+//    policy_name: "Jeevan Bima"
+//  },
+//  callback_url: "https://example-callback-url.com/",
+//  callback_method: "get"
+//})
+
+//const createPaymentLink = async (amount) => {
+//  try {
+//    const response = await axios.post(
+//      'https://api.razorpay.com/v1/payment_links',
+//      {
+//        amount: amount,
+//        currency: 'INR'
+//      },
+//      {
+//        auth: {
+//          username: 'rzp_test_QjYe0NMTmgIj40',
+//          password: 'jz3ylZooulpNRt6v5gbvuF63'
+//        },
+//        headers: {
+//          'Content-Type': 'application/json'
+//        }
+//      }
+//    );
+//
+//    return response.data;
+//  } catch (error) {
+//    console.error('Error creating payment link:', error.response.data);
+//    throw error;
+//  }
+//};
+//
+//// API endpoint to create a payment link
+//app.post('/api/create-payment-link', async (req, res) => {
+//  const { amount } = req.body;
+//
+//  try {
+//    const paymentLink = await createPaymentLink(amount);
+//    res.json({ paymentLink });
+//  } catch (error) {
+//    console.error('Error creating payment link:', error);
+//    res.status(500).json({ error: 'Internal Server Error' });
+//  }
+//});
+//
 
 // socket connection and chat functions and features
 tripPlanningNamespace.on("connection", (socket) => {

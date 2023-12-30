@@ -27,6 +27,9 @@ const chatDetailsSchema = new mongoose.Schema({
     time:{
         type:String,
     },
+    date:{
+        type:String,
+    },
     conversation:{
         type:[[String]],
     },
@@ -36,7 +39,9 @@ const chatDetailsSchema = new mongoose.Schema({
     receiversFeedback:{
         type:feedbackSchema,
     },
-
+    paymentStatus:{
+        type:String,
+    },
 });
 
 const chatHistory = new mongoose.model('LocalAssistantDetails',chatDetailsSchema);
