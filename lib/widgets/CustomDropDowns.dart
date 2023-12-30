@@ -12,63 +12,63 @@ class CustomDropdown {
     String? selectedValue,
     required double deviceWidth,
   }) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(
-          label,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Poppins'),
-        ),
-        SizedBox(height: 10),
-        Container(
-          width: deviceWidth,
-          height: 60,
-          child: Stack(
-            alignment: Alignment.centerRight,
-            children: [
-              DropdownButtonFormField<String>(
-                value: selectedValue,
-                icon: SizedBox.shrink(),
-                hint: Text('Select', style: TextStyle(fontSize: 14, fontFamily: 'Poppins')),
-                decoration: InputDecoration(
-                  focusedBorder: OutlineInputBorder(
-                    borderSide: BorderSide(
-                      color: HexColor('#FB8C00'),
+    return Builder(
+      builder: (context) {
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 10),
+            Text(
+              label,
+                style: Theme.of(context).textTheme.subtitle1,
+            ),
+            SizedBox(height: 10),
+            Container(
+              width: deviceWidth,
+              height: 60,
+              child: Stack(
+                alignment: Alignment.centerRight,
+                children: [
+                  DropdownButtonFormField<String>(
+                    value: selectedValue,
+                    icon: SizedBox.shrink(),
+                    hint: Text('Select',   style: Theme.of(context).textTheme.subtitle2,),
+                    decoration: InputDecoration(
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: HexColor('#FB8C00'),
+                        ),
+                      ),
+                      suffixIcon: text!='edit'?Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')):null,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.grey),
+                      ),
                     ),
+                    onChanged: (String? newValue) {
+                      setSelectedValue(newValue);
+                      selectedValue = newValue;
+                    },
+                    items: items.map((String item) {
+                      return DropdownMenuItem<String>(
+                        value: item,
+                        child: Text(item,   style: Theme.of(context).textTheme.subtitle2,),
+                      );
+                    }).toList(),
                   ),
-                  suffixIcon: text!='edit'?Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')):null,
-                  enabledBorder: OutlineInputBorder(
-                    borderSide: BorderSide(color: Colors.grey),
-                  ),
-                ),
-                onChanged: (String? newValue) {
-                  setSelectedValue(newValue);
-                  selectedValue = newValue;
-                },
-                items: items.map((String item) {
-                  return DropdownMenuItem<String>(
-                    value: item,
-                    child: Text(item, style: TextStyle(fontSize: 14, fontFamily: 'Poppins')),
-                  );
-                }).toList(),
+                  if (text == 'edit')
+                    Padding(
+                      padding: const EdgeInsets.only(right: 8.0),
+                      child: Text(
+                        'EDIT',
+                          style: Theme.of(context).textTheme.headline4,
+                      ),
+                    ),
+                ],
               ),
-              if (text == 'edit')
-                Padding(
-                  padding: const EdgeInsets.only(right: 8.0),
-                  child: Text(
-                    'EDIT',
-                    style: TextStyle(
-                      fontSize: 14,
-                      fontFamily: 'Poppins',
-                      fontWeight: FontWeight.bold,
-                      color: HexColor('#FB8C00'),
-                    ),
-                  ),
-                ),
-            ],
-          ),
-        ),
-      ],
+            ),
+          ],
+        );
+      }
     );
   }
 }
@@ -94,7 +94,8 @@ class CustomDOBDropDown extends StatelessWidget{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+        SizedBox(height: 10,),
+        Text(label,  style: Theme.of(context).textTheme.subtitle1,),
         SizedBox(height: 10,),
         InkWell(
           onTap: () async {
@@ -109,11 +110,11 @@ class CustomDOBDropDown extends StatelessWidget{
           },
           child: Container(
             decoration: BoxDecoration(
-              border: Border.all(width: 1.0, color: Colors.grey), // Border style
+              border: Border.all(width: 1.0, color:Colors.grey), // Border style
               borderRadius: BorderRadius.circular(5.0), // Rounded corners
             ),
             width: deviceWidth,
-            height: 55,
+            height: 60,
             child: Padding(
               padding: const EdgeInsets.only(left: 11.0,right: 8.0),
               child: Row(
@@ -123,10 +124,10 @@ class CustomDOBDropDown extends StatelessWidget{
                     selectedDate != null
                         ? "${selectedDate!.toLocal()}".split(' ')[0]
                         : 'Select Date',
-                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                   style: Theme.of(context).textTheme.subtitle2,),
                     text=='edit'
-                    ? Text('EDIT',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00'),),)
-                    :Icon(Icons.calendar_today_rounded,color: HexColor('#FB8C00'),),
+                    ? Text('EDIT',  style: Theme.of(context).textTheme.headline4,)
+                    :Icon(Icons.calendar_today_rounded,color: Colors.orange,),
                   // Calendar icon
                 ],
               ),
@@ -245,9 +246,10 @@ class _CustomMultiDropdownState extends State<CustomMultiDropdown> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
+        SizedBox(height: 10),
         Text(
           widget.label,
-          style: TextStyle(fontSize: 14, fontWeight: FontWeight.w900, fontFamily: 'Poppins'),
+            style: Theme.of(context).textTheme.subtitle2,
         ),
         SizedBox(height: 10),
         Container(
@@ -281,6 +283,7 @@ class _CustomMultiDropdownState extends State<CustomMultiDropdown> {
               return DropdownMenuItem<String>(
                 value: field,
                 child: Text(field),
+
               );
             }).toList(),
           ),

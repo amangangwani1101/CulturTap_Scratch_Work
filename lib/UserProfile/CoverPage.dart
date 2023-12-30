@@ -5,6 +5,8 @@ import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
+import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -137,8 +139,8 @@ class _UserImageState extends State<UserImage>{
                                 ),
                               ),
                               Text('Add your cover'),
-                              Text('Expereince via video here !',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),
-                              ),
+                              Text('Expereince via video here !',style: Theme.of(context).textTheme.subtitle1,),
+
                             ],
                           ),
                         ],
@@ -152,10 +154,21 @@ class _UserImageState extends State<UserImage>{
                     top: 20,
                     right: 30,
                     child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-                      showDialog(context: context, builder: (BuildContext context){
-                        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/cover_icon.jpg',serviceSettings: false,),);
-                      },
+                      showDialog(
+                        context: context,
+                        barrierDismissible: true,
+                        builder: (context) {
+                          return CustomPopUp(
+                            imagePath: "assets/images/coverStoryPopup.svg",
+                            textField: "Set Your Cover Story !" ,
+                            extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
+                            what:'OK',
+
+
+                          );
+                        },
                       );
+
                     },
                     ),
                   ),

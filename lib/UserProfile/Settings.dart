@@ -43,6 +43,7 @@ void main() async{
   runApp(SettingsPage(userId: '655e6f1aaa077c80bc0da471',));
 }
 class SettingsPage extends StatefulWidget{
+
   String userId;
   SettingsPage({required this.userId});
   @override
@@ -50,6 +51,7 @@ class SettingsPage extends StatefulWidget{
 }
 
 class _SettingsPageState extends State<SettingsPage> {
+  String showSubmit = '';
   Map<String, dynamic>? dataset;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -154,12 +156,12 @@ class _SettingsPageState extends State<SettingsPage> {
                 // Padding(
                 //   padding: const EdgeInsets.only(left : 14.0, top : 5, bottom : 5),
                 //   child: Container(
-                //     child: Text('Settings',style: Theme.of(context).textTheme.subtitle1,),
+                //     child: Text('Settings',style: Theme.of(context).textTheme.subtitle2,),
                 //   ),
                 // ),
                 // SizedBox(height: 20,),
                 Container(
-                  height: 680,
+
                   child: Center(
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -189,7 +191,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       Container(
                                         width: 220,
-                                        child: Text('Edit Profile',style: Theme.of(context).textTheme.subtitle1,),
+                                        child: Text('Edit Profile',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor,), onPressed: () {  },),
                                     ],
@@ -229,7 +231,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       Container(
                                         width: 220,
-                                        child: Text('Services',style: Theme.of(context).textTheme.subtitle1,),
+                                        child: Text('Services',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
                                     ],
@@ -263,7 +265,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       Container(
                                         width: 220,
-                                        child: Text('Payments',style: Theme.of(context).textTheme.subtitle1,),
+                                        child: Text('Payments',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
                                     ],
@@ -300,7 +302,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       Container(
                                         width: 220,
-                                        child: Text('Calendar',style: Theme.of(context).textTheme.subtitle1,),
+                                        child: Text('Calendar',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
                                     ],
@@ -336,7 +338,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       Container(
                                         width: 220,
-                                        child: Text('Drafts',style: Theme.of(context).textTheme.subtitle1,),
+                                        child: Text('Drafts',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {
                                         Navigator.push(
@@ -379,7 +381,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       Container(
                                         width: 220,
-                                        child: Text('About CulturTap',style: Theme.of(context).textTheme.subtitle1,),
+                                        child: Text('About CulturTap',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
                                     ],
@@ -415,7 +417,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       Container(
                                         width: 220,
-                                        child: Text('Help',style: Theme.of(context).textTheme.subtitle1,),
+                                        child: Text('Help',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
                                     ],
@@ -446,7 +448,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       ),
                                       Container(
                                         width: 220,
-                                        child: Text('Logout',style: Theme.of(context).textTheme.subtitle1,),
+                                        child: Text('Logout',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
                                     ],
@@ -461,16 +463,14 @@ class _SettingsPageState extends State<SettingsPage> {
                 ),
                 Center(
                   child: Container(
-                    width: 280,
-                    height: 113,
                     // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.start,
                       children: [
-                        SizedBox(height : 50),
-                        Text('All right reserve to', style: Theme.of(context).textTheme.headline5,),
-                        Text('Culturtap Tourism India Pvt. Ltd.', style: Theme.of(context).textTheme.headline5,),
+                        SizedBox(height : 18),
+                        Text('All right reserve to', style: Theme.of(context).textTheme.subtitle2,),
+                        Text('Culturtap Tourism India Pvt. Ltd.', style: Theme.of(context).textTheme.subtitle1,),
                       ],
                     ),
                   ),
@@ -499,6 +499,7 @@ class EditProfile extends StatefulWidget{
 }
 
 class _EditProfileState extends State<EditProfile>{
+  bool showSubmit = false;
   String?homeCity,profession,dob,gender,imagePath,name,quote;
   List<String>?language;
   Future<Map<String, dynamic>>? profileData;
@@ -541,7 +542,7 @@ class _EditProfileState extends State<EditProfile>{
         print(responseData);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Profile Updated Successfully!',style: Theme.of(context).textTheme.subtitle1,),
+            content: Text('Profile Updated Successfully!',style: Theme.of(context).textTheme.subtitle2,),
           ),
         );
         Navigator.of(context).pop();
@@ -549,7 +550,7 @@ class _EditProfileState extends State<EditProfile>{
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Try Again!!',style: Theme.of(context).textTheme.subtitle1,),
+            content: Text('Try Again!!',style: Theme.of(context).textTheme.subtitle2,),
           ),
         );
         print('Failed to save data: ${response.statusCode}');
@@ -557,7 +558,7 @@ class _EditProfileState extends State<EditProfile>{
     }catch(err){
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Try Again!!',style: Theme.of(context).textTheme.subtitle1,),
+          content: Text('Try Again!!',style: Theme.of(context).textTheme.subtitle2,),
         ),
       );
       print("Error: $err");
@@ -586,7 +587,7 @@ class _EditProfileState extends State<EditProfile>{
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Try Again!!',style: Theme.of(context).textTheme.subtitle1,),
+          content: Text('Try Again!!',style: Theme.of(context).textTheme.subtitle2,),
         ),
       );
       Navigator.of(context).pop();
@@ -599,32 +600,35 @@ class _EditProfileState extends State<EditProfile>{
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
-      body: WillPopScope(
-        onWillPop: ()async{
+    return WillPopScope(
+      onWillPop: ()async{
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
-          );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
+        );
 
-          return true;
-        },
-        child: FutureBuilder<Map<String, dynamic>>(
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
+        body: FutureBuilder<Map<String, dynamic>>(
           future: profileData,
           builder: (context,snapshot){
             if (snapshot.connectionState == ConnectionState.waiting) {
+
               // While waiting for the data to be fetched, you can show a loading indicator or any other placeholder.
               return Center(child: CircularProgressIndicator());
+
             } else if (snapshot.hasError) {
               // If there's an error during data fetching, you can handle it here.
               return Center(
-                child: Text('Error: ${snapshot.error}',style: Theme.of(context).textTheme.subtitle1,),
+                child: Text('Error: ${snapshot.error}',style: Theme.of(context).textTheme.subtitle2,),
               );
             }
             else{
               Map<String, dynamic> data = snapshot.data!;
+              print('DSAAAA::$data');
               imagePath = data['imagePath'];
               homeCity = data['homeCity'];
               profession = data['profession'];
@@ -635,87 +639,102 @@ class _EditProfileState extends State<EditProfile>{
               dateOfBirth =data['dateOfBirth']!=null?DateTime.parse(data['dateOfBirth']):null;
               language = data['language']!=null?data['language'].cast<String>().toList():[];
               return SingleChildScrollView(
-                child: Center(
-                  child: Container(
-                    width: 380,
-                    // height: 1126,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Center(
-                          child: Container(
-                            width: 360,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                              children: [
-                                SizedBox(height: 30,),
-                                Text('Edit Profile',style: Theme.of(context).textTheme.subtitle1,),
-                                SizedBox(height: 20,),
-                                UserImage(
-                                  reqPages:1,
-                                  text:'edit',
-                                  imagePathCallback: (value){imagePath=value;print(value);},
-                                  nameCallback: (value){name = value;print(value);},
-                                  imagePath:imagePath,
-                                  name:name,
-                                ),
-                                SizedBox(height: 30,),
-                                MotivationalQuote(text:'edit',quote:quote,quoteCallback: (value){quote = value;print(value);},),
-                              ],
-                            ),
-                          ),
-                        ),
-                        Container(
+                child: Container(
+                  padding: EdgeInsets.all(5),
+                  color : Theme.of(context).backgroundColor,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: 360,
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            mainAxisAlignment: MainAxisAlignment.spaceAround,
                             children: [
-                              ProfileForm(text:'edit',homeCityCallback: (value){
-                                homeCity = value;
-                              },professionCallback:(value){
-                                profession = value;
-                              },dobCallback:(value){
-                                dateOfBirth = value;
-                              },genderCallback:(value){
-                                gender = value;
-                              },languageCallback:(values){
-                                language = values;
-                              },ageCallBack:(value){
-                                dob = value;
-                              }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
-                              ),
-                              Center(
-                                child: Container(
-                                  width: 360,
-                                  height: 53,
-                                  child: FiledButton(
-                                      backgroundColor: HexColor('#FB8C00'),
-                                      onPressed: () {
-                                        sendDataToBackend();
-                                      },
-                                      child: Center(
-                                          child: Text('SUBMIT',
-                                              style: Theme.of(context).textTheme.subtitle1,
-                                          )
-                                      )
-                                  ),
-                                ),
-                              ),
-                            ],
 
+
+                              SizedBox(height: 20,),
+                              UserImage(
+                                reqPages:1,
+                                text:'edit',
+                                imagePathCallback: (value){imagePath=value;print(value);},
+                                nameCallback: (value){name = value;print('Name:::$value');},
+                                imagePath:imagePath,
+                                name:name,
+                              ),
+                              SizedBox(height: 30,),
+                              MotivationalQuote(text:'edit',quote:quote,quoteCallback: (value){quote = value;print(value);},),
+                            ],
                           ),
                         ),
-                      ],
-                    ),
+                      ),
+                      Container(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ProfileForm(text:'edit',homeCityCallback: (value){
+                              homeCity = value;
+                            },professionCallback:(value){
+                              profession = value;
+                            },dobCallback:(value){
+                              dateOfBirth = value;
+                            },genderCallback:(value){
+                              gender = value;
+                            },languageCallback:(values){
+                              language = values;
+                            },ageCallBack:(value){
+                              dob = value;
+                            }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
+                            ),
+
+
+                            SizedBox(height : 0),
+                          ],
+
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               );
             }
           },
         ),
-      )
+          bottomNavigationBar: AnimatedContainer(
+
+            duration: Duration(milliseconds: 100),
+            height : 60,
+            color: Colors.white,
+
+
+
+            child:Center(
+              child: Container(
+                color : Colors.white,
+
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: FiledButton(
+
+                      backgroundColor: Colors.orange,
+                      onPressed: () {
+                        sendDataToBackend();
+                      },
+                      child: Center(
+                          child: Text('SUBMIT',
+                            style: Theme.of(context).textTheme.headline5,
+                          )
+                      )
+                  ),
+                ),
+              ),
+            ),
+          )
+
+      ),
     );
   }
 }

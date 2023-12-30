@@ -32,108 +32,113 @@ class ExpertCardDetails extends StatelessWidget{
           ),
         ],
       ),
-      child: Padding(
-        padding: const EdgeInsets.only(left: 20.0,right: 20.0,top: 10.0,bottom: 20.0),
-        child: Container(
+      child: Container(
+        padding: EdgeInsets.all(16.0),
 
-          child: Column(
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Text('Your Expert Cards' ,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                  IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined, color : Theme.of(context).primaryColor,)),
-                ],
-              ),
-              Column(
-                // crossAxisAlignment: CrossAxisAlignment.end,
-                // mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  Row(
-                    children: [
-                      Text('Expert in locations -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 31,),
-                      Container(
-                        child: expertLocations.isEmpty ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
-                        Wrap(
-                          runSpacing: 8.0, // Vertical spacing between lines of items
-                          children: [
-                            Row(
-                              children: [
-                                for (int i = 0; i < expertLocations.length; i++)
-                                  Container(
-                                    margin: EdgeInsets.only(right: 8.0),
-                                    child: Row(
-                                      children: [
-                                        Text(expertLocations[i]),
-                                        if (i < expertLocations.length - 1)
-                                          Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
-                                      ],
-                                    ),
-                                  ),
-                              ],
-                            ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: 20,),
-                  Row(
-                    children: [
-                      Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 60,),
-                      Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 23,),
-                      Text('${coveredLocation}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 37,),
-                      Container(
-                        child: ratings == 0
-                            ? Container(
-                          child: Row(
-                            mainAxisSize: MainAxisSize.min,
+        child: Column(
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text('Your Expert Cards' ,style: Theme.of(context).textTheme.subtitle1,),
+                IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined, color : Theme.of(context).primaryColor,)),
+              ],
+            ),
+            SizedBox(height : 10),
+            Column(
+              // crossAxisAlignment: CrossAxisAlignment.end,
+              // mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Expert in locations -',style: Theme.of(context).textTheme.subtitle1,),
+
+                    Container(
+                      width : 170,
+                      child: expertLocations.isEmpty ? Text('NA', style: Theme.of(context).textTheme.subtitle2,):
+                      Wrap(
+                        runSpacing: 8.0, // Vertical spacing between lines of items
+                        children: [
+                          Row(
                             children: [
-                              Icon(Icons.star,color: HexColor('#FB8C00'),),
-                              SizedBox(width: 5),
-                              Text('N/A'),
+                              for (int i = 0; i < expertLocations.length; i++)
+                                Container(
+                                  margin: EdgeInsets.only(right: 8.0),
+                                  child: Row(
+                                    children: [
+                                      Text(expertLocations[i]),
+                                      if (i < expertLocations.length - 1)
+                                        Text(',', style: Theme.of(context).textTheme.subtitle2,),
+                                    ],
+                                  ),
+                                ),
                             ],
                           ),
-                        )
-                            : Row(
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 20,),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+
+                    Container( width : 170,
+                        child: Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)),
+                  ],
+                ),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+
+                    Container( width : 170,
+                        child: Text('${coveredLocation}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)),
+                  ],
+                ),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+
+                    Container(
+                      width : 170,
+                      child: ratings == 0
+                          ? Container(
+                        child: Row(
                           mainAxisSize: MainAxisSize.min,
-                          children: List.generate(ratings, (index) {
-                            return Icon(Icons.star, color: HexColor('#FB8C00'));
-                          }),
+                          children: [
+                            Icon(Icons.star,color: HexColor('#FB8C00'),),
+                            SizedBox(width: 5),
+                            Text('NA'),
+                          ],
                         ),
+                      )
+                          : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: List.generate(ratings, (index) {
+                          return Icon(Icons.star, color: HexColor('#FB8C00'));
+                        }),
                       ),
-                    ],
-                  ),
-                  SizedBox(height: 40,),
-                  Row(
-                    children: [
-                      Text('Your Culturtap Status',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
-                      SizedBox(width: 30,),
-                      Container(
-                        child: visitedplace==0 || coveredLocation==0?
-                        Text('N/A',style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
-                        Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ],
-          ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 40,),
+                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Text('Your Culturtap Status',style: Theme.of(context).textTheme.subtitle1,),
+
+                    Container(
+                      width : 170,
+                      child: visitedplace==0 || coveredLocation==0?
+                      Text('NA',style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
+                      Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
+                    ),
+                  ],
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );

@@ -3,36 +3,14 @@ import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:learn_flutter/SignUp/OtpScreen.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 
 import '../CustomItems/CostumAppbar.dart';
 
-class PhoneNumberValidator extends StatefulWidget {
-  @override
-  _PhoneNumberValidatorState createState() => _PhoneNumberValidatorState();
-}
 
-class _PhoneNumberValidatorState extends State<PhoneNumberValidator> {
-  final TextEditingController _phoneNumberController = TextEditingController();
-  @override
-  void dispose() {
-    _phoneNumberController.dispose();
-    super.dispose();
-  }
-
-
-
-  @override
-  Widget build(BuildContext context) {
-    return SecondPage(
-      userName: 'YourUserName',
-      phoneNumberController: _phoneNumberController,
-
-
-    );
-  }
-}
 
 class SecondPage extends StatefulWidget {
+
   final TextEditingController phoneNumberController;
 
   final String userName;
@@ -53,13 +31,13 @@ class SecondPage extends StatefulWidget {
   _SecondPageState createState() => _SecondPageState();
 }
 
-
-
 class _SecondPageState extends State<SecondPage> {
   FirebaseAuth auth = FirebaseAuth.instance;
+
+  TextEditingController _phoneNumberController = TextEditingController();
   String verificationIDReceived = "";
   bool _isPhoneNumberValid = true; // Default to true
-  String numberPhone ='';
+
   // List of country codes
   List<String> countryCodes = ['+91', '+1', '+44', '+61'];
   String _selectedCountryCode = '+91'; // Default country code
@@ -70,6 +48,8 @@ class _SecondPageState extends State<SecondPage> {
     final RegExp regex = RegExp(r'^\d{10}$');
     return regex.hasMatch(input);
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -139,7 +119,9 @@ class _SecondPageState extends State<SecondPage> {
                         DropdownButton<String>(
                           value: _selectedCountryCode,
                           onChanged: (String? newValue) {
+
                             setState(() {
+
                               _selectedCountryCode = newValue!;
                             });
                           },
@@ -157,13 +139,27 @@ class _SecondPageState extends State<SecondPage> {
                           child: Container(
 
                             child: TextField(
-                              controller: widget.phoneNumberController,
+
+
+
+                              controller: _phoneNumberController,
                               keyboardType: TextInputType.phone,
-                              onChanged: (value) {
-                                // setState(() {
-                                //   _isPhoneNumberValid = true; // Reset to true on change
-                                // });
+
+                              onEditingComplete: () {
+                                // Call the verifyNumber method here
+                                bool isValid = validatePhoneNumber(_phoneNumberController.text);
+
+                                setState(() {
+                                  _isPhoneNumberValid = isValid;
+                                });
+
+                                if (isValid) {
+                                  // For verifying the number using Firebase
+                                  verifyNumber(_phoneNumberController.text);
+                                }
                               },
+
+
                               decoration: InputDecoration(
                                 filled: true,
                                 fillColor: Colors.grey[50],
@@ -174,9 +170,11 @@ class _SecondPageState extends State<SecondPage> {
                                 contentPadding: EdgeInsets.symmetric(
                                     vertical: 16.0, horizontal: 10.0),
                                 hintText: 'Ex : 9026966203',
-                                errorText:
-                                _isPhoneNumberValid ? null : 'Invalid Phone Number',
+                                errorText: _isPhoneNumberValid ? null : 'Invalid Phone Number',
+
+
                               ),
+
                             ),
                           ),
                         ),
@@ -192,16 +190,18 @@ class _SecondPageState extends State<SecondPage> {
                     child: FilledButton(
                       backgroundColor: Colors.orange,
                       onPressed: () {
-                        numberPhone = widget.phoneNumberController.text;
-                        String number =
-                            _selectedCountryCode + widget.phoneNumberController.text;
-                        bool isValid = validatePhoneNumber(widget.phoneNumberController.text);
-                        print('Phoen Number ${widget.phoneNumberController.text},{$number}');
+                        bool isValid = validatePhoneNumber(_phoneNumberController.text);
+
+                        setState(() {
+                          _isPhoneNumberValid = isValid;
+                        });
+
                         if (isValid) {
                           // For verifying the number using Firebase
-                          verifyNumber(numberPhone);
+                          verifyNumber(_phoneNumberController.text);
                         }
                       },
+
                       child: Center(
                         child: Text(
                           'Next',
@@ -227,11 +227,10 @@ class _SecondPageState extends State<SecondPage> {
       phoneNumber: _selectedCountryCode + number,
       verificationCompleted: (PhoneAuthCredential credential) async {
         await auth.signInWithCredential(credential).then((value) {
-
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => OtpScreen(userName:widget.userName,phoneNumber:number),
+              builder: (context) => OtpScreen(userName: widget.userName, phoneNumber: number),
             ),
           );
         });

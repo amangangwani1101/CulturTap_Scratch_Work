@@ -268,37 +268,47 @@ class _FinalProfileState extends State<FinalProfile> {
                   ),
                 ),
 
-                isLoading ? Center(
-                  child: Container( height : 40,
-                      child: CircularProgressIndicator(color: Colors.orange, )),
-                ):
+                isLoading ?  Container(
+                  height : 500,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
+                    ],
+                  ),
+                ) :
 
                 Column(
                   children: [
 
-                    Column(
-                      children: [
-                        SizedBox(height : 40),
-                        Padding(
-                          padding: const EdgeInsets.only(left:16.0),
-                          child: Row(
+                    Container(
+                      color : Colors.white,
+                      child: Column(
 
-                            children: [
-                              Container(
-                                width : 240,
-                                child: Text(
-                                  userID == widget.clickedId ? "Your Story Tree" :  "Other Stories By ${dataset?['userName']?.split(' ')[0] } ?"
-                                 ,
-                                  style: Theme.of(context).textTheme.headline1,
+                        children: [
+                          SizedBox(height : 20),
+                          Padding(
+                            padding: const EdgeInsets.only(left:16.0),
+                            child: Row(
+
+                              children: [
+                                Container(
+
+                                  width : 240,
+                                  child: Text(
+                                    userID == widget.clickedId ? "Your Stories" :  "Other Stories By ${dataset?['userName']?.split(' ')[0] } ?"
+                                   ,
+                                    style: Theme.of(context).textTheme.headline1,
+                                  ),
                                 ),
-                              ),
 
 
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(height : 40),
-                      ],
+                          SizedBox(height : 20),
+                        ],
+                      ),
                     ),
                     Column(
 

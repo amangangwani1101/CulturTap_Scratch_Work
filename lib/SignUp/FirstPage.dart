@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/SignUp/SecondPage.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 
 
 void main() {
@@ -55,156 +56,165 @@ class _MyHomePageState extends State<MyHomePage> {
   final TextEditingController _textController = TextEditingController();
   bool validate = false;
 
-
+  BackButtonHandler backButtonHandler10 = BackButtonHandler(
+    imagePath: 'assets/images/exit.svg',
+    textField: 'Do you want to exit?',
+    what: 'exit',
+    button1: 'NO',
+    button2:'EXIT',
+  );
 
 
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Center(
-          child: Container(
-              width: 156, height: 90.6, child: Image.asset('assets/images/logo.png')),
-        ),
-        backgroundColor: Colors.white,
-        shadowColor: Colors.transparent,
-      ),
-      body: Container(
-        color : Colors.white,
-        width: double.infinity,
-        height: double.infinity,
-        child: Center(
-          child: SingleChildScrollView(
+    return WillPopScope(
+      onWillPop: () => backButtonHandler10.onWillPop(context, true),
+      child: Scaffold(
+        appBar: AppBar(
+          title: Center(
             child: Container(
-              width: 325,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 35),
-                    child: Image.asset('assets/images/firstPage.png'),
-                    height: 268,
-                    width: 389,
-                    color: Colors.white,
-                  ),
-                  Container(
-                    child : Image.asset('assets/images/SignUp1.png'),
-                  ),
-                  Container(
-                    height : 20,
-                  ),
-                  Text('SIGNUP',
-                      style: TextStyle(
-                        fontSize: 22,
-                        color: Colors.black,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
-                      )),
-                  Container(
-                      margin: EdgeInsets.only(bottom: 31),
-                      child: Text('Explore, Update, Guide & Earn !',
-                          style: TextStyle(fontSize: 20, color: Colors.black))),
-                  Text('Please Enter Your Name',
-                      style: TextStyle(
-                          fontSize: 20,
+                width: 156, height: 90.6, child: Image.asset('assets/images/logo.png')),
+          ),
+          backgroundColor: Colors.white,
+          shadowColor: Colors.transparent,
+        ),
+        body: Container(
+          color : Colors.white,
+          width: double.infinity,
+          height: double.infinity,
+          child: Center(
+            child: SingleChildScrollView(
+              child: Container(
+                width: 325,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 35),
+                      child: Image.asset('assets/images/firstPage.png'),
+                      height: 268,
+                      width: 389,
+                      color: Colors.white,
+                    ),
+                    Container(
+                      child : Image.asset('assets/images/SignUp1.png'),
+                    ),
+                    Container(
+                      height : 20,
+                    ),
+                    Text('SIGNUP',
+                        style: TextStyle(
+                          fontSize: 22,
                           color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                          fontFamily: 'Poppins',
+                        )),
+                    Container(
+                        margin: EdgeInsets.only(bottom: 31),
+                        child: Text('Explore, Update, Guide & Earn !',
+                            style: TextStyle(fontSize: 20, color: Colors.black))),
+                    Text('Please Enter Your Name',
+                        style: TextStyle(
+                            fontSize: 20,
+                            color: Colors.black,
 
-                          fontWeight: FontWeight.w600,
-                          )),
-                  Container(
-                    height: 10,
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 10),
-                    width: 324,
-                    height: 54,
-                    child: TextField(
-                      controller: _textController,
-                      decoration: InputDecoration(
-                        hintText: 'Ex : Utkarsh Gupta',
-                        filled: true,
-                        fillColor: Colors.grey[50],
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(5.0), // Updated border radius
-                          borderSide: BorderSide.none, // No border
+                            fontWeight: FontWeight.w600,
+                            )),
+                    Container(
+                      height: 10,
+                    ),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 10),
+                      width: 324,
+                      height: 54,
+                      child: TextField(
+                        controller: _textController,
+                        decoration: InputDecoration(
+                          hintText: 'Ex : Utkarsh Gupta',
+                          filled: true,
+                          fillColor: Colors.grey[50],
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(5.0), // Updated border radius
+                            borderSide: BorderSide.none, // No border
+                          ),
+                          contentPadding:
+                          EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
                         ),
-                        contentPadding:
-                        EdgeInsets.symmetric(vertical: 16.0, horizontal: 10.0),
                       ),
                     ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 21),
-                    child: Row(
-                      children: [
-                        Text('Already User ?',
-                            style: TextStyle(
-                                fontSize: 20, fontWeight: FontWeight.w100)),
-                        TextButton(
-                          onPressed: () {
-                            bool signIn = true;
+                    Container(
+                      margin: EdgeInsets.only(bottom: 21),
+                      child: Row(
+                        children: [
+                          Text('Already User ?',
+                              style: TextStyle(
+                                  fontSize: 20, fontWeight: FontWeight.w100)),
+                          TextButton(
+                            onPressed: () {
+                              bool signIn = true;
+
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => SecondPage(
+                                    phoneNumberController: TextEditingController(),
+                                    signIn : signIn,
+                                    userName : 'raju',
+
+                                  ),
+                                ),
+                              );
+                            },
+                            child: Text('Sign In',
+                                style: TextStyle(
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.w900,
+                                  fontSize: 20,
+                                )),
+                          )
+                        ],
+                      ),
+                    ),
+                    Container(
+                      width: 330,
+                      height: 70,
+                      child: FilledButton(
+                        backgroundColor: Colors.orange,
+                        onPressed: () async {
+                          String name = _textController.text.toString();
+                          print('userName: $name');
+
+                          if (name.length > 2) {
+
+                            // registerUser();
 
                             Navigator.push(
                               context,
                               MaterialPageRoute(
                                 builder: (context) => SecondPage(
                                   phoneNumberController: TextEditingController(),
-                                  signIn : signIn,
-                                  userName : 'raju',
+                                  userName : _textController.text,
 
                                 ),
                               ),
                             );
-                          },
-                          child: Text('Sign In',
-                              style: TextStyle(
-                                color: Colors.orange,
-                                fontWeight: FontWeight.w900,
-                                fontSize: 20,
-                              )),
-                        )
-                      ],
-                    ),
-                  ),
-                  Container(
-                    width: 330,
-                    height: 70,
-                    child: FilledButton(
-                      backgroundColor: Colors.orange,
-                      onPressed: () async {
-                        String name = _textController.text.toString();
-                        print('userName: $name');
+                          }
 
-                        if (name.length > 2) {
-
-                          // registerUser();
-
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => SecondPage(
-                                phoneNumberController: TextEditingController(),
-                                userName : _textController.text,
-
-                              ),
+                        },
+                        child: Center(
+                          child: Text(
+                            'Next',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 22,
                             ),
-                          );
-                        }
-
-                      },
-                      child: Center(
-                        child: Text(
-                          'Next',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 22,
                           ),
                         ),
                       ),
                     ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             ),
           ),

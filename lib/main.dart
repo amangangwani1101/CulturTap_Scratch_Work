@@ -113,10 +113,10 @@ class MyApp extends StatelessWidget {
           bodyText2: TextStyle(fontSize: (12 * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33) ,),
           button: TextStyle(fontSize: (10 * MediaQuery.of(context).textScaleFactor),color : Colors.white ,fontWeight: FontWeight.bold),
           subtitle1: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
-          subtitle2: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33)),
+          subtitle2: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33),fontWeight: FontWeight.w600),
 
 
-          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color :Colors.orange , fontWeight: FontWeight.w600),
+          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color :Colors.orange , fontWeight: FontWeight.bold),
           headline1: TextStyle(fontSize: (25  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold), // Adjust the font size and weight as needed
           headline2: TextStyle(fontSize: (18  * MediaQuery.of(context).textScaleFactor),color :Color(0xFF001B33) , fontWeight: FontWeight.bold),
           headline5: TextStyle(fontSize: (16 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.bold),
@@ -124,6 +124,7 @@ class MyApp extends StatelessWidget {
           headline3: TextStyle(fontSize: (12 * MediaQuery.of(context).textScaleFactor),color : Colors.white, fontWeight: FontWeight.bold),
 
           caption: TextStyle(fontSize: (18 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.bold),
+
 
         ),
 

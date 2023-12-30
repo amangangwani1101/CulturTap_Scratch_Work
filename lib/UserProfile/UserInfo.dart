@@ -63,6 +63,7 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
     return
       Center(
         child: Container(
+
           width: 350,
           child: Column(
             children: [
@@ -114,20 +115,25 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
                   onTap: (){
                     Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
                   },
-                  child: Container(
-                    width: 144,
-                    height: 35,
-                    decoration: BoxDecoration(
-                      color: HexColor('#FB8C00'),
-                      borderRadius: BorderRadius.circular(5.0),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Icon(Icons.edit_outlined,size: 19,color: Colors.white,),
-                        Text('EDIT QUOTE',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white),),
-                      ],
-                    ),
+                  child: Column(
+                    children: [
+                      Container(
+                        width: 154,
+                        height: 45,
+                        decoration: BoxDecoration(
+                          color:Colors.orange,
+                          borderRadius: BorderRadius.circular(5.0),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            Icon(Icons.edit_outlined,size: 19,color: Colors.white,),
+                            Text('EDIT QUOTE',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white),),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height : 30),
+                    ],
                   ),
                 )
                 :SizedBox(height: 0,),
@@ -532,6 +538,7 @@ class UserDetailsTable extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
+      color : Theme.of(context).backgroundColor,
       width: 320,
       // decoration: BoxDecoration(
       //   border: Border.all(
@@ -540,63 +547,49 @@ class UserDetailsTable extends StatelessWidget {
       //   )
       // ),
       child: Column(
-        // crossAxisAlignment: CrossAxisAlignment.end,
-        // mainAxisAlignment: MainAxisAlignment.spaceAround,
+        crossAxisAlignment: CrossAxisAlignment.start,
+
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Place -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 94,),
-              Text(place==null?'NA':'${place}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+              Text('Place -',style: Theme.of(context).textTheme.subtitle1,),
+              Container(
+                width : 170,
+                  child: Text(place==null?'NA':'${place}',style: Theme.of(context).textTheme.subtitle2,)),
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Profession -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 58,),
-              Text(profession==null?'NA':'${profession}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+              Text('Profession -',style: Theme.of(context).textTheme.subtitle1,),
+              Container(
+                width : 170,
+                  child: Text(profession==null?'NA':'${profession}',style: Theme.of(context).textTheme.subtitle2,)),
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Age/Gender -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 42,),
-              Text(age ==null?'NA':'${age} Yr / ${gender==null?'':gender}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+              Text('Age/Gender -',style: Theme.of(context).textTheme.subtitle1,),
+              Container(
+                width : 170,
+                  child: Text(age ==null?'NA':'${age} Yr / ${gender==null?'':gender}',style: Theme.of(context).textTheme.subtitle2,)),
             ],
           ),
           Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Language -',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins'),),
-              SizedBox(width: 60,),
-              // Container(
-              //   child: languageList==null ? Text('NA', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')):
-              //   Wrap(
-              //     runSpacing: 8.0, // Vertical spacing between lines of items
-              //     children: [
-              //       Row(
-              //         children: [
-              //           for (int i = 0; i < languageList!.length; i++)
-              //             Container(
-              //               margin: EdgeInsets.only(right: 8.0),
-              //               child: Row(
-              //                 children: [
-              //                   Text(languageList![i]),
-              //                   if (i < languageList!.length - 1)
-              //                     Text(',', style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
-              //                 ],
-              //               ),
-              //             ),
-              //         ],
-              //       ),
-              //     ],
-              //   ),
-              // ),
+              Text('Language -',style: Theme.of(context).textTheme.subtitle1,),
               languageList!=null?
-              Text(
-                overflow:TextOverflow.ellipsis,
-                languageList!.join(', '), // Join the list elements with a comma and space
-                style: TextStyle(fontSize: 14, fontFamily: 'Poppins',overflow: TextOverflow.ellipsis),
-                maxLines: 5,
+              Container(
+                width : 170,
+                child: Text(
+
+                  languageList!.join(', '), // Join the list elements with a comma and space
+                  style: TextStyle(fontSize: 14, fontFamily: 'Poppins',overflow: TextOverflow.ellipsis),
+                  maxLines: 5,
+                ),
               ):Text('NA'),
             ],
           ),
@@ -705,6 +698,7 @@ class _ProfileFormState extends State<ProfileForm> {
     final FocusNode _focusNode = FocusNode();
     return Container(
       padding: EdgeInsets.all(10.0),
+      color : Theme.of(context).backgroundColor,
 
       child: Column(
 
@@ -755,7 +749,9 @@ class _ProfileFormState extends State<ProfileForm> {
                     border: OutlineInputBorder(),
                     focusedBorder: OutlineInputBorder(
                       borderSide: BorderSide(color: HexColor('#FB8C00')),
+
                     ),
+
                   ),
 
                   onChanged: (value) {
@@ -883,12 +879,20 @@ class _ProfileFormState extends State<ProfileForm> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                SizedBox(height : 10),
                 Text(
                   'Language You Know',
-                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, fontFamily: 'Poppins'),
+              style: Theme.of(context).textTheme.subtitle1,
                 ),
                 SizedBox(height: 10),
                 Container(
+                  decoration: BoxDecoration(
+                    border: Border.all(color: Colors.grey), // Add a grey border
+                    borderRadius: BorderRadius.circular(8.0), // Optional: Add border radius
+                  ),
+
+                  height : 60,
+
                   child: Row(
                     children: [
                       Expanded(
@@ -898,13 +902,15 @@ class _ProfileFormState extends State<ProfileForm> {
                             return Row(
                               children: [
                                 Container(
-                                  padding: EdgeInsets.only(left: 10),
+
+                                  padding: EdgeInsets.all(10),
                                   width: 310, // Adjust as needed
                                   child: Text(
                                     selected.join(', '),
                                     style: TextStyle(
-                                      fontSize: 16,
+                                      fontSize: 14,
                                       overflow: TextOverflow.ellipsis,
+                                      fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                 ),
@@ -916,25 +922,18 @@ class _ProfileFormState extends State<ProfileForm> {
                           options: Constant().languageList,
                           whenEmpty: 'Select', // Placeholder text when no option is chosen
                           decoration: InputDecoration(
+                            border: InputBorder.none,
                             contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                            focusedBorder: OutlineInputBorder(
-                              borderSide: BorderSide(color: HexColor('#FB8C00')),
-                            ),
-                            border: OutlineInputBorder(),
+
                             suffixIcon: widget.text == 'edit'
                                 ? Padding(
                               padding: const EdgeInsets.only(right: 8.0, top: 10),
                               child: Text(
                                 'EDIT',
-                                style: TextStyle(
-                                  fontSize: 14,
-                                  fontFamily: 'Poppins',
-                                  fontWeight: FontWeight.bold,
-                                  color: HexColor('#FB8C00'),
-                                ),
+                                style: Theme.of(context).textTheme.headline4,
                               ),
                             )
-                                : Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')),
+                                : Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
                           ),
                           icon: SizedBox.shrink(),
                           onChanged: (value) {
@@ -961,7 +960,7 @@ class _ProfileFormState extends State<ProfileForm> {
             ),
           ),
 
-          SizedBox(height: 10,),
+          SizedBox(height: 30,),
       // Padding(
       //   padding: const EdgeInsets.all(16.0),
       //   child: Column(

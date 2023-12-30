@@ -6,6 +6,10 @@ import '../CustomItems/CostumAppbar.dart';
 import '../HomePage.dart';
 
 
+
+
+
+
 class OtpScreen extends StatefulWidget {
   String? otp;
   final String userName,phoneNumber;
@@ -21,6 +25,22 @@ class _OtpScreenState extends State<OtpScreen>{
   List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController(),);
 
   @override
+  void initState() {
+    super.initState();
+    autofillOtp();
+  }
+
+  void autofillOtp() {
+    if (widget.otp != null && widget.otp!.length == 6) {
+      for (int i = 0; i < 6; i++) {
+        _controllers[i].text = widget.otp![i];
+      }
+    }
+  }
+
+
+
+  @override
   void dispose() {
     for (var focusNode in _focusNodes) {
       focusNode.dispose();
@@ -33,7 +53,7 @@ class _OtpScreenState extends State<OtpScreen>{
 
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
-  var otpCodeControlloer = TextEditingController();
+
 
 
   void checkUserSaved(String phoneNumber,String userCredId) async {
@@ -129,6 +149,7 @@ class _OtpScreenState extends State<OtpScreen>{
                               keyboardType: TextInputType.number,
                               maxLength: 1,
                               textAlign: TextAlign.center,
+                              enabled: true,
                               decoration: InputDecoration(
                                 counterText: '',
                                 border: OutlineInputBorder(
@@ -143,11 +164,26 @@ class _OtpScreenState extends State<OtpScreen>{
                                     _focusNodes[index].unfocus();
                                   }
                                 } else {
+                                  // Check if the current digit is empty and handle backspace
                                   if (index > 0) {
                                     FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
                                   }
                                 }
                               },
+                              onEditingComplete: () {
+                                // Handle backspace action here
+                                if (_controllers[index].text.isEmpty && index > 0) {
+                                  FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+                                }
+                              },
+                              onSubmitted: (value) {
+                                // Handle additional actions when the user submits the input
+                              },
+                              onTap: () {
+                                // Set a flag or use other logic to track if the text field was tapped
+                                // This is to distinguish between tapping the cross button and regular taps
+                              },
+
                             ),
                           );
                         }),
