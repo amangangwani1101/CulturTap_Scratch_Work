@@ -292,19 +292,21 @@ class _UploadMethodsState extends State<UploadMethods> {
     if (pickedFile != null) {
       setState(() {
         _userProfileImage = File(pickedFile.path);
+        widget.onImageUpdated(_userProfileImage!);
       });
-      widget.onImageUpdated(_userProfileImage!); // Call the callback to update the parameter in the parent class
+       // Call the callback to update the parameter in the parent class
     }
   }
   // upload from gallery
   Future<void> _updateProfileImage() async{
     final croppedImage = await ImageUtil.pickAndCropImage();
-
+    print('Picture is: $croppedImage');
     if(croppedImage!=null){
       setState(() {
         _userProfileImage = croppedImage;
+        widget.onImageUpdated(_userProfileImage!);
       });
-      widget.onImageUpdated(_userProfileImage!); // Call the callback to update the parameter in the parent class
+       // Call the callback to update the parameter in the parent class
     }
     return;
   }
@@ -388,6 +390,7 @@ class _UploadMethodsState extends State<UploadMethods> {
     );
   }
 }
+
 
 // Edit Name
 class EditNameForm extends StatefulWidget {

@@ -401,9 +401,14 @@ setState(() {
                         IconButton(
                           onPressed: () {
                             print('${userID}');
+                            // Navigator.of(context).push(
+                            //   MaterialPageRoute(
+                            //     builder: (context) => SettingsPage(userId: userID),
+                            //   ),
+                            // );
                             Navigator.of(context).push(
                               MaterialPageRoute(
-                                builder: (context) => SettingsPage(userId: userID),
+                                builder: (context) => SettingsPage(userId: '6572878e19d698a615ce275a'),
                               ),
                             );
                             _changeIcon('settings');
