@@ -67,9 +67,11 @@ class _UserImageState extends State<UserImage>{
   File? _userProfileImage;
 
   void handleImageUpdated(File image) {
+    print('Updated Image :${image.path}');
     setState(() {
       _userProfileImage = image; // Update the parameter in the main class
     });
+    print('Updated Image :${_userProfileImage?.path}');
     if (widget.text=='edit'){
       widget.imagePathCallback!((image.path)!);
     }
@@ -83,20 +85,9 @@ class _UserImageState extends State<UserImage>{
     return Container(
       width: double.infinity,
       height: 290,
-      // decoration: BoxDecoration(
-      //   border: Border.all(
-      //     color: Colors.orange,
-      //   ),
-      // ),
       child: Stack(
         children: [
           Container(
-            // decoration: BoxDecoration(
-            //   border: Border.all(
-            //     color: Colors.orange,
-            //     width: 2,
-            //   ),
-            // ),
             width: double.infinity,
             height: 170,
             child:Center(
@@ -107,13 +98,8 @@ class _UserImageState extends State<UserImage>{
                     color: HexColor("#EDEDED"),
                   ),
                   // height: 170,
-                  !hasVideoUploaded?Container(
-                    // decoration: BoxDecoration(
-                    //   border: Border.all(
-                    //     color: Colors.orange,
-                    //     width: 2,
-                    //   ),
-                    // ),
+                  !hasVideoUploaded
+                  ? Container(
                     child: Container(
                       color : Theme.of(context).primaryColorLight,
                       width: 373,
@@ -146,7 +132,8 @@ class _UserImageState extends State<UserImage>{
                         ],
                       ),
                     ),
-                  ): Container(
+                  )
+                  : Container(
                     width: 373,
                     color: Colors.grey, // Replace with your video player or widget
                   ),
@@ -179,22 +166,10 @@ class _UserImageState extends State<UserImage>{
           Container(
             width: double.infinity,
             height: 290,
-            // decoration: BoxDecoration(
-            //   border: Border.all(
-            //     color: Colors.black,
-            //     width: 2,
-            //   ),
-            // ),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 Container(
-                  // decoration: BoxDecoration(
-                  //   border: Border.all(
-                  //     color: Colors.black,
-                  //     width: 2,
-                  //   ),
-                  // ),
                   child: Stack(
                     children: [
                       Container(
@@ -205,7 +180,7 @@ class _UserImageState extends State<UserImage>{
                             width: 15.0, // Border width
                           ),
                         ),
-                        child: widget.imagePath!=null
+                        child: widget.imagePath!=null && _userProfileImage==null
                           ? widget.image=='network'
                             ? CircleAvatar(
                           radius: 60,
@@ -274,6 +249,7 @@ class _UserImageState extends State<UserImage>{
     );
   }
 }
+
 // Image Uploading Optoins
 class UploadMethods extends StatefulWidget{
   final ImageCallback onImageUpdated;
@@ -288,7 +264,7 @@ class _UploadMethodsState extends State<UploadMethods> {
   File? _userProfileImage;
   Future<void> _takePicture() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
-
+    print('Camera Is :${pickedFile?.path}');
     if (pickedFile != null) {
       setState(() {
         _userProfileImage = File(pickedFile.path);
@@ -411,10 +387,12 @@ class _EditNameFormState extends State<EditNameForm> {
     super.initState();
     nameController.text = (widget.name!);
     userName = (widget.name!);
+    print('Init Run');
   }
 
   void toggleEdit() {
     setState(() {
+      print('Toggle Run');
       isEditing = !isEditing;
       if (!isEditing) {
         if(nameController.text.length<1){

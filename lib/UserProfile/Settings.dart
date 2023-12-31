@@ -658,7 +658,7 @@ class _EditProfileState extends State<EditProfile>{
                                 reqPages:1,
                                 text:'edit',
                                 imagePathCallback: (value){imagePath=value;print(value);},
-                                nameCallback: (value){name = value;print('Name:::$value');},
+                                nameCallback: (value){ name = value;print('Name:::$value');},
                                 imagePath:imagePath,
                                 name:name,
                               ),
