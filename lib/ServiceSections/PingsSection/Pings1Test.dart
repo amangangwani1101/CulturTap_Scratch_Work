@@ -15,6 +15,7 @@ import '../../UserProfile/ProfileHeader.dart';
 import '../../widgets/hexColor.dart';
 import '../TripCalling/ChatSection/ChatSection.dart';
 import '../../UserProfile/ProfileHeader.dart';
+
 void main() {
   runApp(Receiver());
 }

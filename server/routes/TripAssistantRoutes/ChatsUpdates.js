@@ -53,13 +53,14 @@ router.get('/fetchLocalMeetingConversation/:meetId', async (req, res) => {
 router.patch('/updateLocalMeetingHelperIds/:meetId', async (req, res) => {
   try {
     const meetId = req.params.meetId;
-    const {paymentStatus} = req.body;
+    const {paymentStatus,time} = req.body;
     const meet = await MeetData.findById(meetId);
     if (!meet) {
       return res.status(404).json({ message: "Meeting Not Found" });
     }
     console.log('Updating meeting payment status');
     meet.paymentStatus = paymentStatus;
+    meet.time = time;
     await meet.save();
     res.status(200).json({ message: "Payment Status updated successfully" });
   } catch (err) {

@@ -14,6 +14,7 @@ const getStoriesByGenres = require('./routes/getStoriesByGenres.js');
 const multer = require('multer');
 const path = require('path');
 const axios = require('axios');
+const schedule = require('node-schedule');
 
 const videosFolder = path.join(__dirname, '../videos');
 const thumbnailsFolder = path.join(__dirname, '../thumbnails');
@@ -156,68 +157,7 @@ app.use('/',LocalAssisatntPings);
 app.use('/',localAssistantPayment);
 
 
-//instance.paymentLink.create({
-//  amount: 500,
-//  currency: "INR",
-//  accept_partial: true,
-//  first_min_partial_amount: 100,
-//  description: "For XYZ purpose",
-//  customer: {
-//    name: "Gaurav Kumar",
-//    email: "gaurav.kumar@example.com",
-//    contact: "+919000090000"
-//  },
-//  notify: {
-//    sms: true,
-//    email: true
-//  },
-//  reminder_enable: true,
-//  notes: {
-//    policy_name: "Jeevan Bima"
-//  },
-//  callback_url: "https://example-callback-url.com/",
-//  callback_method: "get"
-//})
 
-//const createPaymentLink = async (amount) => {
-//  try {
-//    const response = await axios.post(
-//      'https://api.razorpay.com/v1/payment_links',
-//      {
-//        amount: amount,
-//        currency: 'INR'
-//      },
-//      {
-//        auth: {
-//          username: 'rzp_test_QjYe0NMTmgIj40',
-//          password: 'jz3ylZooulpNRt6v5gbvuF63'
-//        },
-//        headers: {
-//          'Content-Type': 'application/json'
-//        }
-//      }
-//    );
-//
-//    return response.data;
-//  } catch (error) {
-//    console.error('Error creating payment link:', error.response.data);
-//    throw error;
-//  }
-//};
-//
-//// API endpoint to create a payment link
-//app.post('/api/create-payment-link', async (req, res) => {
-//  const { amount } = req.body;
-//
-//  try {
-//    const paymentLink = await createPaymentLink(amount);
-//    res.json({ paymentLink });
-//  } catch (error) {
-//    console.error('Error creating payment link:', error);
-//    res.status(500).json({ error: 'Internal Server Error' });
-//  }
-//});
-//
 
 // socket connection and chat functions and features
 tripPlanningNamespace.on("connection", (socket) => {
@@ -277,36 +217,7 @@ tripPlanningNamespace.on("connection", (socket) => {
       }
     });
 
-//    // When users join a video call room
-//    socket.on("joinVideoCallRoom", (roomId) => {
-//        socket.join(roomId); // Join the room
-//    // Logic to handle users joining a room
-//    // Emit 'videoCallStarted' to the room when both users are ready
-//    io.to(roomId).emit('videoCallStarted', { message: 'Video call is starting...' });
-//    });
-//
-//    // Handle signaling between peers
-//      socket.on('SDPOffer', (data) => {
-//        // Handle SDP Offer and signal to the remote peer
-//        io.to(roomId).emit('SDPOffer', data);
-//      });
-//
-//      socket.on('answerCall', (data) => {
-//        // Handle SDP Answer and signal to the caller
-//        io.to(roomId).emit('callAnswered', data);
-//      });
-//      socket.on('newICECandidate', (data) => {
-//        // Handle ICE candidates and signal to the other peer
-//        io.to(roomId).emit('newICECandidate', data);
-//      });
-//
-//    socket.on("disconnect", () => {
-//      console.log("A user disconnected");
-//      // Leave the room when a user disconnects
-//      if (socket.room) {
-//        socket.leave(socket.room);
-//      }
-//    });
+
 
 
     // voice call functioanlity
@@ -377,37 +288,6 @@ localAssistantNamespace.on("connection", (socket) => {
         socket.room = uniqueIdentifier;
     });
 
-//    // When users join a video call room
-//    socket.on("joinVideoCallRoom", (roomId) => {
-//        socket.join(roomId); // Join the room
-//    // Logic to handle users joining a room
-//    // Emit 'videoCallStarted' to the room when both users are ready
-//    io.to(roomId).emit('videoCallStarted', { message: 'Video call is starting...' });
-//    });
-//
-//    // Handle signaling between peers
-//      socket.on('SDPOffer', (data) => {
-//        // Handle SDP Offer and signal to the remote peer
-//        io.to(roomId).emit('SDPOffer', data);
-//      });
-//
-//      socket.on('answerCall', (data) => {
-//        // Handle SDP Answer and signal to the caller
-//        io.to(roomId).emit('callAnswered', data);
-//      });
-//      socket.on('newICECandidate', (data) => {
-//        // Handle ICE candidates and signal to the other peer
-//        io.to(roomId).emit('newICECandidate', data);
-//      });
-//
-//    socket.on("disconnect", () => {
-//      console.log("A user disconnected");
-//      // Leave the room when a user disconnects
-//      if (socket.room) {
-//        socket.leave(socket.room);
-//      }
-//    });
-
 
     // voice call functioanlity
     socket.on('offer', (data) => {
@@ -430,7 +310,6 @@ localAssistantNamespace.on("connection", (socket) => {
   }
 });
 
-
 // video call connection
 io.use((socket, next) => {
   if (socket.handshake.query) {
@@ -439,7 +318,6 @@ io.use((socket, next) => {
     next();
   }
 });
-
 io.on("connection", (socket) => {
   console.log(socket.user, "Connected");
   socket.join(socket.user);
@@ -479,4 +357,137 @@ io.on("connection", (socket) => {
       iceCandidate: iceCandidate,
     });
   });
+
+  socket.on('leaveCall',(data)=>{
+    let id = data.id;
+    socket.to(id).emit('leaveCall',{});
+  });
 });
+
+
+// schedule notification :: sending notification to more user for help of needy
+const job = schedule.scheduleJob('*/1 * * * *', async () => {
+  try {
+    const currentDateTime = new Date();
+    const fiveMinutesAfter = new Date(currentDateTime.getTime() + 5 * 60000); // 5 minutes after current time
+
+    const meetings = await MeetData.find({
+      paymentStatus: 'pending',
+      helperIds: { $exists: true, $ne: [] }
+//      time: { $gte: fiveMinutesAfter },
+    });
+    console.log(meetings);
+    for (const meeting of meetings) {
+      const helperIds = meeting.helperIds;
+        if(helperIds.length>0){
+
+          const users = await UserData.find({ userId: { $in: helperIds } });
+          // Extract user tokens
+          const userTokens = users.map(user => user.userToken);
+          // Send notification to each user
+          for (const token of userTokens) {
+            await sendNotification(token, 'Meeting Reminder', 'Your meeting will start soon.');
+          }
+        // Update the meeting to mark reminder as sent
+        // meeting.reminderSent = true;
+        // await meeting.save();
+       }
+    }
+  } catch (error) {
+    console.error('Error sending meeting reminders:', error);
+  }
+});
+// Handle errors in the scheduler
+job.on('error', err => {
+  console.error('Scheduler error:', err);
+});
+
+// schedule notification  :: reminder before closing meet in local assistants
+const job2 = schedule.scheduleJob('*/1 * * * *', async () => {
+  try {
+    const currentDateTime = new Date();
+    const eightyFiveMinutesAfter = new Date(currentDateTime.getTime() + 2 * 60000); // 85 minutes after current time
+
+    const meetingsToNotify = await MeetData.find({
+      paymentStatus: { $eq: 'pending' },
+//      time: { $gte: eightyFiveMinutesAfter }
+    });
+    console.log('Current Time:', currentDateTime);
+    console.log('Eighty-Five Minutes After:', eightyFiveMinutesAfter);
+
+    for (const meeting of meetingsToNotify) {
+      const userId = meeting.userId;
+      console.log('Meeting Time from DB:', meeting.time);
+      const helperId = meeting.helperId;
+
+      // get from firebase
+      // if(user['uniqueToken']!=null){}
+      // await sendNotificationToUser(token, 'Meeting Update', 'Meeting has an update');
+      // Compare current time with time field of the meeting
+       const ninetyMinutesAfterMeetingTime = new Date(meeting.time.getTime() + 3 * 60000);
+       const meetId =  (meeting._id).toString();
+       if (currentDateTime >= ninetyMinutesAfterMeetingTime) {
+        await MeetData.findByIdAndUpdate(meeting._id, { paymentStatus: 'close' });
+        try {
+          const userUpdateResult = await UserData.updateOne(
+            { _id: userId, 'userServiceTripAssistantData.meetId': meetId },
+            { $set: { 'userServiceTripAssistantData.$.meetStatus': 'close' } }
+          );
+
+          console.log('User Update Result:', userUpdateResult);
+
+          const helperUpdateResult = await UserData.updateOne(
+            { _id: helperId, 'userServiceTripAssistantData.meetId': meetId },
+            { $set: { 'userServiceTripAssistantData.$.meetStatus': 'close' } }
+          );
+
+          console.log('Helper Update Result:', helperUpdateResult);
+        } catch (error) {
+          console.error('Error updating meetStatus:', error);
+        }
+       }
+    }
+  } catch (error) {
+    console.error('Error in meeting updates:', error);
+  }
+});
+job2.on('error', err => {
+  console.error('Scheduler closer error:', err);
+});
+
+
+// paymentStatus -> meetStatus -> initiated,pending,closed
+// for 1st case : paymentStatus : initiated , helperIds : length>0 -> send notification after 5min
+// for 2nd case : paymentStatus : pending , time exceeds 90 min case then updated paymentStaus : close
+
+
+// Function to send notifications from firebase
+async function sendNotificationToUser(userToken, title, body) {
+  const data = {
+    to: userToken,
+    priority: 'high',
+    notification: {
+      title: title,
+      body: body,
+    },
+  };
+
+  try {
+    const response = await fetch('https://fcm.googleapis.com/fcm/send', {
+      method: 'POST',
+      body: JSON.stringify(data),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'key=AAAAPpVuKrI:APA91bF7BA61C5dlBD65HIs4KY1Ljw5rHZ1FyNxuqjEpQUjfnQJMkhxf71XKlk2dK3fkjRVYG7gErT4lZj2lluhZVsdaHPeyjWKGQ6AcUZlNeXLTiuKxnnVgO21EowO0ATcxKSBd2EK7',
+      },
+    });
+
+    if (response.ok) {
+      console.log('Notification sent successfully');
+    } else {
+      console.error('Failed to send notification:', response.statusText);
+    }
+  } catch (error) {
+    console.error('Failed to send notification:', error.message);
+  }
+}

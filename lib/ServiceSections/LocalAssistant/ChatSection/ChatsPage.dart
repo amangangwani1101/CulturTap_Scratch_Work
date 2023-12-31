@@ -69,6 +69,7 @@ class _ChatsPageState extends State<ChatsPage> {
   List<List<String>> messages = [];
   List<String>sender=[],receiver=[];
   dynamic incomingSDPOffer;
+  bool callEnded = false;
 
   Future<String> createMeetRequest() async {
     final url = Uri.parse('$serverUrl/updateLocalAssistantMeetDetails');
@@ -78,6 +79,7 @@ class _ChatsPageState extends State<ChatsPage> {
       "helperIds": userIds,
       "meetTitle": _controller.text,
       "paymentStatus":'initiated',
+      "time":DateTime.now().toIso8601String()
     };
     print('New Meet Details :  ${requestData}');
     try {
@@ -286,7 +288,7 @@ class _ChatsPageState extends State<ChatsPage> {
         headers: {
           "Content-Type": "application/json",
         },
-        body:jsonEncode({"paymentStatus":paymentStatus}),
+        body:jsonEncode({"paymentStatus":paymentStatus,"time":DateTime.now().toIso8601String()}),
       );
 
       if (response.statusCode == 200) {
@@ -300,6 +302,7 @@ class _ChatsPageState extends State<ChatsPage> {
       print("Error in updating meeting status: $err");
     }
   }
+
 
 
   Future<void> updateMeetingChats(String meetId,List<String>meetDetails)async{
@@ -317,6 +320,7 @@ class _ChatsPageState extends State<ChatsPage> {
         },
         body: jsonEncode(data),
       );
+
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
@@ -359,6 +363,9 @@ class _ChatsPageState extends State<ChatsPage> {
     if(data['user'].contains('admin')){
       await fetchHelperDataset(data['message']);
       await getMeetStatus();
+    }
+    if(widget.meetId!=null){
+      await updatePaymentStatus('pending',widget.meetId!);
     }
   }
   // Function to handle the incoming offer
@@ -472,18 +479,21 @@ class _ChatsPageState extends State<ChatsPage> {
     }
     if(widget.meetId!=null) {
       startConnectionCards();
+      // listen for incoming video call
       SignallingService.instance.init(
         websocketUrl: serverUrl,
         selfCallerID: widget.meetId!,
       );
       SignallingService.instance.socket!.on("newCall", (data) {
         if (mounted) {
-          print('comingdddd');
+          print('Remote User Tried To Call');
           // set SDP Offer of incoming call
           setState(() => incomingSDPOffer = data);
         }
       });
-      // listen for incoming video call
+      SignallingService.instance.socket!.on("leaveCall", (data) {
+          setState(() => callEnded = true);
+      });
 
     }
   }
@@ -597,6 +607,7 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
+
   void _handleSend() {
     String message = _controller.text;
     if (message.isNotEmpty) {
@@ -673,6 +684,62 @@ class _ChatsPageState extends State<ChatsPage> {
                         SizedBox(width: 25,),
                         Column(
                           children: [
+                            if (incomingSDPOffer != null)
+                              Center(
+                                child: Container(
+                                  width: screenWidth*0.70,
+                                  height: 35,
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    color: Colors.grey.withOpacity(0.5),
+                                  ),
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Container(
+                                        width:100,
+                                        child: Text(
+                                          "Voice Call from $userName",
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.bold,
+                                          ),
+                                        ),
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.call_end),
+                                        color: Colors.redAccent,
+                                        onPressed: (){
+                                          SignallingService.instance.socket!.emit("leaveCall", {
+                                            "id": widget.meetId,
+                                          });
+                                          setState(() => incomingSDPOffer = null);
+                                        },
+                                      ),
+                                      IconButton(
+                                        icon: const Icon(Icons.call),
+                                        color: Colors.greenAccent,
+                                        onPressed: () async{
+                                          if(callEnded){
+
+                                          }else{
+                                            await _joinCall(
+                                              callerId: incomingSDPOffer["callerId"]!,
+                                              calleeId: widget.meetId!,
+                                              offer: incomingSDPOffer["sdpOffer"],
+                                              section: incomingSDPOffer["section"],
+                                              imageOwn:incomingSDPOffer["imageOther"],
+                                              imageOther:incomingSDPOffer["imageOwn"],
+                                            );
+                                          }
+                                          setState(() => incomingSDPOffer = null);
+                                        },
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+
                             pageVisitor?
                             Column(
                               children: [
@@ -729,44 +796,6 @@ class _ChatsPageState extends State<ChatsPage> {
                                 ),
                               ],
                             ):SizedBox(height: 0,),
-                            if (incomingSDPOffer != null)
-                              Column(
-                                children: [
-                                  Text(
-                                    "Incoming Call from $userName",
-                                    style: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      IconButton(
-                                        icon: const Icon(Icons.call_end),
-                                        color: Colors.redAccent,
-                                        onPressed: () {
-                                          setState(() => incomingSDPOffer = null);
-                                        },
-                                      ),
-                                      IconButton(
-                                        icon: const Icon(Icons.call),
-                                        color: Colors.greenAccent,
-                                        onPressed: () {
-                                          _joinCall(
-                                            callerId: incomingSDPOffer["callerId"]!,
-                                            calleeId: widget.meetId!,
-                                            offer: incomingSDPOffer["sdpOffer"],
-                                            section: incomingSDPOffer["section"],
-                                            imageOwn:incomingSDPOffer["imageOther"],
-                                            imageOther:incomingSDPOffer["imageOwn"],
-                                          );
-                                        },
-                                      ),
-                                    ],
-                                  ),
-                                ],
-                              ),
                           ],
                         ),
                       ],
@@ -1457,6 +1486,51 @@ class _ChatsPageState extends State<ChatsPage> {
                     :SizedBox(height: 10,),
 
                     // Expanded(child: SizedBox(height: 10,)),
+                    if (incomingSDPOffer != null)
+                      Center(
+                        child: Container(
+                          width: screenWidth*0.70,
+                          height: 35,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(30.0),
+                            color: Colors.grey.withOpacity(0.5),
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                "Voice Call from $userName",
+                                style: TextStyle(
+                                  fontSize: 12,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.call_end),
+                                color: Colors.redAccent,
+                                onPressed: () {
+                                  setState(() => incomingSDPOffer = null);
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.call),
+                                color: Colors.greenAccent,
+                                onPressed: () async{
+                                  await _joinCall(
+                                    callerId: incomingSDPOffer["callerId"]!,
+                                    calleeId: widget.meetId!,
+                                    offer: incomingSDPOffer["sdpOffer"],
+                                    section: incomingSDPOffer["section"],
+                                    imageOwn:incomingSDPOffer["imageOther"],
+                                    imageOther:incomingSDPOffer["imageOwn"],
+                                  );
+                                  setState(() => incomingSDPOffer = null);
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
 
                     (widget.state=='user' && meetStatus=='accept')
                     ?Center(
@@ -1644,8 +1718,8 @@ class _ChatsPageState extends State<ChatsPage> {
                             decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
                             child: IconButton(
                               icon: Icon(Icons.call),
-                              onPressed:(){
-                                _joinCall(
+                              onPressed:()async{
+                                await _joinCall(
                                   callerId: widget.meetId!,
                                   calleeId: widget.meetId!,
                                   section: 'audio',
@@ -1684,8 +1758,10 @@ class _ChatsPageState extends State<ChatsPage> {
                                   }else{
                                     _handleSend();
                                   }
+                                  setState(() {});
                                 }else{
                                   _handleSend();
+                                  setState(() {});
                                 }
                                 setState(() {
                                   messageTyping = false;

@@ -216,6 +216,12 @@ class _CallScreenState extends State<CallScreen> {
         ));
       });
 
+      socket!.on('leaveCall', (data) {
+        // Handle the 'leaveCall' event here
+        print('Received leaveCall event with data: $data');
+        Navigator.of(context).pop();
+      });
+
       // set SDP offer as remoteDescription for peerConnection
       await _rtcPeerConnection!.setRemoteDescription(
         RTCSessionDescription(widget.offer["sdp"], widget.offer["type"]),
@@ -269,6 +275,11 @@ class _CallScreenState extends State<CallScreen> {
             }
           });
         }
+        socket!.on('leaveCall', (data) {
+          // Handle the 'leaveCall' event here
+          print('Received leaveCall event with data: $data');
+          Navigator.of(context).pop();
+        });
       });
 
       // create SDP Offer
@@ -289,6 +300,9 @@ class _CallScreenState extends State<CallScreen> {
   }
 
   _leaveCall() {
+    socket!.emit("leaveCall", {
+      "id": widget.callerId,
+    });
     Navigator.pop(context);
   }
 

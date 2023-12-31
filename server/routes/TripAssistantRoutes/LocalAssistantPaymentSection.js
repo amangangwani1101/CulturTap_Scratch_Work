@@ -142,7 +142,7 @@ const createPaymentLink = async (amount) => {
     const response = await instance.payments.transfer('pay_NI63fwcmQx6bFv',{
     "transfers":[{
     amount: 2000,
-   currency: "INR",
+    currency: "INR",
     account:"acc_NHyU9rpR3B62fY"
     }]});
 

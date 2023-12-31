@@ -25,10 +25,7 @@ const chatDetailsSchema = new mongoose.Schema({
         type:String,
     },
     time:{
-        type:String,
-    },
-    date:{
-        type:String,
+        type:Date,
     },
     conversation:{
         type:[[String]],

@@ -448,6 +448,27 @@ class _PingSectionState extends State<PingsSection>{
     }
   }
 
+  Future<void> updatePaymentStatus(String paymentStatus,String meetId) async {
+    try {
+      final http.Response response = await http.patch(
+        Uri.parse('${Constant().serverUrl}/updateLocalMeetingHelperIds/$meetId'),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body:jsonEncode({"paymentStatus":paymentStatus,"time":DateTime.now().toIso8601String()}),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Meeting Conversation Restored');
+        print(responseData);
+      } else {
+        print('Failed to save meeting data : ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error in updating meeting status: $err");
+    }
+  }
 
 
   @override
@@ -1050,11 +1071,12 @@ class _PingSectionState extends State<PingsSection>{
                                 (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
                                 _selectedValue =='All')
                                 ? GestureDetector(
-                              onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
-                                  state: widget.userId==userId?'user':'helper',
-                                  meetId: meetId,
-                                ),));
+                              onTap: ()async{
+                                 await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                    state: widget.userId==userId?'user':'helper',
+                                    meetId: meetId,
+                                  ),));
+                                  _refreshPage();
                               },
                               child: Container(
                                 width: screenWidth*0.85,
@@ -1297,6 +1319,7 @@ class _PingSectionState extends State<PingsSection>{
                                                 print('User confirmed');
                                                 await updateLocalUserPings(widget.userId, meetId, 'cancel');
                                                 await updateLocalUserPings(userId, meetId, 'cancel');
+                                                await updatePaymentStatus('close',meetId);
                                                 _refreshPage();
 
                                               } else {
@@ -1337,11 +1360,12 @@ class _PingSectionState extends State<PingsSection>{
                                         onTap: ()  async{
                                           //   Accept ka funda
                                           await updateLocalHelperPings(meetId, 'pending');
-                                          await createUpdateLocalUserPings(widget.userId, meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                          await createUpdateLocalUserPings(userId, meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
+                                          await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                                             state: 'helper',
                                             meetId: meetId,
                                           ),));
+                                          _refreshPage();
                                           },
                                         child: Container(width:screenWidth*0.72,child: Center(child: Text('Accept & Reply',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)),))
                                       :(meetStatus=='close' && userId!=widget.userId)
@@ -1377,10 +1401,11 @@ class _PingSectionState extends State<PingsSection>{
                                       :(meetStatus=='schedule')
                                       ? InkWell(
                                         onTap: ()async{
-                                          Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                          await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                                             state: widget.userId==userId?'user':'helper',
                                             meetId: meetId,
                                           ),));
+                                          _refreshPage();
                                         },
                                         child: Container(child: Text('Continue',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),))
                                       :SizedBox(height: 0,),

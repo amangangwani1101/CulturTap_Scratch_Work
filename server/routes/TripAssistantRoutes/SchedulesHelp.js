@@ -7,8 +7,8 @@ const MeetData = require("../../db/model/localAssistantChatDetails.js");
 
 router.post("/updateLocalAssistantMeetDetails", async (req, res) => {
   try {
-    const { userId, helperIds,meetTitle,paymentStatus } = req.body;
-    const meet = new MeetData({userId,helperIds,meetTitle,paymentStatus});
+    const { userId, helperIds,meetTitle,paymentStatus,time } = req.body;
+    const meet = new MeetData({userId,helperIds,meetTitle,paymentStatus,time});
     const meetData = await meet.save();
     console.log(meetData);
     res.status(200).json({ message: 'Meets saved successfully',id: meetData['_id']});
