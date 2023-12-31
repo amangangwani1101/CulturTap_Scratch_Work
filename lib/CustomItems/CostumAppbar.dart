@@ -14,7 +14,7 @@ shadowColor:Colors.white,
       title: Container(
         color: Colors.white,
         height : 48.6,
-        width : 156,
+        width : 196,
         margin:EdgeInsets.only(left : 56,top : 10),
         child:Image.asset('assets/images/logo.png'),
       )
