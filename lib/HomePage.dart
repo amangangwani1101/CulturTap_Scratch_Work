@@ -322,7 +322,7 @@ class _HomePageState extends State<HomePage> {
             controller: _scrollController,
             slivers: [
               SliverAppBar(
-                title: ProfileHeader(reqPage: 0, userId:userID , userName: userName,profileStatus: 'jh',),
+                title: ProfileHeader(reqPage: 0, userId:userID),
                 automaticallyImplyLeading: false,
                 shadowColor: Colors.transparent,
 

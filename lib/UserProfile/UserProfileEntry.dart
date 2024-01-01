@@ -59,10 +59,7 @@ class ProfileApp extends StatelessWidget {
   Widget build(BuildContext context) {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
     // final profileDataProvider = context.watch<ProfileDataProvider>();
-    return MaterialApp(
-      home: ProfilePage(reqPage:0,profileDataProvider: profileDataProvider,userId:userId,userName:userName),
-      debugShowCheckedModeBanner: false,
-    );
+    return ProfilePage(reqPage:1,profileDataProvider: profileDataProvider,userId:userId,userName:userName);
   }
 }
 class ProfilePage extends StatefulWidget {
