@@ -4,6 +4,8 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/slider.dart';
@@ -29,12 +31,14 @@ class CustomHelpOverlay extends StatelessWidget {
   final String imagePath;
   bool? serviceSettings=false;
   String?text,navigate;
+  final String? button;
+  final String? extraText;
   final helper,helper2;
   final ProfileDataProvider? profileDataProvider;
-  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.helper,this.helper2,this.onButtonPressed,this.onBackPressed});
+  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.button,this.extraText,this.helper,this.helper2,this.onButtonPressed,this.onBackPressed});
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+
     return WillPopScope(
       onWillPop: ()async{
         if(navigate=='pings'){
@@ -43,93 +47,87 @@ class CustomHelpOverlay extends StatelessWidget {
           print(1);
         return true;
       },
-      child: Container(
-        child: Stack(
-          children: [
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-              child: Container(
-                color: Colors.grey.withOpacity(0),
+
+      child: AlertDialog(
+        contentPadding: EdgeInsets.all(20),
+        content: SingleChildScrollView(
+          child: Column(
+
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height : 10),
+              SvgPicture.asset(
+                imagePath,
+                height: 166,
+                width: 166,
               ),
-            ),
-            Center(
-              child: Container(
-
-                padding: EdgeInsets.all(20.0),
-                width: screenWidth*0.90,
-                height: navigate=='edit'?357:315,
-                // child: Align(
-                //   alignment: Alignment.topRight,
-                //   child: ElevatedButton(
-                //     onPressed: () {
-                //       Navigator.of(context).pop();
-                //     },
-                //     child: (Icon(Icons.crop_sharp)),
-                //   ),
-                // ),
-
-
-                child: Stack(
-
-                  children: [
-                    Center(child: Image.asset(imagePath,width: 321,height: 221,fit: BoxFit.contain,),),
-                    // Positioned(
-                    //   top: navigate=='edit'?30:15,
-                    //   right: 15,
-                    //   child:navigate=='pings'
-                    //     ?SizedBox(width: 0,)
-                    //     : IconButton(
-                    //
-                    //
-                    //     icon: Icon(Icons.close),
-                    //     onPressed: (){
-                    //       Navigator.of(context).pop();
-                    //     },
-                    //   ),
-                    // ),
-                    if (text!=null) Container(
-                      height: 250,
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: GestureDetector(
-                            onTap: (){
-                              if(navigate=='calendarhelper' || navigate=='edit'){
-                                onButtonPressed!();
-                              }
-                              else if(navigate=='pings')
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> PingsSection(userId: helper!,userName:helper2!,text:'meetingPings')));
-                              else if(navigate=='pop'){
-                                  onButtonPressed!();
-                              }
-                            },
-                            child: Text(text!,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.orange,),)),
-                      ),
-                    ) else SizedBox(width: 0,),
-                    if (serviceSettings==true) Container(
-                        // height: 250,
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: GestureDetector(
-                              onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(profileDataProvider:profileDataProvider)));
-                              },
-                              child: Text('Continue',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.orange,),)),
-                        ),
-                      ) else SizedBox(width: 0,)
-                  ],
+              SizedBox(height: 26),
+              Text(
+                text!,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF263238),
                 ),
-
-
-
-
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              SizedBox(height: 16),
+              Text(
+                extraText!,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+
+                  color: Color(0xFF263238),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 10),
+              TextButton(
+                onPressed: () {
+                  if (navigate == 'calendarhelper' ||
+                      navigate == 'edit' ||
+                      navigate == 'pop') {
+                    onButtonPressed!();
+
+                  } else if (navigate == 'pings') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PingsSection(
+                          userId: helper!,
+                          userName: helper2!,
+                          text: 'meetingPings',
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: Text(
+                  button!,
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
+        // Set the background color
       ),
-    );
+
+
+      );
+
   }
 }
+
+
+
+
+
 class ServicePage extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
   final ServiceTripCallingData?data;
@@ -160,13 +158,14 @@ class _ServicePageState extends State<ServicePage>{
     return WillPopScope(
       onWillPop: ()async{
         if(widget.text=='edit' && isGone==true){
+
           widget.onButtonPressed!();
           Navigator.of(context).pop();
           Navigator.of(context).pop();
         }
         else if(widget.profileDataProvider==null){
           print(1);
-          Navigator.of(context).pop();
+
         }
         else{
           print(2);
@@ -176,54 +175,41 @@ class _ServicePageState extends State<ServicePage>{
         return true;
       },
       child: Scaffold(
-        appBar:AppBar(title: ProfileHeader(reqPage: 3,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),automaticallyImplyLeading: false,),
+        appBar:AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),automaticallyImplyLeading: false,shadowColor: Colors.transparent, toolbarHeight: 90,),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                height:screenHeight*0.85,
-                // decoration: BoxDecoration(
-                //   border: Border.all(
-                //     color: Colors.black,
-                //     width: 1,
-                //   ),
-                // ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children:[
-                    Container(
-                      height: 361,
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(
-                      //     color: Colors.orange,
-                      //     width: 2,
-                      //   )
-                      // ),
-                      child: Column(
-                        children: [
-                          Container(
-                            width:318,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Timing for interaction calls',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                                Text('Select Your Time',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
-                              ],
-                            ),
-                          ),
-                          TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
-                        ],
+          child: Center(
+            child: Container(
+              color : Colors.white,
+              child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children:[
+                      Container(
+                        width:318,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height : 40),
+                            Text('Timing for interaction calls',style: Theme.of(context).textTheme.subtitle1,),
+                            Text('Select Your Time',style: Theme.of(context).textTheme.headline6,)
+                          ],
+                        ),
                       ),
-                    ),
-                    BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
-                  ],
-                ),
-              ),
-            ],
+                      TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
+                      SizedBox(height : 50),
+                      BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
+
+                    ],
+                  ),
+            ),
           ),
+          ),
+
+
+
         ),
-      ),
-    );
+
+      );
+
   }
 }
 

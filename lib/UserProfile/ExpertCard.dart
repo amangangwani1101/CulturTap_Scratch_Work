@@ -56,7 +56,7 @@ class ExpertCardDetails extends StatelessWidget{
 
                     Container(
                       width : 170,
-                      child: expertLocations.isEmpty ? Text('NA', style: Theme.of(context).textTheme.subtitle2,):
+                      child: expertLocations.isEmpty ? Text('NA', style: Theme.of(context).textTheme.headline6,):
                       Wrap(
                         runSpacing: 8.0, // Vertical spacing between lines of items
                         children: [
@@ -69,7 +69,7 @@ class ExpertCardDetails extends StatelessWidget{
                                     children: [
                                       Text(expertLocations[i]),
                                       if (i < expertLocations.length - 1)
-                                        Text(',', style: Theme.of(context).textTheme.subtitle2,),
+                                        Text(',', style: Theme.of(context).textTheme.headline6,),
                                     ],
                                   ),
                                 ),
@@ -83,23 +83,23 @@ class ExpertCardDetails extends StatelessWidget{
                 SizedBox(height: 20,),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Visited Places - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                    Text('Visited Places - ', style: Theme.of(context).textTheme.subtitle1,),
 
                     Container( width : 170,
-                        child: Text('${visitedplace}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)),
+                        child: Text('${visitedplace}', style: Theme.of(context).textTheme.headline6,)),
                   ],
                 ),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Covered Locations - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                    Text('Covered Locations - ', style: Theme.of(context).textTheme.subtitle1,),
 
                     Container( width : 170,
-                        child: Text('${coveredLocation}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)),
+                        child: Text('${coveredLocation}', style: Theme.of(context).textTheme.headline6,)),
                   ],
                 ),
                 Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Text('Expertise Rating - ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+                    Text('Expertise Rating - ', style: Theme.of(context).textTheme.subtitle1,),
 
                     Container(
                       width : 170,
