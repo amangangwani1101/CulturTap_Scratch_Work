@@ -338,7 +338,8 @@ class _PingSectionState extends State<PingsSection>{
       },
       child: Scaffold(
 
-          appBar: AppBar(title: ProfileHeader(reqPage: 0 ,text: widget.text,userName:widget.userName,userId:userID),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent, toolbarHeight: 90,),
+          appBar: AppBar(title: ProfileHeader(reqPage: 0,text: widget.text,userName:widget.userName,userId:userID),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent, toolbarHeight: 90,),
+
       body: !isLoading
           ? RefreshIndicator(
             onRefresh: ()=>_refreshPage(),
@@ -348,6 +349,7 @@ class _PingSectionState extends State<PingsSection>{
           width: screenWidth,
           child: Column(
               children: [
+
                 // ProfileHeader(reqPage: 0),
                 SizedBox(height: 40,),
                 Center(

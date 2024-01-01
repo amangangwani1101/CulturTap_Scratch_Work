@@ -74,18 +74,24 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
                     width: widget.quote!=null?350:300,
                     child: widget.state=='final'
                       ?Center(
-                        child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',),textAlign: TextAlign.justify,maxLines: 10,overflow: TextOverflow.visible,
-                      ))
+                        child: Container(
+                          width : 300,
+                          child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: Theme.of(context).textTheme.headline6,textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
+                      ),
+                        ))
                       :GestureDetector(
                       onTap: (){
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
                       },
                       child:
                       widget.quote!=null
-                          ? Center(
-                        child: Text('" ${capitalizeWords(widget.text=='edit'?setQuote!:widget.quote!)} "' ,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',),textAlign: TextAlign.justify,maxLines: 10,overflow: TextOverflow.visible,
+                          ? Container(
+                        width : 300,
+                        child: Center(
+                        child: Text('" ${capitalizeWords(widget.text=='edit'?setQuote!:widget.quote!)} "' ,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',),textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
                         ),
-                      )
+                      ),
+                          )
                           : !isQuoteSet?
                       Text(setQuote!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
                       ):
@@ -203,11 +209,12 @@ class _EditQuoteState extends State<EditQuote>{
                       hintText:'Type your quote........',
                       border: InputBorder.none,
                       contentPadding: EdgeInsets.only(top: 20,left: 20, ),
-                      hintStyle: TextStyle(color: Colors.black,fontSize: 16,fontFamily: 'Poppins'),
+                      hintStyle:  Theme.of(context).textTheme.bodyText1),
                     ),
-                    style: TextStyle(color:Colors.black,fontFamily: 'Poppins',fontSize: 16,),
+
+
                   ),
-                ),
+
                 Container(
                   width: 326,
                   height: 53,
@@ -556,16 +563,16 @@ class UserDetailsTable extends StatelessWidget {
               Text('Place -',style: Theme.of(context).textTheme.subtitle1,),
               Container(
                 width : 170,
-                  child: Text(place==null?'NA':'${place}',style: Theme.of(context).textTheme.subtitle2,)),
+                  child: Text(place==null?'NA':'${place}',style: Theme.of(context).textTheme.headline6,)),
             ],
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text('Profession -',style: Theme.of(context).textTheme.subtitle1,),
+              Text('Profession ',style: Theme.of(context).textTheme.subtitle1,),
               Container(
                 width : 170,
-                  child: Text(profession==null?'NA':'${profession}',style: Theme.of(context).textTheme.subtitle2,)),
+                  child: Text(profession==null?'NA':'${profession}',style: Theme.of(context).textTheme.headline6,)),
             ],
           ),
           Row(
@@ -574,7 +581,7 @@ class UserDetailsTable extends StatelessWidget {
               Text('Age/Gender -',style: Theme.of(context).textTheme.subtitle1,),
               Container(
                 width : 170,
-                  child: Text(age ==null?'NA':'${age} Yr / ${gender==null?'':gender}',style: Theme.of(context).textTheme.subtitle2,)),
+                  child: Text(age ==null?'NA':'${age} Yr / ${gender==null?'':gender}',style: Theme.of(context).textTheme.headline6,)),
             ],
           ),
           Row(
@@ -587,7 +594,7 @@ class UserDetailsTable extends StatelessWidget {
                 child: Text(
 
                   languageList!.join(', '), // Join the list elements with a comma and space
-                  style: TextStyle(fontSize: 14, fontFamily: 'Poppins',overflow: TextOverflow.ellipsis),
+                  style: Theme.of(context).textTheme.headline6,
                   maxLines: 5,
                 ),
               ):Text('NA'),

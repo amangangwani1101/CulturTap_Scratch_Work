@@ -43,8 +43,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
 
-              GestureDetector(
+              InkWell(
                 onTap: () {
+
                   if( widget.profileStatus ==''){
                     Navigator.push(
                       context,
@@ -66,7 +67,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     );
                   }
                 },
-                child: Container( 
+                child: Container(
 
                   width: 80,
 
@@ -107,43 +108,39 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       Text('Profile',style: Theme.of(context).textTheme.bodyText1),
                     ]
                 ),
-              ),
+                ),
               ),
 
             ],
-          ):
+          )
+              :
           widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
-              ? Container(
+              ? InkWell(
 
-            width: 80,
+              onTap: (){
+                if(widget.text=='calendar' || widget.text=='calendarhelper') {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                }
+                else if(widget.text=='chats'){
+                  widget.onButtonPressed!();
+                }
+                else if(widget.text=='meetingPings'){
+                  print('${widget.userName!}');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ),
+                  );
+                }
+                else{
+                  Navigator.of(context).pop();
+                }
+              },
 
-            height: 75,
-
-            child: Container(
-
-              child: GestureDetector(
-                onTap: (){
-                  if(widget.text=='calendar' || widget.text=='calendarhelper') {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  }
-                  else if(widget.text=='chats'){
-                    widget.onButtonPressed!();
-                  }
-                  else if(widget.text=='meetingPings'){
-                    print('${widget.userName!}');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(),
-                      ),
-                    );
-                  }
-                  else{
-                    Navigator.of(context).pop();
-                  }
-                },
                 child: Container(
+
 
                   width: 80,
 
@@ -184,9 +181,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       ]
                   ),
                 ),
-              ),
-            ),
-          )
+              )
               : SizedBox(width: 0,),
 
           widget.reqPage>=1

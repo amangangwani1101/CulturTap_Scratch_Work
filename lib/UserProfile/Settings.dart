@@ -6,6 +6,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/HomePage.dart';
@@ -152,7 +153,7 @@ class _SettingsPageState extends State<SettingsPage> {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                SizedBox(height: 0,),
+
                 // Padding(
                 //   padding: const EdgeInsets.only(left : 14.0, top : 5, bottom : 5),
                 //   child: Container(
@@ -170,10 +171,10 @@ class _SettingsPageState extends State<SettingsPage> {
                             builder: (context) {
                               return GestureDetector(
                                 onTap: ()async {
-                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(userId:widget.userId),));
-                                  setState(() {
-                                    fetchDataset();
-                                  });
+                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(),));
+                                  // setState(() {
+                                  //   fetchDataset();
+                                  // });
                                 },
                                 child: Container(
                                   width: 330,
@@ -187,13 +188,16 @@ class _SettingsPageState extends State<SettingsPage> {
                                       Container(
                                         width:20,
                                         height: 20,
-                                        child: Image.asset('assets/images/profile_image.png', color:Theme.of(context).primaryColor),
+                                        child: SvgPicture.asset('assets/images/profile_image.svg', color:Theme.of(context).primaryColor),
                                       ),
                                       Container(
                                         width: 220,
                                         child: Text('Edit Profile',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor,), onPressed: () {  },),
+                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+
+
+
                                     ],
                                   ),
                                 ),
@@ -204,13 +208,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             builder: (context) {
                               return GestureDetector(
                                 onTap: ()async {
-                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices(
-                                    service1:dataset?['userServiceTripCallingData']!=null?(dataset?['userServiceTripCallingData']['startTimeFrom']!=null?true:false):false,
-                                    service2:dataset?['userServiceTripAssistantData']!=null?(dataset?['userServiceTripAssistantData']):false,
-                                    userId: widget.userId!,
-                                    service3:false,
-                                    haveCards:dataset?['userPaymentData']!=null && dataset?['userPaymentData'].length>0?true:false,
-                                  ),));
+                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices(),));
                                   setState(() {
                                     fetchDataset();
                                   });
@@ -227,13 +225,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                       Container(
                                         width:20,
                                         height: 20,
-                                        child: Image.asset('assets/images/services-icon.png', color:Theme.of(context).primaryColor),
+                                        child: SvgPicture.asset('assets/images/services-icon.svg', color:Theme.of(context).primaryColor),
                                       ),
                                       Container(
                                         width: 220,
                                         child: Text('Services',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
                                       IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+
                                     ],
                                   ),
                                 ),
@@ -244,7 +243,7 @@ class _SettingsPageState extends State<SettingsPage> {
                             builder: (context) {
                               return GestureDetector(
                                 onTap: ()async {
-                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments(userId:widget.userId,savedCards: dataset?['userPaymentData']!=null?(dataset?['userPaymentData']):[],)));
+                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments()));
                                   setState(() {
                                     fetchDataset();
                                   });
@@ -261,7 +260,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       Container(
                                         width:20,
                                         height: 20,
-                                        child: Image.asset('assets/images/payments-icon.png', color:Theme.of(context).primaryColor),
+                                        child: SvgPicture.asset('assets/images/payments-icon.svg', color:Theme.of(context).primaryColor),
                                       ),
                                       Container(
                                         width: 220,
@@ -298,7 +297,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       Container(
                                         width:20,
                                         height: 20,
-                                        child: Image.asset('assets/images/calendar.png'),
+                                        child: SvgPicture.asset('assets/images/calendar.svg'),
                                       ),
                                       Container(
                                         width: 220,
@@ -334,7 +333,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       Container(
                                         width:20,
                                         height: 20,
-                                        child: Image.asset('assets/images/draft-icon.png', color:Theme.of(context).primaryColor),
+                                        child: SvgPicture.asset('assets/images/draft-icon.svg', color:Theme.of(context).primaryColor),
                                       ),
                                       Container(
                                         width: 220,
@@ -377,7 +376,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       Container(
                                         width:20,
                                         height: 20,
-                                        child: Image.asset('assets/images/about-icon.png', color:Theme.of(context).primaryColor),
+                                        child: SvgPicture.asset('assets/images/about-icon.svg', color:Theme.of(context).primaryColor),
                                       ),
                                       Container(
                                         width: 220,
@@ -413,7 +412,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       Container(
                                         width:20,
                                         height: 20,
-                                        child: Image.asset('assets/images/help-icon.png', color:Theme.of(context).primaryColor),
+                                        child: SvgPicture.asset('assets/images/help-icon.svg', color:Theme.of(context).primaryColor),
                                       ),
                                       Container(
                                         width: 220,
@@ -444,7 +443,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                       Container(
                                         width:20,
                                         height: 20,
-                                        child: Image.asset('assets/images/logout-icon.png', color:Theme.of(context).primaryColor),
+                                        child: SvgPicture.asset('assets/images/logout-icon.svg', color:Theme.of(context).primaryColor),
                                       ),
                                       Container(
                                         width: 220,
@@ -508,14 +507,14 @@ class _EditProfileState extends State<EditProfile>{
   @override
   void initState(){
     super.initState();
-    profileData = fetchProfileData();
+    fetchProfileData();
   }
 
   void sendDataToBackend () async{
     print('Status');
     try {
       Map<String,dynamic> data = {
-        'userId':widget.userId,
+        'userId':userID,
         'userPlace':homeCity,
         'userProfession':profession,
         'userAge':dob,
@@ -571,18 +570,28 @@ class _EditProfileState extends State<EditProfile>{
   // dob = data['dob'];
   // gender = data['gender'];
   // name = data['name'];
-  // quote = data['quote'];
+  //  = data['quote'];
   // });
 
-  Future<Map<String, dynamic>> fetchProfileData() async {
+  Future<void> fetchProfileData() async {
     final String serverUrl = Constant().serverUrl;
-    final url = Uri.parse('$serverUrl/profileDetails/${widget.userId}');
+    final url = Uri.parse('$serverUrl/profileDetails/${userID}');
     final http.Response response = await http.get(url);
 
     if (response.statusCode == 200) {
       final data = json.decode(response.body);
       print(data);
-      return data;
+      setState(() {
+        imagePath = data['imagePath'];
+        homeCity = data['homeCity'];
+        profession = data['profession'];
+        dob = data['dob'];
+        gender = data['gender'];
+        name = data['name'];
+        quote = data['quote'];
+        dateOfBirth =data['dateOfBirth']!=null?DateTime.parse(data['dateOfBirth']):null;
+        language = data['language']!=null?data['language'].cast<String>().toList():[];
+      });
     } else {
       // Handle error
       ScaffoldMessenger.of(context).showSnackBar(
@@ -612,101 +621,74 @@ class _EditProfileState extends State<EditProfile>{
       },
       child: Scaffold(
         appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
-        body: FutureBuilder<Map<String, dynamic>>(
-          future: profileData,
-          builder: (context,snapshot){
-            if (snapshot.connectionState == ConnectionState.waiting) {
-
-              // While waiting for the data to be fetched, you can show a loading indicator or any other placeholder.
-              return Center(child: CircularProgressIndicator());
-
-            } else if (snapshot.hasError) {
-              // If there's an error during data fetching, you can handle it here.
-              return Center(
-                child: Text('Error: ${snapshot.error}',style: Theme.of(context).textTheme.subtitle2,),
-              );
-            }
-            else{
-              Map<String, dynamic> data = snapshot.data!;
-              print('DSAAAA::$data');
-              imagePath = data['imagePath'];
-              homeCity = data['homeCity'];
-              profession = data['profession'];
-              dob = data['dob'];
-              gender = data['gender'];
-              name = data['name'];
-              quote = data['quote'];
-              dateOfBirth =data['dateOfBirth']!=null?DateTime.parse(data['dateOfBirth']):null;
-              language = data['language']!=null?data['language'].cast<String>().toList():[];
-              return SingleChildScrollView(
-                child: Container(
-                  padding: EdgeInsets.all(5),
-                  color : Theme.of(context).backgroundColor,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Center(
-                        child: Container(
-                          width: 360,
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            mainAxisAlignment: MainAxisAlignment.spaceAround,
-                            children: [
+        body: name!=null
+            ?SingleChildScrollView(
+          child: Container(
+            padding: EdgeInsets.all(5),
+            color : Theme.of(context).backgroundColor,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Center(
+                  child: Container(
+                    width: 360,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
 
 
-                              SizedBox(height: 20,),
-                              UserImage(
-                                reqPages:1,
-                                text:'edit',
-                                imagePathCallback: (value){imagePath=value;print(value);},
-                                nameCallback: (value){name = value;print('Name:::$value');},
-                                imagePath:imagePath,
-                                name:name,
-                              ),
-                              SizedBox(height: 30,),
-                              MotivationalQuote(text:'edit',quote:quote,quoteCallback: (value){quote = value;print(value);},),
-                            ],
-                          ),
+                        SizedBox(height: 20,),
+                        UserImage(
+                          reqPages:1,
+                          text:'edit',
+                          imagePathCallback: (value){imagePath=value;print(value);},
+                          nameCallback: (value){name = value;print('Name:::$value');},
+                          imagePath:imagePath,
+                          name:name,
                         ),
-                      ),
-                      Container(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            ProfileForm(text:'edit',homeCityCallback: (value){
-                              homeCity = value;
-                            },professionCallback:(value){
-                              profession = value;
-                            },dobCallback:(value){
-                              dateOfBirth = value;
-                            },genderCallback:(value){
-                              gender = value;
-                            },languageCallback:(values){
-                              language = values;
-                            },ageCallBack:(value){
-                              dob = value;
-                            }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
-                            ),
-
-
-                            SizedBox(height : 0),
-                          ],
-
-                        ),
-                      ),
-                    ],
+                        SizedBox(height: 30,),
+                        MotivationalQuote(text:'edit',quote:quote,quoteCallback: (value){quote = value;print(value);},),
+                      ],
+                    ),
                   ),
                 ),
-              );
-            }
-          },
-        ),
+                Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      ProfileForm(text:'edit',homeCityCallback: (value){
+                        homeCity = value;
+                      },professionCallback:(value){
+                        profession = value;
+                      },dobCallback:(value){
+                        dateOfBirth = value;
+                      },genderCallback:(value){
+                        gender = value;
+                      },languageCallback:(values){
+                        language = values;
+                      },ageCallBack:(value){
+                        dob = value;
+                      }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
+                      ),
+
+
+                      SizedBox(height : 0),
+                    ],
+
+                  ),
+                ),
+              ],
+            ),
+          ),
+        )
+            :Center(child: CircularProgressIndicator(),),
           bottomNavigationBar: AnimatedContainer(
 
             duration: Duration(milliseconds: 100),
-            height : 60,
+            height : 80,
             color: Colors.white,
 
 
@@ -715,8 +697,9 @@ class _EditProfileState extends State<EditProfile>{
               child: Container(
                 color : Colors.white,
 
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
+                child: Container(
+                  width : 326,
+                  height : 53,
                   child: FiledButton(
 
                       backgroundColor: Colors.orange,
@@ -748,12 +731,42 @@ class EditServices extends StatefulWidget{
 }
 
 class _EditServicesState extends State<EditServices>{
+
+  @override
+  void initState() {
+    super.initState();
+    fetchServiceData();
+  }
+
+  Future<void> fetchServiceData() async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/userStoredData/${userID}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final dataset = json.decode(response.body);
+      print('Data is $dataset');
+      setState(() {
+        widget.service1 = dataset?['userServiceTripCallingData']!=null?(dataset?['userServiceTripCallingData']['startTimeFrom']!=null?true:false):false;
+        widget.service2 = dataset?['userServiceTripAssistantData']!=null?(dataset?['userServiceTripAssistantData']):false;
+        widget.service3 = false;
+        widget.haveCards = (dataset?['userPaymentData']!=null && dataset?['userPaymentData'].length>0)?true:false;
+      });
+    } else {
+      // Handle error
+      print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
+
+
+
+
   @override
   Widget build(BuildContext context) {
     print('Cards ${widget.haveCards}');
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false,shadowColor: Colors.transparent,toolbarHeight: 90),
-      body: WillPopScope(
+      appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: userID,),automaticallyImplyLeading: false,shadowColor: Colors.transparent,toolbarHeight: 90),
+      body:  WillPopScope(
         onWillPop: ()async{
 
           Navigator.pushReplacement(
@@ -763,22 +776,26 @@ class _EditServicesState extends State<EditServices>{
 
           return true;
         },
-        child: Center(
-          child: Container(
-            width: 360,
-            height: 860,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: [
-                SizedBox(height: 40,),
-                ServiceCard(text:'edit',haveCards:widget.haveCards,userId:widget.userId,isToggle:widget.service1,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner '),
-                SizedBox(height: 30,),
-                ServiceCard(text:'editService2',userId:widget.userId,isToggle:widget.service2,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'Turn youself ON for Becoming \nSuperhero as a saviour ! '),
-                // ServiceCard(isToggle:widget.service3,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !'),
-              ],
-            ),
+        child: widget.service1!=null
+            ? Container(
+          padding : EdgeInsets.only(left : 22, right : 22, ),
+
+          color : Colors.white,
+
+          height: 860,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.start,
+
+            children: [
+              SizedBox(height: 40,),
+              ServiceCard(text:'edit',haveCards:widget.haveCards,userId:userID,isToggle:widget.service1,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: ' for Becoming \nTrip planner '),
+              SizedBox(height: 30,),
+              ServiceCard(text:'editService2',userId:userID,isToggle:widget.service2,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming \nSuperhero as a saviour ! '),
+              // ServiceCard(isToggle:widget.service3,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !'),
+            ],
           ),
-        ),
+        )
+            :Center(child: CircularProgressIndicator(),),
       ),
     );
   }
@@ -793,6 +810,29 @@ class EditPayments extends StatefulWidget{
 }
 
 class _EditPaymentsState extends State<EditPayments>{
+
+  void initState() {
+    super.initState();
+    fetchPaymentData();
+  }
+
+  Future<void> fetchPaymentData() async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/userStoredData/${userID}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final dataset = json.decode(response.body);
+      print('Data is $dataset');
+      setState(() {
+        widget.userId = userID;
+        widget.savedCards =  dataset?['userPaymentData']!=null?(dataset?['userPaymentData']):[];
+      });
+    } else {
+      // Handle error
+      print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
 
   List<CardDetails> convertToCardDetailsList(List<dynamic> userPaymentDataList) {
     List<CardDetails> cardDetailsList = [];
@@ -817,7 +857,9 @@ class _EditPaymentsState extends State<EditPayments>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: PaymentSection(savedCards: convertToCardDetailsList(widget.savedCards!),text: 'edit',userId: widget.userId,),
+      body: widget.savedCards!=null
+      ? PaymentSection(savedCards: convertToCardDetailsList(widget.savedCards!),text: 'edit',userId: widget.userId,)
+      :Center(child: CircularProgressIndicator(),),
     );
 
   }
@@ -829,14 +871,14 @@ class AboutUs extends StatelessWidget{
   Widget build(BuildContext context){
     return Scaffold(
       appBar: AppBar(title: ProfileHeader(reqPage: 2,),automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
-      body: SingleChildScrollView(
+      body:  SingleChildScrollView(
         child: Container(
           width: 390,
           height: 1571,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              Image.asset('assets/images/about-us.png'),
+              SvgPicture.asset('assets/images/about-us.svg'),
               Container(
                 width: 313,
                 height: 493,
