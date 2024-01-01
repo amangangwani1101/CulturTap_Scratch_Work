@@ -492,8 +492,8 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class EditProfile extends StatefulWidget{
-  String?userId;
-  EditProfile({this.userId});
+  String?userId,userName;
+  EditProfile({this.userId,this.userName});
   @override
   _EditProfileState createState() => _EditProfileState();
 }
@@ -508,6 +508,7 @@ class _EditProfileState extends State<EditProfile>{
   @override
   void initState(){
     super.initState();
+    print('i am on !');
     profileData = fetchProfileData();
   }
 
@@ -521,7 +522,7 @@ class _EditProfileState extends State<EditProfile>{
         'userAge':dob,
         'userGender':gender,
         'userPhoto':imagePath,
-        'userName':name,
+        'userName':widget.userName,
         'userQuote':quote,
         'userLanguages':language,
         'userDOB':dateOfBirth?.toUtc()?.toIso8601String(),
@@ -658,7 +659,9 @@ class _EditProfileState extends State<EditProfile>{
                                 reqPages:1,
                                 text:'edit',
                                 imagePathCallback: (value){imagePath=value;print(value);},
-                                nameCallback: (value){ name = value;print('Name:::$value');},
+                                nameCallback: (value){ setState(() {
+                                  widget.userName = value;
+                                });print('Name:::$value');},
                                 imagePath:imagePath,
                                 name:name,
                               ),

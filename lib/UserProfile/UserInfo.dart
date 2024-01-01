@@ -695,6 +695,7 @@ class _ProfileFormState extends State<ProfileForm> {
     if(widget.setDOB!=null){
       selectedDateOfBirth = widget.setDOB;
     }
+    print('Init');
     final FocusNode _focusNode = FocusNode();
     return Container(
       padding: EdgeInsets.all(10.0),
@@ -839,6 +840,7 @@ class _ProfileFormState extends State<ProfileForm> {
                 selectedDateOfBirth = newDate;
                 print('Selected: ${newDate}');
               });
+              print('Selected: ${selectedDateOfBirth}');
               if(widget.text=='edit'){
                 widget.dobCallback!(newDate);
                 widget.ageCallBack!(age);
