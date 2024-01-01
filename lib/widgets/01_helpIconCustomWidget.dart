@@ -8,6 +8,8 @@ import 'package:flutter_svg/svg.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
+import 'package:learn_flutter/UserProfile/Settings.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
@@ -165,6 +167,8 @@ class _ServicePageState extends State<ServicePage>{
         }
         else if(widget.profileDataProvider==null){
           print(1);
+          Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices()));
+
 
         }
         else{
@@ -474,7 +478,7 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
           ),
         );
         if(widget.haveCards==false){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(text:widget.text,userId:widget.userId)));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(text:widget.text,userId:userID)));
           widget.onButtonPressed!();
         }
         else if(widget.text=='edit'){
@@ -799,119 +803,89 @@ class _PaymentSectionState extends State<PaymentSection> {
   Widget build(BuildContext context){
     return WillPopScope(
       onWillPop: () async {
-        // showDialog(
-        //   context: context,
-        //   builder: (BuildContext context) {
-        //     return ConfirmationDialog(
-        //       message:'Cards Are Not Save.',
-        //       onCancel: () {
-        //         // Perform action on confirmation
-        //         Navigator.of(context).pop(); // Close the dialog
-        //         // Add your action here
-        //         print('Action confirmed');
-        //       },
-        //       onConfirm: () {
-        //         // Perform action on cancellation
-        //         widget.profileDataProvider?.removeAllCards();
-        //         showDialog(context: context, builder: (BuildContext context){
-        //           return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-        //             Navigator.of(context).pop();
-        //             Navigator.of(context).pop();
-        //             Navigator.of(context).pop();
-        //             Navigator.of(context).pop();
-        //             Navigator.of(context).pop();
-        //           },),);
-        //         },
-        //         );
-        //         // Add your action here
-        //         print('Action cancelled');
-        //       },
-        //     );
-        //   },
-        // )
+        // If you want to prevent the user from going back, return false
+        // return false;
 
-        showDialog(context: context, builder: (BuildContext context){
-          return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Alert !',extraText: 'Do You Want To Save Cards ? ',option1:'No',option2:'Yes',onButton1Pressed: (){
-            // Perform action on confirmation
-            if(widget.text=='edit'){
-              // if(widget.savedCards!=null){
-              //   Navigator.of(context).pop(); // Close the dialog
-              //   Navigator.of(context).pop(); // Close the dialog
-              // }else{
-              //   Navigator.of(context).pop(); // Close the dialog
-              //   Navigator.of(context).pop(); // Close the dialog
-              //   Navigator.of(context).pop(); // Close the dialog
-              //   Navigator.of(context).pop(); // Close the dialog
-              // }
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).pop(); // Close the dialog
-            }
-            else{
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context).pop(); // Close the dialog
-            }
-          },onButton2Pressed: () async{
-            if(widget.text=='edit'){
-              // if(widget.savedCards!=null){
-              //   await showDialog(context: context, builder: (BuildContext context){
-              //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-              //       Navigator.of(context).pop();
-              //     },),);
-              //   },
-              //   );
-              //   saveCardsToDatabase();
-              //   Navigator.of(context).pop();
-              // }
-              // else{
-              //   await showDialog(context: context, builder: (BuildContext context){
-              //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-              //       Navigator.of(context).pop();
-              //     },),);
-              //   },
-              //   );
-              //   saveCardsToDatabase();
-              // }
-              saveCardsToDatabase();
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Cards Are Updated Successfully!'),
-                ),
-              );
-            }
-            else{
-              // widget.profileDataProvider?.removeAllCards();
-              showDialog(context: context, builder: (BuildContext context){
-                return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                },),);
-              },
-              );
-              // Add your action here
-              print('Action cancelled');
-            }
-          },);
-        },);
-          // :widget.text!='edit'
-          //   ?showDialog(context: context, builder: (BuildContext context){
-          //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-          //       Navigator.of(context).pop();
-          //       Navigator.of(context).pop();
-          //       Navigator.of(context).pop();
-          //       Navigator.of(context).pop();
-          //   },));})
-          //   :Navigator.of(context).pop();
-        return true;
+        // showDialog(context: context, builder: (BuildContext context){
+        //   return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Alert !',extraText: 'Do You Want To Save Cards ? ',option1:'No',option2:'Yes',onButton1Pressed: (){
+        //     // Perform action on confirmation
+        //     if(widget.text=='edit'){
+        //       // if(widget.savedCards!=null){
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       // }else{
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       // }
+        //         Navigator.of(context).pop(); // Close the dialog
+        //         Navigator.of(context).pop(); // Close the dialog
+        //     }
+        //     else{
+        //       Navigator.of(context).pop(); // Close the dialog
+        //       Navigator.of(context).pop(); // Close the dialog
+        //       Navigator.of(context).pop(); // Close the dialog
+        //       Navigator.of(context).pop(); // Close the dialog
+        //     }
+        //   },onButton2Pressed: () async{
+        //     if(widget.text=='edit'){
+        //       // if(widget.savedCards!=null){
+        //       //   await showDialog(context: context, builder: (BuildContext context){
+        //       //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+        //       //       Navigator.of(context).pop();
+        //       //     },),);
+        //       //   },
+        //       //   );
+        //       //   saveCardsToDatabase();
+        //       //   Navigator.of(context).pop();
+        //       // }
+        //       // else{
+        //       //   await showDialog(context: context, builder: (BuildContext context){
+        //       //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+        //       //       Navigator.of(context).pop();
+        //       //     },),);
+        //       //   },
+        //       //   );
+        //       //   saveCardsToDatabase();
+        //       // }
+        //       saveCardsToDatabase();
+        //       Navigator.of(context).pop();
+        //       Navigator.of(context).pop();
+        //       ScaffoldMessenger.of(context).showSnackBar(
+        //         SnackBar(
+        //           content: Text('Cards Are Updated Successfully!'),
+        //         ),
+        //       );
+        //     }
+        //     else{
+        //       // widget.profileDataProvider?.removeAllCards();
+        //       showDialog(context: context, builder: (BuildContext context){
+        //         return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+        //           Navigator.of(context).pop();
+        //           Navigator.of(context).pop();
+        //           Navigator.of(context).pop();
+        //           Navigator.of(context).pop();
+        //           Navigator.of(context).pop();
+        //         },),);
+        //       },
+        //       );
+        //       // Add your action here
+        //       print('Action cancelled');
+        //     }
+        //   },);
+        // },);
+
+        // If you want to navigate directly to the homepage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
+        );
+
+        return false; // Returning true will allow the user to pop the page
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+        appBar: AppBar(toolbarHeight: 90, shadowColor: Colors.transparent,title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,  onButtonPressed: (){
           if(widget.text=='edit'){
             print('6th Page');
             saveCardsToDatabase();
