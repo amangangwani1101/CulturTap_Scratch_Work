@@ -150,8 +150,6 @@ class _UserImageState extends State<UserImage>{
                             textField: "Set Your Cover Story !" ,
                             extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
                             what:'OK',
-
-
                           );
                         },
                       );
@@ -173,6 +171,7 @@ class _UserImageState extends State<UserImage>{
                   child: Stack(
                     children: [
                       Container(
+                        // padding:EdgeInsets.all(10),
                         decoration: BoxDecoration(
                           shape: BoxShape.circle,
                           border: Border.all(
@@ -201,7 +200,16 @@ class _UserImageState extends State<UserImage>{
                           backgroundColor: Colors.white,// Replace with user avatar image
                         ),
                       ),
-                      if (widget.reqPages<1) SizedBox(height: 0,) else Positioned(
+                      // Container(
+                      //   width: 36,
+                      //   height: 34,
+                      //   decoration: BoxDecoration(color: Colors.orange,borderRadius: BorderRadius.circular(50),),
+                      //   child: Center(
+                      //     child: Icon(Icons.camera_alt_outlined,color: Colors.white,),
+                      //   ),
+                      // ),
+                      if (widget.reqPages<1) SizedBox(height: 0,) else
+                        Positioned(
                         top: 100,
                         right:15,
                         child: Container(

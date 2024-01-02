@@ -673,8 +673,6 @@ class _EditProfileState extends State<EditProfile>{
                         dob = value;
                       }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
                       ),
-
-
                       SizedBox(height : 0),
                     ],
 

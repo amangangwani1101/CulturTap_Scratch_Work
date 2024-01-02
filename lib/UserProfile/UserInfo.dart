@@ -11,6 +11,7 @@ import 'package:learn_flutter/UserProfile/CoverPage.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:multiselect/multiselect.dart';
+import '../SearchEngine/SuggestionList.dart';
 import '../widgets/CustomAutoSuggestionDropDown.dart';
 import '../widgets/CustomButton.dart';
 import '../widgets/CustomDropDowns.dart';
@@ -672,27 +673,58 @@ class _ProfileFormState extends State<ProfileForm> {
   String? selectedLanguage;
   late String save;
   String? age;
+  List<String> suggestions = [];
   Rx<List<String>> selectedOptionsList = Rx<List<String>>([]);
   var selectedOptions = ''.obs;
   TextEditingController _ageController = TextEditingController();
   FocusNode _focusNode = FocusNode();
   final List<String> genders = ['Male', 'Female', 'Other'];
-
+  bool _isListVisible = false;
 
   bool otherHome=false,otherPro=false;
   TextEditingController _otherHomeController = TextEditingController();
   TextEditingController _otherProController = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+  // final FocusNode _focusNode = FocusNode();
 
-    @override
-    void initState() {
-      super.initState();
-      // Get the device width using MediaQuery and store it in deviceWidth
-      screenWidth = MediaQuery.of(context).size.width;
+  Future<List<String>> fetchSuggestions(String query,String list) async {
+    final String serverUrl = Constant().serverUrl;
+    print(query);
+    print(list);
+    final apiUrl = '$serverUrl/suggestions?query=$query';
+    try {
+      final response = await http.patch(Uri.parse(apiUrl),
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: jsonEncode({'query':query,'list':list}),
+      );
+      print('here is the response');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        print(jsonResponse);
+        final List<String> suggestionsList =
+        List<String>.from(jsonResponse['suggestions']);
+        setState(() {
+          suggestions = suggestionsList;
+        });
+
+        return suggestionsList;
+      } else {
+        print('Error fetching suggestions: ${response.statusCode}');
+        return [];
+      }
+    } catch (error) {
+      print('Error fetching suggestions: $error');
+      return [];
     }
-    // bool _isFocused = false;
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
     if(widget.setGender!=null){
       selectedGender = widget.setGender;
     }
@@ -702,8 +734,21 @@ class _ProfileFormState extends State<ProfileForm> {
     if(widget.setDOB!=null){
       selectedDateOfBirth = widget.setDOB;
     }
-    print('Init');
-    final FocusNode _focusNode = FocusNode();
+    // Get the device width using MediaQuery and store it in deviceWidth
+  }
+  @override
+  void dispose() {
+    // _focusNode.dispose();
+    // _ageController.dispose();
+    // _otherHomeController.dispose();
+    // _otherProController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    // bool _isFocused = false;
     return Container(
       padding: EdgeInsets.all(10.0),
       color : Theme.of(context).backgroundColor,
@@ -712,12 +757,52 @@ class _ProfileFormState extends State<ProfileForm> {
 
         children: [
           // setHomeCity,setProfession,setGender,setLanguage
-          CustomAutoSuggestion(
-            cityList: Constant().cityList,
-            text: 'Home city',
-            state: widget.text,
-            initialText:widget.setHomeCity,
-            onValueChanged: (selectedValue) {
+          // CustomAutoSuggestion(
+          //   cityList: Constant().cityList,
+          //   text: 'Home city',
+          //   state: widget.text,
+          //   initialText:widget.setHomeCity,
+          //   onValueChanged: (selectedValue) {
+          //     if(selectedValue=='Others'){
+          //       setState(() {
+          //         otherHome = true;
+          //       });
+          //     }else{
+          //       setState(() {
+          //         otherHome = false;
+          //       });
+          //       if(widget.text=='edit'){
+          //         widget.homeCityCallback!(selectedValue);
+          //       }else{
+          //         setState(() {
+          //           customHomeCity = selectedValue;
+          //         });
+          //         if(selectedValue.isNotEmpty)
+          //           widget.profileDataProvider?.updateFieldCnt(1);
+          //         print(customHomeCity);
+          //         widget.profileDataProvider?.updatePlace(customHomeCity!);
+          //       }
+          //     }
+          //     // Add your logic here
+          //   },
+          // ),
+          RawAutocomplete(
+            optionsBuilder: (TextEditingValue textEditingValue) async{
+              if (textEditingValue.text == '') {
+                return const Iterable<String>.empty();
+              }else{
+                // List<String> matches = <String>[];
+                // matches.addAll(Constant().cityList);
+                // matches.retainWhere((s){
+                //   return s.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                // });
+                // return matches.length>0?matches:['Others'];
+                await fetchSuggestions(textEditingValue.text, 'city');
+                return suggestions.length>0?suggestions:['Others'];
+              }
+            },
+
+            onSelected: (String selectedValue) {
               if(selectedValue=='Others'){
                 setState(() {
                   otherHome = true;
@@ -738,7 +823,99 @@ class _ProfileFormState extends State<ProfileForm> {
                   widget.profileDataProvider?.updatePlace(customHomeCity!);
                 }
               }
-              // Add your logic here
+            },
+
+            fieldViewBuilder: (BuildContext context, TextEditingController textEditingController,
+                FocusNode focusNode,
+                VoidCallback onFieldSubmitted) {
+              if(widget.setHomeCity!=null){
+                textEditingController.text = widget.setHomeCity!;
+                widget.setHomeCity = null;
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Home City', style: Theme.of(context).textTheme.subtitle1),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Select...',
+                      hintStyle: Theme.of(context).textTheme.subtitle2,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: HexColor('#FB8C00')),
+                      ),
+                      border: OutlineInputBorder(),
+                      suffixIcon: widget.text != 'edit'
+                          ? Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'))
+                          : null,
+                      suffix: widget.text == 'edit'
+                          ? Text('EDIT', style: Theme.of(context).textTheme.headline4)
+                          : null,
+                    ),
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    style: Theme.of(context).textTheme.subtitle2,
+                    onSubmitted: (String selectedValue) {
+                      if(selectedValue=='Others'){
+                        setState(() {
+                          otherHome = true;
+                        });
+                      }else{
+                        setState(() {
+                          otherHome = false;
+                        });
+                        if(widget.text=='edit'){
+                          widget.homeCityCallback!(selectedValue);
+                        }else{
+                          setState(() {
+                            customHomeCity = selectedValue;
+                          });
+                          if(selectedValue.isNotEmpty)
+                            widget.profileDataProvider?.updateFieldCnt(1);
+                          print(customHomeCity);
+                          widget.profileDataProvider?.updatePlace(customHomeCity!);
+                        }
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+
+            optionsViewBuilder: (BuildContext context, void Function(String) onSelected,
+                Iterable<String> options) {
+              return Material(
+                  child:SizedBox(
+                      height: 200,
+                      child:SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: options.map((opt){
+                              return InkWell(
+                                  onTap: (){
+                                    onSelected(opt);
+                                  },
+                                  child:Container(
+                                      width: screenWidth*0.90,
+                                      height: 60,
+                                      child:Card(
+                                          margin: EdgeInsets.all(0),
+                                          child: Center(
+                                            child: Container(
+                                              width: double.infinity,
+                                              padding: EdgeInsets.all(10),
+                                              margin: EdgeInsets.all(0),
+                                              child:Text(opt,style: Theme.of(context).textTheme.subtitle2),
+                                            ),
+                                          )
+                                      )
+                                  )
+                              );
+                            }).toList(),
+                          )
+                      )
+                  )
+              );
             },
           ),
           SizedBox(height: 10,),
@@ -761,7 +938,6 @@ class _ProfileFormState extends State<ProfileForm> {
                     ),
 
                   ),
-
                   onChanged: (value) {
                     setState(() {
                       customHomeCity = customHomeCity+value;
@@ -779,29 +955,132 @@ class _ProfileFormState extends State<ProfileForm> {
             ),
           )
             :SizedBox(height: 0,),
-          CustomAutoSuggestion(
-            cityList: Constant().professionList,
-            text: 'Profession',
-            state: widget.text,
-            initialText: widget.setProfession,
-            onValueChanged: (selectedValue) {
-              if(selectedValue=='Others'){
-                setState(() {
-                  otherPro = true;
-                });
+
+          // CustomAutoSuggestion(
+          //   cityList: Constant().professionList,
+          //   text: 'Profession',
+          //   state: widget.text,
+          //   initialText: widget.setProfession,
+          //   onValueChanged: (selectedValue) {
+          //     if(selectedValue=='Others'){
+          //       setState(() {
+          //         otherPro = true;
+          //       });
+          //     }else{
+          //       setState(() {
+          //         otherPro = false;
+          //       });
+          //       if(widget.text=='edit'){
+          //         widget.professionCallback!(selectedValue);
+          //       }else{
+          //         if(selectedValue.isNotEmpty)
+          //           widget.profileDataProvider?.updateFieldCnt(1);
+          //         widget.profileDataProvider?.updateProfession(selectedValue);
+          //       }
+          //     }
+          //     // Add your logic here
+          //   },
+          // ),
+          RawAutocomplete(
+            optionsBuilder: (TextEditingValue textEditingValue)async {
+              if (textEditingValue.text == '') {
+                return const Iterable<String>.empty();
               }else{
-                setState(() {
-                  otherPro = false;
-                });
-                if(widget.text=='edit'){
-                  widget.professionCallback!(selectedValue);
-                }else{
-                  if(selectedValue.isNotEmpty)
-                    widget.profileDataProvider?.updateFieldCnt(1);
-                  widget.profileDataProvider?.updateProfession(selectedValue);
-                }
+                await fetchSuggestions(textEditingValue.text, 'profession');
+                return suggestions.length>0?suggestions:['Others'];
               }
-              // Add your logic here
+            },
+
+            onSelected: (String selectedValue) {
+                if(selectedValue=='Others'){
+                  setState(() {
+                    otherPro = true;
+                  });
+                }else{
+                  setState(() {
+                    otherPro = false;
+                  });
+                  if(widget.text=='edit'){
+                    widget.professionCallback!(selectedValue);
+                  }else{
+                    if(selectedValue.isNotEmpty)
+                      widget.profileDataProvider?.updateFieldCnt(1);
+                    widget.profileDataProvider?.updateProfession(selectedValue);
+                  }
+                }
+            },
+
+            fieldViewBuilder: (BuildContext context, TextEditingController textEditingController,
+                FocusNode focusNode,
+                VoidCallback onFieldSubmitted) {
+              if(widget.setProfession!=null){
+                textEditingController.text = widget.setProfession!;
+                widget.setProfession = null;
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Profession', style: Theme.of(context).textTheme.subtitle1),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Select...',
+                      hintStyle: Theme.of(context).textTheme.subtitle2,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: HexColor('#FB8C00')),
+                      ),
+                      border: OutlineInputBorder(),
+                      suffixIcon: widget.text != 'edit'
+                          ? Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'))
+                          : null,
+                      suffix: widget.text == 'edit'
+                          ? Text('EDIT', style: Theme.of(context).textTheme.headline4)
+                          : null,
+                    ),
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    style: Theme.of(context).textTheme.subtitle2,
+                    onSubmitted: (String value) {
+                    },
+                  ),
+                ],
+              );
+            },
+
+            optionsViewBuilder: (BuildContext context, void Function(String) onSelected,
+                Iterable<String> options) {
+              return Material(
+                  child:SizedBox(
+                      height: 200,
+                      child:SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: options.map((opt){
+                              return InkWell(
+                                  onTap: (){
+                                    onSelected(opt);
+                                  },
+                                  child:Container(
+                                      width: screenWidth*0.90,
+                                      height: 60,
+                                      child:Card(
+                                          margin: EdgeInsets.all(0),
+                                          child: Center(
+                                            child: Container(
+                                              width: double.infinity,
+                                              padding: EdgeInsets.all(10),
+                                              margin: EdgeInsets.all(0),
+                                              child:Text(opt,style: Theme.of(context).textTheme.subtitle2),
+                                            ),
+                                          )
+                                      )
+                                  )
+                              );
+                            }).toList(),
+                          )
+                      )
+                  )
+              );
             },
           ),
           otherPro
@@ -1002,4 +1281,5 @@ class _ProfileFormState extends State<ProfileForm> {
     );
   }
 }
+
 

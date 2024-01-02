@@ -45,7 +45,7 @@ dependencies:
   web_socket_channel: ^2.4.0
   camera: ^0.10.5+4
   path_provider: ^2.1.1
-  video_player: ^2.8.1
+  video_player: ^2.7.1
 
 
   dropdown_search: ^5.0.6
