@@ -6,6 +6,7 @@ import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 import 'package:learn_flutter/Utils/location_utils.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -53,7 +54,9 @@ class _LocalAssist2State extends State<LocalAssist2> {
 
   Future<Map<String, double>> getUserIdsAndDistances(String providedLatitude, String providedLongitude, String userIdToRemove, int vardis) async {
     setState(() {
-      helpingHands = 0;
+
+      print('printingakl lalalalla');
+      helpingHands = 10;
     });
 
 
@@ -138,7 +141,7 @@ class _LocalAssist2State extends State<LocalAssist2> {
       getAndPrintLocationName(position.latitude, position.longitude);
       // Update the state with the user location
 
-      getUserIdsAndDistances(providedLatitude, providedLongiude, "6572cc23e816febdac42873b",12);
+      getUserIdsAndDistances(providedLatitude, providedLongiude, userID,12);
 
 
 

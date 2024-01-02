@@ -3,7 +3,6 @@ import 'dart:convert';
 
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/widgets/AlertBox2Option.dart';
 
@@ -63,29 +62,12 @@ class _ServiceCardState extends State<ServiceCard>{
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(widget.titleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
               IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                 showDialog(context: context, builder: (BuildContext context){
-                  return Container(child:
-
-                  widget.iconImage == 'assets/images/service_help_1.jpg' ?
-
-                  CustomPopUp(
-                    imagePath: "assets/images/tripPlanningHelp.svg",
-                    textField: "Accept trip planning calls for your expert regions to earn. connect with tourists and help them plan their future trips." ,
-                    extraText:' You will earn dynamically in future, for now 800 INR for 20 min of professional trip planning call.' ,
-                    what:'OK',
-                    button: 'OK, Get it',
-                  ) : CustomPopUp(
-                    imagePath: "assets/images/turnOff.svg",
-                    textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
-                    extraText:'You will earn dynamically in future, for now Ypo will earn 400 INR for your presence. ' ,
-                    what:'OK',
-                    button: 'OK, Get it',
-                  )
-                  );
+                  return Container(child: CustomHelpOverlay(imagePath: widget.iconImage,serviceSettings: false),);
                 },
                 );
               },
@@ -103,7 +85,7 @@ class _ServiceCardState extends State<ServiceCard>{
 
               height: 120,
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
                   Image.asset(widget.serviceImage,width: 160,height: 89,fit: BoxFit.contain,),
                   Column(
@@ -120,7 +102,7 @@ class _ServiceCardState extends State<ServiceCard>{
                               ),
                               TextSpan(
                                 text: ' 500 INR',
-                                style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.green, fontWeight: FontWeight.w600),
+                                style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.green),
                               ),
                               TextSpan(
                                   text: '\nper Call'
@@ -129,7 +111,7 @@ class _ServiceCardState extends State<ServiceCard>{
                           ),
                         ),
                       ),
-                      Text('*Terms & Conditions applied',style: TextStyle(fontSize: 7,fontFamily: 'Poppins',color: Colors.pink,fontWeight: FontWeight.w600),),
+                      Text('*Terms & Conditions applied',style: TextStyle(fontSize: 7,fontFamily: 'Poppins',color: Colors.red),),
                     ],
                   ),
                 ],
@@ -139,26 +121,7 @@ class _ServiceCardState extends State<ServiceCard>{
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
-              RichText(
-                text: TextSpan(
-                  text: 'Turn yourself', // Replace with your actual text
-                  style: DefaultTextStyle.of(context).style,
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: ' ON ',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.w600,// Set the color to green
-                        // Add any other styling properties as needed
-                      ),
-                    ),
-                    TextSpan(
-                      text: (widget.endLabel),
-                    ),
-                  ],
-                ),
-              ),
-
+              Text(widget.endLabel),
               ConcentricCircles(haveCards:widget.haveCards,profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId,text:widget.text),
             ],
           ),
@@ -186,7 +149,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
   void onPressedHandler() async {
       if(widget.text=='edit'){
         await showDialog(context: context, builder: (BuildContext context){
-          return Container(child: CustomHelpOverlay(button:'Continue', text : 'Set your clock', extraText: 'Set your clock Please provide timing when you will be able to attend the calls from other turists.',navigate:'edit',imagePath: 'assets/images/clock_icon.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+          return Container(child: CustomHelpOverlay(text:'Continue',navigate:'edit',imagePath: 'assets/images/clock_icon.jpg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
             Navigator.push(context, MaterialPageRoute(builder: (context) => ServicePage(text:widget.text,userId: widget.userId!,haveCards:widget.haveCards,onButtonPressed:(){
               setState(() {
                 widget.isToggled = true;
@@ -207,12 +170,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
 
   void service1HandlerOff(String image) async{
     await showDialog(context: context, builder: (BuildContext context){
-      return CustomPopUp(
-        imagePath: "assets/images/turnOff.svg",
-        textField: "You choose to off Yourself" ,
-        extraText:'for helping other tourists for their trip planning' ,
-        what:'OK',
-      );
+      return Container(child: CustomHelpOverlay(imagePath: image),);
     },);
   }
 
@@ -330,7 +288,6 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
         'userId':widget.userId,
         'state':widget.isToggled
       };
-      print('Send Data Is $data');
       final http.Response response = await http.patch(
         Uri.parse('$serverUrl/updateServices'), // Adjust the endpoint as needed
         headers: {

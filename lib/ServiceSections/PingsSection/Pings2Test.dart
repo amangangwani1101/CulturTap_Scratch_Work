@@ -18,8 +18,8 @@ import '../TripCalling/ChatSection/ChatSection.dart';
 import '../../UserProfile/ProfileHeader.dart';
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  Stripe.publishableKey = Constant().publishableKey;
-  Stripe.instance.applySettings();
+  // Stripe.publishableKey = Constant().publishableKey;
+  // Stripe.instance.applySettings();
   runApp(Receiver());
 }
 
@@ -29,7 +29,7 @@ class Receiver extends StatefulWidget{
 }
 
 class _ReceiverState extends State<Receiver>{
-  String id = '652bb97a2310b75ec11cd2ed';
+  String id = '656050b3030772278b8b54cd';
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -37,7 +37,7 @@ class _ReceiverState extends State<Receiver>{
       home:Scaffold(
         // debugShowCheckedModeBanner: false,
 
-        body : PingsSection(userId:id),
+        body : PingsSection(userId:id,state: 'All',),
       ),
       debugShowCheckedModeBanner: false,
     );

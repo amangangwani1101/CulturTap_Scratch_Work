@@ -4,8 +4,11 @@ import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
+
 import 'package:learn_flutter/LocalAssistance/EmergenceAssist.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist2.dart';
+import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -137,7 +140,8 @@ class _LocalAssistState extends State<LocalAssist> {
 
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => LocalAssist2()),
+                        // MaterialPageRoute(builder: (context) => LocalAssist2()),
+                        MaterialPageRoute(builder: (context) => ChatsPage(userId: userID)),
                       );
 
                     },

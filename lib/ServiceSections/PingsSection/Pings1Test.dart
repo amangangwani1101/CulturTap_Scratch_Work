@@ -15,6 +15,7 @@ import '../../UserProfile/ProfileHeader.dart';
 import '../../widgets/hexColor.dart';
 import '../TripCalling/ChatSection/ChatSection.dart';
 import '../../UserProfile/ProfileHeader.dart';
+
 void main() {
   runApp(Receiver());
 }
@@ -25,11 +26,17 @@ class Receiver extends StatefulWidget{
 }
 
 class _ReceiverState extends State<Receiver>{
-  String id = '65581291f46f5794689c1ffd';
+  String id = '6587944352bea38528b313d7';
+  // 6572cc23e816febdac42873b
+  // 65757af829ebda8841770c4c
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-
+      theme: ThemeData(
+        fontFamily: 'Poppins',
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.white),
+        useMaterial3: true,
+      ),
       home:Scaffold(
       // debugShowCheckedModeBanner: false,
       body : PingsSection(userId:id,state: 'All',),
