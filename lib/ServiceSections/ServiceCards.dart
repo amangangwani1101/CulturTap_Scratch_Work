@@ -73,15 +73,17 @@ class _ServiceCardState extends State<ServiceCard>{
                   widget.iconImage == 'assets/images/service_help_1.jpg' ?
 
                   CustomPopUp(
-                    imagePath: "assets/images/coverStoryPopup.svg",
-                    textField: "Set Your Cover Story !" ,
-                    extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
+                    imagePath: "assets/images/tripPlanningHelp.svg",
+                    textField: "Accept trip planning calls for your expert regions to earn. connect with tourists and help them plan their future trips." ,
+                    extraText:' You will earn dynamically in future, for now 800 INR for 20 min of professional trip planning call.' ,
                     what:'OK',
+                    button: 'OK, Get it',
                   ) : CustomPopUp(
-                    imagePath: "assets/images/coverStoryPopup.svg",
-                    textField: "Set Your Cover Story !" ,
-                    extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
+                    imagePath: "assets/images/turnOff.svg",
+                    textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
+                    extraText:'You will earn dynamically in future, for now Ypo will earn 400 INR for your presence. ' ,
                     what:'OK',
+                    button: 'OK, Get it',
                   )
                   );
                 },

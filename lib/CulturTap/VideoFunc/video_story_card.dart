@@ -49,7 +49,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
     }
 
     String fullThumbnailUrl = 'http://173.212.193.109:8080/thumbnails/$thumbnailPath';
-    print('fullThumbnailUrl$fullThumbnailUrl');
+
 
     try {
       var thumbnailResponse = await http.get(Uri.parse(fullThumbnailUrl));
@@ -62,7 +62,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
           thumbnail = newThumbnail;
         });
       } else {
-        print('Failed to fetch thumbnail: ${thumbnailResponse.statusCode}');
+        // print('Failed to fetch thumbnail: ${thumbnailResponse.statusCode}');
         setState(() {
           thumbnail = Image.asset('assets/images/home_back.png'); // Replace with the actual path
         });

@@ -151,9 +151,10 @@ class _HomePageState extends State<HomePage> {
       });
 
 
-      print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
-      print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
-      print('storyurls');
+      // print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
+      // print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
+      // print('storyurls');
+      print('storyUrls');
       print(categoryData[categoryIndex]['storyUrls']);
     } catch (error) {
       print('Error fetching stories for category $categoryIndex: $error');
@@ -204,7 +205,7 @@ class _HomePageState extends State<HomePage> {
       double longitude = position.longitude;
       String query = _searchController.text;
 
-      updateLiveLocation('6572cc23e816febdac42873b', position.latitude, position.longitude);
+      updateLiveLocation(userID, position.latitude, position.longitude);
 
       print('Latitude is: $latitude');
 

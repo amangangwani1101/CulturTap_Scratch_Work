@@ -13,6 +13,7 @@ class CustomPopUp extends StatelessWidget {
   final String textField;
   final String what;
   final String? extraText;
+  final String? button;
   final String? isDarkMode;
 
   CustomPopUp({
@@ -21,6 +22,7 @@ class CustomPopUp extends StatelessWidget {
     required this.what,
     this.extraText,
     this.isDarkMode,
+    this.button,
   });
 
   @override
@@ -47,8 +49,8 @@ class CustomPopUp extends StatelessWidget {
               ),
               SvgPicture.asset(
                 imagePath,
-                height : 100,
-                width: 216, // Adjust the width as needed
+                height : 200,
+                width: 316, // Adjust the width as needed
               ),
               SizedBox(height: 26),
               Text(
@@ -56,7 +58,7 @@ class CustomPopUp extends StatelessWidget {
                 style: Theme.of(context).textTheme.subtitle2,
                 textAlign: TextAlign.center,
               ),
-              if (extraText != null) SizedBox(height: 5),
+              if (extraText != null) SizedBox(height: 15),
               if (extraText != null)
                 Container(
                   child: Text(
@@ -65,6 +67,20 @@ class CustomPopUp extends StatelessWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
+              SizedBox(height : 20),
+              TextButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  button!,
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ],
           ),
           backgroundColor: backgroundColor, // Set the background color

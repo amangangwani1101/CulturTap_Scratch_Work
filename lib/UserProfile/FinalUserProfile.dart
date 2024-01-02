@@ -205,7 +205,7 @@ class _FinalProfileState extends State<FinalProfile> {
       onRefresh: _refreshPage,
 
       child: Scaffold(
-        appBar:AppBar(title: ProfileHeader(reqPage: 1,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: userID,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
+        appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: userID,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
         body: WillPopScope(
           onWillPop: ()async{
             Navigator.pushReplacement(

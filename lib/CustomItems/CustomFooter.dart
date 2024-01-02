@@ -194,7 +194,7 @@ setState(() {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height : 50,
+      height : 70,
 
 
       color: mode == 'dark' ? Colors.black : Theme.of(context).backgroundColor,
@@ -212,35 +212,31 @@ setState(() {
                         MaterialPageRoute(builder: (context) => HomePage()),
                       );
                     },
-                    child: Container(
+                    child: Column(
+                      children: [
+                        IconButton(
+                          onPressed: () {
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(builder: (context) => HomePage()),
+                            );
 
 
-                      child: Column(
-                        children: [
-                          IconButton(
-                            onPressed: () {
-                              Navigator.pushReplacement(
-                                context,
-                                MaterialPageRoute(builder: (context) => HomePage()),
-                              );
-
-
-                               _changeIcon('home');
-                            },
-                            icon: SvgPicture.asset(
-                              page=='home' ? 'assets/images/home_oicon.svg'  : 'assets/images/home_icon.svg', // Replace with the path to your SVG icon
-                              color: page == 'home' ? Colors.orange :mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+                             _changeIcon('home');
+                          },
+                          icon: SvgPicture.asset(
+                            page=='home' ? 'assets/images/home_oicon.svg'  : 'assets/images/home_icon.svg', // Replace with the path to your SVG icon
+                            color: page == 'home' ? Colors.orange :mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
 
 
 
-                            ),
                           ),
-                          Text(
-                            'Home',
-                            style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
-                          ),
-                        ],
-                      ),
+                        ),
+                        Text(
+                          'Home',
+                          style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
+                        ),
+                      ],
                     ),
                   ),
                 ),

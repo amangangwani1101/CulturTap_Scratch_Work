@@ -620,7 +620,7 @@ class _EditProfileState extends State<EditProfile>{
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
+        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
         body: name!=null
             ?SingleChildScrollView(
           child: Container(
@@ -688,30 +688,33 @@ class _EditProfileState extends State<EditProfile>{
           bottomNavigationBar: AnimatedContainer(
 
             duration: Duration(milliseconds: 100),
-            height : 80,
+            height : 160,
             color: Colors.white,
 
 
 
             child:Center(
               child: Container(
-                color : Colors.white,
 
-                child: Container(
-                  width : 326,
-                  height : 53,
-                  child: FiledButton(
 
-                      backgroundColor: Colors.orange,
-                      onPressed: () {
-                        sendDataToBackend();
-                      },
-                      child: Center(
-                          child: Text('SUBMIT',
-                            style: Theme.of(context).textTheme.headline5,
-                          )
+                child: Column(
+                  children: [
+                    Container(
+                      padding : EdgeInsets.only(left : 20, right : 20),
+
+                      child: InkWell(
+                        onTap: (){
+                          sendDataToBackend();
+                        },
+                        child: Container(height : 50,width : double.infinity,
+                        color : Colors.orange,
+                        child : Center(child: Text('SUBMIT',style:TextStyle(fontSize: 14,color : Colors.white,fontWeight: FontWeight.bold))),
+                        ),
                       )
-                  ),
+                    ),
+                    SizedBox(height : 35),
+                    CustomFooter(userName: userName, userId: userID, lode: 'home',),
+                  ],
                 ),
               ),
             ),
@@ -764,19 +767,19 @@ class _EditServicesState extends State<EditServices>{
   @override
   Widget build(BuildContext context) {
     print('Cards ${widget.haveCards}');
-    return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: userID,),automaticallyImplyLeading: false,shadowColor: Colors.transparent,toolbarHeight: 90),
-      body:  WillPopScope(
-        onWillPop: ()async{
+    return WillPopScope(
+      onWillPop: ()async{
 
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
-          );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
+        );
 
-          return true;
-        },
-        child: widget.service1!=null
+        return true;
+      },
+      child: Scaffold(
+        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: userID,),automaticallyImplyLeading: false,shadowColor: Colors.transparent,toolbarHeight: 90),
+        body:  widget.service1!=null
             ? Container(
           padding : EdgeInsets.only(left : 22, right : 22, ),
 
@@ -796,6 +799,14 @@ class _EditServicesState extends State<EditServices>{
           ),
         )
             :Center(child: CircularProgressIndicator(),),
+        bottomNavigationBar: AnimatedContainer(
+          duration: Duration(milliseconds: 100),
+
+
+          height: 70,
+          child: CustomFooter(userName: userName, userId: userID, lode: 'home',),
+        ),
+
       ),
     );
   }
@@ -873,97 +884,122 @@ class AboutUs extends StatelessWidget{
       appBar: AppBar(title: ProfileHeader(reqPage: 2,),automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
       body:  SingleChildScrollView(
         child: Container(
-          width: 390,
-          height: 1571,
+          padding : EdgeInsets.all(30),
+          color : Colors.white,
+
           child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            crossAxisAlignment: CrossAxisAlignment.start,
+
             children: [
-              SvgPicture.asset('assets/images/about-us.svg'),
+              Container( height : 300,
+                child : SvgPicture.asset('assets/images/about_culturtap.svg'),),
+
               Container(
-                width: 313,
-                height: 493,
+
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('About Us',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                    SizedBox(height : 10),
+                    Text('Explore, Update, Guide and Earn !',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',),),
+                    SizedBox(height : 10),
                     Text('Culturtap is a travel app that aims to make your travel easier by providing real-time updates and connecting you with people to help whenever you need. It makes your travel easier,safer and more enjoyable. download CulturTap app: which helps you to explore the whole culture of your selected destinations! '
-                        '\nExplore the whole culture with just a few taps! \nChoose your destination, CulturTap presents  you the whole culture of your destination with real-time updates, including popular visits, top-rated restaurants, trending locations, outskirts, traditional fashion, nearby pubs and cafes, street food, historical heritage, festivals, handy crafts, service shops and business shops.'
-                    ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),textAlign: TextAlign.justify,)
+                        '\n\nExplore the whole culture with just a few taps! \nChoose your destination, CulturTap presents  you the whole culture of your destination with real-time updates, including popular visits, top-rated restaurants, trending locations, outskirts, traditional fashion, nearby pubs and cafes, street food, historical heritage, festivals, handy crafts, service shops and business shops.'
+                    ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                    SizedBox(height : 10),
                   ],
                 ),
               ),
+              SizedBox(height : 20),
               Container(
-                width: 312,
-                height: 735,
+
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Container(
-                      width: 313,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Trip planning calls:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                          Text('You can connect with people who have \nalready experienced the destination or the \nlocals to help you plan your next trip better.'
-                              ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),textAlign: TextAlign.justify,)
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 313,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Immediate trip assistance:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                          Text('Immediate trip assistance allows you to send a message to nearby people who can assist you with your immediate needs or connect you with them. Person will be physically available for you if needed.'
-                            ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),textAlign: TextAlign.justify,)
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 313,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Emergency Call Services:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                          Text("Culturtap, prioritizes your safety by connecting you with all the emergency helpline numbers anywhere in the world and encouraging you to explore with confidentiality. stay safe in any situation with CulturTap's emergency call services Connect with police, ambulance, or fire brigade worldwide with just a few taps of CulturTap."
-                            ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),textAlign: TextAlign.justify,)
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 313,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('How to earn?',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                          Text('Explore, Update, Guide and Earn !'
-                            ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),textAlign: TextAlign.justify,)
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 313,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Trip planning calls:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                          Text('share your travel experiences to connect with travelers and help them to plan their trips.'
-                            ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),textAlign: TextAlign.justify,)
-                        ],
-                      ),
-                    ),
-                    Container(
-                      width: 313,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Immediate trip assistance:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                          Text('Immediate Call Assistance connects you with them who are nearby and need your immediate help while they are traveling.'
-                            ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),textAlign: TextAlign.justify,)
-                        ],
-                      ),
-                    ),
+                    Text('Trip planning calls:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                    SizedBox(height : 10),
+                    Text('You can connect with people who have \nalready experienced the destination or the \nlocals to help you plan your next trip better.'
+                        ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                  ],
+                ),
+              ),
+              SizedBox(height : 20),
+              Container(
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Immediate trip assistance:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                    SizedBox(height : 10),
+                    Text('Immediate trip assistance allows you to send a message to nearby people who can assist you with your immediate needs or connect you with them. Person will be physically available for you if needed.'
+                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                  ],
+                ),
+              ),
+              SizedBox(height : 20),
+              Container(
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Emergency Call Services:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                    SizedBox(height : 10),
+                    Text("Culturtap, prioritizes your safety by connecting you with all the emergency helpline numbers anywhere in the world and encouraging you to explore with confidentiality. stay safe in any situation with CulturTap's emergency call services Connect with police, ambulance, or fire brigade worldwide with just a few taps of CulturTap."
+                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                  ],
+                ),
+              ),
+              SizedBox(height : 20),
+              Container(
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('How to earn?',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                    SizedBox(height : 10),
+                    Text('Explore, Update, Guide and Earn !'
+                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                  ],
+                ),
+              ),
+              SizedBox(height : 20),
+              Container(
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Trip planning calls:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                    SizedBox(height : 10),
+                    Text('share your travel experiences to connect with travelers and help them to plan their trips.'
+                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                  ],
+                ),
+              ),
+              SizedBox(height : 20),
+              Container(
+                 child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Immediate trip assistance:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                    SizedBox(height : 10),
+                    Text('Immediate Call Assistance connects you with them who are nearby and need your immediate help while they are traveling.'
+                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                  ],
+                ),
+              ),
+              SizedBox(height : 20),
+              Container(
+
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Terms & Conditions :',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
+                    SizedBox(height : 10),
+                    Text('We will deduct 20% of the amount of your earnings set. It will cover the charges of payment gateways, other taxes and charges, and small bucks for our R&D to serve you better in future.'
+                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color : Colors.red),),
+                    SizedBox(height : 10),
+                    Text('The customer is directly chargeable for 4% international exchange charges & 3% for payment gateway charges directly.'
+                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',color : Colors.red,),)
                   ],
                 ),
               ),
@@ -1005,13 +1041,14 @@ class Help extends StatelessWidget{
       appBar: AppBar(title: ProfileHeader(reqPage: 2,),automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
       body:Center(
         child: Container(
-          width: 333,
-          height: 838,
+          padding : EdgeInsets.all(30),
+          color : Colors.white,
+
           child: Column(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Container(
-                height: 593,
+
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -1020,28 +1057,33 @@ class Help extends StatelessWidget{
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Help',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold),),
+                        SizedBox(height : 10),
                         Text('Tell us your concern !',style:TextStyle(fontFamily: 'Poppins',fontSize: 16,)),
+                        SizedBox(height : 20),
                       ],
                     ),
-                    Container(
-                      color: HexColor('#D9D9D9'),
-                      height:361,
-                      child: TextField(
-                        style: TextStyle(fontSize: 16,),
-                        onChanged: (value) {
-                          textValue = value;
-                        },
-                        decoration: InputDecoration(
-                          hintText: 'Type here........',
-                          border: OutlineInputBorder(),
+                    SingleChildScrollView(
+                      child: Container(
+                        color: HexColor('#D9D9D9'),
+
+                        child: TextField(
+                          style: TextStyle(fontSize: 16,),
+                          onChanged: (value) {
+                            textValue = value;
+                          },
+                          decoration: InputDecoration(
+                            hintText: 'Type here........',
+                            border: OutlineInputBorder(),
+                          ),
+                          maxLines: 15, // Increase the maxLines for a larger text area
                         ),
-                        maxLines: 15, // Increase the maxLines for a larger text area
                       ),
                     ),
                     Center(
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
+                          SizedBox(height : 10),
                           Text('Or',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 16),),
                           Text('Submit your concern with us at',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 16),),
                           Text('Info@culturtap.com',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),

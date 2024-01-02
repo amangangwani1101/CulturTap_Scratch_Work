@@ -59,7 +59,7 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
     String category = story['category'];
     String genre = story['genre'];
     String storyCategory = story['category'];
-
+    print('printing from process_fetched_stories');
     print(story['userID']);
     print(story['userName']);
     String userID = story['userID'];
@@ -74,6 +74,7 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
       List<String> videoPaths = videoPathData
           .whereType<String>() // Filter out non-string elements
           .toList();
+
 
       Map<String, dynamic> storyDetails = {
         'videoPaths': videoPaths,
@@ -108,6 +109,9 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
 
 
       storyDetailsList.add(storyDetails);
+
+
+
     } else {
       print('Unsupported videoPath format');
     }

@@ -49,6 +49,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   List<List<VideoPlayerController>> _videoControllersList = [];
 
   ChewieController? _chewieController;
+
   bool _isVideoLoading = true;
   bool showPlayPauseIcon = true;
   bool showPauseIcon = false;
@@ -203,6 +204,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
+    _initializeChewieController(_currentIndex, currentVideoIndex);
 
     // Assuming the video has a 9:16 aspect ratio
     double videoAspectRatio = 9 / 16;
@@ -223,6 +225,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   List<VideoPlayerController> _initializeVideoControllers(List<String> videoPaths) {
     return videoPaths.map((path) {
       String fullVideoUrl = 'http://173.212.193.109:8080/videos/$path';
+      print('this is full video url in storyDetailsPage');
+      print(fullVideoUrl);
       return VideoPlayerController.network(fullVideoUrl)..initialize();
     }).toList();
   }
@@ -253,6 +257,12 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
       allowedScreenSleep: false,
       showControls: false,
       aspectRatio: _videoControllersList[index][0].value.aspectRatio,
+      errorBuilder: (context, errorMessage) {
+        print('Error during video playback: $errorMessage');
+        return Center(
+          child: Text('Error: $errorMessage'),
+        );
+      },
 
     );
 
@@ -264,8 +274,24 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     //   }
     // });
 
+    _chewieController?.addListener(() {
+      if (_chewieController != null && _chewieController!.isPlaying) {
+        setState(() {
+          showPlayPauseIcon = false;
+        });
+      }
+    });
+
+    // _chewieController?.addFullScreenListener((isFullScreen) {
+    //   setState(() {
+    //     _isVisible = !isFullScreen;
+    //   });
+    // });
+
 
   }
+
+
 
 
 

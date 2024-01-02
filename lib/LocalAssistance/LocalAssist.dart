@@ -123,7 +123,7 @@ class _LocalAssistState extends State<LocalAssist> {
         return false; // Returning true will allow the user to pop the page
       },
       child: Scaffold(
-        appBar: AppBar(title : ProfileHeader(reqPage: 1,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+        appBar: AppBar(title : ProfileHeader(reqPage: 0,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
         body: SingleChildScrollView(
           child: Container(
             color : Colors.white,
@@ -343,6 +343,7 @@ class _LocalAssistState extends State<LocalAssist> {
                                   ),
                                 ),
                               ),
+                              SizedBox(height : 50),
 
 
                             ],
