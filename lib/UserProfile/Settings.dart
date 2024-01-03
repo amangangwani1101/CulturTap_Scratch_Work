@@ -751,7 +751,7 @@ class _EditServicesState extends State<EditServices>{
       print('Data is $dataset');
       setState(() {
         widget.service1 = dataset?['userServiceTripCallingData']!=null?(dataset?['userServiceTripCallingData']['startTimeFrom']!=null?true:false):false;
-        widget.service2 = dataset?['userServiceTripAssistantStatus']!=null?(dataset?['userServiceTripAssistantStatus']):false;
+        widget.service2 = dataset?['userServiceTripAssistantData']!=null?(dataset?['userServiceTripAssistantStatus']):false;
         widget.service3 = false;
         widget.haveCards = (dataset?['userPaymentData']!=null && dataset?['userPaymentData'].length>0)?true:false;
       });
@@ -810,6 +810,7 @@ class _EditServicesState extends State<EditServices>{
       ),
     );
   }
+
 }
 
 class EditPayments extends StatefulWidget{

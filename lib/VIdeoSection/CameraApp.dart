@@ -666,6 +666,7 @@ class _CameraAppState extends State<CameraApp> {
                             children: [
                               SizedBox(
                                 child: Container(
+                                  color : Colors.orange,
                                   height: 100,
                                   width: 80,
                                   child: IconButton(
