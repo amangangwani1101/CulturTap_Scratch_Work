@@ -8,6 +8,7 @@ import 'package:learn_flutter/CulturTap/VideoFunc/categoryData.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/category_section_builder.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
+import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
@@ -39,6 +40,7 @@ class _FinalProfileState extends State<FinalProfile> {
   Map<String, dynamic>? dataset;
   bool isLoading = true;
   bool isDataLoading = true;
+  bool hasStories = false;
 
   @override
   void initState() {
@@ -75,7 +77,9 @@ class _FinalProfileState extends State<FinalProfile> {
       categoryData[categoryIndex]['storyDetailsList'] = processedData['storyDetailsList'];
 
       setState(() {
-
+        if (categoryData[categoryIndex]['storyUrls'].length > 0){
+          hasStories = true;
+        }
           isLoading = false;
 
 
@@ -169,11 +173,10 @@ class _FinalProfileState extends State<FinalProfile> {
   Future<void> _refreshPage() async {
     // Add your data fetching logic here
     // For example, you can fetch new data from an API
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 1));
     // Update the UI with new data if needed
     setState(() {
-      // Update your data
-      // otherUserId= '652a578b7ff9b6023a1483ba';
+
       fetchDataset();
     });
   }
@@ -197,6 +200,8 @@ class _FinalProfileState extends State<FinalProfile> {
     final profileDataProvider = Provider.of<ProfileDataProvider>(context);
 
     return RefreshIndicator(
+      color : Colors.orange,
+      backgroundColor: Colors.white,
       onRefresh: _refreshPage,
 
       child: Scaffold(
@@ -267,6 +272,8 @@ class _FinalProfileState extends State<FinalProfile> {
                     ),
                   ),
                 ),
+
+                hasStories ?
 
                 isLoading ?  Container(
                   height : 500,
@@ -346,10 +353,17 @@ class _FinalProfileState extends State<FinalProfile> {
                       }).toList(),
                     ),
                   ],
-                )
+                ) : Container(),
               ],
             ),
           ),
+        ),
+        bottomNavigationBar: AnimatedContainer(
+          duration: Duration(milliseconds: 100),
+
+
+          height:  70,
+          child: CustomFooter(userName: userName, userId: userID, lode: 'home',),
         ),
       ),
     );
@@ -384,16 +398,10 @@ class _TripCallingState extends State<TripCalling>{
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Text('${widget.name}’s provided avilable time for trip planning interaction calls -',
-              style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+              style: Theme.of(context).textTheme.subtitle1),
             Container(
-              width: 331,
+              width: 340,
               height: 76,
-              // decoration: BoxDecoration(
-              //   border:Border.all(
-              //     color: Colors.red,
-              //     width:1,
-              //   ),
-              // ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -404,7 +412,7 @@ class _TripCallingState extends State<TripCalling>{
                         children: [
                           Image.asset('assets/images/time_icon.png',width: 22,height: 22,),
                           SizedBox(width: 10,),
-                          Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                          Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India',style: Theme.of(context).textTheme.headline6),
                         ],
                       ),
                       widget.currentUserId == widget.actualUserId
@@ -428,7 +436,7 @@ class _TripCallingState extends State<TripCalling>{
                     children: [
                       Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
                       SizedBox(width: 10,),
-                      Text('5 already pending requests for \ninteraction with Hemant',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                      Text('5 already pending requests for \ninteraction with Hemant',style: Theme.of(context).textTheme.headline6),
                     ],
                   ),
                 ],

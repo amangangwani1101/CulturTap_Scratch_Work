@@ -6,6 +6,7 @@ import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 import 'package:learn_flutter/Utils/location_utils.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -53,7 +54,9 @@ class _LocalAssist2State extends State<LocalAssist2> {
 
   Future<Map<String, double>> getUserIdsAndDistances(String providedLatitude, String providedLongitude, String userIdToRemove, int vardis) async {
     setState(() {
-      helpingHands = 0;
+
+      print('printingakl lalalalla');
+      helpingHands = 10;
     });
 
 
@@ -138,7 +141,7 @@ class _LocalAssist2State extends State<LocalAssist2> {
       getAndPrintLocationName(position.latitude, position.longitude);
       // Update the state with the user location
 
-      getUserIdsAndDistances(providedLatitude, providedLongiude, "6572cc23e816febdac42873b",12);
+      getUserIdsAndDistances(providedLatitude, providedLongiude, userID,12);
 
 
 
@@ -168,7 +171,7 @@ class _LocalAssist2State extends State<LocalAssist2> {
       },
       child: Scaffold(
         appBar: AppBar(
-          title: ProfileHeader(reqPage: 1),
+          title: ProfileHeader(reqPage: 0),
           automaticallyImplyLeading: false,
           toolbarHeight: 90,
           shadowColor: Colors.transparent,
@@ -178,10 +181,12 @@ class _LocalAssist2State extends State<LocalAssist2> {
 
             color: Colors.white,
             child: Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(26.0),
               child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  SizedBox(height: 10),
+
+                  SizedBox(height: 20),
                   Text('Immediate Local Assistance',
                       style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                   Text('Get help at your fingertip from locals',
@@ -250,107 +255,105 @@ class _LocalAssist2State extends State<LocalAssist2> {
                       child: Text('Finding Helping Hands ...',style : TextStyle(fontSize:16))
                     ),
                   ) :
-                  Padding(
-                    padding: const EdgeInsets.all(18.0),
-                    child: Row(
-                      children: [
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Row(
-                                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height : 20),
+                            Row(
+                              children: [
 
 
-                                  Column(
-                                    children: [
-                                      pageVisitor?
-                                      Column(
-                                        children: [
-                                          Container(
-                                            color: Colors.grey.withOpacity(0.3),
-                                            width: 286,
-                                            height: 246,
-                                            padding: EdgeInsets.all(13),
-                                            child: Column(
-                                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                              children: [
-                                                Container(
-                                                    width: 236,
-                                                    child: Text('Hello ! How can Culturtap help you?',textAlign: TextAlign.justify,style: TextStyle(fontSize: 13,fontFamily: 'Poppins',fontWeight: FontWeight.w600),)),
-                                                Container(
-                                                    width: 236,
-                                                    child: Text.rich(
-                                                      TextSpan(
-                                                        text: 'You can find here local assistance immediately, we have found ',
-                                                        style: TextStyle(fontWeight: FontWeight.w500, fontFamily: 'Poppins', fontSize: 13),
-                                                        children: [
-                                                          TextSpan(
-                                                            text: '$helpingHands helping hands',
-                                                            style: TextStyle(fontWeight: FontWeight.bold, ),
-                                                          ),
-                                                          TextSpan(
-                                                            text: ' near you. Please raise a request for help.',
-                                                          ),
-                                                        ],
-                                                      ),
-                                                      textAlign: TextAlign.justify,
-                                                    ),
-
-                                                ),
-                                                Container(
+                                Column(
+                                  children: [
+                                    pageVisitor?
+                                    Column(
+                                      children: [
+                                        Container(
+                                          color: Colors.grey.withOpacity(0.3),
+                                          width: 286,
+                                          height: 246,
+                                          padding: EdgeInsets.all(13),
+                                          child: Column(
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              Container(
                                                   width: 236,
-                                                  child: Text('Type your request carefully before sending it to the local assistant .',textAlign: TextAlign.justify,
-                                                    style: TextStyle(fontWeight: FontWeight.w500,fontFamily: 'Poppins',fontSize: 13,color: Colors.green),),
-                                                ),
-                                              ],
-                                            ),
-                                          ),
-                                          Column(
-                                            children:List.generate(suggestedTexts.length, (index) {
-                                              return GestureDetector(
-                                                onTap: (){
-                                                  print('Text: ${suggestedTexts[index]}');
-                                                  setState(() {
-                                                    messageTyping = true;
-                                                    _controller.text = suggestedTexts[index];
-                                                  });
-                                                },
-                                                child: Container(
-                                                  width: 286,
-                                                  height: 69,
-                                                  decoration: BoxDecoration(
-                                                    border: Border.all(
-                                                      color: Colors.black12,
+                                                  child: Text('Hello ! How can Culturtap help you?',textAlign: TextAlign.justify,style: TextStyle(fontSize: 13,fontFamily: 'Poppins',fontWeight: FontWeight.w600),)),
+                                              Container(
+                                                  width: 236,
+                                                  child: Text.rich(
+                                                    TextSpan(
+                                                      text: 'You can find here local assistance immediately, we have found ',
+                                                      style: TextStyle(fontWeight: FontWeight.w500, fontFamily: 'Poppins', fontSize: 13),
+                                                      children: [
+                                                        TextSpan(
+                                                          text: '$helpingHands helping hands',
+                                                          style: TextStyle(fontWeight: FontWeight.bold, ),
+                                                        ),
+                                                        TextSpan(
+                                                          text: ' near you. Please raise a request for help.',
+                                                        ),
+                                                      ],
                                                     ),
+                                                    textAlign: TextAlign.justify,
                                                   ),
-                                                  padding: EdgeInsets.all(25),
-                                                  margin: EdgeInsets.only(bottom: 0.2),
-                                                  child: Text(suggestedTexts[index],
-                                                    style: TextStyle(fontWeight: FontWeight.w500,fontFamily: 'Poppins',fontSize: 13),),
-                                                ),
-                                              );
-                                            }),
-                                          ),
-                                        ],
-                                      ):SizedBox(height: 0,),
-                                    ],
-                                  ),
-                                ],
-                              ),
-                              Row(
-                                mainAxisAlignment: MainAxisAlignment.start,
-                                children: [
-                                  Expanded(child: SizedBox(height: 10,)),
-                                ],
-                              ),
 
-                              SizedBox(height: 6,),
-                            ],
-                          ),
+                                              ),
+                                              Container(
+                                                width: 236,
+                                                child: Text('Type your request carefully before sending it to the local assistant .',textAlign: TextAlign.justify,
+                                                  style: TextStyle(fontWeight: FontWeight.w500,fontFamily: 'Poppins',fontSize: 13,color: Colors.green),),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                        Column(
+                                          children:List.generate(suggestedTexts.length, (index) {
+                                            return GestureDetector(
+                                              onTap: (){
+                                                print('Text: ${suggestedTexts[index]}');
+                                                setState(() {
+                                                  messageTyping = true;
+                                                  _controller.text = suggestedTexts[index];
+                                                });
+                                              },
+                                              child: Container(
+                                                width: 286,
+                                                height: 69,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.black12,
+                                                  ),
+                                                ),
+                                                padding: EdgeInsets.all(25),
+                                                margin: EdgeInsets.only(bottom: 0.2),
+                                                child: Text(suggestedTexts[index],
+                                                  style: TextStyle(fontWeight: FontWeight.w500,fontFamily: 'Poppins',fontSize: 13),),
+                                              ),
+                                            );
+                                          }),
+                                        ),
+                                      ],
+                                    ):SizedBox(height: 0,),
+                                  ],
+                                ),
+                              ],
+                            ),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              children: [
+                                Expanded(child: SizedBox(height: 10,)),
+                              ],
+                            ),
+
+                            SizedBox(height: 6,),
+                          ],
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
 
                 ],

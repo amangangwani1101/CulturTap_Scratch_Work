@@ -194,7 +194,7 @@ setState(() {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height : 50,
+      height : 70,
 
 
       color: mode == 'dark' ? Colors.black : Theme.of(context).backgroundColor,
@@ -205,9 +205,13 @@ setState(() {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 Expanded(
-                  child: Container(
-                    
-
+                  child: InkWell(
+                    onTap: (){
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => HomePage()),
+                      );
+                    },
                     child: Column(
                       children: [
                         IconButton(
@@ -239,40 +243,49 @@ setState(() {
 
 
                 Expanded(
-                  child: Container(
+                  child: InkWell(
+                    onTap: (){
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => SearchPage()),
+                      );
+                    },
+                    child: Container(
 
 
-                    child: Column(
-                      children: [
+                      child: Column(
+                        children: [
 
-                        IconButton(
-                          onPressed: () {
+                          IconButton(
+                            onPressed: () {
 
-                            Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(builder: (context) => SearchPage()),
-                            );
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(builder: (context) => SearchPage()),
+                              );
 
-                            _changeIcon('search');
-                          },
-                          icon: SvgPicture.asset(
-                              page=='search' ? 'assets/images/search_oicon.svg'  : 'assets/images/search_icon.svg', // Replace with the path to your SVG icon
-                            color: page == 'search' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
-
-
-                            height: 24,
+                              _changeIcon('search');
+                            },
+                            icon: SvgPicture.asset(
+                                page=='search' ? 'assets/images/search_oicon.svg'  : 'assets/images/search_icon.svg', // Replace with the path to your SVG icon
+                              color: page == 'search' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
 
 
+                              height: 24,
 
 
 
+
+
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Search',
-                          style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
-                        ),
-                      ],
+                          Text(
+                            'Search',
+                            style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
@@ -287,66 +300,71 @@ setState(() {
                         height : 100,
 
 
-                        child: Container(
+                        child: InkWell(
+                          onTap: (){
+
+                          },
+                          child: Container(
 
 
-                          // decoration: BoxDecoration(
-                          //   shape: BoxShape.circle,
-                          //   border: Border.all(
-                          //     color: Colors.orange,
-                          //     width: 3.0, // Adjust the width of the border as needed
-                          //   ),
-                          // ),
+                            // decoration: BoxDecoration(
+                            //   shape: BoxShape.circle,
+                            //   border: Border.all(
+                            //     color: Colors.orange,
+                            //     width: 3.0, // Adjust the width of the border as needed
+                            //   ),
+                            // ),
 
-                          child: ElevatedButton(
-                            onPressed: () async{
+                            child: ElevatedButton(
+                              onPressed: () async{
 
-                              bool hasVideos = await VideoDatabaseHelper().hasVideos();
+                                bool hasVideos = await VideoDatabaseHelper().hasVideos();
 
-                              if (hasVideos) {
+                                if (hasVideos) {
 
-                                // Navigate to VideoPreviewPage with data from the database
-                                List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
-                                List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+                                  // Navigate to VideoPreviewPage with data from the database
+                                  List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                                  List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
 
-                                // Extract the required data from the list of videos
-                                List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
-                                String userLocation = ''; // Replace with your logic to get user location
-                                double latitude = allVideos[0].latitude;
-                                double longitude = allVideos[0].longitude;
+                                  // Extract the required data from the list of videos
+                                  List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                                  String userLocation = ''; // Replace with your logic to get user location
+                                  double latitude = allVideos[0].latitude;
+                                  double longitude = allVideos[0].longitude;
 
-                                print('latitude : $latitude');
-                                print('longitude : $longitude');
+                                  print('latitude : $latitude');
+                                  print('longitude : $longitude');
 
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => VideoPreviewPage(
-                                      videoPaths: videoPaths,
-                                      userLocation: userLocation,
-                                      latitude: latitude,
-                                      longitude: longitude,
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => VideoPreviewPage(
+                                        videoPaths: videoPaths,
+                                        userLocation: userLocation,
+                                        latitude: latitude,
+                                        longitude: longitude,
+                                      ),
                                     ),
-                                  ),
-                                );
+                                  );
 
-                                _showVideoDialog(context);
-                              } else {
-                                // Navigate to CameraApp
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-                              }
-                              // _changeIconColor('add');
-                            },
-                            style: ElevatedButton.styleFrom(
-                              primary: mode == 'dark' ? Colors.black : Theme.of(context).backgroundColor,
+                                  _showVideoDialog(context);
+                                } else {
+                                  // Navigate to CameraApp
+                                  Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                                }
+                                // _changeIconColor('add');
+                              },
+                              style: ElevatedButton.styleFrom(
+                                primary: mode == 'dark' ? Colors.black : Theme.of(context).backgroundColor,
 
-                              shape: CircleBorder(),
-                            ),
-                            child: SvgPicture.asset(
-                              'assets/images/addIcon.svg',
-                              color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor ,
-                              height: 24,
-                              width: 24,
+                                shape: CircleBorder(),
+                              ),
+                              child: SvgPicture.asset(
+                                'assets/images/addIcon.svg',
+                                color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor ,
+                                height: 24,
+                                width: 24,
+                              ),
                             ),
                           ),
                         ),
@@ -356,80 +374,100 @@ setState(() {
                 ),
 
                 Expanded(
-                  child: Container(
+                  child: InkWell(
+                    onTap: (){
+
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => LocalAssist(),
+                        ),
+                      );
+
+
+                    },
+                    child: Container(
 
 
 
-                    child: Column(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => LocalAssist(),
-                              ),
-                            );
+                      child: Column(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => LocalAssist(),
+                                ),
+                              );
 
-                            _changeIcon('trip');
-                          },
+                              _changeIcon('trip');
+                            },
 
-                          icon: SvgPicture.asset(
-                            page=='trip' ? 'assets/images/trip_oicon.svg'  : 'assets/images/tripassit.svg',  // Replace with the path to your SVG icon
-                            color: page=='trip' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+                            icon: SvgPicture.asset(
+                              page=='trip' ? 'assets/images/trip_oicon.svg'  : 'assets/images/tripassit.svg',  // Replace with the path to your SVG icon
+                              color: page=='trip' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
 
-                            height: 24,
+                              height: 24,
+
+                            ),
 
                           ),
-
-                        ),
-                        Text(
-                          'Local Assist',
-                          style:  mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
-                        ),
-                      ],
+                          Text(
+                            'Local Assist',
+                            style:  mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
 
 
                 Expanded(
-                  child: Container(
-                    
+                  child: InkWell(
 
-                    child: Column(
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            print('${userID}');
-                            // Navigator.of(context).push(
-                            //   MaterialPageRoute(
-                            //     builder: (context) => SettingsPage(userId: userID),
-                            //   ),
-                            // );
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => SettingsPage(userId: '6572878e19d698a615ce275a'),
-                              ),
-                            );
-                            _changeIcon('settings');
-                          },
-
-                          icon: SvgPicture.asset(
-                            page=='settings' ? 'assets/images/setting_oicon.svg'  : 'assets/images/settings.svg',  // Replace with the path to your SVG icon
-                            color: page=='settings' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
-
-                            height: 24,
+                    onTap: (){
+                      Navigator.of(context).push(
+                        MaterialPageRoute(
+                          builder: (context) => SettingsPage(userId: userID),
+                        ),
+                      );
+                    },
 
 
 
+                    child: Container(
 
+
+                      child: Column(
+                        children: [
+                          IconButton(
+                            onPressed: () {
+                              print('${userID}');
+                              Navigator.of(context).push(
+                                MaterialPageRoute(
+                                  builder: (context) => SettingsPage(userId: userID),
+                                ),
+                              );
+                              _changeIcon('settings');
+                            },
+
+                            icon: SvgPicture.asset(
+                              page=='settings' ? 'assets/images/setting_oicon.svg'  : 'assets/images/settings.svg',  // Replace with the path to your SVG icon
+                              color: page=='settings' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+
+                              height: 24,
+
+
+
+
+                            ),
                           ),
-                        ),
-                        Text(
-                          'Settings',
-                          style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
-                        ),
-                      ],
+                          Text(
+                            'Settings',
+                            style: mode == 'dark' ? Theme.of(context).textTheme.button : Theme.of(context).textTheme.bodyText1,
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

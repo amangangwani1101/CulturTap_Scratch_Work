@@ -1,31 +1,3 @@
-// import 'package:flutter/cupertino.dart';
-// import 'package:flutter/material.dart';
-// import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
-// import 'package:learn_flutter/slider.dart';
-//
-//
-// void main() {
-//   runApp(CardDetails());
-// }
-//
-// class CardDetails extends StatefulWidget{
-//   @override
-//   _CardDetailsState createState() => _CardDetailsState();
-// }
-//
-// class _CardDetailsState extends State<CardDetails>{
-//   @override
-//   Widget build(BuildContext context) {
-//     return MaterialApp(
-//         home: Scaffold(
-//
-//           appBar:AppBar(title: ProfileHeader(reqPage: 4,),),
-//         body:PaymentSection(),
-//     ),);
-//   }
-//
-// }
-//
 // import 'dart:convert';
 //
 // import 'package:crypto/crypto.dart';
@@ -63,15 +35,15 @@
 //
 //   getCheckSum(){
 //     final data = {
-//       "merchantId": merchantId,
-//       "merchantTransactionId": "transaction_123",
-//       "merchantUserId": "90223250",
-//       "amount": 100,
-//       "mobileNumber": "9999999999",
-//       "callbackUrl": callBAckUrl,
-//       "paymentInstrument": {
-//         "type": "PAY_PAGE",
-//       },
+//         "merchantId": merchantId,
+//         "merchantTransactionId": "transaction_123",
+//         "merchantUserId": "90223250",
+//         "amount": 100,
+//         "mobileNumber": "9999999999",
+//         "callbackUrl": callBAckUrl,
+//         "paymentInstrument": {
+//           "type": "PAY_PAGE",
+//         },
 //     };
 //     String base64Body = base64.encode(utf8.encode(json.encode(data)));
 //
@@ -83,54 +55,14 @@
 //   @override
 //   void initState() {
 //     super.initState();
-//     startPayment();
-//   }
-//
-//   Future<void> startPayment()async {
-//     startPayment();
 //     phonePeInit();
 //     body = getCheckSum().toString();
 //     startTransaction();
 //   }
-//   // return MaterialApp(
-//   //       home: Scaffold(
-//   //         appBar: AppBar(title:Text('Flutter App')),
-//   //         body: Column(
-//   //           children: [
-//   //             Container(
-//   //               child: ElevatedButton(
-//   //                 onPressed: (){
-//   //                   startTransaction();
-//   //                 },
-//   //                 child: Text('Proceed To Pay'),
-//   //               ),
-//   //             ),
-//   //             SizedBox(height: 20,),
-//   //             Text('Result is $result'),
-//   //           ],
-//   //         ),
-//   //       ),
-//   //     );
 //   @override
 //   Widget build(BuildContext context) {
 //     return MaterialApp(
-//       home: Scaffold(
-//         appBar: AppBar(title:Text('Flutter App')),
-//         body: Column(
-//           children: [
-//             Container(
-//               child: ElevatedButton(
-//                 onPressed: (){
-//                   startTransaction();
-//                 },
-//                 child: Text('Proceed To Pay'),
-//               ),
-//             ),
-//             SizedBox(height: 20,),
-//             Text('Result is $result'),
-//           ],
-//         ),
-//       ),
+//       home: Scaffold(),
 //     );
 //   }
 //
@@ -160,13 +92,15 @@
 //             String error = val['error'].toString();
 //
 //             if(status == 'SUCCESS'){
-//               result = 'UPI Loaded - And Success';
+//               result = true;
+//               Navigator.of(context).pop(result);
 //             }else{
-//               result = 'UPI Loaded - But Error $error';
+//               result = false;
+//               Navigator.of(context).pop(result);
 //             }
-//
 //           }else{
-//             result = 'A Problem Occur';
+//             result = false;
+//             Navigator.of(context).pop(result);
 //           }
 //         })
 //       })
@@ -176,6 +110,7 @@
 //       });
 //     } catch (error) {
 //       handleError(error);
+//       Navigator.of(context).pop(false);
 //     }
 //   }
 //

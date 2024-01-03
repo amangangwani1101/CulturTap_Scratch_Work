@@ -13,7 +13,7 @@ import '../../../widgets/Constant.dart';
 import '../../../widgets/hexColor.dart';
 
 class ChatApps extends StatefulWidget {
-  final String meetingId,senderId,receiverId;
+  final String  meetingId,senderId,receiverId;
   String ?date;
   DateTime?currentTime;
   VoidCallback? callbacker;
@@ -41,35 +41,35 @@ class _ChatAppsState extends State<ChatApps> {
   late Timer alertTimer;
   late RTCPeerConnection _peerConnection;
   late MediaStream _localStream;
-  late Timer _timer;
+  // late Timer _timer;
   Duration _remainingTime = Duration();
   bool _isUiEnabled = true;
-  // late Timer _timer;
-  // int _start = 180;   // 2 minutes in seconds
+  late Timer _timer;
+  int _start = 180;   // 2 minutes in seconds
   bool dispalyHi = true;
   VoidCallback? onButtonPressed;
   @override
   void initState() {
     super.initState();
-
+    retriveMeetingConversation(widget.meetingId);
     print('Meeting : ${widget.meetingId}');
     print('CurrentTime : ${widget.currentTime}');
+    // debug section :
     if (widget.currentTime != null && widget.currentTime!.isAfter(DateTime.now())) {
       // DateTime is greater than current time, start the countdown
       startCountdown();
     }else{
       // Connect to your server
       _isUiEnabled = false;
-      print('Hello 1');
       socket = IO.io(serverUrl, <String, dynamic>{
         'transports': ['websocket'],
         'autoConnect': true,
       });
       startMeetingTimer();
-      if(widget.senderId!='')
-        fetchDataFromSharedPreferences(senderNavigatorId);
-      else
-        fetchDataFromSharedPreferences(receiverNavigatorId);
+      // if(widget.senderId!='')
+      //   fetchDataFromSharedPreferences(senderNavigatorId);
+      // else
+      //   fetchDataFromSharedPreferences(receiverNavigatorId);
       try {
         socket.connect();
         print('Hello 1');
@@ -79,22 +79,25 @@ class _ChatAppsState extends State<ChatApps> {
       }
 
       // Listen for incoming messages
-      socket.on('message', (data) {
-        // Handle 'data' based on your requirements
-        print('Received: ${data}');
-        // Extract sender or other relevant information from 'data'
-        setState(() {
-          messages.add([data['message'],data['user']]);
-          if(data['user']=='sender')
-            sender.add(data['message']);
-          else
-            receiver.add(data['message']);
-          print(messages);
+      try{
+        socket.on('message', (data) {
+          // Handle 'data' based on your requirements
+          print('Received: ${data}');
+          // Extract sender or other relevant information from 'data'
+          func(data);
+          print('Message is :${data['message']}');
         });
-      });
+      }
+      catch(err){
+        print('Error in Message : $err');
+      }
 
       // Emit 'join' event with uniqueIdentifier, senderId, receiverId, and meetingId
-      socket.emit('join', {widget.meetingId, widget.senderId, widget.receiverId});
+      try{
+        socket.emit('join', {widget.meetingId, widget.senderId, widget.receiverId});
+      }catch(err){
+        print('Error in Joining :$err');
+      }
 
       // Listen for 'roomNotFound' event to handle cases where the user is not allowed
       socket.on('roomNotFound', (message) {
@@ -105,13 +108,18 @@ class _ChatAppsState extends State<ChatApps> {
 
       // callng functionality
       // Listen for signaling messages
-      socket.on('offer', (data) {
-        print('Step2');
-        // final se = data['offer'];
-        print('sss:$data');
-        // Handle incoming offer
-        handleOffer(data['offer'], data['callerId']);
-      });
+      try{
+        socket.on('offer', (data) {
+          print('Step2');
+          // final se = data['offer'];
+          print('sss:$data');
+          // Handle incoming offer
+          handleOffer(data['offer'], data['callerId']);
+        });
+      }catch(err){
+        print('Error in offer:$err');
+      }
+
 
       socket.on('answer', (data) {
         // Handle incoming answer
@@ -127,26 +135,63 @@ class _ChatAppsState extends State<ChatApps> {
 
   }
 
-  void storeDataLocally(userNavigatorId) async{
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String dataJson = json.encode(messages);
-    await prefs.setString(userNavigatorId, dataJson);
-    print('Data saved to SharedPreferences');
-  }
+  Future<void> retriveMeetingConversation(String meetId) async {
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final http.Response response = await http.get(
+        Uri.parse('$serverUrl/fetchMeetingConversation/$meetId'),);
 
-  void fetchDataFromSharedPreferences(userNavigatorId) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    String? dataJson = prefs.getString(userNavigatorId);
-    if (dataJson != null) {
-      setState(() {
-        messages = List<List<String>>.from(json.decode(dataJson)
-            .map((item) => List<String>.from(item)));
-      });
-      print('Data retrieved from SharedPreferences');
-    } else {
-      print('No data found in SharedPreferences');
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Red:::');
+        print(responseData);
+        final List<dynamic> conversationJson = responseData['conversation'];
+        setState(() {
+          messages = conversationJson.map<List<String>>((list) {
+            return (list as List<dynamic>).map<String>((e) => e.toString()).toList();
+          }).toList();
+        });
+      } else {
+        print('Failed to retrive data: ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error is 2: $err");
     }
   }
+
+  void func(dynamic data)async{
+
+    setState(() {
+      messages.add([data['message'],data['user']]);
+      if(data['user']=='sender')
+        sender.add(data['message']);
+      else
+        receiver.add(data['message']);
+    });
+  }
+  //
+  // void storeDataLocally(userNavigatorId) async{
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String dataJson = json.encode(messages);
+  //   await prefs.setString(userNavigatorId, dataJson);
+  //   print('Data saved to SharedPreferences');
+  // }
+  //
+  // void fetchDataFromSharedPreferences(userNavigatorId) async {
+  //   SharedPreferences prefs = await SharedPreferences.getInstance();
+  //   String? dataJson = prefs.getString(userNavigatorId);
+  //   if (dataJson != null) {
+  //     if(mounted){
+  //       setState(() {
+  //         messages = List<List<String>>.from(json.decode(dataJson)
+  //             .map((item) => List<String>.from(item)));
+  //       });
+  //     }
+  //     print('Data retrieved from SharedPreferences');
+  //   } else {
+  //     print('No data found in SharedPreferences');
+  //   }
+  // }
 
   void eraseDataAfterTimer(userNavigatorId) async{
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -155,7 +200,7 @@ class _ChatAppsState extends State<ChatApps> {
   }
 
 
-  void cancelMeeting(String date,int index,String status,String otherId,String otherStatus)async{
+  Future<void> cancelMeeting(String date,int index,String status,String otherId,String otherStatus)async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
@@ -182,18 +227,18 @@ class _ChatAppsState extends State<ChatApps> {
         print('Failed to save data: ${response.statusCode}');
       }
     }catch(err){
-      print("Error: $err");
+      print("Error Is 1: $err");
     }
   }
 
 
 
-  void updateMeetingChats(String meetId)async{
+  Future<void> updateMeetingChats(String meetId,List<String>meetDetails)async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
         'meetId':meetId,
-        'conversation':messages,
+        'conversation':meetDetails,
       };
       print('PPPPP::$data');
       final http.Response response = await http.patch(
@@ -211,23 +256,26 @@ class _ChatAppsState extends State<ChatApps> {
         print('Failed to save data: ${response.statusCode}');
       }
     }catch(err){
-      print("Error: $err");
+      print("Error is 2: $err");
     }
   }
 
 
   void updateRemainingTime() {
-    setState(() {
-      DateTime currentTime = DateTime.now();
-      Duration elapsed = currentTime.difference(widget.currentTime!);
-      remainingTime = meetingDuration - elapsed;
-    });
+    if(mounted){
+      setState(() {
+        DateTime currentTime = DateTime.now();
+        Duration elapsed = currentTime.difference(widget.currentTime!);
+        remainingTime = meetingDuration - elapsed;
+      });
+    }
   }
 
   Future<void> _refreshPage() async {
     // Add your data fetching logic here
     // For example, you can fetch new data from an API
-    await Future.delayed(Duration(seconds: 2));
+    await Future.delayed(Duration(seconds: 0));
+    Navigator.pop(context);
     // Update the UI with new data if needed
     Navigator.push(
       context,
@@ -241,16 +289,17 @@ class _ChatAppsState extends State<ChatApps> {
     _remainingTime = widget.currentTime!.difference(DateTime.now());
 
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
-      setState(() {
-        _remainingTime = widget.currentTime!.difference(DateTime.now());
-
-        if (_remainingTime.inSeconds <= 0) {
-          _timer.cancel();
-          // Time has reached zero, update UI accordingly
-          _refreshPage();
-          // ... Perform actions when the countdown reaches zero ...
-        }
-      });
+      if(mounted){
+        setState(() {
+          _remainingTime = widget.currentTime!.difference(DateTime.now());
+          if (_remainingTime.inSeconds <= 0) {
+            _timer.cancel();
+            // Time has reached zero, update UI accordingly
+            _refreshPage();
+            // ... Perform actions when the countdown reaches zero ...
+          }
+        });
+      }
     });
   }
 
@@ -259,13 +308,11 @@ class _ChatAppsState extends State<ChatApps> {
       updateRemainingTime();
       print(remainingTime);
       if (remainingTime.inSeconds <= 0) {
-        timer.cancel();
-        widget.senderId!=''?eraseDataAfterTimer(senderNavigatorId):eraseDataAfterTimer(receiverNavigatorId);
-        socket.disconnect();
+        // timer.cancel();
         // Perform necessary actions when the meeting ends
         navigateToEndScreen();
       }
-      if(remainingTime.inMinutes==1 && remainingTime.inSeconds==0){
+      else if(remainingTime.inMinutes==1 && remainingTime.inSeconds==0){
         showOneMinuteAlert();
       }
     });
@@ -315,12 +362,10 @@ class _ChatAppsState extends State<ChatApps> {
     );
   }
 
-  void navigateToEndScreen() {
+  void navigateToEndScreen() async{
     // Navigate to the end screen after the meeting ends
-    updateMeetingChats(widget.meetingId);
-    cancelMeeting(widget.date!,widget.index!,'close',widget.receiverId==''?widget.senderId:widget.receiverId,'close');
+    await cancelMeeting(widget.date!,widget.index!,'close',widget.receiverId==''?widget.senderId:widget.receiverId,'close');
     // showMeetingEndedAlert();
-    Navigator.of(context).pop();
     Navigator.of(context).pop();
     widget.callbacker!();
     // Navigator.of(context).pop();
@@ -336,75 +381,79 @@ class _ChatAppsState extends State<ChatApps> {
     final screenWidth = MediaQuery.of(context).size.width;
     int minutes = remainingTime.inMinutes;
     return MaterialApp(
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: HexColor('#FB8C00')),
+        // useMaterial3: true,
+      ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
         appBar: AppBar(title: ProfileHeader(reqPage: 5,text:'chats',userId:widget.senderId!=''?widget.senderId:widget.receiverId,onButtonPressed:(){
-          if(_isUiEnabled!=true){
-            if(widget.senderId!='')
-              storeDataLocally(senderNavigatorId);
-            else
-              storeDataLocally(receiverNavigatorId);
-          }
+          // if(_isUiEnabled!=true){
+          //   if(widget.senderId!='')
+          //     storeDataLocally(senderNavigatorId);
+          //   else
+          //     storeDataLocally(receiverNavigatorId);
+          // }
           Navigator.of(context).pop();
           Navigator.of(context).pop();
-        }),backgroundColor: Colors.white, shadowColor: Colors.transparent,),
+        }),),
         body: WillPopScope(
           onWillPop: ()async{
-            if(_isUiEnabled!=true){
-              if(widget.senderId!='')
-                storeDataLocally(senderNavigatorId);
-              else
-                storeDataLocally(receiverNavigatorId);
-            }
+            // if(_isUiEnabled!=true){
+            //   if(widget.senderId!='')
+            //     storeDataLocally(senderNavigatorId);
+            //   else
+            //     storeDataLocally(receiverNavigatorId);
+            // }
             Navigator.of(context).pop();
             Navigator.of(context).pop();
 
             return true;
           },
           child: Column(
-              children: <Widget>[
-                Container(
-                  height: 120,
-                  child: Row(
-                children: [
-                  SizedBox(width: 45,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('Get Connected With \nCustomer',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,),),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Text('You Can Chat or Talk',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
-                        ],
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          Image.asset('assets/images/clock.png',width: 22,height: 22,color: _isUiEnabled?Colors.red:Colors.green,),
-                          SizedBox(width: 10,),
-                          _isUiEnabled
-                              ?Text(
-                            '${_remainingTime.inDays<=0?'':_remainingTime.inDays}Day, ${(_remainingTime.inHours % 24)<=0?'':(_remainingTime.inHours % 24)}Hours ${(_remainingTime.inMinutes % 60)<=0?'':(_remainingTime.inMinutes % 60)}Min ${(_remainingTime.inSeconds % 60)<=0?'':(_remainingTime.inSeconds % 60)}Sec Remaning',
-                            style: TextStyle(fontSize: 16, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.red),
-                          )
-                              : Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
+            children: <Widget>[
+              Container(
+                height: 120,
+                child: Row(
+                  children: [
+                    SizedBox(width: 45,),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text('Get Connected With \nCustomer',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,),),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Text('You Can Chat or Talk',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                          ],
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Image.asset('assets/images/clock.png',width: 22,height: 22,color: _isUiEnabled?Colors.red:Colors.green,),
+                            SizedBox(width: 10,),
+                            _isUiEnabled
+                                ?Text(
+                              '${_remainingTime.inDays<=0?'':_remainingTime.inDays}Day, ${(_remainingTime.inHours % 24)<=0?'':(_remainingTime.inHours % 24)}Hours ${(_remainingTime.inMinutes % 60)<=0?'':(_remainingTime.inMinutes % 60)}Min ${(_remainingTime.inSeconds % 60)<=0?'':(_remainingTime.inSeconds % 60)}Sec Remaning',
+                              style: TextStyle(fontSize: 16, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.red),
+                            )
+                                : Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
+              ),
               SizedBox(height: 20,),
               messages.length==0 && !_isUiEnabled
-              ?Expanded(
+                  ?Expanded(
                 child: Column(
                   children: [
                     Container(
@@ -434,8 +483,8 @@ class _ChatAppsState extends State<ChatApps> {
                   ],
                 ),
               )
-              :!_isUiEnabled
-                ? Expanded(
+                  :!_isUiEnabled
+                  ? Expanded(
                 child: Row(
                   children: [
                     SizedBox(width: 20,),
@@ -447,12 +496,12 @@ class _ChatAppsState extends State<ChatApps> {
                         itemBuilder: (context, index) {
                           return ListTile(
                             title:messages[index][1]=='sender'
-                                    ?widget.senderId!=''
-                                    ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
-                                    :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
-                                    :widget.senderId==''
-                                 ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
-                                 :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),))),
+                                ?widget.senderId!=''
+                                ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                :widget.senderId==''
+                                ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),))),
                           );
                         },
                       ),
@@ -460,7 +509,7 @@ class _ChatAppsState extends State<ChatApps> {
                   ],
                 ),
               )
-                :Expanded(child: SizedBox(height: 10,)),
+                  :Expanded(child: SizedBox(height: 10,)),
               Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
@@ -519,13 +568,16 @@ class _ChatAppsState extends State<ChatApps> {
       try {
         // Send the message to the server
         if(widget.senderId!='') {
+          updateMeetingChats(widget.meetingId,[message,'sender']);
           socket.emit('message', {'message':message,'user1':'sender','user2':''});
-        } else
+        } else{
+          updateMeetingChats(widget.meetingId,[message,'receiver']);
           socket.emit('message', {'message':message,'user1':'','user2':'receiver'});
+        }
         print(message);
         _controller.clear();
       } catch (e) {
-        print('Error sending message: $e');
+        print('Error sending messagesss: $e');
         // Handle the error, e.g., display an error message to the user
       }
     } else {
@@ -644,11 +696,19 @@ class _ChatAppsState extends State<ChatApps> {
 
   @override
   void dispose() {
+    super.dispose();
+    print('Destroy');
     // _timer.cancel();
     countdownTimer.cancel();
-    alertTimer.cancel();
-    meetingTimer.cancel(); // Cancel the timer when the screen is disposed
+    // alertTimer.cancel();
+    // if (_rtcPeerConnection != null) {
+    //   _rtcPeerConnection!.dispose();
+    // }
+    // widget.senderId!=''?eraseDataAfterTimer(senderNavigatorId):eraseDataAfterTimer(receiverNavigatorId);
+    // _localStream.dispose();
+    // meetingTimer.cancel(); // Cancel the timer when the screen is disposed
     socket.dispose();
-    super.dispose();
+    socket.disconnect();
+    socket.dispose();
   }
 }

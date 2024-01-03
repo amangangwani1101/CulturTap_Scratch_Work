@@ -9,7 +9,9 @@ import 'package:learn_flutter/CulturTap/VideoFunc/data_service.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/process_fetched_stories.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
+import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
@@ -95,16 +97,16 @@ Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async
 
 
 
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: HomePage(),
-    );
-  }
-}
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//
+//     return MaterialApp(
+//       debugShowCheckedModeBanner: false,
+//       home: HomePage(),
+//     );
+//   }
+// }
 
 class HomePage extends StatefulWidget {
   @override
@@ -149,9 +151,10 @@ class _HomePageState extends State<HomePage> {
       });
 
 
-      print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
-      print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
-      print('storyurls');
+      // print('Video counts per story in category $categoryIndex: ${processedData['totalVideoCounts']}');
+      // print('All video paths in category $categoryIndex: ${processedData['totalVideoPaths']}');
+      // print('storyurls');
+      print('storyUrls');
       print(categoryData[categoryIndex]['storyUrls']);
     } catch (error) {
       print('Error fetching stories for category $categoryIndex: $error');
@@ -202,7 +205,7 @@ class _HomePageState extends State<HomePage> {
       double longitude = position.longitude;
       String query = _searchController.text;
 
-      updateLiveLocation('6572cc23e816febdac42873b', position.latitude, position.longitude);
+      updateLiveLocation(userID, position.latitude, position.longitude);
 
       print('Latitude is: $latitude');
 
@@ -286,7 +289,7 @@ class _HomePageState extends State<HomePage> {
   ];
 
 
-  BackButtonHandler backButtonHandler1 = BackButtonHandler(
+  BackButtonHandler backButtonHandler10 = BackButtonHandler(
     imagePath: 'assets/images/exit.svg',
     textField: 'Do you want to exit?',
     what: 'exit',
@@ -305,8 +308,11 @@ class _HomePageState extends State<HomePage> {
 
   Widget build(BuildContext context) {
     return WillPopScope(
-      onWillPop: () => backButtonHandler1.onWillPop(context, true),
+
+      onWillPop: () => backButtonHandler10.onWillPop(context, true),
       child: Scaffold(
+
+
 
         backgroundColor: Theme.of(context).backgroundColor,
         body: RefreshIndicator(
@@ -317,15 +323,17 @@ class _HomePageState extends State<HomePage> {
             controller: _scrollController,
             slivers: [
               SliverAppBar(
-                title: ProfileHeader(reqPage: 0, userId:userID , userName: userName),
+                title: ProfileHeader(reqPage: 0, userId:userID , userName: userName,profileStatus: 'jh',),
                 automaticallyImplyLeading: false,
                 shadowColor: Colors.transparent,
-                foregroundColor: Colors.white,
+
+
                 toolbarHeight: 90,
                 // Adjust as needed
                 floating: true,
                 pinned: false,
                 flexibleSpace: FlexibleSpaceBar(
+
 
 
 

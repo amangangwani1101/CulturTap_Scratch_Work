@@ -4,8 +4,12 @@ import 'dart:math';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter_svg/svg.dart';
+import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
+import 'package:learn_flutter/UserProfile/Settings.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
@@ -29,12 +33,14 @@ class CustomHelpOverlay extends StatelessWidget {
   final String imagePath;
   bool? serviceSettings=false;
   String?text,navigate;
+  final String? button;
+  final String? extraText;
   final helper,helper2;
   final ProfileDataProvider? profileDataProvider;
-  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.helper,this.helper2,this.onButtonPressed,this.onBackPressed});
+  CustomHelpOverlay({required this.imagePath,this.serviceSettings,this.profileDataProvider,this.text,this.navigate,this.button,this.extraText,this.helper,this.helper2,this.onButtonPressed,this.onBackPressed});
   @override
   Widget build(BuildContext context) {
-    final screenWidth = MediaQuery.of(context).size.width;
+
     return WillPopScope(
       onWillPop: ()async{
         if(navigate=='pings'){
@@ -43,93 +49,87 @@ class CustomHelpOverlay extends StatelessWidget {
           print(1);
         return true;
       },
-      child: Container(
-        child: Stack(
-          children: [
-            BackdropFilter(
-              filter: ImageFilter.blur(sigmaX: 7, sigmaY: 7),
-              child: Container(
-                color: Colors.grey.withOpacity(0),
+
+      child: AlertDialog(
+        contentPadding: EdgeInsets.all(20),
+        content: SingleChildScrollView(
+          child: Column(
+
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              SizedBox(height : 10),
+              SvgPicture.asset(
+                imagePath,
+                height: 166,
+                width: 166,
               ),
-            ),
-            Center(
-              child: Container(
-
-                padding: EdgeInsets.all(20.0),
-                width: screenWidth*0.90,
-                height: navigate=='edit'?357:315,
-                // child: Align(
-                //   alignment: Alignment.topRight,
-                //   child: ElevatedButton(
-                //     onPressed: () {
-                //       Navigator.of(context).pop();
-                //     },
-                //     child: (Icon(Icons.crop_sharp)),
-                //   ),
-                // ),
-
-
-                child: Stack(
-
-                  children: [
-                    Center(child: Image.asset(imagePath,width: 321,height: 221,fit: BoxFit.contain,),),
-                    // Positioned(
-                    //   top: navigate=='edit'?30:15,
-                    //   right: 15,
-                    //   child:navigate=='pings'
-                    //     ?SizedBox(width: 0,)
-                    //     : IconButton(
-                    //
-                    //
-                    //     icon: Icon(Icons.close),
-                    //     onPressed: (){
-                    //       Navigator.of(context).pop();
-                    //     },
-                    //   ),
-                    // ),
-                    if (text!=null) Container(
-                      height: 250,
-                      child: Align(
-                        alignment: Alignment.bottomCenter,
-                        child: GestureDetector(
-                            onTap: (){
-                              if(navigate=='calendarhelper' || navigate=='edit'){
-                                onButtonPressed!();
-                              }
-                              else if(navigate=='pings')
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> PingsSection(userId: helper!,userName:helper2!,text:'meetingPings')));
-                              else if(navigate=='pop'){
-                                  onButtonPressed!();
-                              }
-                            },
-                            child: Text(text!,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.orange,),)),
-                      ),
-                    ) else SizedBox(width: 0,),
-                    if (serviceSettings==true) Container(
-                        // height: 250,
-                        child: Align(
-                          alignment: Alignment.bottomCenter,
-                          child: GestureDetector(
-                              onTap: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(profileDataProvider:profileDataProvider)));
-                              },
-                              child: Text('Continue',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.orange,),)),
-                        ),
-                      ) else SizedBox(width: 0,)
-                  ],
+              SizedBox(height: 26),
+              Text(
+                text!,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                  color: Color(0xFF263238),
                 ),
-
-
-
-
+                textAlign: TextAlign.center,
               ),
-            ),
-          ],
+              SizedBox(height: 16),
+              Text(
+                extraText!,
+                style: TextStyle(
+                  fontSize: 14,
+                  fontWeight: FontWeight.w400,
+
+                  color: Color(0xFF263238),
+                ),
+                textAlign: TextAlign.center,
+              ),
+              SizedBox(height: 10),
+              TextButton(
+                onPressed: () {
+                  if (navigate == 'calendarhelper' ||
+                      navigate == 'edit' ||
+                      navigate == 'pop') {
+                    onButtonPressed!();
+
+                  } else if (navigate == 'pings') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PingsSection(
+                          userId: helper!,
+                          userName: helper2!,
+                          text: 'meetingPings',
+                        ),
+                      ),
+                    );
+                  }
+                },
+                child: Text(
+                  button!,
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 19,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
+        // Set the background color
       ),
-    );
+
+
+      );
+
   }
 }
+
+
+
+
+
 class ServicePage extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
   final ServiceTripCallingData?data;
@@ -160,13 +160,16 @@ class _ServicePageState extends State<ServicePage>{
     return WillPopScope(
       onWillPop: ()async{
         if(widget.text=='edit' && isGone==true){
+
           widget.onButtonPressed!();
           Navigator.of(context).pop();
           Navigator.of(context).pop();
         }
         else if(widget.profileDataProvider==null){
           print(1);
-          Navigator.of(context).pop();
+          Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices()));
+
+
         }
         else{
           print(2);
@@ -176,54 +179,41 @@ class _ServicePageState extends State<ServicePage>{
         return true;
       },
       child: Scaffold(
-        appBar:AppBar(title: ProfileHeader(reqPage: 3,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),automaticallyImplyLeading: false,),
+        appBar:AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),automaticallyImplyLeading: false,shadowColor: Colors.transparent, toolbarHeight: 90,),
         body: SingleChildScrollView(
-          child: Column(
-            children: [
-              Container(
-                height:screenHeight*0.85,
-                // decoration: BoxDecoration(
-                //   border: Border.all(
-                //     color: Colors.black,
-                //     width: 1,
-                //   ),
-                // ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children:[
-                    Container(
-                      height: 361,
-                      // decoration: BoxDecoration(
-                      //   border: Border.all(
-                      //     color: Colors.orange,
-                      //     width: 2,
-                      //   )
-                      // ),
-                      child: Column(
-                        children: [
-                          Container(
-                            width:318,
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Timing for interaction calls',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                                Text('Select Your Time',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
-                              ],
-                            ),
-                          ),
-                          TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
-                        ],
+          child: Center(
+            child: Container(
+              color : Colors.white,
+              child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children:[
+                      Container(
+                        width:318,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SizedBox(height : 40),
+                            Text('Timing for interaction calls',style: Theme.of(context).textTheme.subtitle1,),
+                            Text('Select Your Time',style: Theme.of(context).textTheme.headline6,)
+                          ],
+                        ),
                       ),
-                    ),
-                    BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
-                  ],
-                ),
-              ),
-            ],
+                      TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
+                      SizedBox(height : 50),
+                      BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
+
+                    ],
+                  ),
+            ),
           ),
+          ),
+
+
+
         ),
-      ),
-    );
+
+      );
+
   }
 }
 
@@ -488,7 +478,7 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
           ),
         );
         if(widget.haveCards==false){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(text:widget.text,userId:widget.userId)));
+          Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(text:widget.text,userId:userID)));
           widget.onButtonPressed!();
         }
         else if(widget.text=='edit'){
@@ -813,119 +803,89 @@ class _PaymentSectionState extends State<PaymentSection> {
   Widget build(BuildContext context){
     return WillPopScope(
       onWillPop: () async {
-        // showDialog(
-        //   context: context,
-        //   builder: (BuildContext context) {
-        //     return ConfirmationDialog(
-        //       message:'Cards Are Not Save.',
-        //       onCancel: () {
-        //         // Perform action on confirmation
-        //         Navigator.of(context).pop(); // Close the dialog
-        //         // Add your action here
-        //         print('Action confirmed');
-        //       },
-        //       onConfirm: () {
-        //         // Perform action on cancellation
-        //         widget.profileDataProvider?.removeAllCards();
-        //         showDialog(context: context, builder: (BuildContext context){
-        //           return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-        //             Navigator.of(context).pop();
-        //             Navigator.of(context).pop();
-        //             Navigator.of(context).pop();
-        //             Navigator.of(context).pop();
-        //             Navigator.of(context).pop();
-        //           },),);
-        //         },
-        //         );
-        //         // Add your action here
-        //         print('Action cancelled');
-        //       },
-        //     );
-        //   },
-        // )
+        // If you want to prevent the user from going back, return false
+        // return false;
 
-        showDialog(context: context, builder: (BuildContext context){
-          return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Alert !',extraText: 'Do You Want To Save Cards ? ',option1:'No',option2:'Yes',onButton1Pressed: (){
-            // Perform action on confirmation
-            if(widget.text=='edit'){
-              // if(widget.savedCards!=null){
-              //   Navigator.of(context).pop(); // Close the dialog
-              //   Navigator.of(context).pop(); // Close the dialog
-              // }else{
-              //   Navigator.of(context).pop(); // Close the dialog
-              //   Navigator.of(context).pop(); // Close the dialog
-              //   Navigator.of(context).pop(); // Close the dialog
-              //   Navigator.of(context).pop(); // Close the dialog
-              // }
-                Navigator.of(context).pop(); // Close the dialog
-                Navigator.of(context).pop(); // Close the dialog
-            }
-            else{
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context).pop(); // Close the dialog
-              Navigator.of(context).pop(); // Close the dialog
-            }
-          },onButton2Pressed: () async{
-            if(widget.text=='edit'){
-              // if(widget.savedCards!=null){
-              //   await showDialog(context: context, builder: (BuildContext context){
-              //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-              //       Navigator.of(context).pop();
-              //     },),);
-              //   },
-              //   );
-              //   saveCardsToDatabase();
-              //   Navigator.of(context).pop();
-              // }
-              // else{
-              //   await showDialog(context: context, builder: (BuildContext context){
-              //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-              //       Navigator.of(context).pop();
-              //     },),);
-              //   },
-              //   );
-              //   saveCardsToDatabase();
-              // }
-              saveCardsToDatabase();
-              Navigator.of(context).pop();
-              Navigator.of(context).pop();
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Cards Are Updated Successfully!'),
-                ),
-              );
-            }
-            else{
-              // widget.profileDataProvider?.removeAllCards();
-              showDialog(context: context, builder: (BuildContext context){
-                return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                },),);
-              },
-              );
-              // Add your action here
-              print('Action cancelled');
-            }
-          },);
-        },);
-          // :widget.text!='edit'
-          //   ?showDialog(context: context, builder: (BuildContext context){
-          //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-          //       Navigator.of(context).pop();
-          //       Navigator.of(context).pop();
-          //       Navigator.of(context).pop();
-          //       Navigator.of(context).pop();
-          //   },));})
-          //   :Navigator.of(context).pop();
-        return true;
+        // showDialog(context: context, builder: (BuildContext context){
+        //   return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Alert !',extraText: 'Do You Want To Save Cards ? ',option1:'No',option2:'Yes',onButton1Pressed: (){
+        //     // Perform action on confirmation
+        //     if(widget.text=='edit'){
+        //       // if(widget.savedCards!=null){
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       // }else{
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       //   Navigator.of(context).pop(); // Close the dialog
+        //       // }
+        //         Navigator.of(context).pop(); // Close the dialog
+        //         Navigator.of(context).pop(); // Close the dialog
+        //     }
+        //     else{
+        //       Navigator.of(context).pop(); // Close the dialog
+        //       Navigator.of(context).pop(); // Close the dialog
+        //       Navigator.of(context).pop(); // Close the dialog
+        //       Navigator.of(context).pop(); // Close the dialog
+        //     }
+        //   },onButton2Pressed: () async{
+        //     if(widget.text=='edit'){
+        //       // if(widget.savedCards!=null){
+        //       //   await showDialog(context: context, builder: (BuildContext context){
+        //       //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+        //       //       Navigator.of(context).pop();
+        //       //     },),);
+        //       //   },
+        //       //   );
+        //       //   saveCardsToDatabase();
+        //       //   Navigator.of(context).pop();
+        //       // }
+        //       // else{
+        //       //   await showDialog(context: context, builder: (BuildContext context){
+        //       //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+        //       //       Navigator.of(context).pop();
+        //       //     },),);
+        //       //   },
+        //       //   );
+        //       //   saveCardsToDatabase();
+        //       // }
+        //       saveCardsToDatabase();
+        //       Navigator.of(context).pop();
+        //       Navigator.of(context).pop();
+        //       ScaffoldMessenger.of(context).showSnackBar(
+        //         SnackBar(
+        //           content: Text('Cards Are Updated Successfully!'),
+        //         ),
+        //       );
+        //     }
+        //     else{
+        //       // widget.profileDataProvider?.removeAllCards();
+        //       showDialog(context: context, builder: (BuildContext context){
+        //         return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+        //           Navigator.of(context).pop();
+        //           Navigator.of(context).pop();
+        //           Navigator.of(context).pop();
+        //           Navigator.of(context).pop();
+        //           Navigator.of(context).pop();
+        //         },),);
+        //       },
+        //       );
+        //       // Add your action here
+        //       print('Action cancelled');
+        //     }
+        //   },);
+        // },);
+
+        // If you want to navigate directly to the homepage
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
+        );
+
+        return false; // Returning true will allow the user to pop the page
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+        appBar: AppBar(toolbarHeight: 90, shadowColor: Colors.transparent,title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,  onButtonPressed: (){
           if(widget.text=='edit'){
             print('6th Page');
             saveCardsToDatabase();

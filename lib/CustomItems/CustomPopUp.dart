@@ -13,6 +13,7 @@ class CustomPopUp extends StatelessWidget {
   final String textField;
   final String what;
   final String? extraText;
+  final String? button;
   final String? isDarkMode;
 
   CustomPopUp({
@@ -21,6 +22,7 @@ class CustomPopUp extends StatelessWidget {
     required this.what,
     this.extraText,
     this.isDarkMode,
+    this.button,
   });
 
   @override
@@ -29,54 +31,62 @@ class CustomPopUp extends StatelessWidget {
 
     return Center(
       child: Container(
-        height: 340,
-
         width: double.infinity,
         child: AlertDialog(
           content: Column(
-
-
+            mainAxisSize: MainAxisSize.min, // Set the mainAxisSize to min
             children: [
-
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                IconButton(
-                  icon: Icon(Icons.close),
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                ),
-
-              ],),
-
+                  IconButton(
+                    icon: Icon(Icons.close),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  ),
+                ],
+              ),
               SvgPicture.asset(
                 imagePath,
-                height: 96,
-                width: 116,
+                height : 200,
+                width: 316, // Adjust the width as needed
               ),
-              SizedBox(height: 16),
+              SizedBox(height: 26),
               Text(
                 textField,
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.subtitle2,
                 textAlign: TextAlign.center,
               ),
+              if (extraText != null) SizedBox(height: 15),
               if (extraText != null)
-                SizedBox(height: 16),
                 Container(
                   child: Text(
                     extraText!,
-                    style: Theme.of(context).textTheme.bodyText2,
+                    style: Theme.of(context).textTheme.headline6,
                     textAlign: TextAlign.center,
                   ),
                 ),
-
-
+              SizedBox(height : 20),
+              TextButton(
+                onPressed: (){
+                  Navigator.of(context).pop();
+                },
+                child: Text(
+                  button!,
+                  style: TextStyle(
+                    color: Colors.orange,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
             ],
           ),
           backgroundColor: backgroundColor, // Set the background color
         ),
       ),
+
     );
   }
 }

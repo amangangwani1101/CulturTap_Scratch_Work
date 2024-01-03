@@ -43,8 +43,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
 
-              GestureDetector(
+              InkWell(
                 onTap: () {
+
                   if( widget.profileStatus ==''){
                     Navigator.push(
                       context,
@@ -66,7 +67,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     );
                   }
                 },
-                child: Container( 
+                child: Container(
 
                   width: 80,
 
@@ -107,86 +108,52 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                       Text('Profile',style: Theme.of(context).textTheme.bodyText1),
                     ]
                 ),
-              ),
+                ),
               ),
 
             ],
-          ):
+          )
+              :
           widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
-              ? Container(
+              ? InkWell(
+            onTap: (){
+              if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
+                Navigator.of(context).pop();
+                Navigator.of(context).pop();
+              }
+              else if(widget.text=='chats'){
+                widget.onButtonPressed!();
+              }
+              else if(widget.text=='meetingPings'){
+                print('${widget.userName!}');
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => HomePage(),
+                  ),
+                );
+              }
+              else if(widget.text=='You are all set'){
+                widget.onButtonPressed!();
+              }
+              else{
+                Navigator.of(context).pop();
+              }
+            },
+                child: Center(
+                  child: Container(
 
             width: 80,
-
-            height: 75,
-
-            child: Container(
-
-              child: GestureDetector(
-                onTap: (){
-                  if(widget.text=='calendar' || widget.text=='calendarhelper') {
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  }
-                  else if(widget.text=='chats'){
-                    widget.onButtonPressed!();
-                  }
-                  else if(widget.text=='meetingPings'){
-                    print('${widget.userName!}');
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => HomePage(),
-                      ),
-                    );
-                  }
-                  else{
-                    Navigator.of(context).pop();
-                  }
-                },
-                child: Container(
-
-                  width: 80,
-
-                  height: 75,
-
-
-                  child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-
-                      children: [
-
-                        Container(
-                          height : 35,
-                          width : 35,
-
-
-                          child: Visibility(
-
-                            visible: widget.imagePath != null,
-                            child: CircleAvatar(
-                              backgroundColor: Colors.transparent,
-                              radius: 20.0,
-
-                            ),
-                            replacement: SvgPicture.asset(
-                              'assets/images/profile_icon.svg',
-                              width: 40.0,
-                              height: 40.0,
-                            ),
-                          ),
-
-
-
-
-                        ),
-                        SizedBox(height: 2,),
-                        Text('Profile',style: Theme.of(context).textTheme.bodyText1),
-                      ]
-                  ),
-                ),
-              ),
+            height: 70,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text('< Back',style: TextStyle(fontWeight: FontWeight.bold,),),
+              ],
             ),
-          )
+          ),
+                ),
+              )
               : SizedBox(width: 0,),
 
           widget.reqPage>=1
@@ -297,7 +264,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
                   : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
             ),
-          ):SizedBox(width: 0,),
+          ):SizedBox(width: 75,),
         ],
       ),
     );
