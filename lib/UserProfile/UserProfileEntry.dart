@@ -65,7 +65,7 @@ class ProfileApp extends StatelessWidget {
 class ProfilePage extends StatefulWidget {
   final int reqPage;
   final ProfileDataProvider? profileDataProvider;
-  final String?userId,userName;
+  String?userId,userName;
   ProfilePage({required this.reqPage, this.profileDataProvider,this.userId,this.userName});
 
   @override
@@ -88,15 +88,31 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       appBar:AppBar(title: ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),automaticallyImplyLeading:false,backgroundColor: Colors.transparent,shadowColor: Colors.transparent,),
       body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            widget.reqPage==0?SizedBox(height: 17,):SizedBox(height: 0,),
-            widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
-            SizedBox(height: 17,),
-            CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,name:widget.userName),
-            UserInformationSection(reqPage:widget.reqPage,profileDataProvider:widget.profileDataProvider,userName:widget.userName,userId:widget.userId),
-          ],
+        child: Container(
+          color: Theme.of(context).backgroundColor,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              widget.reqPage==0?ProfileStrengthCard():SizedBox(height: 0,),
+              SizedBox(height: 35,),
+              CoverPage(reqPage:widget.reqPage,profileDataProvider: widget.profileDataProvider,
+                imagePath: ((widget.profileDataProvider)!=null && (widget.profileDataProvider!.retImagePath())!=null ? (widget.profileDataProvider!.retImagePath()):null),
+                image: (widget.profileDataProvider)!=null && (widget.profileDataProvider!.retImagePath())!=null?'network':null,
+                name:widget.userName),
+              SizedBox(height: 35,),
+              widget.reqPage==0?SizedBox(width: 0,):MotivationalQuote(profileDataProvider:widget.profileDataProvider),
+              SizedBox(height: 5.0),
+              ReachAndLocation(profileDataProvider:widget.profileDataProvider),
+              SizedBox(height:45,),
+              widget.reqPage==0?SizedBox(height: 0):SignIn(profileDataProvider:widget.profileDataProvider,googleAuth:(){
+                setState(() {
+                  widget.userName = widget.profileDataProvider?.retUserName();
+                });
+                print('i have failed');
+              }),
+              UserInformationSection(reqPage:widget.reqPage,profileDataProvider:widget.profileDataProvider,userName:widget.userName,userId:widget.userId),
+            ],
+          ),
         ),
       ),
     );
@@ -215,16 +231,16 @@ class UserInformationSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color : Theme.of(context).backgroundColor,
-      padding: EdgeInsets.all(16.0),
+      padding: EdgeInsets.only(left: 15.0,right: 15),
       child: Column(
         children: [
-          SizedBox(height: 10,),
-          reqPage==0?SizedBox(width: 0,):MotivationalQuote(profileDataProvider:profileDataProvider),
-          SizedBox(height: 20.0),
-          ReachAndLocation(profileDataProvider:profileDataProvider),
-          SizedBox(height: 30,),
-          reqPage==0?SizedBox(height: 0):SignIn(profileDataProvider:profileDataProvider),
-          SizedBox(height: 30.0),
+          // SizedBox(height: 40,),
+          // reqPage==0?SizedBox(width: 0,):MotivationalQuote(profileDataProvider:profileDataProvider),
+          // // SizedBox(height: 20.0),
+          // // ReachAndLocation(profileDataProvider:profileDataProvider),
+          // SizedBox(height:15,),
+          // reqPage==0?SizedBox(height: 0):SignIn(profileDataProvider:profileDataProvider),
+          // SizedBox(height: 30.0),
           reqPage==0?SizedBox(height: 0):SizedBox(height: 10),
           reqPage==0?UserDetailsTable():ProfileForm(profileDataProvider:profileDataProvider),
           SizedBox(height: 45.0),

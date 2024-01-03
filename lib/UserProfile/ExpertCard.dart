@@ -10,13 +10,9 @@ class ExpertCardDetails extends StatelessWidget{
   @override
   Widget build(BuildContext context) {
     return Container(
-
+      padding: EdgeInsets.only(left: 10,right: 10),
       decoration: BoxDecoration(
         color: Theme.of(context).backgroundColor,
-        // border: Border.all(
-        //   color: Colors.white70,
-        //   width: 2,
-        // ),
         boxShadow: [
           BoxShadow(
             color: Colors.black,
@@ -32,114 +28,108 @@ class ExpertCardDetails extends StatelessWidget{
           ),
         ],
       ),
-      child: Container(
-        padding: EdgeInsets.all(16.0),
+      child: Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Text('Your Expert Cards' ,style: Theme.of(context).textTheme.subtitle1,),
+              IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined, color : Theme.of(context).primaryColor,)),
+            ],
+          ),
+          SizedBox(height : 10),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            // mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Expert in locations -',style: Theme.of(context).textTheme.subtitle1,),
 
-        child: Column(
-          children: [
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Text('Your Expert Cards' ,style: Theme.of(context).textTheme.subtitle1,),
-                IconButton(onPressed: (){}, icon: Icon(Icons.share_outlined, color : Theme.of(context).primaryColor,)),
-              ],
-            ),
-            SizedBox(height : 10),
-            Column(
-              // crossAxisAlignment: CrossAxisAlignment.end,
-              // mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Expert in locations -',style: Theme.of(context).textTheme.subtitle1,),
-
-                    Container(
-                      width : 170,
-                      child: expertLocations.isEmpty ? Text('NA', style: Theme.of(context).textTheme.headline6,):
-                      Wrap(
-                        runSpacing: 8.0, // Vertical spacing between lines of items
-                        children: [
-                          Row(
-                            children: [
-                              for (int i = 0; i < expertLocations.length; i++)
-                                Container(
-                                  margin: EdgeInsets.only(right: 8.0),
-                                  child: Row(
-                                    children: [
-                                      Text(expertLocations[i]),
-                                      if (i < expertLocations.length - 1)
-                                        Text(',', style: Theme.of(context).textTheme.headline6,),
-                                    ],
-                                  ),
-                                ),
-                            ],
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 20,),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Visited Places - ', style: Theme.of(context).textTheme.subtitle1,),
-
-                    Container( width : 170,
-                        child: Text('${visitedplace}', style: Theme.of(context).textTheme.headline6,)),
-                  ],
-                ),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Covered Locations - ', style: Theme.of(context).textTheme.subtitle1,),
-
-                    Container( width : 170,
-                        child: Text('${coveredLocation}', style: Theme.of(context).textTheme.headline6,)),
-                  ],
-                ),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Expertise Rating - ', style: Theme.of(context).textTheme.subtitle1,),
-
-                    Container(
-                      width : 170,
-                      child: ratings == 0
-                          ? Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
+                  Container(
+                    child: expertLocations.isEmpty ? Text('NA', style: Theme.of(context).textTheme.headline6,):
+                    Wrap(
+                      runSpacing: 8.0, // Vertical spacing between lines of items
+                      children: [
+                        Row(
                           children: [
-                            Icon(Icons.star,color: HexColor('#FB8C00'),),
-                            SizedBox(width: 5),
-                            Text('NA'),
+                            for (int i = 0; i < expertLocations.length; i++)
+                              Container(
+                                margin: EdgeInsets.only(right: 8.0),
+                                child: Row(
+                                  children: [
+                                    Text(expertLocations[i]),
+                                    if (i < expertLocations.length - 1)
+                                      Text(',', style: Theme.of(context).textTheme.headline6,),
+                                  ],
+                                ),
+                              ),
                           ],
                         ),
-                      )
-                          : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(ratings, (index) {
-                          return Icon(Icons.star, color: HexColor('#FB8C00'));
-                        }),
-                      ),
+                      ],
                     ),
-                  ],
-                ),
-                SizedBox(height: 40,),
-                Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text('Your Culturtap Status',style: Theme.of(context).textTheme.subtitle1,),
+                  ),
+                ],
+              ),
+              SizedBox(height: 20,),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Visited Places - ', style: Theme.of(context).textTheme.subtitle1,),
 
-                    Container(
-                      width : 170,
-                      child: visitedplace==0 || coveredLocation==0?
-                      Text('NA',style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
-                      Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
+                  Container(
+                      child: Text('${visitedplace}', style: Theme.of(context).textTheme.headline6,)),
+                ],
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Covered Locations - ', style: Theme.of(context).textTheme.subtitle1,),
+
+                  Container(
+                      child: Text('${coveredLocation}', style: Theme.of(context).textTheme.headline6,)),
+                ],
+              ),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Expertise Rating - ', style: Theme.of(context).textTheme.subtitle1,),
+
+                  Container(
+                    width : 170,
+                    child: ratings == 0
+                        ? Container(
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.star,color: HexColor('#FB8C00'),),
+                          SizedBox(width: 5),
+                          Text('NA'),
+                        ],
+                      ),
+                    )
+                        : Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: List.generate(ratings, (index) {
+                        return Icon(Icons.star, color: HexColor('#FB8C00'));
+                      }),
                     ),
-                  ],
-                ),
-              ],
-            ),
-          ],
-        ),
+                  ),
+                ],
+              ),
+              SizedBox(height: 40,),
+              Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Your Culturtap Status',style: Theme.of(context).textTheme.subtitle1,),
+
+                  Container(
+                    child: visitedplace==0 || coveredLocation==0?
+                    Text('NA',style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),):
+                    Text(profileStatus,style: TextStyle(color: HexColor('#0A8100'),fontWeight: (FontWeight.w800),fontFamily: 'Poppins'),),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }
