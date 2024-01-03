@@ -7,6 +7,7 @@ import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/widgets/AlertBox2Option.dart';
 
 import '../BackendStore/BackendStore.dart';
+import '../CustomItems/CustomPopUp.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
 import '../widgets/Constant.dart';
 import '../widgets/hexColor.dart';
@@ -65,9 +66,32 @@ class _ServiceCardState extends State<ServiceCard>{
             mainAxisAlignment: MainAxisAlignment.spaceAround,
             children: [
               Text(widget.titleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+              // IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+              //   showDialog(context: context, builder: (BuildContext context){
+              //     return Container(child: CustomHelpOverlay(imagePath: widget.iconImage,serviceSettings: false),);
+              //   },
+              //   );
+              // },
+              // ),
+              //
               IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
                 showDialog(context: context, builder: (BuildContext context){
-                  return Container(child: CustomHelpOverlay(imagePath: widget.iconImage,serviceSettings: false),);
+                  return Container(child:
+
+                  widget.iconImage == 'assets/images/service_help_1.jpg' ?
+
+                  CustomPopUp(
+                    imagePath: "assets/images/coverStoryPopup.svg",
+                    textField: "Set Your Cover Story !" ,
+                    extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
+                    what:'OK',
+                  ) : CustomPopUp(
+                    imagePath: "assets/images/coverStoryPopup.svg",
+                    textField: "Set Your Cover Story !" ,
+                    extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
+                    what:'OK',
+                  )
+                  );
                 },
                 );
               },
@@ -118,18 +142,42 @@ class _ServiceCardState extends State<ServiceCard>{
               ),
             ),
           ),
+          // Row(
+          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+          //   children: [
+          //     Text(widget.endLabel),
+          //     ConcentricCircles(haveCards:widget.haveCards,profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId,text:widget.text),
+          //   ],
+          // ),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text(widget.endLabel),
-              ConcentricCircles(haveCards:widget.haveCards,profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId,text:widget.text),
-            ],
+        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        children: [
+          RichText(
+            text: TextSpan(
+              text: 'Turn yourself', // Replace with your actual text
+              style: DefaultTextStyle.of(context).style,
+              children: <TextSpan>[
+                TextSpan(
+                  text: ' ON ',
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontWeight: FontWeight.w600,// Set the color to green
+                    // Add any other styling properties as needed
+                  ),
+                ),
+                TextSpan(
+                  text: (widget.endLabel),
+                ),
+              ],
+            ),
           ),
+          ConcentricCircles(haveCards:widget.haveCards,profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId,text:widget.text),
         ],
-      ),
+      ),],),
     );
   }
 }
+
 class ConcentricCircles extends StatefulWidget{
   bool? isToggled,haveCards;
   String ? userId,text;

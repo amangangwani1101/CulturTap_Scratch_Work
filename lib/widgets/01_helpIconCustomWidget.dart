@@ -28,6 +28,8 @@ String? globalEndTime;
 String? globalSlots;
 List<PaymentDetails> globalCards =[];
 bool isGone=false;
+
+
 class CustomHelpOverlay extends StatelessWidget {
   VoidCallback? onButtonPressed,onBackPressed;
   final String imagePath;
@@ -64,7 +66,8 @@ class CustomHelpOverlay extends StatelessWidget {
                 width: 166,
               ),
               SizedBox(height: 26),
-              Text(
+              if(text!=null)
+                Text(
                 text!,
                 style: TextStyle(
                   fontSize: 14,
@@ -74,7 +77,8 @@ class CustomHelpOverlay extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 16),
-              Text(
+              if(extraText != null)
+                Text(
                 extraText!,
                 style: TextStyle(
                   fontSize: 14,
@@ -85,7 +89,8 @@ class CustomHelpOverlay extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 10),
-              TextButton(
+              if(button != null)
+                TextButton(
                 onPressed: () {
                   if (navigate == 'calendarhelper' ||
                       navigate == 'edit' ||
@@ -105,6 +110,7 @@ class CustomHelpOverlay extends StatelessWidget {
                     );
                   }
                 },
+
                 child: Text(
                   button!,
                   style: TextStyle(
