@@ -11,6 +11,7 @@ import 'package:learn_flutter/UserProfile/CoverPage.dart';
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:multiselect/multiselect.dart';
+import '../SearchEngine/SuggestionList.dart';
 import '../widgets/CustomAutoSuggestionDropDown.dart';
 import '../widgets/CustomButton.dart';
 import '../widgets/CustomDropDowns.dart';
@@ -61,94 +62,91 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
   @override
   Widget build(BuildContext context) {
     return
-      Center(
-        child: Container(
-
-          width: 350,
-          child: Column(
+      Column(
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Container(
-                    width: widget.quote!=null?350:300,
-                    child: widget.state=='final'
-                      ?Center(
-                        child: Container(
-                          width : 300,
-                          child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: Theme.of(context).textTheme.headline6,textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
-                      ),
-                        ))
-                      :GestureDetector(
-                      onTap: (){
-                        Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
-                      },
-                      child:
-                      widget.quote!=null
-                          ? Container(
-                        width : 300,
-                        child: Center(
-                        child: Text('" ${capitalizeWords(widget.text=='edit'?setQuote!:widget.quote!)} "' ,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',),textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
-                        ),
-                      ),
-                          )
-                          : !isQuoteSet?
-                      Text(setQuote!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),
-                      ):
-                      Center(
-                        child: Text(setQuote!,style: TextStyle(fontSize: 16,fontWeight: FontWeight.w800,fontFamily: 'Poppins',),textAlign: TextAlign.justify,maxLines: 5,overflow: TextOverflow.ellipsis,
-                        ),
-                      ),
-                    ),
-                  ),
-                  widget.quote!=null || widget.state=='final'
-                      ?SizedBox(width: 0,)
-                      :widget.text!='edit' || widget.quote==null
-                          ?!isQuoteSet
-                            ? IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-                              showDialog(context: context, builder: (BuildContext context){
-                                return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',serviceSettings: false),);
-                                },
-                               );
-                              },)
-                           :SizedBox(width: 0,)
-                         :SizedBox(width: 0,),
-                ],
-              ),
-              SizedBox(height: 33,),
-              widget.text=='edit'
-                ?GestureDetector(
-                  onTap: (){
-                    Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
-                  },
-                  child: Column(
-                    children: [
-                      Container(
-                        width: 154,
-                        height: 45,
-                        decoration: BoxDecoration(
-                          color:Colors.orange,
-                          borderRadius: BorderRadius.circular(5.0),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            Icon(Icons.edit_outlined,size: 19,color: Colors.white,),
-                            Text('EDIT QUOTE',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white),),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height : 30),
-                    ],
-                  ),
+              SizedBox(width: 5,),
+              widget.state=='final'
+                ?Container(
+                width: 300,
+                  child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: Theme.of(context).textTheme.headline6,textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
+                ),
                 )
-                :SizedBox(height: 0,),
+                :GestureDetector(
+                onTap: (){
+                  Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
+                },
+                child:
+                widget.quote!=null
+                    ? Container(
+                  width : 300,
+                  child: Text('" ${capitalizeWords(widget.text=='edit'?setQuote!:widget.quote!)} "' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',),textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
+                  ),
+                    )
+                    : !isQuoteSet?
+                Center(
+                  child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),textAlign: TextAlign.center,
+                  ),
+                ):
+                Container(
+                  width: 300,
+                  child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins',),textAlign: TextAlign.center,maxLines: 5,overflow: TextOverflow.ellipsis,
+                  ),
+                ),
+              ),
+              SizedBox(width: 20,),
+              widget.quote!=null || widget.state=='final'
+                  ?SizedBox(width: 0,)
+                  :widget.text!='edit' || widget.quote==null
+                      ?!isQuoteSet
+                        ? InkWell(
+                          onTap: (){
+                            showDialog(context: context, builder: (BuildContext context){
+                              return Container(child: CustomHelpOverlay(imagePath: 'assets/images/help_motivation_icon.jpg',serviceSettings: false),);
+                            },
+                            );
+                          },
+                        child: Icon(Icons.help_outline,color: HexColor('#FB8C00')))
+                       :SizedBox(width: 0,)
+                     :SizedBox(width: 0,),
             ],
           ),
-        ),
+          SizedBox(height: 33,),
+          widget.text=='edit'
+            ?GestureDetector(
+              onTap: (){
+                Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
+              },
+              child: Column(
+                children: [
+                  Container(
+                    width: 154,
+                    height: 45,
+                    decoration: BoxDecoration(
+                      color:Colors.orange,
+                      borderRadius: BorderRadius.circular(5.0),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        Icon(Icons.edit_outlined,size: 19,color: Colors.white,),
+                        Text('EDIT QUOTE',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.white),),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height : 30),
+                ],
+              ),
+            )
+            :SizedBox(height: 0,),
+        ],
       );
   }
 }
+
+
 class EditQuote extends StatefulWidget{
   final SetQuote setQuote;
   String ?quote;
@@ -260,33 +258,36 @@ class _ReachAndLocationState extends State<ReachAndLocation>{
   @override
   Widget build(BuildContext context) {
     // func();
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.spaceAround,
-      children: [
-        GestureDetector(
-            onTap: (){
-              // setState(() {
-                // widget.followers = widget.followers==null?0:widget.followers;
-                // widget.followers = (widget.followers! + 1);
-                // print('Followers : ${(widget.followers)}');
-                // widget.profileDataProvider?.updateFollowersCnt(widget.followers!);
-              // });
-            },
-            child: InfoWidget(icon: Icons.person_add_alt, text: widget.followers!=null?'${widget.followers} Follower':'${0} Follower')
-        ),
-        GestureDetector(
-            onTap: (){
-              // setState(() {
-                // widget.following = widget.following==null?0:widget.following;
-                // widget.following = (widget.following! + 1)!;
-                // print('Following : ${(widget.following)}');
-                // widget.profileDataProvider?.updateFollowersCnt(widget.following!);
-              // });
-            },
-            child: InfoWidget(icon: Icons.person_outline, text: widget.following!=null?'${widget.following} Following':'${0} Following')
-        ),
-        InfoWidget(icon: Icons.add_location_outlined, text: widget.locations!=null?'${widget.locations} Location':'${1} Location'),
-      ],
+    return Container(
+      padding: EdgeInsets.only(left: 20,right: 20),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          GestureDetector(
+              onTap: (){
+                // setState(() {
+                  // widget.followers = widget.followers==null?0:widget.followers;
+                  // widget.followers = (widget.followers! + 1);
+                  // print('Followers : ${(widget.followers)}');
+                  // widget.profileDataProvider?.updateFollowersCnt(widget.followers!);
+                // });
+              },
+              child: InfoWidget(icon: Icons.person_add_alt, text: widget.followers!=null?'${widget.followers} Follower':'${0} Follower')
+          ),
+          GestureDetector(
+              onTap: (){
+                // setState(() {
+                  // widget.following = widget.following==null?0:widget.following;
+                  // widget.following = (widget.following! + 1)!;
+                  // print('Following : ${(widget.following)}');
+                  // widget.profileDataProvider?.updateFollowersCnt(widget.following!);
+                // });
+              },
+              child: InfoWidget(icon: Icons.person_outline, text: widget.following!=null?'${widget.following} Following':'${0} Following')
+          ),
+          InfoWidget(icon: Icons.add_location_outlined, text: widget.locations!=null?'${widget.locations} Location':'${1} Location'),
+        ],
+      ),
     );
   }
 }
@@ -314,7 +315,8 @@ class InfoWidget extends StatelessWidget {
 // Authentication Section
 class SignIn extends StatefulWidget{
   ProfileDataProvider? profileDataProvider;
-  SignIn({this.profileDataProvider});
+  VoidCallback? googleAuth;
+  SignIn({this.profileDataProvider,this.googleAuth});
   @override
   _SignInState createState() => _SignInState();
 }
@@ -349,6 +351,8 @@ class _SignInState extends State<SignIn>{
         // working on auto updation from google
         // CoverPage(reqPage: 1,imagePath: gPhotoUrl,name: gName,profileDataProvider: widget.profileDataProvider,image:'network');
         widget.profileDataProvider!.updateEmail(emailId!);
+        widget.profileDataProvider!.updateImagePath(gPhotoUrl!);
+        widget.profileDataProvider!.updateName(gName!);
         // onDataChanged(gPhotoUrl!,gName!);
         return user;
       }
@@ -375,68 +379,64 @@ class _SignInState extends State<SignIn>{
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
+    return Container(
       height: 120,
-      child: Center(
-        child: Container(
-          width: 360,
-          height: 120,
-          decoration: BoxDecoration(
-            border: Border.all(
-              color: Colors.black,
-              width: 1,
+      margin: EdgeInsets.only(left:20,right: 20),
+      decoration: BoxDecoration(
+        border: Border.all(
+          color: Colors.black,
+          width: 1,
+        ),
+      ),
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          Text('Fetch Details From',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+          Container(
+            // decoration: BoxDecoration(
+            //   border: Border.all(
+            //     color: Colors.black,
+            //     width: 1,
+            //   ),
+            // ),
+            // width: 40,
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                InkWell(
+                  onTap:(){
+                    print('Do it');
+                    handleSignIn();
+                    widget.googleAuth!();
+                  },
+                  child: Column(
+                    children: [
+                      Container(
+                        child: Image.asset('assets/images/gmail_icon.png',width: 27,height: 20,),
+                      ),
+                      SizedBox(height: 10,),
+                      Text('Google',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),)
+                    ],
+                  ),
+                ),
+                SizedBox(width: 25,),
+                InkWell(
+                  onTap:(){print('Do it');},
+                  child: Column(
+                    children: [
+                      Container(
+                        child: Image.asset('assets/images/facebook_icon.jpg',width: 22,height: 22,),
+                      ),
+                      SizedBox(height: 10,),
+                      Text('Facebook',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),)
+                    ],
+                  ),
+                ),
+              ],
             ),
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              Text('Fetch Details From',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-              Container(
-                // decoration: BoxDecoration(
-                //   border: Border.all(
-                //     color: Colors.black,
-                //     width: 1,
-                //   ),
-                // ),
-                // width: 40,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    InkWell(
-                      onTap:(){
-                        print('Do it');
-                        handleSignIn();
-                      },
-                      child: Column(
-                        children: [
-                          Container(
-                            child: Image.asset('assets/images/gmail_icon.png',width: 27,height: 20,),
-                          ),
-                          SizedBox(height: 10,),
-                          Text('Google',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),)
-                        ],
-                      ),
-                    ),
-                    SizedBox(width: 25,),
-                    InkWell(
-                      onTap:(){print('Do it');},
-                      child: Column(
-                        children: [
-                          Container(
-                            child: Image.asset('assets/images/facebook_icon.jpg',width: 22,height: 22,),
-                          ),
-                          SizedBox(height: 10,),
-                          Text('Facebook',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),)
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
+        ],
       ),
     );
   }
@@ -672,27 +672,58 @@ class _ProfileFormState extends State<ProfileForm> {
   String? selectedLanguage;
   late String save;
   String? age;
+  List<String> suggestions = [];
   Rx<List<String>> selectedOptionsList = Rx<List<String>>([]);
   var selectedOptions = ''.obs;
   TextEditingController _ageController = TextEditingController();
   FocusNode _focusNode = FocusNode();
   final List<String> genders = ['Male', 'Female', 'Other'];
-
+  bool _isListVisible = false;
 
   bool otherHome=false,otherPro=false;
   TextEditingController _otherHomeController = TextEditingController();
   TextEditingController _otherProController = TextEditingController();
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
+  // final FocusNode _focusNode = FocusNode();
 
-    @override
-    void initState() {
-      super.initState();
-      // Get the device width using MediaQuery and store it in deviceWidth
-      screenWidth = MediaQuery.of(context).size.width;
+  Future<List<String>> fetchSuggestions(String query,String list) async {
+    final String serverUrl = Constant().serverUrl;
+    print(query);
+    print(list);
+    final apiUrl = '$serverUrl/suggestions?query=$query';
+    try {
+      final response = await http.patch(Uri.parse(apiUrl),
+        headers: {
+        "Content-Type": "application/json",
+        },
+        body: jsonEncode({'query':query,'list':list}),
+      );
+      print('here is the response');
+
+      if (response.statusCode == 200) {
+        final jsonResponse = json.decode(response.body);
+
+        print(jsonResponse);
+        final List<String> suggestionsList =
+        List<String>.from(jsonResponse['suggestions']);
+        setState(() {
+          suggestions = suggestionsList;
+        });
+
+        return suggestionsList;
+      } else {
+        print('Error fetching suggestions: ${response.statusCode}');
+        return [];
+      }
+    } catch (error) {
+      print('Error fetching suggestions: $error');
+      return [];
     }
-    // bool _isFocused = false;
+  }
+
+
+  @override
+  void initState() {
+    super.initState();
     if(widget.setGender!=null){
       selectedGender = widget.setGender;
     }
@@ -702,22 +733,75 @@ class _ProfileFormState extends State<ProfileForm> {
     if(widget.setDOB!=null){
       selectedDateOfBirth = widget.setDOB;
     }
-    print('Init');
-    final FocusNode _focusNode = FocusNode();
+    // Get the device width using MediaQuery and store it in deviceWidth
+  }
+  @override
+  void dispose() {
+    // _focusNode.dispose();
+    // _ageController.dispose();
+    // _otherHomeController.dispose();
+    // _otherProController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    double screenWidth = MediaQuery.of(context).size.width;
+    // bool _isFocused = false;
     return Container(
-      padding: EdgeInsets.all(10.0),
+      padding: EdgeInsets.all(3.0),
       color : Theme.of(context).backgroundColor,
 
       child: Column(
 
         children: [
           // setHomeCity,setProfession,setGender,setLanguage
-          CustomAutoSuggestion(
-            cityList: Constant().cityList,
-            text: 'Home city',
-            state: widget.text,
-            initialText:widget.setHomeCity,
-            onValueChanged: (selectedValue) {
+          // CustomAutoSuggestion(
+          //   cityList: Constant().cityList,
+          //   text: 'Home city',
+          //   state: widget.text,
+          //   initialText:widget.setHomeCity,
+          //   onValueChanged: (selectedValue) {
+          //     if(selectedValue=='Others'){
+          //       setState(() {
+          //         otherHome = true;
+          //       });
+          //     }else{
+          //       setState(() {
+          //         otherHome = false;
+          //       });
+          //       if(widget.text=='edit'){
+          //         widget.homeCityCallback!(selectedValue);
+          //       }else{
+          //         setState(() {
+          //           customHomeCity = selectedValue;
+          //         });
+          //         if(selectedValue.isNotEmpty)
+          //           widget.profileDataProvider?.updateFieldCnt(1);
+          //         print(customHomeCity);
+          //         widget.profileDataProvider?.updatePlace(customHomeCity!);
+          //       }
+          //     }
+          //     // Add your logic here
+          //   },
+          // ),
+          RawAutocomplete(
+            optionsBuilder: (TextEditingValue textEditingValue) async{
+              if (textEditingValue.text == '') {
+                return const Iterable<String>.empty();
+              }else{
+                // List<String> matches = <String>[];
+                // matches.addAll(Constant().cityList);
+                // matches.retainWhere((s){
+                //   return s.toLowerCase().contains(textEditingValue.text.toLowerCase());
+                // });
+                // return matches.length>0?matches:['Others'];
+                await fetchSuggestions(textEditingValue.text, 'city');
+                return suggestions.length>0?suggestions:['Others'];
+              }
+            },
+
+            onSelected: (String selectedValue) {
               if(selectedValue=='Others'){
                 setState(() {
                   otherHome = true;
@@ -738,7 +822,99 @@ class _ProfileFormState extends State<ProfileForm> {
                   widget.profileDataProvider?.updatePlace(customHomeCity!);
                 }
               }
-              // Add your logic here
+            },
+
+            fieldViewBuilder: (BuildContext context, TextEditingController textEditingController,
+                FocusNode focusNode,
+                VoidCallback onFieldSubmitted) {
+              if(widget.setHomeCity!=null){
+                textEditingController.text = widget.setHomeCity!;
+                widget.setHomeCity = null;
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Home City', style: Theme.of(context).textTheme.subtitle1),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Select...',
+                      hintStyle: Theme.of(context).textTheme.subtitle2,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: HexColor('#FB8C00')),
+                      ),
+                      border: OutlineInputBorder(),
+                      suffixIcon: widget.text != 'edit'
+                          ? Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'))
+                          : null,
+                      suffix: widget.text == 'edit'
+                          ? Text('EDIT', style: Theme.of(context).textTheme.headline4)
+                          : null,
+                    ),
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    style: Theme.of(context).textTheme.subtitle2,
+                    onSubmitted: (String selectedValue) {
+                      if(selectedValue=='Others'){
+                        setState(() {
+                          otherHome = true;
+                        });
+                      }else{
+                        setState(() {
+                          otherHome = false;
+                        });
+                        if(widget.text=='edit'){
+                          widget.homeCityCallback!(selectedValue);
+                        }else{
+                          setState(() {
+                            customHomeCity = selectedValue;
+                          });
+                          if(selectedValue.isNotEmpty)
+                            widget.profileDataProvider?.updateFieldCnt(1);
+                          print(customHomeCity);
+                          widget.profileDataProvider?.updatePlace(customHomeCity!);
+                        }
+                      }
+                    },
+                  ),
+                ],
+              );
+            },
+
+            optionsViewBuilder: (BuildContext context, void Function(String) onSelected,
+                Iterable<String> options) {
+              return Material(
+                  child:SizedBox(
+                      height: 200,
+                      child:SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: options.map((opt){
+                              return InkWell(
+                                  onTap: (){
+                                    onSelected(opt);
+                                  },
+                                  child:Container(
+                                      width: screenWidth*0.90,
+                                      height: 60,
+                                      child:Card(
+                                          margin: EdgeInsets.all(0),
+                                          child: Center(
+                                            child: Container(
+                                              width: double.infinity,
+                                              padding: EdgeInsets.all(10),
+                                              margin: EdgeInsets.all(0),
+                                              child:Text(opt,style: Theme.of(context).textTheme.subtitle2),
+                                            ),
+                                          )
+                                      )
+                                  )
+                              );
+                            }).toList(),
+                          )
+                      )
+                  )
+              );
             },
           ),
           SizedBox(height: 10,),
@@ -761,7 +937,6 @@ class _ProfileFormState extends State<ProfileForm> {
                     ),
 
                   ),
-
                   onChanged: (value) {
                     setState(() {
                       customHomeCity = customHomeCity+value;
@@ -779,29 +954,132 @@ class _ProfileFormState extends State<ProfileForm> {
             ),
           )
             :SizedBox(height: 0,),
-          CustomAutoSuggestion(
-            cityList: Constant().professionList,
-            text: 'Profession',
-            state: widget.text,
-            initialText: widget.setProfession,
-            onValueChanged: (selectedValue) {
-              if(selectedValue=='Others'){
-                setState(() {
-                  otherPro = true;
-                });
+
+          // CustomAutoSuggestion(
+          //   cityList: Constant().professionList,
+          //   text: 'Profession',
+          //   state: widget.text,
+          //   initialText: widget.setProfession,
+          //   onValueChanged: (selectedValue) {
+          //     if(selectedValue=='Others'){
+          //       setState(() {
+          //         otherPro = true;
+          //       });
+          //     }else{
+          //       setState(() {
+          //         otherPro = false;
+          //       });
+          //       if(widget.text=='edit'){
+          //         widget.professionCallback!(selectedValue);
+          //       }else{
+          //         if(selectedValue.isNotEmpty)
+          //           widget.profileDataProvider?.updateFieldCnt(1);
+          //         widget.profileDataProvider?.updateProfession(selectedValue);
+          //       }
+          //     }
+          //     // Add your logic here
+          //   },
+          // ),
+          RawAutocomplete(
+            optionsBuilder: (TextEditingValue textEditingValue)async {
+              if (textEditingValue.text == '') {
+                return const Iterable<String>.empty();
               }else{
-                setState(() {
-                  otherPro = false;
-                });
-                if(widget.text=='edit'){
-                  widget.professionCallback!(selectedValue);
-                }else{
-                  if(selectedValue.isNotEmpty)
-                    widget.profileDataProvider?.updateFieldCnt(1);
-                  widget.profileDataProvider?.updateProfession(selectedValue);
-                }
+                await fetchSuggestions(textEditingValue.text, 'profession');
+                return suggestions.length>0?suggestions:['Others'];
               }
-              // Add your logic here
+            },
+
+            onSelected: (String selectedValue) {
+                if(selectedValue=='Others'){
+                  setState(() {
+                    otherPro = true;
+                  });
+                }else{
+                  setState(() {
+                    otherPro = false;
+                  });
+                  if(widget.text=='edit'){
+                    widget.professionCallback!(selectedValue);
+                  }else{
+                    if(selectedValue.isNotEmpty)
+                      widget.profileDataProvider?.updateFieldCnt(1);
+                    widget.profileDataProvider?.updateProfession(selectedValue);
+                  }
+                }
+            },
+
+            fieldViewBuilder: (BuildContext context, TextEditingController textEditingController,
+                FocusNode focusNode,
+                VoidCallback onFieldSubmitted) {
+              if(widget.setProfession!=null){
+                textEditingController.text = widget.setProfession!;
+                widget.setProfession = null;
+              }
+              return Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Profession', style: Theme.of(context).textTheme.subtitle1),
+                  SizedBox(height: 10),
+                  TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Select...',
+                      hintStyle: Theme.of(context).textTheme.subtitle2,
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: HexColor('#FB8C00')),
+                      ),
+                      border: OutlineInputBorder(),
+                      suffixIcon: widget.text != 'edit'
+                          ? Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'))
+                          : null,
+                      suffix: widget.text == 'edit'
+                          ? Text('EDIT', style: Theme.of(context).textTheme.headline4)
+                          : null,
+                    ),
+                    controller: textEditingController,
+                    focusNode: focusNode,
+                    style: Theme.of(context).textTheme.subtitle2,
+                    onSubmitted: (String value) {
+                    },
+                  ),
+                ],
+              );
+            },
+
+            optionsViewBuilder: (BuildContext context, void Function(String) onSelected,
+                Iterable<String> options) {
+              return Material(
+                  child:SizedBox(
+                      height: 200,
+                      child:SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: options.map((opt){
+                              return InkWell(
+                                  onTap: (){
+                                    onSelected(opt);
+                                  },
+                                  child:Container(
+                                      width: screenWidth*0.90,
+                                      height: 60,
+                                      child:Card(
+                                          margin: EdgeInsets.all(0),
+                                          child: Center(
+                                            child: Container(
+                                              width: double.infinity,
+                                              padding: EdgeInsets.all(10),
+                                              margin: EdgeInsets.all(0),
+                                              child:Text(opt,style: Theme.of(context).textTheme.subtitle2),
+                                            ),
+                                          )
+                                      )
+                                  )
+                              );
+                            }).toList(),
+                          )
+                      )
+                  )
+              );
             },
           ),
           otherPro
@@ -884,89 +1162,90 @@ class _ProfileFormState extends State<ProfileForm> {
             selectedValue: selectedGender, // Pass the selected value to the widget
           ),
           SizedBox(height: 20,),
-          Center(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height : 10),
-                Text(
-                  'Language You Know',
-              style: Theme.of(context).textTheme.subtitle1,
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(height : 10),
+              Text(
+                'Language You Know',
+            style: Theme.of(context).textTheme.subtitle1,
+              ),
+              SizedBox(height: 10),
+              Container(
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.grey), // Add a grey border
+                  borderRadius: BorderRadius.circular(8.0), // Optional: Add border radius
                 ),
-                SizedBox(height: 10),
-                Container(
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.grey), // Add a grey border
-                    borderRadius: BorderRadius.circular(8.0), // Optional: Add border radius
-                  ),
 
-                  height : 60,
+                height : 60,
 
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: DropDownMultiSelect(
-                          isDense: true,
-                          childBuilder: (selected) {
-                            return Row(
-                              children: [
-                                Container(
+                child: Row(
+                  children: [
+                    Expanded(
+                      child: DropDownMultiSelect(
+                        // hint: Widget(
+                        //   key: Key('Select...'),
+                        // ),
+                        isDense: true,
+                        childBuilder: (selected) {
+                          return Row(
+                            children: [
+                              Container(
 
-                                  padding: EdgeInsets.all(10),
-                                  width: 310, // Adjust as needed
-                                  child: Text(
-                                    selected.join(', '),
-                                    style: TextStyle(
-                                      fontSize: 14,
-                                      overflow: TextOverflow.ellipsis,
-                                      fontWeight: FontWeight.w600,
-                                    ),
+                                padding: EdgeInsets.all(10),
+                                width: 310, // Adjust as needed
+                                child: Text(
+                                  selected.join(', '),
+                                  style: TextStyle(
+                                    fontSize: 14,
+                                    overflow: TextOverflow.ellipsis,
+                                    fontWeight: FontWeight.w600,
                                   ),
                                 ),
-                                SizedBox(width: 10),
-                              ],
-                            );
-                          },
-                          enabled: true,
-                          options: Constant().languageList,
-                          whenEmpty: 'Select', // Placeholder text when no option is chosen
-                          decoration: InputDecoration(
-                            border: InputBorder.none,
-                            contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-
-                            suffixIcon: widget.text == 'edit'
-                                ? Padding(
-                              padding: const EdgeInsets.only(right: 8.0, top: 10),
-                              child: Text(
-                                'EDIT',
-                                style: Theme.of(context).textTheme.headline4,
                               ),
-                            )
-                                : Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
-                          ),
-                          icon: SizedBox.shrink(),
-                          onChanged: (value) {
-                            selectedOptionsList.value = value;
-                            selectedOptions.value = '';
-                            selectedOptionsList.value.forEach((item) {
-                              selectedOptions.value = selectedOptions.value + ',' + item;
-                            });
-                            if (widget.text == 'edit') {
-                              widget.languageCallback!(selectedOptionsList.value);
-                            } else {
-                              if(selectedOptionsList.value.length>0)
-                                widget.profileDataProvider?.updateFieldCnt(1);
-                              widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
-                            }
-                          },
-                          selectedValues: selectedOptionsList.value,
+                              SizedBox(width: 10),
+                            ],
+                          );
+                        },
+                        enabled: true,
+                        options: Constant().languageList,
+                        whenEmpty: 'Select', // Placeholder text when no option is chosen
+                        decoration: InputDecoration(
+                          border: InputBorder.none,
+                          contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+
+                          suffixIcon: widget.text == 'edit'
+                              ? Padding(
+                            padding: const EdgeInsets.only(right: 8.0, top: 10),
+                            child: Text(
+                              'EDIT',
+                              style: Theme.of(context).textTheme.headline4,
+                            ),
+                          )
+                              : Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
                         ),
+                        icon: SizedBox.shrink(),
+                        onChanged: (value) {
+                          selectedOptionsList.value = value;
+                          selectedOptions.value = '';
+                          selectedOptionsList.value.forEach((item) {
+                            selectedOptions.value = selectedOptions.value + ',' + item;
+                          });
+                          if (widget.text == 'edit') {
+                            widget.languageCallback!(selectedOptionsList.value);
+                          } else {
+                            if(selectedOptionsList.value.length>0)
+                              widget.profileDataProvider?.updateFieldCnt(1);
+                            widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
+                          }
+                        },
+                        selectedValues: selectedOptionsList.value,
                       ),
-                    ],
-                  ),
+                    ),
+                  ],
                 ),
-              ],
-            ),
+              ),
+            ],
           ),
 
           SizedBox(height: 30,),
@@ -1002,4 +1281,5 @@ class _ProfileFormState extends State<ProfileForm> {
     );
   }
 }
+
 

@@ -41,7 +41,7 @@ void main() async{
       appId: "1:268794997426:android:694506cda12a213f13f7ab ",
     ),
   );
-  runApp(SettingsPage(userId: '655e6f1aaa077c80bc0da471',));
+  runApp(SettingsPage(userId: '6572878e19d698a615ce275a',));
 }
 class SettingsPage extends StatefulWidget{
 
@@ -133,7 +133,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title : ProfileHeader(reqPage: 0,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+      appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
       body: WillPopScope(
         onWillPop: ()async{
 
@@ -673,8 +673,6 @@ class _EditProfileState extends State<EditProfile>{
                         dob = value;
                       }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
                       ),
-
-
                       SizedBox(height : 0),
                     ],
 
@@ -741,6 +739,7 @@ class _EditServicesState extends State<EditServices>{
     fetchServiceData();
   }
 
+
   Future<void> fetchServiceData() async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
     final url = Uri.parse('$serverUrl/userStoredData/${userID}'); // Replace with your backend URL
@@ -751,7 +750,7 @@ class _EditServicesState extends State<EditServices>{
       print('Data is $dataset');
       setState(() {
         widget.service1 = dataset?['userServiceTripCallingData']!=null?(dataset?['userServiceTripCallingData']['startTimeFrom']!=null?true:false):false;
-        widget.service2 = dataset?['userServiceTripAssistantData']!=null?(dataset?['userServiceTripAssistantData']):false;
+        widget.service2 = dataset?['userServiceTripAssistantStatus']!=null?(dataset?['userServiceTripAssistantStatus']):false;
         widget.service3 = false;
         widget.haveCards = (dataset?['userPaymentData']!=null && dataset?['userPaymentData'].length>0)?true:false;
       });
