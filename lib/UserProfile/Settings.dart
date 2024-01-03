@@ -675,7 +675,45 @@ class _EditProfileState extends State<EditProfile>{
                       ),
 
 
-                      SizedBox(height : 0),
+                      SizedBox(height : 20),
+
+                      Center(
+                        child: Container(
+
+                          padding: EdgeInsets.only(left : 10, right : 10),
+
+
+
+                          child: Column(
+                            children: [
+                              InkWell(
+                                onTap: (){
+                                  sendDataToBackend();
+                                },
+                                child: Container(height : 53,width : double.infinity,
+
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5), // Shadow color
+                                        spreadRadius: 0.5,  // Spread radius
+                                        blurRadius: 0.3,    // Blur radius
+                                        offset: Offset(1, 1 ), // Offset (elevation of the shadow)
+                                      ),
+                                    ],
+                                     // Adjust the value for the desired border radius
+                                  ),
+                                  child : Center(child: Text('SUBMIT',style:TextStyle(fontSize: 18,color : Colors.white,fontWeight: FontWeight.bold))),
+                                ),
+                              ),
+                              SizedBox(height : 35),
+
+                            ],
+                          ),
+                        ),
+                      ),
                     ],
 
                   ),
@@ -688,36 +726,12 @@ class _EditProfileState extends State<EditProfile>{
           bottomNavigationBar: AnimatedContainer(
 
             duration: Duration(milliseconds: 100),
-            height : 160,
+            height : 70,
             color: Colors.white,
 
 
 
-            child:Center(
-              child: Container(
-
-
-                child: Column(
-                  children: [
-                    Container(
-                      padding : EdgeInsets.only(left : 20, right : 20),
-
-                      child: InkWell(
-                        onTap: (){
-                          sendDataToBackend();
-                        },
-                        child: Container(height : 50,width : double.infinity,
-                        color : Colors.orange,
-                        child : Center(child: Text('SUBMIT',style:TextStyle(fontSize: 14,color : Colors.white,fontWeight: FontWeight.bold))),
-                        ),
-                      )
-                    ),
-                    SizedBox(height : 35),
-                    CustomFooter(userName: userName, userId: userID, lode: 'home',),
-                  ],
-                ),
-              ),
-            ),
+            child:   CustomFooter(userName: userName, userId: userID, lode: 'home',),
           )
 
       ),

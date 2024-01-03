@@ -51,11 +51,15 @@ class _MaainState extends State<Maain>  {
       print('Error $err');
     }
   }
+
+
   @override
   void initState() {
     super.initState();
     checkIsMeetOngoing();
   }
+
+
   Future<void> checkIsMeetOngoing()async {
     await PingsAssistanceChecker('652a31f77ff9b6023a14838a');
   }

@@ -1,3 +1,5 @@
+import 'dart:ui';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:learn_flutter/HomePage.dart';
@@ -71,6 +73,8 @@ class _CameraAppState extends State<CameraApp> {
   double liveLongitude = 0.0;
   bool locationgranted = false;
   final player = AudioPlayer();
+
+  bool isFlipped = false;
 
   bool locationFetched = false;
 
@@ -666,12 +670,24 @@ class _CameraAppState extends State<CameraApp> {
                             children: [
                               SizedBox(
                                 child: Container(
-                                  color : Colors.orange,
+
                                   height: 100,
                                   width: 80,
-                                  child: IconButton(
-                                    icon: Image.asset("assets/images/flip_camera.png"),
-                                    onPressed: toggleCamera,
+                                  child: RotationTransition(
+                                    turns: isFlipped ? AlwaysStoppedAnimation(0.3) : AlwaysStoppedAnimation(0),
+                                    child: IconButton(
+                                      icon: Image.asset(''),
+                                      onPressed: () {
+                                        // Your custom onPressed logic here
+                                        // ...
+
+                                        toggleCamera();
+                                        setState(() {
+                                          isFlipped = !isFlipped;
+                                        });
+                                      },
+                                    ),
+
                                   ),
                                 ),
                               ),

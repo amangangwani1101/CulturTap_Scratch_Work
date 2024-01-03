@@ -59,6 +59,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
   bool _isFullScreen = false;
   String storyUserID = '';
   bool _isVisible = true;
+  Duration totalDuration = Duration.zero;
 
 
 
@@ -383,6 +384,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.light.copyWith(
+      statusBarColor: Colors.black,
+      statusBarBrightness: Brightness.light,
+    ));
+
     return WillPopScope(
       onWillPop: () async {
 
@@ -581,6 +587,29 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         size: 58.0,
                         color: Colors.white70,
                       ),
+                    ),
+                  ),
+                ),
+
+                // Story Bars
+                Positioned(
+                  top: 0,
+                  left: 0,
+                  right: 0,
+                  child: Row(
+                    children: List.generate(
+                      _videoControllersList[_currentIndex].length,
+                          (index) {
+                        bool isVideoPlayed = index < currentVideoIndex-1;
+                        return Padding(
+                          padding: EdgeInsets.symmetric(horizontal: 2),
+                          child: Container(
+                            height: 5,
+                            width: MediaQuery.of(context).size.width / _videoControllersList[_currentIndex].length - 4, // Adjust the padding
+                            color: isVideoPlayed ? Colors.orange : Colors.grey,
+                          ),
+                        );
+                      },
                     ),
                   ),
                 ),

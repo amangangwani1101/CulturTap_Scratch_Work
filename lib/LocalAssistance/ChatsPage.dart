@@ -4,6 +4,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:open_file/open_file.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
@@ -511,7 +512,7 @@ class _ChatsPageState extends State<ChatsPage> {
       pageVisitor = false;
     }
     if(pageVisitor){
-      userIds = ['6587944352bea38528b313d7','656050b3030772278b8b54cd'];
+      userIds = [userID,'656050b3030772278b8b54cd'];
       distance = ['0.05','0.09'];
     }
     if(widget.meetId!=null) {

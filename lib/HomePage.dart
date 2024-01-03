@@ -11,6 +11,7 @@ import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/CustomItems/MyCustomScrollPhysics.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
@@ -307,6 +308,10 @@ class _HomePageState extends State<HomePage> {
 
 
   Widget build(BuildContext context) {
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+      statusBarColor: Colors.white,
+      statusBarBrightness: Brightness.light,
+    ));
     return WillPopScope(
 
       onWillPop: () => backButtonHandler10.onWillPop(context, true),
@@ -320,6 +325,7 @@ class _HomePageState extends State<HomePage> {
           color: Colors.orange,
           onRefresh: _refreshHomepage,
           child: CustomScrollView(
+            physics: MyBouncingScrollPhysics(),
             controller: _scrollController,
             slivers: [
               SliverAppBar(

@@ -5,9 +5,12 @@ import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
 
+import 'package:fluttertoast/fluttertoast.dart';
+
 import 'package:learn_flutter/LocalAssistance/EmergenceAssist.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist2.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
+import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'dart:convert';
@@ -21,10 +24,42 @@ class LocalAssist extends StatefulWidget {
 class _LocalAssistState extends State<LocalAssist> {
 
   String liveLocation = 'Fetching location...';
+
+  String ?meetId,state;
+
+  Future<void> PingsAssistanceChecker(userId) async {
+    try{
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final url = Uri.parse('$serverUrl/checkLocalUserPings/${userId}'); // Replace with your backend URL
+      final http.Response response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(data);
+        setState(() {
+          if(data['meetId']!=null){
+            meetId = data['meetId'];
+            state = data['state'];
+          }
+        });
+        print('Meeting Ongoing : $meetId');
+
+      } else {
+        // Handle error
+        print('Failed to fetch dataset: ${response.statusCode}');
+      }
+    }
+    catch(err){
+      print('Error $err');
+    }
+  }
+
+
   @override
   void initState() {
     super.initState();
     // Your initialization code goes here
+    checkIsMeetOngoing();
     _getUserLocation();
     print('LocalAssist Page initialized');
   }
@@ -35,6 +70,9 @@ class _LocalAssistState extends State<LocalAssist> {
   Future<Map<String, double>> getUserIdsAndDistances(String providedLatitude, String providedLongitude) async {
     final String serverUrl = Constant().serverUrl;
     final Uri uri = Uri.parse('$serverUrl/findUserIdsAndDistancesWithin10Km?providedLatitude=$providedLatitude&providedLongitude=$providedLongitude');
+
+
+
 
     try {
       final response = await http.get(uri);
@@ -110,6 +148,10 @@ class _LocalAssistState extends State<LocalAssist> {
     }
   }
 
+  Future<void> checkIsMeetOngoing()async {
+    await PingsAssistanceChecker(userID);
+  }
+
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
@@ -133,10 +175,71 @@ class _LocalAssistState extends State<LocalAssist> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
+
+
+
+                
+                
                 children: [
+
+                  SizedBox(height: 50,),
+                  state!=null
+                      ?Builder(
+                      builder: (context) {
+                        return GestureDetector(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) =>PingsSection(userId: userID,selectedService: 'Local Assistant',)));
+                          },
+                          child: Container(
+                            width: 328,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.orange),
+                            ),
+                            padding: EdgeInsets.only(left: 20,right: 20,top: 2),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Ongoing Services',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Colors.orange),),
+                                Icon(Icons.arrow_forward_ios,size: 14,color: Colors.orange,),
+                              ],
+                            ),
+                          ),
+                        );
+                      }
+                  )
+                      :SizedBox(height: 0,),
+                  SizedBox(height: 50,),
                   SizedBox(height : 20),
                   InkWell(
-                    onTap: (){
+
+
+                    onTap: ()async{
+
+                      await checkIsMeetOngoing();
+                      if(meetId!=null){
+                        if(state=='user'){
+                          Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
+                            state: 'user',
+                            meetId: meetId,
+                          ),));
+                        }
+                        else if(state=='helper'){
+                          // toast
+                          Fluttertoast.showToast(
+                            msg: "Finish Ongoing Services",
+                            toastLength: Toast.LENGTH_LONG,
+                            gravity: ToastGravity.BOTTOM,
+                          );
+                        }
+                      }
+                      else{
+                        Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
+                          state: 'user',
+                        ),));
+                      }
+
 
                       Navigator.pushReplacement(
                         context,
