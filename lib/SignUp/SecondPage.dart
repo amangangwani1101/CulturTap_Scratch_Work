@@ -140,7 +140,7 @@ class _SecondPageState extends State<SecondPage> {
 
                             child: TextField(
 
-
+                              style: Theme.of(context).textTheme.subtitle1,
 
                               controller: _phoneNumberController,
                               keyboardType: TextInputType.phone,

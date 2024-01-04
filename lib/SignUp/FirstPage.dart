@@ -15,29 +15,9 @@ class FirstPage extends StatelessWidget {
   @override
 
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Flutter Demo',
-      debugShowCheckedModeBanner: false,
-      // theme: ThemeData(
-      //   fontFamily: 'Poppins',
-      //   colorScheme: ColorScheme(
-      //     primary: Colors.black,
-      //     secondary: Colors.white,
-      //     surface: Colors.white,
-      //     background: Colors.white,
-      //     error: Colors.red,
-      //     onPrimary: Colors.black,
-      //     onSecondary: Colors.white,
-      //     onSurface: Colors.black,
-      //     onBackground: Colors.black,
-      //     onError: Colors.red,
-      //     brightness: Brightness.light,
-      //   ),
-      //   useMaterial3: true,
-      // ),
-      home: Center(
+    return Center(
         child: const MyHomePage(title: 'LogIn'),
-      ),
+
     );
   }
 }
@@ -103,23 +83,13 @@ class _MyHomePageState extends State<MyHomePage> {
                       height : 20,
                     ),
                     Text('SIGNUP',
-                        style: TextStyle(
-                          fontSize: 22,
-                          color: Colors.black,
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
-                        )),
+                      style: Theme.of(context).textTheme.headline1,),
                     Container(
                         margin: EdgeInsets.only(bottom: 31),
                         child: Text('Explore, Update, Guide & Earn !',
                             style: TextStyle(fontSize: 20, color: Colors.black))),
                     Text('Please Enter Your Name',
-                        style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black,
-
-                            fontWeight: FontWeight.w600,
-                            )),
+                      style: Theme.of(context).textTheme.headline2,),
                     Container(
                       height: 10,
                     ),
@@ -128,6 +98,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       width: 324,
                       height: 54,
                       child: TextField(
+                        style: Theme.of(context).textTheme.subtitle2,
                         controller: _textController,
                         decoration: InputDecoration(
                           hintText: 'Ex : Utkarsh Gupta',

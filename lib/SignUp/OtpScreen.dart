@@ -144,6 +144,7 @@ class _OtpScreenState extends State<OtpScreen>{
                             height: 50,
                             margin: EdgeInsets.symmetric(horizontal: 5),
                             child: TextField(
+                              style: Theme.of(context).textTheme.subtitle1,
                               controller: _controllers[index],
                               focusNode: _focusNodes[index],
                               keyboardType: TextInputType.number,

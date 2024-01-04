@@ -600,7 +600,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     children: List.generate(
                       _videoControllersList[_currentIndex].length,
                           (index) {
-                        bool isVideoPlayed = index < currentVideoIndex-1;
+                        bool isVideoPlayed = index < currentVideoIndex;
                         return Padding(
                           padding: EdgeInsets.symmetric(horizontal: 2),
                           child: Container(

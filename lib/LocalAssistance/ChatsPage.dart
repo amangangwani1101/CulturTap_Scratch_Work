@@ -845,7 +845,7 @@ class _ChatsPageState extends State<ChatsPage> {
         return false; // Returning true will allow the user to pop the page
       },
       child: Scaffold(
-          appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent,toolbarHeight: 90,),
+          appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,),automaticallyImplyLeading: false,backgroundColor: Colors.white,foregroundColor: Colors.white, shadowColor: Colors.transparent,toolbarHeight: 90,),
           body: Stack(
 
               children : [

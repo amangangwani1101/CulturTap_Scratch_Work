@@ -2,6 +2,7 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/HomePage.dart';
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
@@ -656,38 +657,54 @@ class _CameraAppState extends State<CameraApp> {
                                   ),
                                 ),
                               ),
-                              Text(
-                                'Start Filming',
+                              if(!_isRecording)
+                                Text(
+                                'Start Recording',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
                                   fontSize: 18,
                                 ),
                               ),
+                              if(_isRecording)
+                                Text(
+                                  'Recording ..',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 18,
+                                  ),
+                                ),
                             ],
                           ),
                           Column(
+
                             children: [
                               SizedBox(
+                                height : 100,
+
                                 child: Container(
+                                  height : 80, width : 80,
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      RotationTransition(
+                                        turns: isFlipped ? AlwaysStoppedAnimation(0.3) : AlwaysStoppedAnimation(0),
+                                        child: IconButton(
+                                          icon: SvgPicture.asset('assets/images/camera_flip.svg'),
+                                          onPressed: () {
+                                            // Your custom onPressed logic here
+                                            // ...
 
-                                  height: 100,
-                                  width: 80,
-                                  child: RotationTransition(
-                                    turns: isFlipped ? AlwaysStoppedAnimation(0.3) : AlwaysStoppedAnimation(0),
-                                    child: IconButton(
-                                      icon: Image.asset(''),
-                                      onPressed: () {
-                                        // Your custom onPressed logic here
-                                        // ...
+                                            toggleCamera();
+                                            setState(() {
+                                              isFlipped = !isFlipped;
+                                            });
+                                          },
+                                        ),
 
-                                        toggleCamera();
-                                        setState(() {
-                                          isFlipped = !isFlipped;
-                                        });
-                                      },
-                                    ),
-
+                                      ),
+                                    ],
                                   ),
                                 ),
                               ),

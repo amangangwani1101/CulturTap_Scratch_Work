@@ -98,16 +98,16 @@ Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async
 
 
 
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       home: HomePage(),
-//     );
-//   }
-// }
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   @override
@@ -308,10 +308,10 @@ class _HomePageState extends State<HomePage> {
 
 
   Widget build(BuildContext context) {
-    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
-      statusBarColor: Colors.white,
-      statusBarBrightness: Brightness.light,
-    ));
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+    //   statusBarColor: Colors.white,
+    //   statusBarBrightness: Brightness.light,
+    // ));
     return WillPopScope(
 
       onWillPop: () => backButtonHandler10.onWillPop(context, true),

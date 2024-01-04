@@ -148,7 +148,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Text('< Back',style: TextStyle(fontWeight: FontWeight.bold,),),
+                Text('< Back',   style: Theme.of(context).textTheme.subtitle1,)
               ],
             ),
           ),

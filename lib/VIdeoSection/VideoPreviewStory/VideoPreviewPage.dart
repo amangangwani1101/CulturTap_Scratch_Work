@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
@@ -50,7 +51,7 @@ class VideoPreviewPage extends StatefulWidget {
 class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
 
-
+  bool isLoading = true;
 
   double? firstVideoLatitude;
   double? firstVideoLongitude;
@@ -62,6 +63,8 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
   void initState() {
     super.initState();
+
+    isLoading = false;
 
     _databaseHelper = VideoDatabaseHelper();
 
@@ -174,7 +177,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
   void handleAddNewVideoButton() async{
     if (userLatitude != null && userLongitude != null) {
-      double radiusInMeters = 200.0;
+      double radiusInMeters = 300.0;
       double distance = Geolocator.distanceBetween(
         userLatitude!,
         userLongitude!,
@@ -248,20 +251,60 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
   Future<void> _handleRefresh() async {
     // Perform any asynchronous operation (e.g., refetching data) here
-    await Future.delayed(Duration(seconds: 1));
+     setState(() {
+       isLoading = true;
+     });
 
 
 
-    // Call setState to trigger a rebuild of the widget
+      bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
+      if (hasVideos) {
+
+        // Navigate to VideoPreviewPage with data from the database
+        List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+        List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+        // Extract the required data from the list of videos
+        List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+        String userLocation = ''; // Replace with your logic to get user location
+        double latitude = allVideos[0].latitude;
+        double longitude = allVideos[0].longitude;
+
+        print('latitude : $latitude');
+        print('longitude : $longitude');
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VideoPreviewPage(
+              videoPaths: videoPaths,
+              userLocation: userLocation,
+              latitude: latitude,
+              longitude: longitude,
+            ),
+          ),
+        );
 
 
-    // You can print a message if needed
+      } else {
+        // Navigate to CameraApp
+        Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+      }
+      // _changeIconColor('add');
+
+
+
     print('Page refreshed');
   }
 
 
   Future<void> removeVideo(String videoPath) async {
+
+    _handleRefresh();
+
     setState(() {
+      isLoading = true;
       // Find the location associated with the videoPath
       String location = widget.userLocation;
 
@@ -290,6 +333,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       }
     });
 
+
     if (widget.videoPaths.isEmpty) {
       Navigator.pop(context);
 
@@ -309,17 +353,39 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () => backButtonHandler4.onWillPop(context, true),
+        onWillPop: () async {
+          // If you want to prevent the user from going back, return false
+          // return false;
+
+          // If you want to navigate directly to the homepage
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
+
+          return false; // Returning true will allow the user to pop the page
+        },
     child: Scaffold(
       appBar: VideoAppBar(
         title:'Edit Story',
-        exit : 'a',
+        exit : 'home',
       ),
       body: RefreshIndicator(
         onRefresh: _handleRefresh,
-        child: Container(
+        child:Container(
           color: Theme.of(context).primaryColorLight,
-          child: Column(
+          child: isLoading ? Container(
+            width : double.infinity,
+            height : MediaQuery.of(context).size.height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(child: CircularProgressIndicator(color : Theme.of(context).backgroundColor,)),
+              ],
+            ),
+          )
+
+              :  Column(
             children: [
               Expanded(
                 child: GridView.builder(
@@ -505,7 +571,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                           ),
                         ),
                         Text(
-                          'Next',
+                          'Draft',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
@@ -545,6 +611,7 @@ class _VideoItemState extends State<VideoItem> {
   @override
   void initState() {
     super.initState();
+
 
 
 

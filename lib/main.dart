@@ -83,6 +83,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           backgroundColor: Color(0xFF1E2529) , // Change the AppBar background color
           foregroundColor: Colors.white,
+
           // Change the AppBar text color
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -92,6 +93,9 @@ class MyApp extends StatelessWidget {
 
       ThemeData(
 
+        primarySwatch: Colors.green,
+        primaryColorDark: Colors.yellow,
+
         fontFamily: 'Poppins',
 
 
@@ -100,6 +104,7 @@ class MyApp extends StatelessWidget {
 
         // accentColor: Colors.orange, // Change the accent color
         backgroundColor: Colors.white, // Change the background color
+        scaffoldBackgroundColor: Colors.white,
 
         // Change the scaffold background color
         // Add more color properties as needed
@@ -125,10 +130,19 @@ class MyApp extends StatelessWidget {
 
         ),
 
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.orange,  // Customize the text cursor color
+          selectionColor: Colors.orange.withOpacity(0.5),  // Customize the text selection color
+          selectionHandleColor: Colors.orange,  // Customize the text selection handle color
+        ),
+
         // Optional: Define colors for specific components
         appBarTheme: AppBarTheme(
+
           backgroundColor: Colors.white, // Change the AppBar background color
-          foregroundColor: Colors.black, // Change the AppBar text color
+          foregroundColor: Colors.white,
+          toolbarHeight: 90,
+          scrolledUnderElevation: 5.0// Change the AppBar text color
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: Colors.orange, // Change the FloatingActionButton color
