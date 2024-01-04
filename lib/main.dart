@@ -7,7 +7,16 @@ import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp();
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyD_Q30r4nDBH0HOpvpclE4U4V8ny6QPJj4",
+      authDomain: "culturtap-19340.web.app",
+      projectId: "culturtap-19340",
+      storageBucket: "culturtap-19340.appspot.com",
+      messagingSenderId: "268794997426",
+      appId: "1:268794997426:android:694506cda12a213f13f7ab ",
+    ),
+  );
 
   runApp(const MyApp());
 }
@@ -99,7 +108,6 @@ class MyApp extends StatelessWidget {
 
         primaryColor: Color(0xFF001B33), // Change the primary color
         primaryColorLight : Color(0xFF1E2529),
-
         // accentColor: Colors.orange, // Change the accent color
         backgroundColor: Colors.white, // Change the background color
 
