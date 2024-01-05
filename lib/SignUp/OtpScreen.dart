@@ -12,9 +12,10 @@ import '../HomePage.dart';
 
 class OtpScreen extends StatefulWidget {
   String? otp;
-  final String userName,phoneNumber;
+  final String phoneNumber;
+  final String? userName;
 
-  OtpScreen({this.otp,required this.userName,required this.phoneNumber});
+  OtpScreen({this.otp,this.userName,required this.phoneNumber});
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
@@ -74,7 +75,7 @@ class _OtpScreenState extends State<OtpScreen>{
         print('${widget.userName} , ${widget.phoneNumber} , ${userCredId}');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
+          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName!,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
         );
       }
 
@@ -144,7 +145,6 @@ class _OtpScreenState extends State<OtpScreen>{
                             height: 50,
                             margin: EdgeInsets.symmetric(horizontal: 5),
                             child: TextField(
-                              style: Theme.of(context).textTheme.subtitle1,
                               controller: _controllers[index],
                               focusNode: _focusNodes[index],
                               keyboardType: TextInputType.number,

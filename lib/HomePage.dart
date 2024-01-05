@@ -410,7 +410,7 @@ class _HomePageState extends State<HomePage> {
           duration: Duration(milliseconds: 100),
 
 
-          height: _isVisible ? 70 : 0.0,
+
           child: CustomFooter(userName: userName, userId: userID, lode: 'home',),
         ),
       ),

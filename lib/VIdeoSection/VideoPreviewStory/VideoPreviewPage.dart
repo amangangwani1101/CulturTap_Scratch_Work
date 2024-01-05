@@ -432,7 +432,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                                         child: Column(
                                           children: [
                                             Text(
-                                              'You are removing a film shoot',
+                                              'You are removing a shoot',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.white,
@@ -533,11 +533,11 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                           ),
                         ),
                         Text(
-                          'Add New Film',
+                          'Add Shoot',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
                       ],
@@ -571,11 +571,11 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                           ),
                         ),
                         Text(
-                          'Draft',
+                          'Next',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
                       ],

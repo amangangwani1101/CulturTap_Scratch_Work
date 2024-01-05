@@ -590,7 +590,7 @@ class _CameraAppState extends State<CameraApp> {
                       child: Column(
                         children: <Widget>[
                           Text(
-                            _showRecordingMessage ? 'Recording Started' : '',
+                            _showRecordingMessage ? 'Shooting Started' : '',
                             style: TextStyle(
                               color: Colors.white54,
                               fontSize: 18.0,
@@ -659,20 +659,20 @@ class _CameraAppState extends State<CameraApp> {
                               ),
                               if(!_isRecording)
                                 Text(
-                                'Start Recording',
+                                'Start Shooting',
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  fontSize: 18,
+                                  fontSize: 16,
                                 ),
                               ),
                               if(_isRecording)
                                 Text(
-                                  'Recording ..',
+                                  'Shooting ..',
                                   style: TextStyle(
                                     fontWeight: FontWeight.bold,
                                     color: Colors.white,
-                                    fontSize: 18,
+                                    fontSize: 16,
                                   ),
                                 ),
                             ],
@@ -713,7 +713,7 @@ class _CameraAppState extends State<CameraApp> {
                                 style: TextStyle(
                                   fontWeight: FontWeight.bold,
                                   color: Colors.white,
-                                  fontSize: 18,
+                                  fontSize: 16,
                                 ),
                               ),
                             ],

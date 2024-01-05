@@ -457,7 +457,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           bottomNavigationBar: AnimatedContainer(
             duration: Duration(milliseconds: 100),
             height: _isVisible ? 70 : 0.0,
-            child: CustomFooter(userName: userName, userId: userID, lode : 'dark'),
+            child: CustomFooter(userName: userName, userId: userID, lode : 'dark',addButtonAdd: 'add',),
           ),
         ),
       ),

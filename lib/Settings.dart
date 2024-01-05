@@ -11,6 +11,7 @@ import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
+import 'package:learn_flutter/SignUp/SecondPage.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
@@ -120,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
             await _auth.signOut();
             // Redirect to the login or splash screen after logout
             // For example:
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FirstPage()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SecondPage()));
           } catch (e) {
             print('Error while logging out: $e');
             // Handle the error as needed
