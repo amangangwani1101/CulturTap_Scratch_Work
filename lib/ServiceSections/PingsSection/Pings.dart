@@ -1318,11 +1318,13 @@ class _PingSectionState extends State<PingsSection>{
                                     ),
                                     SizedBox(height: 7,),
                                     Container(
+                                      // decoration: BoxDecoration(border: Border.all(color:Colors.green)),
                                       padding:EdgeInsets.only(left:3),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           Container(
+                                            width:260,
                                             child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style:Theme.of(context).textTheme.subtitle2,),
                                           ),
                                         ],
@@ -1418,7 +1420,7 @@ class _PingSectionState extends State<PingsSection>{
                                           //   Accept ka funda
                                           await updateLocalHelperPings(meetId, 'pending');
                                           await createUpdateLocalUserPings(userId ,meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
-                                          await updateMeetingChats(meetId,[userID,'admin-helper-1']);
+                                          await updateMeetingChats(meetId,[userID,'admin-user-1']);
                                           await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                                             state: 'helper',
                                             meetId: meetId,
@@ -1465,7 +1467,7 @@ class _PingSectionState extends State<PingsSection>{
                                           ),));
                                           _refreshPage();
                                         },
-                                        child: Container(child: Text('Continue',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),))
+                                        child: Center(child: Container(child: Text('Continue',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)))
                                       :SizedBox(height: 0,),
                                   ],
                                 ),

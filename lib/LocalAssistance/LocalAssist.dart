@@ -32,8 +32,7 @@ class _LocalAssistState extends State<LocalAssist> {
     super.initState();
     // Your initialization code goes here
     _getUserLocation();
-    checkIsEligible();
-    // checkIsMeetOngoing();
+    checkIsMeetOngoing();
     print('LocalAssist Page initialized');
   }
 
@@ -143,6 +142,9 @@ class _LocalAssistState extends State<LocalAssist> {
           if(data['state']!=null){
             state = data['state'];
           }
+          if(data['eligible']!=null){
+            eligible = data['eligible'];
+          }
         });
         print('Meeting Ongoing : $meetId');
 
@@ -165,10 +167,6 @@ class _LocalAssistState extends State<LocalAssist> {
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
         print(data);
-        setState(() {
-            eligible = data['eligible'];
-        });
-        print('Meeting Ongoing : $meetId');
 
       } else {
         // Handle error
@@ -255,40 +253,44 @@ class _LocalAssistState extends State<LocalAssist> {
                     : SizedBox(height: 0,),
                   InkWell(
                     onTap: ()async{
-
-                      await checkIsEligible();
+                      bool userConfirmed = true;
                       if(eligible!=null && eligible==false){
-                        bool userConfirmed = await showConfirmationDialog(context, userName!);
+                        userConfirmed = await showConfirmationDialog(context, userName!);
                         if(userConfirmed){
-                          await checkIsMeetOngoing();
-                        }else{}
-                      }else{
-                        await checkIsMeetOngoing();
+                          await checkIsEligible();
+                        }
                       }
-                      if(meetId!=null){
-                        if(state=='user' || state=='ongoing'){
-                          await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
-                            state: 'user',
-                            meetId: meetId,
-                          ),));
+                      if(userConfirmed){
+                        if(meetId!=null){
+                          if(state=='user' || state=='ongoing'){
+                            await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
+                              state: 'user',
+                              meetId: meetId,
+                            ),));
+                            setState(() {});
+                          }
+                          else if(state=='helper'){
+                            // toast
+                            Fluttertoast.showToast(
+                              msg: "Finish Ongoing Services",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM,
+                            );
+                            await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
+                              state: 'helper',
+                              meetId: meetId,
+                            ),));
+                            setState(() {});
+                          }
+                        }
+                        else {
+                          await Navigator.push(context, MaterialPageRoute(
+                            builder: (context) =>
+                                ChatsPage(userId: userID,
+                                  state: 'user',
+                                ),));
                           setState(() {});
                         }
-                        else if(state=='helper'){
-                          // toast
-                          Fluttertoast.showToast(
-                            msg: "Finish Ongoing Services",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM,
-                          );
-                        }
-                      }
-                      else {
-                        await Navigator.push(context, MaterialPageRoute(
-                          builder: (context) =>
-                              ChatsPage(userId: userID,
-                                state: 'user',
-                              ),));
-                        setState(() {});
                       }
                     },
                     child: Container(
