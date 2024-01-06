@@ -210,146 +210,146 @@ setState(() {
                     color: Colors.transparent,
                     height : addButtonClicked ? MediaQuery.of(context).size.height - 241 : 0,
                 ),
-
-                Visibility(
-                  visible: addButtonClicked == true,
-                  child : Column(children: [
-                  InkWell(
-                    onTap: ()async{
-
-
-
-                      bool hasVideos = await VideoDatabaseHelper().hasVideos();
-
-                      if (hasVideos) {
-
-                        // Navigate to VideoPreviewPage with data from the database
-                        List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
-                        List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
-
-                        // Extract the required data from the list of videos
-                        List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
-                        String userLocation = ''; // Replace with your logic to get user location
-                        double latitude = allVideos[0].latitude;
-                        double longitude = allVideos[0].longitude;
-
-                        print('latitude : $latitude');
-                        print('longitude : $longitude');
-
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => VideoPreviewPage(
-                              videoPaths: videoPaths,
-                              userLocation: userLocation,
-                              latitude: latitude,
-                              longitude: longitude,
-                            ),
-                          ),
-                        );
-
-                        _showVideoDialog(context);
-                      } else {
-                        // Navigate to CameraApp
-                        Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-                      }
-                      // _changeIconColor('add');
-
-
-                    },
-                    child: Container(
-
-                      height : 80,
-
-                      decoration: BoxDecoration(
-                        color : Colors.white,
-
-                        borderRadius: BorderRadius.all(Radius.circular(0)),
-                        border: Border.all(color: Colors.white70), // Optional: Add border for visual clarity
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
-                                  onPressed: () {
-                                    // Handle bottom icon press
-                                  },
-                                ),
-                                Text(
-                                  'Shoot Regular Story',
-                                  style: TextStyle(fontSize: 16,),
-                                ),
-                              ],
-                            ),
-
-                            IconButton(
-                              icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
-                              onPressed: () {
-                                // Handle bottom icon press
-                              },
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  Container(height : 1, color : Colors.grey),
-                  InkWell(
-                    onTap: (){
-
-                    },
-                    child: Container(
-
-                      height : 80,
-
-                      decoration: BoxDecoration(
-                        color : Colors.white,
-
-                        borderRadius: BorderRadius.all(Radius.circular(0)),
-                        border: Border.all(color: Colors.white70), // Optional: Add border for visual clarity
-                      ),
-                      child: Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Row(
-                              children: [
-                                IconButton(
-                                  icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
-                                  onPressed: () {
-                                    // Handle bottom icon press
-                                  },
-                                ),
-                                Text(
-                                  'Shoot Long Trips',
-                                  style: TextStyle(fontSize: 16,),
-                                ),
-                              ],
-                            ),
-
-                            IconButton(
-                              icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
-                              onPressed: () {
-                                // Handle bottom icon press
-                              },
-                            ),
-
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height : 10),
-                ],),
-                ),
-
-
+                //
+                // Visibility(
+                //   visible: addButtonClicked == true,
+                //   child : Column(children: [
+                //   InkWell(
+                //     onTap: ()async{
+                //
+                //
+                //
+                //       bool hasVideos = await VideoDatabaseHelper().hasVideos();
+                //
+                //       if (hasVideos) {
+                //
+                //         // Navigate to VideoPreviewPage with data from the database
+                //         List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                //         List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+                //
+                //         // Extract the required data from the list of videos
+                //         List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                //         String userLocation = ''; // Replace with your logic to get user location
+                //         double latitude = allVideos[0].latitude;
+                //         double longitude = allVideos[0].longitude;
+                //
+                //         print('latitude : $latitude');
+                //         print('longitude : $longitude');
+                //
+                //         Navigator.push(
+                //           context,
+                //           MaterialPageRoute(
+                //             builder: (context) => VideoPreviewPage(
+                //               videoPaths: videoPaths,
+                //               userLocation: userLocation,
+                //               latitude: latitude,
+                //               longitude: longitude,
+                //             ),
+                //           ),
+                //         );
+                //
+                //         _showVideoDialog(context);
+                //       } else {
+                //         // Navigate to CameraApp
+                //         Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                //       }
+                //       // _changeIconColor('add');
+                //
+                //
+                //     },
+                //     child: Container(
+                //
+                //       height : 80,
+                //
+                //       decoration: BoxDecoration(
+                //         color : Colors.white,
+                //
+                //         borderRadius: BorderRadius.all(Radius.circular(0)),
+                //         border: Border.all(color: Colors.white70), // Optional: Add border for visual clarity
+                //       ),
+                //       child: Padding(
+                //         padding: const EdgeInsets.all(10.0),
+                //         child: Row(
+                //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //           children: [
+                //             Row(
+                //               children: [
+                //                 IconButton(
+                //                   icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
+                //                   onPressed: () {
+                //                     // Handle bottom icon press
+                //                   },
+                //                 ),
+                //                 Text(
+                //                   'Shoot Regular Story',
+                //                   style: TextStyle(fontSize: 16,),
+                //                 ),
+                //               ],
+                //             ),
+                //
+                //             IconButton(
+                //               icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
+                //               onPressed: () {
+                //                 // Handle bottom icon press
+                //               },
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                //   Container(height : 1, color : Colors.grey),
+                //   InkWell(
+                //     onTap: (){
+                //
+                //     },
+                //     child: Container(
+                //
+                //       height : 80,
+                //
+                //       decoration: BoxDecoration(
+                //         color : Colors.white,
+                //
+                //         borderRadius: BorderRadius.all(Radius.circular(0)),
+                //         border: Border.all(color: Colors.white70), // Optional: Add border for visual clarity
+                //       ),
+                //       child: Padding(
+                //         padding: const EdgeInsets.all(10.0),
+                //         child: Row(
+                //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                //           children: [
+                //             Row(
+                //               children: [
+                //                 IconButton(
+                //                   icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
+                //                   onPressed: () {
+                //                     // Handle bottom icon press
+                //                   },
+                //                 ),
+                //                 Text(
+                //                   'Shoot Long Trips',
+                //                   style: TextStyle(fontSize: 16,),
+                //                 ),
+                //               ],
+                //             ),
+                //
+                //             IconButton(
+                //               icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
+                //               onPressed: () {
+                //                 // Handle bottom icon press
+                //               },
+                //             ),
+                //
+                //           ],
+                //         ),
+                //       ),
+                //     ),
+                //   ),
+                //   SizedBox(height : 10),
+                // ],),
+                // ),
+                //
+                //
 
 
 

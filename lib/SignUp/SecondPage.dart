@@ -251,6 +251,8 @@ class _SecondPageState extends State<SecondPage> {
 
 
   Future<void> checkUserInDataBase(String userNumber) async {
+
+    print('check krne gya hai');
     final apiUrl = '${Constant().serverUrl}/user/$userNumber';
 
     try {
@@ -260,6 +262,9 @@ class _SecondPageState extends State<SecondPage> {
       if (response.statusCode == 200) {
         // If the response status is 200 (OK), parse the JSON data
         final Map<String, dynamic>? data = json.decode(response.body);
+        print(data);
+        if(data!=null)
+          print(data['userName']);
 
 
         if (data != null) {
@@ -269,10 +274,16 @@ class _SecondPageState extends State<SecondPage> {
             userName = data['userName'] ?? '';
             userPhotoUrl = data['userPhotoUrl'] ?? '';
 
+            print(userName);
+            print(userPhoneNumber);
+            print(userPhotoUrl);
+
             showPopup(userName, userPhotoUrl,userNumber);
 
             print(userName);
           });
+
+          print('check kar liya');
         } else {
           // Handle the case where the server response is not in the expected format
           setState(() {
