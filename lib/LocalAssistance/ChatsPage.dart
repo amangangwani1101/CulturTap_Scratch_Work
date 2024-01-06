@@ -5,6 +5,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
+import 'package:learn_flutter/ServiceSections/LocalAssistant/MapNavigator.dart';
 import 'package:open_file/open_file.dart';
 import 'package:clipboard/clipboard.dart';
 import 'package:flutter/cupertino.dart';
@@ -1706,14 +1707,20 @@ class _ChatsPageState extends State<ChatsPage> {
                                                         GestureDetector(
                                                           //gafv
                                                           onTap: () async {
-                                                            String mapsUrl =
-                                                                'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
-                                                            if (await canLaunch(
-                                                                mapsUrl)) {
-                                                              await launch(mapsUrl);
-                                                            } else {
-                                                              throw 'Could not launch $mapsUrl';
-                                                            }
+                                                            // String mapsUrl =
+                                                            //     'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                                            // if (await canLaunch(
+                                                            //     mapsUrl)) {
+                                                            //   await launch(mapsUrl);
+                                                            // } else {
+                                                            //   throw 'Could not launch $mapsUrl';
+                                                            // }
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder: (context) => MapNavigatorScreen(latitude:double.parse(helperLatitude),longitude:double.parse(helperLongitude)),
+                                                              ),
+                                                            );
                                                           },
                                                           child: Container(
                                                             width: 306,
