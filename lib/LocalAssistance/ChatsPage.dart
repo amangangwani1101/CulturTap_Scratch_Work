@@ -15,6 +15,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:photo_view/photo_view.dart';
 
+import '../Notifications/NotificationManager.dart';
 import '../UserProfile/CoverPage.dart';
 import '../UserProfile/ProfileHeader.dart';
 import '../fetchDataFromMongodb.dart';
@@ -45,6 +46,7 @@ class ChatsPage extends StatefulWidget {
 }
 
 class _ChatsPageState extends State<ChatsPage> {
+  NotificationManager serviceNotification = NotificationManager();
   List<String>userIds = [];
   List<String>distance = [];
   bool _isTyping = false;
@@ -91,6 +93,9 @@ class _ChatsPageState extends State<ChatsPage> {
   List<String>sender=[],receiver=[];
   dynamic incomingSDPOffer;
   bool callEnded = false;
+
+
+
 
   Future<String> createMeetRequest() async {
     final url = Uri.parse('$serverUrl/updateLocalAssistantMeetDetails');
@@ -232,7 +237,6 @@ class _ChatsPageState extends State<ChatsPage> {
         // Parse the response JSON
         final responseData = jsonDecode(response.body);
         print("Response: $responseData");
-        _controller.clear();
         _refreshPage(meetId);
       } else {
         print("Failed to send request message to helpers. Status code: ${response.statusCode}");
@@ -519,7 +523,7 @@ class _ChatsPageState extends State<ChatsPage> {
       pageVisitor = false;
     }
     if(pageVisitor){
-      userIds = ['6592cc0470f625f4a587e0d1','659239aec9567082165a2f57'];
+      userIds = ['65923b5dc9567082165a2f7a','659239aec9567082165a2f57'];
       distance = ['0.05','0.09'];
     }
     if(widget.meetId!=null) {
@@ -1700,6 +1704,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                           height: 15,
                                                         ),
                                                         GestureDetector(
+                                                          //gafv
                                                           onTap: () async {
                                                             String mapsUrl =
                                                                 'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
@@ -2394,29 +2399,22 @@ class _ChatsPageState extends State<ChatsPage> {
                                                             width:
                                                             10,
                                                           ),
-                                                          Expanded(
-                                                            child:
-                                                            Column(
-                                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                              children: [
-                                                                Row(
-                                                                  children: [
-                                                                    Text(
-                                                                      'You',
-                                                                      style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, fontFamily: 'Poppins'),
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                                Text(
-                                                                  'Hey ${helperName},I get your problem, let’s connect first on call. be calm down.',
-                                                                  style: TextStyle(
-                                                                    fontFamily: 'Poppins',
-                                                                    fontSize: 14,
-                                                                    color: Colors.black,
+                                                          Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    'You',
+                                                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, fontFamily: 'Poppins'),
                                                                   ),
-                                                                ),
-                                                              ],
-                                                            ),
+                                                                ],
+                                                              ),
+                                                              Text(
+                                                                'Hey ${helperName},I get your problem, let’s connect first on call. be calm down.',
+                                                                style: Theme.of(context).textTheme.headline6,
+                                                              ),
+                                                            ],
                                                           ),
                                                         ],
                                                       ),
@@ -2817,7 +2815,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                   if(pageVisitor){
                                     if(widget.meetId==null){
                                       String meetingId = await createMeetRequest();
-                                      _refreshPage(meetingId);
+                                      await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',meetingId,widget.userId);
+                                      _controller.clear();
+                                      // _refreshPage(meetingId);
                                     }else{
                                       _handleSend();
                                     }

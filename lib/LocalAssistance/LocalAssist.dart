@@ -267,7 +267,7 @@ class _LocalAssistState extends State<LocalAssist> {
                               state: 'user',
                               meetId: meetId,
                             ),));
-                            setState(() {});
+                            await checkIsMeetOngoing();
                           }
                           else if(state=='helper'){
                             // toast
@@ -280,7 +280,7 @@ class _LocalAssistState extends State<LocalAssist> {
                               state: 'helper',
                               meetId: meetId,
                             ),));
-                            setState(() {});
+                            await checkIsMeetOngoing();
                           }
                         }
                         else {
@@ -289,7 +289,7 @@ class _LocalAssistState extends State<LocalAssist> {
                                 ChatsPage(userId: userID,
                                   state: 'user',
                                 ),));
-                          setState(() {});
+                          await checkIsMeetOngoing();
                         }
                       }
                     },

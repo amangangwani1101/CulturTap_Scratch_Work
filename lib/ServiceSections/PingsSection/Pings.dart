@@ -352,6 +352,39 @@ class _PingSectionState extends State<PingsSection>{
 
 
 
+  Future<void> removePingsHelper(String meetId) async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/removeHelperPings');
+    // Replace with your data
+    Map<String, dynamic> requestData = {
+      'meetId':meetId,
+    };
+    print('Messa::$requestData');
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        final responseData = jsonDecode(response.body);
+        print("Response: $responseData");
+        _refreshPage();
+      } else {
+        print("Failed to update pings. Status code: ${response.statusCode}");
+        throw Exception("Failed to update pings");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Error during API call");
+    }
+  }
+
+
   Future<void> updateLocalHelperPings(String meetId,String meetStatus) async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
     final url = Uri.parse('$serverUrl/updateLocalHelpersPings');
@@ -1344,6 +1377,9 @@ class _PingSectionState extends State<PingsSection>{
                                           await updateLocalUserPings(userId, meetId, 'cancel');
                                           if(helperId!=null){
                                             await updateLocalUserPings(helperId, meetId, 'cancel');
+                                          }
+                                          else{
+                                            await removePingsHelper(meetId);
                                           }
                                           await updateMeetingChats(meetId!,['','admin-cancel']);
                                           await updatePaymentStatus('close',meetId);
