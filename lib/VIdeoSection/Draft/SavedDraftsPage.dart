@@ -3,6 +3,7 @@ import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/DraftVideoListPage.dart';
+import 'package:learn_flutter/VIdeoSection/Draft/EditDraftPage.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
 import 'package:learn_flutter/VIdeoSection/RemoveDialog.dart';
@@ -166,10 +167,10 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
     await _loadDrafts();
   }
 
-  BackButtonHandler backButtonHandler3 = BackButtonHandler(
+  BackButtonHandler backButtonHandler17 = BackButtonHandler(
     imagePath: 'assets/images/exit.svg',
     textField: 'HomePage',
-    what: 'Home',
+    what: 'settings',
     button1: 'NO',
     button2: 'YES',
   );
@@ -177,11 +178,11 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
   @override
   Widget build(BuildContext context) {
     return  WillPopScope(
-        onWillPop: () => backButtonHandler3.onWillPop(context, true),
+        onWillPop: () => backButtonHandler17.onWillPop(context, true),
     child: Scaffold(
       appBar: VideoAppBar(
         title:'Your Drafts',
-        exit: 'home',
+        exit: '',
       ),
       backgroundColor: Color(0xFF263238),
       body: RefreshIndicator(
@@ -270,7 +271,7 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
                                       context,
                                       MaterialPageRoute(
                                         builder: (context) =>
-                                            DraftVideoListPage(draft: drafts[index]),
+                                            EditDraftPage(draft: drafts[index]),
                                       ),
                                     );
                                     setState(() {
@@ -295,7 +296,7 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
                                           ? Colors.white
                                           : Colors.orange, // Change text color
                                       fontWeight: FontWeight.bold, // Change font weight
-                                      fontSize: 22,
+                                      fontSize: 20,
                                     ),
                                   ),
                                 ),

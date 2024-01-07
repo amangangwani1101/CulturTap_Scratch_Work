@@ -19,6 +19,11 @@ class Draft {
   String selectedOption;
   String productPrice;
   String transportationPricing;
+  String festivalName;
+  String foodType;
+  String restaurantType;
+  String otherGenre;
+  String otherCategory;
 
   Draft({
     this.id,
@@ -41,6 +46,11 @@ class Draft {
     required this.selectedOption,
     required this.productPrice,
     required this.transportationPricing,
+    required this.festivalName,
+    required this.foodType,
+    required this.restaurantType,
+    required this.otherGenre,
+    required this.otherCategory,
   });
 
   // Named constructor to create a Draft object from a map
@@ -66,6 +76,11 @@ class Draft {
       selectedOption: map['selectedOption'],
       productPrice: map['productPrice'],
       transportationPricing: map['transportationPricing'],
+      festivalName: map['festivalName'],
+      foodType: map['foodType'],
+      restaurantType: map['restaurantType'],
+      otherGenre: map['otherGenre'],
+      otherCategory: map['otherCategory'],
     );
   }
 
@@ -92,6 +107,11 @@ class Draft {
       'selectedOption' : selectedOption,
       'productPrice' : productPrice,
       'transportationPricing' : transportationPricing,
+      'festivalName' : festivalName,
+      'foodType' : foodType,
+      'restaurantType' : restaurantType,
+      'otherGenre' : otherGenre,
+      'otherCategory' : otherCategory,
     };
   }
 }

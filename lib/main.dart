@@ -118,7 +118,7 @@ class MyApp extends StatelessWidget {
           subtitle1: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
           subtitle2: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight : FontWeight.w600),
 
-          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color :Colors.orange , fontWeight: FontWeight.bold),
+          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.w200),
           headline1: TextStyle(fontSize: (25  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold), // Adjust the font size and weight as needed
           headline2: TextStyle(fontSize: (18  * MediaQuery.of(context).textScaleFactor),color :Color(0xFF001B33) , fontWeight: FontWeight.bold),
           headline5: TextStyle(fontSize: (16 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.bold),
