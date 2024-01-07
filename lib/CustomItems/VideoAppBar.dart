@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/Settings.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 
 class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
   final String? title;
@@ -39,6 +41,13 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
                     Navigator.push(
                       context,
                       MaterialPageRoute(builder: (context) => HomePage()),
+                    );
+                  }
+
+                  if (exit == 'settings') {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
                     );
                   }
                 },

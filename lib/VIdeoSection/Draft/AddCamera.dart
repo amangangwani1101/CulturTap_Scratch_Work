@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/HomePage.dart';
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
+import 'package:learn_flutter/VIdeoSection/Draft/EditDraftPage.dart';
 
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
@@ -317,7 +318,13 @@ class _AddCameraState extends State<AddCamera> {
 
     }
 
-    Navigator.pop(context, videoFile?.path);
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EditDraftPage(draft : widget.draft),
+      ),
+    );
+
+
 
     setState(() {
 

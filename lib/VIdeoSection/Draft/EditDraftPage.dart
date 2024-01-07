@@ -509,6 +509,8 @@ class _EditDraftPageState extends State<EditDraftPage> {
       child: Scaffold(
         appBar: VideoAppBar(
           title: 'Compose Story',
+          exit : 'settings',
+
         ),
         body: Container(
           color:Theme.of(context).primaryColorLight,
@@ -520,12 +522,17 @@ class _EditDraftPageState extends State<EditDraftPage> {
 
 
 
+
+
                 SizedBox(height : 20),
                 Container(
                     width : double.infinity,
                     padding: EdgeInsets.only(left : 26),
                     child: Text('Shooted Films',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color : Colors.white),)),
                 SizedBox(height : 16),
+
+
+
 
                 Column(
                   children: [
@@ -711,6 +718,42 @@ class _EditDraftPageState extends State<EditDraftPage> {
                   children: [
 
 
+                    SizedBox(height: 20),
+                    Padding(
+                      padding: EdgeInsets.only(left: 26.0),
+                      child: Row(
+                        children: [
+                          Icon(Icons.location_on, color: Colors.white),
+                          SizedBox(width: 8),
+                          Text(
+                            'Location',
+                            style:Theme.of(context).textTheme.headline5,
+                          ),
+
+
+
+                        ],
+
+                      ),
+                    ),
+
+                    Padding(
+                      padding: EdgeInsets.only(left: 6),
+                      child: Row(
+                        children: [
+
+                          SizedBox(width: 18),
+                          Text(
+                            liveLocation.isNotEmpty ? liveLocation : 'Fetching Location...',
+                            style: Theme.of(context).textTheme.headline4,
+                          ),
+                        ],
+                      ),
+                    ),
+
+                    SizedBox(height: 15),
+
+
                     // ...
                     Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -723,7 +766,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                             children: [
                               Text(
                                 'Differentiate this experience as ',
-                                style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                style: Theme.of(context).textTheme.headline5,
                               ),
                               Theme(
                                 data: Theme.of(context).copyWith(
@@ -746,13 +789,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                           .map<DropdownMenuItem<String>>((String value) {
                                         return DropdownMenuItem<String>(
                                           value: value,
-                                          child: Text(value, style: TextStyle(color: Colors.white)),
+                                          child: Text(value, style: Theme.of(context).textTheme.headline4),
                                         );
                                       }).toList(),
-                                      icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                      icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
                                       underline: Container(
                                         height: 2,
-                                        color: Colors.orange,
+                                        color: Color(0xFFFB8C00),
                                       ),
                                     )
 
@@ -761,6 +804,8 @@ class _EditDraftPageState extends State<EditDraftPage> {
                             ],
                           ),
                         ),
+
+
                         Padding(
                           padding : EdgeInsets.all(26.0),
                           child : Container(
@@ -777,21 +822,21 @@ class _EditDraftPageState extends State<EditDraftPage> {
                     //for regular story
                     Visibility(
                       visible: selectedLabel == 'Regular Story',
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
+                      child: Padding(
+                        padding: const EdgeInsets.all(26.0),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
 
 
 
-                          // category dropdown here
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            // category dropdown here
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Category',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Theme(
                                   data: Theme.of(context).copyWith(
@@ -810,37 +855,80 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                             selectedCategory = newValue!;
                                           });
                                         },
-                                        items: <String>['Select','Solo trip','Romantic Trip', 'Trip With Friends', 'Trip With Family', 'Office Trip', 'School Trip', 'Picnic']
+                                        items: <String>['Select','Solo trip','Romantic Trip', 'Trip With Friends', 'Trip With Family', 'Office Trip','Hangouts', 'School Trip', 'Picnic','Others']
                                             .map<DropdownMenuItem<String>>((String value) {
                                           return DropdownMenuItem<String>(
                                             value: value,
-                                            child: Text(value, style: TextStyle(color: Colors.white)),
+                                            child: Text(value,style: Theme.of(context).textTheme.headline4),
                                           );
                                         }).toList(),
-                                        icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                        icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
                                         underline: Container(
                                           height: 2,
-                                          color: Colors.orange,
+                                          color: Color(0xFFFB8C00),
                                         ),
                                       )
 
                                   ),
                                 ),
+
+                                if (selectedCategory == 'Others')
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(height: 35),
+
+                                          Text(
+                                            'Name This Category ?',
+                                            style:Theme.of(context).textTheme.headline5,
+                                          ),
+                                          Container(
+                                            width: 300,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: TextField(
+                                              controller: otherCategoryController,
+                                              onChanged: (text) {
+                                                setState(() {
+                                                  otherCategory = text;
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                hintText: 'type here ...',
+                                                hintStyle:Theme.of(context).textTheme.headline4,
+                                                enabledBorder: InputBorder.none,
+                                                focusedBorder: InputBorder.none,
+                                              ),
+                                              style: Theme.of(context).textTheme.headline4,
+                                              maxLines: null,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                    ],
+                                  ),
+
+
                               ],
                             ),
-                          ),
 
-                          SizedBox(height: 35),
+                            SizedBox(height: 35),
 
-                          //genre dropdown here
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            //genre dropdown here
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Genre',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Theme(
                                   data: Theme.of(context).copyWith(
@@ -859,44 +947,418 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                             selectedGenre = newValue!;
                                           });
                                         },
-                                        items: <String>['Select', 'Lifestyle', 'Street Foods', 'Restaurants' , 'Party - Clubs & Bars',  'Fashion', 'Handicraft',  'Historical / Heritage',  'Festivals', 'Market',  'Art & Culture', 'Museum', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem',    ]
+                                        items: <String>['Select', 'Lifestyle', 'Street Foods', 'Restaurants' , 'Party - Clubs & Bars',  'Fashion', 'Handicraft',  'Historical / Heritage',  'Festivals', 'Market',  'Art & Culture', 'Museum', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem', 'Others'   ]
 
                                             .map<DropdownMenuItem<String>>((String value) {
                                           return DropdownMenuItem<String>(
                                             value: value,
-                                            child: Text(value, style: TextStyle(color: Colors.white)),
+                                            child: Text(value, style:Theme.of(context).textTheme.headline4),
                                           );
                                         }).toList(),
-                                        icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                        icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
                                         underline: Container(
                                           height: 2,
-                                          color: Colors.orange,
+                                          color: Color(0xFFFB8C00),
                                         ),
                                       )
 
                                   ),
                                 ),
+
+
+                                if (selectedGenre == 'Others')
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 35),
+
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+
+                                          Text(
+                                            'Name This Genre ?',
+                                            style:Theme.of(context).textTheme.headline5,
+                                          ),
+                                          Container(
+                                            width: 300,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: TextField(
+                                              controller: otherGenreController,
+                                              onChanged: (text) {
+                                                setState(() {
+                                                  otherGenre = text;
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                hintText: 'type here ...',
+                                                hintStyle:Theme.of(context).textTheme.headline4,
+                                                enabledBorder: InputBorder.none,
+                                                focusedBorder: InputBorder.none,
+                                              ),
+                                              style: Theme.of(context).textTheme.headline4,
+                                              maxLines: null,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+
+                                    ],
+                                  ),
+
+                                // Additional field for famous food if genre is 'Food'
+                                if (selectedGenre == 'Festivals')
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+
+                                      Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+
+                                          Text(
+                                            'What Festival is Going On ?',
+                                            style:Theme.of(context).textTheme.headline5,
+                                          ),
+                                          Container(
+                                            width: 300,
+                                            decoration: BoxDecoration(
+                                              border: Border(
+                                                bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: TextField(
+                                              controller: festivalNameController,
+                                              onChanged: (text) {
+                                                setState(() {
+                                                  festivalName = text;
+                                                });
+                                              },
+                                              decoration: InputDecoration(
+                                                hintText: 'e.g., HOLI',
+                                                hintStyle:Theme.of(context).textTheme.headline4,
+                                                enabledBorder: InputBorder.none,
+                                                focusedBorder: InputBorder.none,
+                                              ),
+                                              style: Theme.of(context).textTheme.headline4,
+                                              maxLines: null,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height : 35),
+                                    ],
+                                  ),
+
+                                // Additional field for famous food if genre is 'Food'
+                                if (selectedGenre == 'Street Foods')
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height : 35),
+                                      Text(
+                                        'Is this food famous for this place?',
+                                        style:Theme.of(context).textTheme.headline5,
+                                      ),
+                                      SizedBox(height: 20),
+                                      Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isFoodFamous = true;
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              primary: isFoodFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                              elevation: 0, // No shadow
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(18.0),
+                                                side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Yes',
+                                              style: Theme.of(context).textTheme.headline4,
+                                            ),
+                                          ),
+                                          SizedBox(width: 10),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isFoodFamous = false;
+                                                foodType = ''; // Reset the food type if not famous
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              primary: !isFoodFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                              elevation: 0, // No shadow
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(18.0),
+                                                side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'No',
+                                              style: Theme.of(context).textTheme.headline4,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      if (isFoodFamous)
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 20),
+                                            Text(
+                                              'What food is it famous for?',
+                                              style:Theme.of(context).textTheme.headline5,
+                                            ),
+                                            Container(
+                                              width: 300,
+                                              decoration: BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                                ),
+                                              ),
+                                              child: TextField(
+                                                controller: foodTypeController,
+                                                onChanged: (text) {
+                                                  setState(() {
+                                                    foodType = text;
+                                                  });
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: 'e.g., Samosa',
+                                                  hintStyle:Theme.of(context).textTheme.headline4,
+                                                  enabledBorder: InputBorder.none,
+                                                  focusedBorder: InputBorder.none,
+                                                ),
+                                                style: Theme.of(context).textTheme.headline4,
+                                                maxLines: null,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                    ],
+                                  ),
+
+                                // Additional field for famous fashion if genre is 'Fashion'
+                                if (selectedGenre == 'Fashion')
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height : 35),
+                                      Text(
+                                        'Is this clothing famous for this place ?',
+                                        style:Theme.of(context).textTheme.headline5,
+                                      ),
+                                      SizedBox(height: 20),
+                                      Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isFashionFamous = true;
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              primary: isFashionFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                              elevation: 0, // No shadow
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(18.0),
+                                                side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Yes',
+                                              style: Theme.of(context).textTheme.headline4,
+                                            ),
+                                          ),
+                                          SizedBox(width: 20),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isFashionFamous = false;
+                                                fashionType = ''; // Reset the fashion type if not famous
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              primary: !isFashionFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                              elevation: 0, // No shadow
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(18.0),
+                                                side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'No',
+                                              style: Theme.of(context).textTheme.headline4,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height : 0),
+                                      if (isFashionFamous)
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 35),
+                                            Text(
+                                              'What Exactly its Famous For ?',
+                                              style:Theme.of(context).textTheme.headline5,
+                                            ),
+                                            SizedBox(height : 10),
+                                            Container(
+                                              width: 300,
+                                              decoration: BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                                ),
+                                              ),
+                                              child: TextField(
+                                                controller: fashionTypeController,
+                                                onChanged: (text) {
+                                                  setState(() {
+                                                    fashionType = text;
+                                                  });
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: 'e.g., Traditional attire',
+                                                  hintStyle:Theme.of(context).textTheme.headline4,
+                                                  enabledBorder: InputBorder.none,
+                                                  focusedBorder: InputBorder.none,
+                                                ),
+                                                style: Theme.of(context).textTheme.headline4,
+                                                maxLines: null,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                    ],
+                                  ),
+
+
+                                // Additional field for famous Restaurant if genre is 'Restaurant'
+                                if (selectedGenre == 'Restaurants')
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height : 35),
+                                      Text(
+                                        'Is This Restaurant Famous For This Place ?',
+                                        style:Theme.of(context).textTheme.headline5,
+                                      ),
+                                      SizedBox(height: 20),
+                                      Row(
+                                        children: [
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isRestaurantFamous = true;
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              primary: isRestaurantFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                              elevation: 0, // No shadow
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(18.0),
+                                                side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Yes',
+                                              style: Theme.of(context).textTheme.headline4,
+                                            ),
+                                          ),
+                                          SizedBox(width: 20),
+                                          ElevatedButton(
+                                            onPressed: () {
+                                              setState(() {
+                                                isRestaurantFamous = false;
+                                                restaurantType = ''; // Reset the fashion type if not famous
+                                              });
+                                            },
+                                            style: ElevatedButton.styleFrom(
+                                              primary: !isRestaurantFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                              elevation: 0, // No shadow
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius: BorderRadius.circular(18.0),
+                                                side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'No',
+                                              style: Theme.of(context).textTheme.headline4,
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                      SizedBox(height : 0),
+                                      if (isRestaurantFamous)
+                                        Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          children: [
+                                            SizedBox(height: 25),
+                                            Text(
+                                              'What Exactly its Famous For ?',
+                                              style:Theme.of(context).textTheme.headline5,
+                                            ),
+                                            SizedBox(height : 10),
+                                            Container(
+                                              width: 300,
+                                              decoration: BoxDecoration(
+                                                border: Border(
+                                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                                ),
+                                              ),
+                                              child: TextField(
+                                                controller: restaurantTypeController,
+                                                onChanged: (text) {
+                                                  setState(() {
+                                                    restaurantType = text;
+                                                  });
+                                                },
+                                                decoration: InputDecoration(
+                                                  hintText: 'e.g., Traditional Serving',
+                                                  hintStyle:Theme.of(context).textTheme.headline4,
+                                                  enabledBorder: InputBorder.none,
+                                                  focusedBorder: InputBorder.none,
+                                                ),
+                                                style: Theme.of(context).textTheme.headline4,
+                                                maxLines: null,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+
+                                    ],
+                                  ),
+
                               ],
                             ),
-                          ),
 
-                          SizedBox(height: 35),
+                            SizedBox(height: 35),
 
-                          //story title here
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            //story title here
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Story Title ',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Container(
                                     width: 300,
                                     decoration: BoxDecoration(
                                       border: Border(
-                                        bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                        bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                       ),
                                     ),
                                     child: TextField(
@@ -908,38 +1370,36 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                       },
                                       decoration: InputDecoration(
                                         hintText: 'type here ...',
-                                        hintStyle: TextStyle(color: Colors.white),
+                                        hintStyle:Theme.of(context).textTheme.headline4,
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                       ),
-                                      style: TextStyle(color: Colors.white),
+                                      style:Theme.of(context).textTheme.headline4,
                                       maxLines: null,
                                     )
 
                                 ),
                               ],
                             ),
-                          ),
-                          SizedBox(height: 35),
+
+                            SizedBox(height: 35),
 
 
 
 
-                          //Describe your experience
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            //Describe your experience
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Describe your Experience ',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Container(
                                   width: 300,
                                   decoration: BoxDecoration(
                                     border: Border(
-                                      bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                     ),
                                   ),
                                   child: TextField(
@@ -951,29 +1411,26 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                     },
                                     decoration: InputDecoration(
                                       hintText: 'type here ...',
-                                      hintStyle: TextStyle(color: Colors.white),
+                                      hintStyle:Theme.of(context).textTheme.headline4,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,
                                     ),
-                                    style: TextStyle(color: Colors.white),
+                                    style:Theme.of(context).textTheme.headline4,
                                     maxLines: null,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
 
 
-                          SizedBox(height: 35),
+                            SizedBox(height: 35),
 
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'What You Love Here ?',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
 
                                 SizedBox(height : 20),
@@ -997,33 +1454,30 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                         });
                                       },
                                       style: ElevatedButton.styleFrom(
-                                        primary: selectedLoveAboutHere.contains(option) ? Colors.orange : Color(0xFF263238),
+                                        primary: selectedLoveAboutHere.contains(option) ? Color(0xFFFB8C00) : Color(0xFF263238),
                                         elevation: 0, // No shadow
                                         shape: RoundedRectangleBorder(
                                           borderRadius: BorderRadius.circular(18.0),
-                                          side: BorderSide(color: Colors.orange, width: 2.0),
+                                          side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                         ),
                                       ),
                                       child: Text(
                                         option,
-                                        style: TextStyle(color: Colors.white),
+                                        style:Theme.of(context).textTheme.headline4,
                                       ),
                                     );
                                   }).toList(),
                                 ),
                               ],
                             ),
-                          ),
-                          if (showOtherLoveAboutHereInput)
-                            Padding(
-                              padding: EdgeInsets.only(left: 26.0),
-                              child: Row(
+                            if (showOtherLoveAboutHereInput)
+                              Row(
                                 children: [
                                   Container(
                                     width: 200,
                                     decoration: BoxDecoration(
                                       border: Border(
-                                        bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                        bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                       ),
                                     ),
                                     child: TextField(
@@ -1035,11 +1489,11 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                       },
                                       decoration: InputDecoration(
                                         hintText: 'Other Reasons',
-                                        hintStyle: TextStyle(color: Colors.white),
+                                        hintStyle:Theme.of(context).textTheme.headline4,
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                       ),
-                                      style: TextStyle(color: Colors.white),
+                                      style:Theme.of(context).textTheme.headline4,
                                       maxLines: null,
                                     ),
                                   ),
@@ -1058,7 +1512,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                       }
                                     },
                                     style: ElevatedButton.styleFrom(
-                                      primary: Colors.orange,
+                                      primary: Color(0xFFFB8C00),
                                       elevation: 0, // No shadow
                                       shape: RoundedRectangleBorder(
                                         borderRadius: BorderRadius.circular(18.0),
@@ -1066,32 +1520,29 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                     ),
                                     child: Text(
                                       'Add',
-                                      style: TextStyle(color: Colors.white),
+                                      style:Theme.of(context).textTheme.headline4,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
 
 
 
-                          SizedBox(height: 35),
+                            SizedBox(height: 35),
 
-                          //what you dont like about this place
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            //what you dont like about this place
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'What you dont like about this place',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Container(
                                   width: 300,
                                   decoration: BoxDecoration(
                                     border: Border(
-                                      bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                     ),
                                   ),
                                   child: TextField(
@@ -1103,36 +1554,33 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                     },
                                     decoration: InputDecoration(
                                       hintText: 'type here ...',
-                                      hintStyle: TextStyle(color: Colors.white),
+                                      hintStyle:Theme.of(context).textTheme.headline4,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,
                                     ),
-                                    style: TextStyle(color: Colors.white),
+                                    style:Theme.of(context).textTheme.headline4,
                                     maxLines: null,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
 
 
-                          SizedBox(height: 35),
+                            SizedBox(height: 35),
 
-                          //Review this place
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            //Review this place
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
                                   'Review This Place',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Container(
                                   width: 300,
                                   decoration: BoxDecoration(
                                     border: Border(
-                                      bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                     ),
                                   ),
                                   child: TextField(
@@ -1144,32 +1592,29 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                     },
                                     decoration: InputDecoration(
                                       hintText: 'type here ...',
-                                      hintStyle: TextStyle(color: Colors.white),
+                                      hintStyle:Theme.of(context).textTheme.headline4,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,
                                     ),
-                                    style: TextStyle(color: Colors.white),
+                                    style:Theme.of(context).textTheme.headline4,
                                     maxLines: null,
                                   ),
                                 ),
                               ],
                             ),
-                          ),
 
 
-                          SizedBox(height: 35),
+                            SizedBox(height: 35),
 
-                          //RATE YOUR EXPERIENCE HERE
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            //RATE YOUR EXPERIENCE HERE
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
 
 
                                 Text(
                                   'Rate your experience here :',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 SizedBox( height: 13,),
                                 // Display stars based on the selected starRating
@@ -1184,7 +1629,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                       },
                                       icon: Icon(
                                         index < starRating ? Icons.star : Icons.star_border,
-                                        color: Colors.orange,
+                                        color: Color(0xFFFB8C00),
                                         size: 35,
                                       ),
                                     );
@@ -1192,12 +1637,9 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                 ),
                               ],
                             ),
-                          ),
-                          SizedBox(height: 35),
+                            SizedBox(height: 35),
 
-                          Padding(
-                            padding: EdgeInsets.only(left: 26.0),
-                            child: Column(
+                            Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text('Make this story' , style: TextStyle(fontSize: 18, color : Colors.white),),
@@ -1228,13 +1670,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                                       ? Icon(Icons.public, color: Colors.white)
                                                       : Icon(Icons.lock, color: Colors.white),
                                                   SizedBox(width: 5),
-                                                  Text(value, style: TextStyle(color: Colors.white)),
+                                                  Text(value, style:Theme.of(context).textTheme.headline4),
                                                   SizedBox(width: 10),
                                                 ],
                                               ),
                                             );
                                           }).toList(),
-                                          icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                          icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
 
                                         ),
                                       ),
@@ -1248,20 +1690,20 @@ class _EditDraftPageState extends State<EditDraftPage> {
 
                               ],
                             ),
-                          ),
 
 
 
 
-                          SizedBox(height: 20),
+                            SizedBox(height: 20),
 
 
 
 
 
 
-                        ],
+                          ],
 
+                        ),
                       ),
                     ),
 
@@ -1287,7 +1729,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                               children: [
                                 Text(
                                   'Category',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Theme(
                                   data: Theme.of(context).copyWith(
@@ -1308,13 +1750,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                     ].map<DropdownMenuItem<String>>((String value) {
                                       return DropdownMenuItem<String>(
                                         value: value,
-                                        child: Text(value, style: TextStyle(color: Colors.white)),
+                                        child: Text(value, style:Theme.of(context).textTheme.headline4),
                                       );
                                     }).toList(),
-                                    icon: Icon(Icons.keyboard_arrow_down, color: Colors.orange),
+                                    icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
                                     underline: Container(
                                       height: 2,
-                                      color: Colors.orange,
+                                      color: Color(0xFFFB8C00),
                                     ),
                                   ),
                                 ),
@@ -1332,13 +1774,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
                               children: [
                                 Text(
                                   'Story Title ',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Container(
                                     width: 300,
                                     decoration: BoxDecoration(
                                       border: Border(
-                                        bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                        bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                       ),
                                     ),
                                     child: TextField(
@@ -1350,11 +1792,11 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                       },
                                       decoration: InputDecoration(
                                         hintText: 'type here ...',
-                                        hintStyle: TextStyle(color: Colors.white),
+                                        hintStyle:Theme.of(context).textTheme.headline4,
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                       ),
-                                      style: TextStyle(color: Colors.white),
+                                      style:Theme.of(context).textTheme.headline4,
                                       maxLines: null,
                                     )
 
@@ -1372,13 +1814,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
                               children: [
                                 Text(
                                   'Describe your product or service ',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Container(
                                   width: 300,
                                   decoration: BoxDecoration(
                                     border: Border(
-                                      bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                     ),
                                   ),
                                   child: TextField(
@@ -1390,11 +1832,11 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                     },
                                     decoration: InputDecoration(
                                       hintText: 'type here ...',
-                                      hintStyle: TextStyle(color: Colors.white),
+                                      hintStyle:Theme.of(context).textTheme.headline4,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,
                                     ),
-                                    style: TextStyle(color: Colors.white),
+                                    style:Theme.of(context).textTheme.headline4,
                                     maxLines: null,
                                   ),
                                 ),
@@ -1412,7 +1854,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                               children: [
                                 Text(
                                   'Do you provide service / product at local’s door steps ?',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 SizedBox(height : 20),
                                 Row(
@@ -1427,7 +1869,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                           selectedOption = value!;
                                         });
                                       },
-                                      fillColor: MaterialStateColor.resolveWith((states) => Colors.orange),
+                                      fillColor: MaterialStateColor.resolveWith((states) => Color(0xFFFB8C00)),
                                       // Background color when selected
                                     ),
                                     Text('Yes',style : TextStyle(color : Colors.white)),
@@ -1440,7 +1882,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                         });
                                       },
 
-                                      fillColor: MaterialStateColor.resolveWith((states) => Colors.orange),// Background color when selected
+                                      fillColor: MaterialStateColor.resolveWith((states) => Color(0xFFFB8C00)),// Background color when selected
                                     ),
                                     Text('No',style : TextStyle(color : Colors.white)),
                                   ],
@@ -1464,13 +1906,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
                               children: [
                                 Text(
                                   'Delivery / transport Charges',
-                                  style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                                  style: Theme.of(context).textTheme.headline5,
                                 ),
                                 Container(
                                   width: 300,
                                   decoration: BoxDecoration(
                                     border: Border(
-                                      bottom: BorderSide(color: Colors.orange, width: 2.0),
+                                      bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                     ),
                                   ),
                                   child: TextField(
@@ -1483,11 +1925,11 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                     },
                                     decoration: InputDecoration(
                                       hintText: 'type here ...',
-                                      hintStyle: TextStyle(color: Colors.white),
+                                      hintStyle:Theme.of(context).textTheme.headline4,
                                       enabledBorder: InputBorder.none,
                                       focusedBorder: InputBorder.none,
                                     ),
-                                    style: TextStyle(color: Colors.white),
+                                    style:Theme.of(context).textTheme.headline4,
                                     maxLines: null,
                                   ),
                                 ),
@@ -1535,6 +1977,11 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                   widget.draft.selectedOption = selectedOption;
                                   widget.draft.transportationPricing = transportationPricingController.text;
                                   widget.draft.selectedVisibility = selectedVisibility;
+                                  widget.draft.festivalName = festivalNameController.text;
+                                  widget.draft.foodType = foodTypeController.text;
+                                  widget.draft.restaurantType = restaurantTypeController.text;
+                                  widget.draft.otherCategory = otherCategoryController.text;
+                                  widget.draft.otherGenre = otherGenreController.text;
 
                                   await updateDraft(widget.draft);
                                   setState(() {
@@ -1544,13 +1991,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   primary: isSaveDraftClicked
-                                      ? Colors.orange
+                                      ? Color(0xFFFB8C00)
                                       : Colors.transparent, // Change background color
                                   elevation: 0, // No shadow
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5.0),
                                     side: BorderSide(
-                                        color: Colors.orange, width: 2.0),
+                                        color: Color(0xFFFB8C00), width: 2.0),
                                   ),
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 20.0, vertical: 10.0),
@@ -1560,10 +2007,10 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                   style: TextStyle(
                                     color: isSaveDraftClicked
                                         ? Colors.white
-                                        : Colors.orange, // Change text color
+                                        : Color(0xFFFB8C00), // Change text color
                                     fontWeight:
                                     FontWeight.bold, // Change font weight
-                                    fontSize: 22,
+                                    fontSize: 20,
                                   ),
                                 ),
                               ),
@@ -1579,13 +2026,13 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                 },
                                 style: ElevatedButton.styleFrom(
                                   primary: isPublishClicked
-                                      ? Colors.orange
+                                      ? Color(0xFFFB8C00)
                                       : Colors.transparent, // Change background color
                                   elevation: 0, // No shadow
                                   shape: RoundedRectangleBorder(
                                     borderRadius: BorderRadius.circular(5.0),
                                     side: BorderSide(
-                                        color: Colors.orange, width: 2.0),
+                                        color: Color(0xFFFB8C00), width: 2.0),
                                   ),
                                   padding: EdgeInsets.symmetric(
                                       horizontal: 20.0, vertical: 10.0),
@@ -1595,10 +2042,10 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                   style: TextStyle(
                                     color: isPublishClicked
                                         ? Colors.white
-                                        : Colors.orange, // Change text color
+                                        : Color(0xFFFB8C00), // Change text color
                                     fontWeight:
                                     FontWeight.bold, // Change font weight
-                                    fontSize: 22,
+                                    fontSize: 20,
                                   ),
                                 ),
                               ),
