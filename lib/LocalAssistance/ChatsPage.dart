@@ -29,7 +29,7 @@ import 'package:socket_io_client/socket_io_client.dart' as IO;
 import 'package:url_launcher/url_launcher.dart';
 
 import '../ServiceSections/TripCalling/Payments/UpiPayments.dart';
-import '../ServiceSections/VideoCalling/CallingScreen.dart';
+import '../ServiceSections/VideoCalling/CallingScreen2.dart';
 import '../ServiceSections/VideoCalling/SignallingService.dart';
 import '../ServiceSections/LocalAssistant/ChatSection/Uploader.dart';
 
