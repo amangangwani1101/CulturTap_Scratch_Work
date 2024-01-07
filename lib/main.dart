@@ -141,7 +141,7 @@ class MyApp extends StatelessWidget {
 
           backgroundColor: Colors.white, // Change the AppBar background color
           foregroundColor: Colors.white,
-          toolbarHeight: 90,
+
           scrolledUnderElevation: 5.0// Change the AppBar text color
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(

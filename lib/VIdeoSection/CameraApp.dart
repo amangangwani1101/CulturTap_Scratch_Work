@@ -5,6 +5,7 @@ import 'package:camera/camera.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/HomePage.dart';
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
+import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
@@ -290,11 +291,12 @@ class _CameraAppState extends State<CameraApp> {
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => VideoPreviewPage(
-            videoPaths: videoPaths,
+          builder: (context) => ComposePage(
             userLocation: userLocation,
+            videoPaths: videoPaths,
             latitude: latitude,
             longitude: longitude,
+            videoData: videoData,
           ),
         ),
       );

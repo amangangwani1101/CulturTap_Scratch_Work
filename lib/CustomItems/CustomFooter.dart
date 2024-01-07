@@ -6,6 +6,7 @@ import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import 'package:learn_flutter/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/Utils/location_utils.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
@@ -196,7 +197,7 @@ setState(() {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height : addButtonClicked ? MediaQuery.of(context).size.height : 70,
+      height :  70,
 
 
 
@@ -206,10 +207,10 @@ setState(() {
         child:
             Column(
               children: [
-                Container(
-                    color: Colors.transparent,
-                    height : addButtonClicked ? MediaQuery.of(context).size.height - 241 : 0,
-                ),
+                // Container(
+                //     color: Colors.transparent,
+                //     height : addButtonClicked ? MediaQuery.of(context).size.height - 241 : 0,
+                // ),
                 //
                 // Visibility(
                 //   visible: addButtonClicked == true,
@@ -458,12 +459,48 @@ setState(() {
                   
                   
                               child: InkWell(
-                                onTap: (){
-                  
-                                  setState(() {
-                                    addButtonClicked!=addButtonClicked;
-                                  });
-                  
+                                onTap: ()async{
+
+
+
+                                  bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
+                                  if (hasVideos) {
+
+                                    // Navigate to VideoPreviewPage with data from the database
+                                    List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                                    List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+                                    // Extract the required data from the list of videos
+                                    List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                                    String userLocation = ''; // Replace with your logic to get user location
+                                    double latitude = allVideos[0].latitude;
+                                    double longitude = allVideos[0].longitude;
+
+                                    print('latitude : $latitude');
+                                    print('longitude : $longitude');
+
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ComposePage(
+                                          videoPaths: videoPaths,
+
+                                          latitude: latitude,
+                                          longitude: longitude,
+                                          videoData: videoData,
+                                        ),
+                                      ),
+                                    );
+
+                                    _showVideoDialog(context);
+                                  } else {
+                                    // Navigate to CameraApp
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                                  }
+                                  // _changeIconColor('add');
+
+
                                 },
                                 child: Container(
                   
@@ -477,10 +514,42 @@ setState(() {
                                   // ),
                   
                                   child: ElevatedButton(
-                                    onPressed: (){
-                                      setState(() {
-                                        addButtonClicked==false ? addButtonClicked=true : addButtonClicked=false ;
-                                      });
+                                    onPressed: ()async{
+
+                                      bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
+                                      if (hasVideos) {
+
+                                        // Navigate to VideoPreviewPage with data from the database
+                                        List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                                        List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+                                        // Extract the required data from the list of videos
+                                        List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                                        String userLocation = ''; // Replace with your logic to get user location
+                                        double latitude = allVideos[0].latitude;
+                                        double longitude = allVideos[0].longitude;
+
+                                        print('latitude : $latitude');
+                                        print('longitude : $longitude');
+
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => ComposePage(
+                                              videoPaths: videoPaths,
+                                              videoData: videoData,
+                                              latitude: latitude,
+                                              longitude: longitude,
+                                            ),
+                                          ),
+                                        );
+
+                                        _showVideoDialog(context);
+                                      } else {
+                                        // Navigate to CameraApp
+                                        Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                                      }
                                     },
                                     style: ElevatedButton.styleFrom(
                                       primary: mode == 'dark' ? Colors.black : Colors.white,

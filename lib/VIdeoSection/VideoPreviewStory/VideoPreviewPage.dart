@@ -12,19 +12,6 @@ import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'package:geolocator/geolocator.dart';
 
 
-Map<String, List<VideoInfo>> videoData = {};
-
-class VideoInfo {
-  final String videoUrl;
-  final double latitude;
-  final double longitude;
-
-  VideoInfo({
-    required this.videoUrl,
-    required this.latitude,
-    required this.longitude,
-  });
-}
 
 class VideoPreviewPage extends StatefulWidget {
   final List<String> videoPaths;
@@ -690,69 +677,68 @@ class _VideoItemState extends State<VideoItem> {
       onLongPress: () {
         _toggleFullScreen();
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12.0),
-        child: Container(
-          margin: EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.white, width: 4.0),
-          ),
-          child: Stack(
-            children: [
-              AspectRatio(
-                aspectRatio: 2 / 3.15,
-                child: VideoPlayer(_controller),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: IconButton(
-                  onPressed: _togglePlayPause,
-                  icon: Icon(
-                    _isPlaying ? Icons.pause : Icons.play_arrow,
-                    size: 40.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 8.0,
-                left: 8.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
+        child : Container(
+          width: 250,
+          height: 300,
+          margin: EdgeInsets.all(5.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Stack(
+              children: [
+                VideoPlayer(_controller),
+                Align(
+                  alignment: Alignment.center,
+                  child: IconButton(
+                    onPressed: _togglePlayPause,
+                    icon: Icon(
+                      _isPlaying ? Icons.pause : Icons.play_arrow,
+                      size: 40.0,
                       color: Colors.white,
-                      width: 2.0,
                     ),
                   ),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    child: Text(
-                      widget.videoNumber.toString(),
-                      style: TextStyle(
+                ),
+                Positioned(
+                  top: 8.0,
+                  left: 8.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        width: 2.0,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      child: Text(
+                        widget.videoNumber.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 2.0,
-                right: 2.0,
-                child: IconButton(
-                  onPressed: widget.onClosePressed,
-                  icon: Icon(
-                    Icons.highlight_remove_rounded,
-                    size: 30.0,
-                    color: Colors.white70,
+                Positioned(
+                  top: 2.0,
+                  right: 2.0,
+                  child: IconButton(
+                    onPressed: widget.onClosePressed,
+                    icon: Icon(
+                      Icons.highlight_remove_rounded,
+                      size: 30.0,
+                      color: Colors.white70,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        )
+
+
+
     );
   }
 

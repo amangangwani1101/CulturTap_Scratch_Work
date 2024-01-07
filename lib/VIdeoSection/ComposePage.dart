@@ -1,9 +1,13 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/loading_dialog.dart';
 import 'package:learn_flutter/CustomItems/pulseUpload.dart';
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
 
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -11,7 +15,7 @@ import 'package:geocoding/geocoding.dart';
 import 'dart:math';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
-import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
+
 import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
@@ -23,6 +27,21 @@ import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+Map<String, List<VideoInfo>> videoData = {};
+
+class VideoInfo {
+  final String videoUrl;
+  final double latitude;
+  final double longitude;
+
+  VideoInfo({
+    required this.videoUrl,
+    required this.latitude,
+    required this.longitude,
+  });
+}
+
 
 
 class UploadPopup extends StatelessWidget {
@@ -87,17 +106,19 @@ class UploadPopup extends StatelessWidget {
 
 class ComposePage extends StatefulWidget {
   VideoDatabaseHelper myDatabaseHelper = VideoDatabaseHelper();
-
   final List<String> videoPaths;
   final double latitude;
   final double longitude;
   final Map<String, List<VideoInfo>> videoData;
+  String? userLocation;
+
 
   ComposePage({
     required this.latitude,
     required this.longitude,
     required this.videoPaths,
     required this.videoData,
+    this.userLocation,
   });
 
   @override
@@ -109,8 +130,16 @@ class _ComposePageState extends State<ComposePage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+  Map<String, List<VideoInfo>> videoData = {};
+
+
+
   String userName = '';
   String userID = '';
+  double firstVideoLatitude = 0.0;
+  double firstVideoLongitude = 0.0;
+
+  bool isLoading = true;
 
   late VideoPlayerController _thumbnailController;
   late int randomIndex;
@@ -171,9 +200,109 @@ class _ComposePageState extends State<ComposePage> {
   String fashionType = '';
   String restaurantType = '';
   String festivalName = '';
+  double userLatitude = 0.0;
+  double userLongitude = 0.0;
 
 
   bool _isVisible = true;
+
+
+
+
+  bool isWithinRadius(double firstLatitude, double firstLongitude, double newLatitude, double newLongitude, double radius) {
+    double distance = Geolocator.distanceBetween(firstLatitude, firstLongitude, newLatitude, newLongitude);
+    return distance <= radius;
+  }
+
+
+  void handleAddNewVideoButton() async{
+    if (userLatitude != 0.0 && userLongitude != 0.0) {
+      double radiusInMeters = 10.0;
+
+      print(userLatitude);
+      print('user longitude ${userLongitude}');
+      print('hm yha calculation kr rhe hain ');
+      print(widget.latitude);
+      print(widget.longitude);
+      double distance = Geolocator.distanceBetween(
+        userLatitude!,
+        userLongitude!,
+        widget.latitude,
+        widget.longitude,
+      );
+      print('distance');
+      print(distance);
+
+
+      if (distance <= radiusInMeters) {
+        // User is within the radius; they can proceed to create a new video
+        print('Location checked - User is within 500 meters.');
+        bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
+
+
+        if(hasVideos){
+
+          print('has Videos');
+          Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+
+        }
+        else{
+          Navigator.pop(context);
+        }
+
+        print('location checked');
+        print(radiusInMeters);
+        print("firstVideoLatitude");
+        print(firstVideoLatitude);
+        print(firstVideoLongitude);
+        print('location right now');
+        print(widget.latitude);
+        print(widget.longitude);
+        print('distance');
+        print(distance);
+      } else {
+        // User is outside the radius; show a dialog
+        showDialog(
+          context: context,
+          builder: (context) {
+            return ImagePopUpWithOK(
+                imagePath: 'assets/images/range.svg',
+                textField: 'Your range is getting extended Please upload or save your last recordings before the next shoot, ',
+                extraText:'*Your draft will be available under thesettings option.',
+                what:'ok');
+          },
+        );
+      }
+    }
+  }
+
+
+
+
+
+  Future<void> fetchUserLocation() async {
+    final Position position = await Geolocator.getCurrentPosition(
+      desiredAccuracy: LocationAccuracy.medium,
+    );
+
+
+
+
+
+    setState(() {
+
+      userLatitude = position.latitude;
+      userLongitude = position.longitude;
+    });
+
+    print('user latitude : $userLatitude');
+
+    handleAddNewVideoButton();
+  }
+
+
+
 
 
   Future<void> fetchDataFromMongoDB() async {
@@ -289,7 +418,49 @@ class _ComposePageState extends State<ComposePage> {
     }
   }
 
+  Future<void> removeVideo(String videoPath) async {
 
+    // _handleRefresh();
+
+    setState(() {
+      isLoading = true;
+      // Find the location associated with the videoPath
+      // String location = widget.userLocation;
+      String location = '';
+
+      if (videoData.containsKey(location)) {
+        // Find the index of the video with the given path within the location
+        int index = videoData[location]!.indexWhere((videoInfo) => videoInfo.videoUrl == videoPath);
+
+        if (index != -1) {
+          // Remove the video info from videoData
+          videoData[location]!.removeAt(index);
+
+          // If there are no videos left for that location, remove the location key
+          if (videoData[location]!.isEmpty) {
+            videoData.remove(location);
+          }
+        }
+      }
+
+      // Remove the video path from widget.videoPaths
+      int pathIndex = widget.videoPaths.indexOf(videoPath);
+      if (pathIndex != -1) {
+        // Remove the video file from local storage asynchronously
+        VideoDatabaseHelper().deleteVideoByPath(videoPath);
+        // Remove the video path from the list
+        widget.videoPaths.removeAt(pathIndex);
+      }
+    });
+
+
+    if (widget.videoPaths.isEmpty) {
+      Navigator.pop(context);
+
+    } else {
+      // _handleRefresh();
+    }
+  }
 
 
   List<File> convertPathsToFiles(List<String> videoPaths) {
@@ -379,7 +550,29 @@ class _ComposePageState extends State<ComposePage> {
 
 
 
+
+
+
+
+  void addVideo(String location, String videoUrl, double latitude, double longitude) {
+    final videoInfo = VideoInfo(
+      videoUrl: videoUrl,
+      latitude: latitude,
+      longitude: longitude,
+    );
+
+    videoData[location] = [videoInfo];
+
+
+  }
+
+
+
+
+
+
   late DatabaseHelper _databaseHelper;
+
   Future<void> saveDraft() async {
     print('userIDindraft$userID');
     final status = await Permission.storage.request();
@@ -452,7 +645,7 @@ class _ComposePageState extends State<ComposePage> {
 
 
 
-//to get and print location name
+
   Future<void> getAndPrintLocationName(double latitude, double longitude) async {
     try {
       List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
@@ -483,15 +676,42 @@ class _ComposePageState extends State<ComposePage> {
   void initState() {
     super.initState();
     fetchDataFromMongoDB();
+
     _databaseHelper = DatabaseHelper.instance;
+
+
+
     print("Video Data in initState: ${widget.videoData}");
 
     if (videoData.isNotEmpty) {
       final location = videoData.keys.first; // Get the first location in the map
       final firstVideoInfo = videoData[location]![0];
+      print('first Video Info ');
+      print(firstVideoInfo);
 // Get the first VideoInfo in the list
 
       print("Video Data in initState: ${firstVideoInfo.videoUrl}");
+
+      for (int i = 0; i < widget.videoPaths.length; i++) {
+        addVideo(widget.userLocation!, widget.videoPaths[i], widget.latitude, widget.longitude);
+
+        // Save the latitude and longitude of the first video
+        if (i == 0) {
+          setState(() {
+
+            firstVideoLatitude = widget.latitude;
+            firstVideoLongitude = widget.longitude;
+          });
+
+        }
+
+
+
+
+      }
+
+
+
 
     }
 
@@ -529,32 +749,207 @@ class _ComposePageState extends State<ComposePage> {
 
 
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
+                  SizedBox(height : 20),
                   Container(
-                    margin: EdgeInsets.only(top: 20),
-                    constraints: BoxConstraints(
-                      maxWidth: 300,
-                      maxHeight: 300,
-                    ),
-                    child: AspectRatio(
-                      aspectRatio: _thumbnailController.value.aspectRatio,
-                      child: Stack(
-                        children: [
-                          VideoPlayer(_thumbnailController),
-                          Container(
-                            decoration: BoxDecoration(
-                              border: Border.all(
-                                color: Colors.white,
-                                width: 4.0,
+                    padding: EdgeInsets.only(left : 26),
+                      child: Text('Shooted Films',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color : Colors.white))),
+                  SizedBox(height : 16),
+
+                  Column(
+                    children: [
+                      Container(
+                        height: 300,
+
+                        child: SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          reverse: true, // Set reverse to true to start at the right end
+                          child: Row(
+                            children: [
+                              ...List.generate(
+                                widget.videoPaths.length,
+                                    (index) => Container(
+                                  width: 200,
+                                  margin: EdgeInsets.all(2),
+                                  child: VideoItem(
+                                    videoPath: widget.videoPaths[index],
+                                    videoNumber: index + 1,
+                                    onClosePressed: () {
+                                      showDialog(
+                                        context: context,
+                                        builder: (context) {
+                                          return AlertDialog(
+                                            backgroundColor: Color(0xFF263238),
+                                            content: Container(
+                                              height: 269,
+                                              width: 300,
+                                              child: Column(
+                                                children: [
+                                                  SizedBox(height: 30),
+                                                  Padding(
+                                                    padding: EdgeInsets.all(20),
+                                                    child: Center(
+                                                      child: Image.asset('assets/images/remove.png'),
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 30),
+                                                  Text(
+                                                    'Are You Sure?',
+                                                    style: TextStyle(
+                                                      fontWeight: FontWeight.bold,
+                                                      color: Colors.white,
+                                                      fontSize: 25,
+                                                    ),
+                                                  ),
+                                                  SizedBox(height: 20),
+                                                  Center(
+                                                    child: Padding(
+                                                      padding: const EdgeInsets.only(),
+                                                      child: Column(
+                                                        children: [
+                                                          Text(
+                                                            'You are removing a shoot',
+                                                            style: TextStyle(
+                                                              fontSize: 16,
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                            actions: [
+                                              Row(
+                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                children: [
+
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                    child: Text(
+                                                      'Cancel',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.orange,
+                                                        fontSize: 20,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      // Remove video logic here
+                                                      removeVideo(widget.videoPaths[index]);
+                                                      Navigator.of(context).pop();
+                                                    },
+                                                    child: Text(
+                                                      'Remove',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                        color: Colors.orange,
+                                                        fontSize: 20,
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                              SizedBox(height: 20),
+                                            ],
+                                          );
+                                        },
+                                      );
+                                    },
+                                  ),
+                                ),
                               ),
-                            ),
+                              // Add the button at the end
+                              Center(
+                                child: Container(
+
+                                  height : 300,
+                                  width: 150,
+                                  margin: EdgeInsets.all(2),
+                                  child: Expanded(
+                                    child: Center(
+                                      child: Column(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+
+                                        children: [
+                                          GestureDetector(
+                                            child: Container(
+
+                                              margin: EdgeInsets.all(5.0),
+                                              child: Stack(
+                                                alignment: Alignment.center,
+                                                children: [
+                                                  SizedBox(
+                                                    width: 60,
+                                                    height: 60,
+                                                    child: CircularProgressIndicator(
+                                                      value: 1,
+                                                      backgroundColor: Colors.transparent,
+                                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                                        Colors.orange,
+                                                      ),
+                                                      strokeWidth: 5.0,
+                                                    ),
+                                                  ),
+                                                  SizedBox(
+                                                    width: 90,
+                                                    height: 90,
+                                                    child: IconButton(
+                                                      icon: SvgPicture.asset("assets/images/addNewVideoIcon.svg"),
+                                                      onPressed:(){
+                                                        fetchUserLocation();
+                                                      },
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          Text(
+                                            'Add \nNew Film',
+                                            style: TextStyle(
+                                              fontWeight: FontWeight.bold,
+                                              color: Colors.white,
+                                              fontSize: 16,
+                                            ),textAlign: TextAlign.center,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                        ],
+                        ),
                       ),
+                    ],
+                  ),
+
+
+
+                  Container(
+                    margin: EdgeInsets.only(bottom: 20),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        // ... (your existing code)
+                      ],
                     ),
                   ),
                 ],
               ),
+
+
+
 
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -652,6 +1047,7 @@ class _ComposePageState extends State<ComposePage> {
 
                 ],),
 
+
               //for regular story
 
               Visibility(
@@ -713,7 +1109,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Genre',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Theme(
                             data: Theme.of(context).copyWith(
@@ -755,38 +1151,38 @@ class _ComposePageState extends State<ComposePage> {
                           children: [
 
                             Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
 
-                                  Text(
-                                    'What Festival is Going On ?',
-                                      style:Theme.of(context).textTheme.headline5,
-                                  ),
-                                  Container(
-                                    width: 300,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Colors.orange, width: 2.0),
-                                      ),
-                                    ),
-                                    child: TextField(
-                                      onChanged: (text) {
-                                        setState(() {
-                                          festivalName = text;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'e.g., HOLI',
-                                        hintStyle: TextStyle(color: Colors.white),
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                      ),
-                                      style: TextStyle(color: Colors.white),
-                                      maxLines: null,
+                                Text(
+                                  'What Festival is Going On ?',
+                                  style:Theme.of(context).textTheme.headline5,
+                                ),
+                                Container(
+                                  width: 300,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(color: Colors.orange, width: 2.0),
                                     ),
                                   ),
-                                ],
-                              ),
+                                  child: TextField(
+                                    onChanged: (text) {
+                                      setState(() {
+                                        festivalName = text;
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'e.g., HOLI',
+                                      hintStyle: TextStyle(color: Colors.white),
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    style: TextStyle(color: Colors.white),
+                                    maxLines: null,
+                                  ),
+                                ),
+                              ],
+                            ),
                             SizedBox(height : 35),
                           ],
                         ),
@@ -801,7 +1197,7 @@ class _ComposePageState extends State<ComposePage> {
                           children: [
                             Text(
                               'Is this food famous for this place?',
-                                style:Theme.of(context).textTheme.headline5,
+                              style:Theme.of(context).textTheme.headline5,
                             ),
                             SizedBox(height: 20),
                             Row(
@@ -855,7 +1251,7 @@ class _ComposePageState extends State<ComposePage> {
                                   SizedBox(height: 20),
                                   Text(
                                     'What food is it famous for?',
-                                      style:Theme.of(context).textTheme.headline5,
+                                    style:Theme.of(context).textTheme.headline5,
                                   ),
                                   Container(
                                     width: 300,
@@ -896,7 +1292,7 @@ class _ComposePageState extends State<ComposePage> {
                           children: [
                             Text(
                               'Is this clothing famous for this place ?',
-                                style:Theme.of(context).textTheme.headline5,
+                              style:Theme.of(context).textTheme.headline5,
                             ),
                             SizedBox(height: 20),
                             Row(
@@ -951,7 +1347,7 @@ class _ComposePageState extends State<ComposePage> {
                                   SizedBox(height: 25),
                                   Text(
                                     'What Exactly its Famous For ?',
-                                      style:Theme.of(context).textTheme.headline5,
+                                    style:Theme.of(context).textTheme.headline5,
                                   ),
                                   SizedBox(height : 10),
                                   Container(
@@ -994,7 +1390,7 @@ class _ComposePageState extends State<ComposePage> {
                           children: [
                             Text(
                               'Is This Restaurant Famous For This Place ?',
-                                style:Theme.of(context).textTheme.headline5,
+                              style:Theme.of(context).textTheme.headline5,
                             ),
                             SizedBox(height: 20),
                             Row(
@@ -1049,7 +1445,7 @@ class _ComposePageState extends State<ComposePage> {
                                   SizedBox(height: 25),
                                   Text(
                                     'What Exactly its Famous For ?',
-                                      style:Theme.of(context).textTheme.headline5,
+                                    style:Theme.of(context).textTheme.headline5,
                                   ),
                                   SizedBox(height : 10),
                                   Container(
@@ -1091,7 +1487,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Story Title ',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Container(
                             width: 300,
@@ -1129,7 +1525,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Describe Your Experience : ',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Container(
                             width: 300,
@@ -1164,7 +1560,7 @@ class _ComposePageState extends State<ComposePage> {
                       padding: EdgeInsets.only(left: 26.0),
                       child: Text(
                         'What You Love About Here',
-                          style:Theme.of(context).textTheme.headline5,
+                        style:Theme.of(context).textTheme.headline5,
                       ),
                     ),
                     SizedBox(height: 25),
@@ -1273,7 +1669,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'What you don’t like about this place? ',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Container(
                             width: 300,
@@ -1312,7 +1708,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Review This Place',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Container(
                             width: 300,
@@ -1458,7 +1854,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Category',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Theme(
                             data: Theme.of(context).copyWith(
@@ -1503,7 +1899,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Story Title ',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Container(
                             width: 300,
@@ -1541,7 +1937,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Describe your product or service ',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Container(
                             width: 300,
@@ -1579,7 +1975,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Do you provide service / product at local’s door steps ?',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           SizedBox(height : 35),
                           Row(
@@ -1626,7 +2022,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Offered price of your product or Service',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
 
 
@@ -1701,7 +2097,7 @@ class _ComposePageState extends State<ComposePage> {
                         children: [
                           Text(
                             'Delivery / transport Charges',
-                              style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
                           Container(
                             width: 300,
@@ -1797,7 +2193,6 @@ class _ComposePageState extends State<ComposePage> {
 
                 ),
               ),
-
 
 
 
