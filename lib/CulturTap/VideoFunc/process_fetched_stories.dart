@@ -60,6 +60,10 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
     String category = story['category'];
     String genre = story['genre'];
     String storyCategory = story['category'];
+    String transportationPricing = story['transportationPricing'];
+    String productPrice = story['productPrice'];
+    String selectedOption = story['selectedOption'];
+
     String label = story['label'];
     String userID = story['userID'];
     String userName = story['userName'];
@@ -96,6 +100,10 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
         'userName' : userName,
         'likes' : likes,
         'views' : views,
+        'transportationPricing' : transportationPricing,
+        'productPrice' : productPrice,
+        'selectedOption' : selectedOption,
+
       };
 
       totalVideoCounts.add('${videoPaths.length}');

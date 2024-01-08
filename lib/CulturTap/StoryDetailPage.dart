@@ -833,7 +833,10 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
               storyDetails['label'] == 'Regular Story' ?
 
-              Column(children:[
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                  children:[
+
                 SizedBox(height: 18),
                 Text(
                   'Story Title',
@@ -976,123 +979,171 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
 
                   ],),
-              ]) : Container(),
+              ]) : Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 18),
+
+                  Text(
+                    'Description',
+                    style: Theme.of(context).textTheme.subtitle1,
+                  ),
+
+
+
+                  Text(
+                    '${storyDetails["productDescription"]}',
+                    style: Theme.of(context).textTheme.subtitle2,
+                  ),
+                  SizedBox(height: 22),
+
+
+                  Text(
+                    'Door Step service / delivery available ?',
+                    style: Theme.of(context).textTheme.subtitle1,
+                  ),
+
+                  storyDetails["selectedOption"] == 'Yes' ?
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Icon(
+                        Icons.check_circle_outline_outlined,
+                        color: Colors.green,
+                      ),
+                      Text(
+                        '${storyDetails["selectedOption"]}',
+                        style: TextStyle(color : Colors.green, fontWeight: FontWeight.bold,fontSize : 16,),
+                      ),
+                    ],
+                  ) : Container(
+
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.block,
+                          color: Colors.red,
+                        ),
+                        Text(
+                          'No',
+                          style: TextStyle(color : Colors.red, fontWeight: FontWeight.bold,fontSize : 16,),
+                        ),
+                      ],
+                    ),
+                  ) ,
+
+
+                  SizedBox(height: 20),
+                  Container(
+                    height : 19,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Cost of service/Product .',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.help_outline),
+                          color : Colors.orange,
+                          onPressed: () {
+
+                          },
+
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 1),
+
+                  Text('${storyDetails['productPrice']} INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+
+                  SizedBox(height: 20),
+                  Container(
+                    height : 19,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+
+                        Text(
+                          'Delivery/Transport Charges .',
+                          style: Theme.of(context).textTheme.subtitle1,
+                        ),
+                        IconButton(
+                          icon: Icon(Icons.help_outline),
+                          color : Colors.orange,
+                          onPressed: () {
+
+                          },
+
+                        ),
+                      ],
+                    ),
+                  ),
+                  SizedBox(height: 1),
+
+                  Text('${storyDetails['transportationPricing']} INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+
+                  SizedBox(height: 1),
+                  SizedBox(height : 30),
+                  Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+                  SizedBox(height : 30),
+                  Center(
+                    child: Container(
+                      width : 250,
+                      height: 63,
+                      child: ElevatedButton(
+                        onPressed: () async{
+
+                        },
+                        style: ElevatedButton.styleFrom(
+                          primary: Colors.orange, // Change background color
+                          elevation: 0, // No shadow
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(5.0),
+                            side: BorderSide(color: Colors.orange, width: 2.0),
+                          ),
+                          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                        ),
+                        child: Row(
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.location_on_outlined),
+                              color : Colors.white,
+                              onPressed: () {
+                                FinalProfile(userId:userID,clickedId: storyUserID,);
+                              },
+
+                            ),
+                            Text(
+                              'Request Service',
+                              style: TextStyle(
+                                // Change text color
+                                fontWeight: FontWeight.bold , // Change font weight
+                                fontSize: 16,
+                                color:Colors.white,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height : 30),
+
+
+
+                ],),
 
 
 
 
-                //
-                // if(storyDetails["businessCategory"] != '')
-                //   Column(
-                //     crossAxisAlignment: CrossAxisAlignment.start,
-                //     children: [
-                //       Text(
-                //         '${storyDetails["storyDescription"]}',
-                //         style: Theme.of(context).textTheme.subtitle2,
-                //       ),
-                //       SizedBox(height: 18),
-                //
-                //
-                //       Text(
-                //         'Door Step service / delivery available ?',
-                //         style: Theme.of(context).textTheme.subtitle2,
-                //       ),
-                //       SizedBox(height: 18),
-                //       Text(
-                //         '${storyDetails["selectedOption"]}',
-                //         style: Theme.of(context).textTheme.subtitle2,
-                //       ),
-                //       SizedBox(height: 1),
-                //
-                //       Container(
-                //         child: Row(
-                //           children: [
-                //             Text('1000 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
-                //             IconButton(
-                //               icon: Icon(Icons.help_outline),
-                //               color : Colors.orange,
-                //               onPressed: () {
-                //
-                //               },
-                //
-                //             ),
-                //           ],
-                //         ),
-                //       ),
-                //
-                //       SizedBox(height: 15),
-                //       Text(
-                //         'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
-                //         style: Theme.of(context).textTheme.subtitle2,
-                //       ),
-                //       SizedBox(height: 1),
-                //
-                //       Row(
-                //         children: [
-                //           Text('500 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
-                //           IconButton(
-                //             icon: Icon(Icons.help_outline),
-                //             color : Colors.orange,
-                //             onPressed: () {
-                //
-                //             },
-                //
-                //           ),
-                //         ],
-                //
-                //       ),
-                //
-                //
-                //       SizedBox(height : 30),
-                //       Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
-                //       SizedBox(height : 30),
-                //       Center(
-                //         child: Container(
-                //           width : 250,
-                //           height: 63,
-                //           child: ElevatedButton(
-                //             onPressed: () async{
-                //
-                //             },
-                //             style: ElevatedButton.styleFrom(
-                //               primary: Colors.orange, // Change background color
-                //               elevation: 0, // No shadow
-                //               shape: RoundedRectangleBorder(
-                //                 borderRadius: BorderRadius.circular(5.0),
-                //                 side: BorderSide(color: Colors.orange, width: 2.0),
-                //               ),
-                //               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                //             ),
-                //             child: Row(
-                //               children: [
-                //                 IconButton(
-                //                   icon: Icon(Icons.location_on_outlined),
-                //                   color : Colors.white,
-                //                   onPressed: () {
-                //                     FinalProfile(userId:userID,clickedId: storyUserID,);
-                //                   },
-                //
-                //                 ),
-                //                 Text(
-                //                   'Follow Location',
-                //                   style: TextStyle(
-                //                     // Change text color
-                //                     fontWeight: FontWeight.bold , // Change font weight
-                //                     fontSize: 16,
-                //                     color:Colors.white,
-                //                   ),
-                //                 ),
-                //               ],
-                //             ),
-                //           ),
-                //         ),
-                //       ),
-                //       SizedBox(height : 30),
-                //
-                //
-                //
-                //     ],),
-                //
+
+
+
+
 
 
 
