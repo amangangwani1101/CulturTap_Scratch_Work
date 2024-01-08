@@ -20,6 +20,7 @@ import '../../widgets/CustomButton.dart';
 import '../../widgets/CustomDialogBox.dart';
 import '../../widgets/hexColor.dart';
 import '../../LocalAssistance/ChatsPage.dart';
+import '../RatingSection.dart';
 import '../TripCalling/ChatSection/ChatSection.dart';
 import 'package:upi_india/upi_india.dart';
 // void main(){
@@ -1467,12 +1468,12 @@ class _PingSectionState extends State<PingsSection>{
                                       :(meetStatus=='close' && userId!=widget.userId)
                                       ?InkWell(
                                     onTap: (){
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //     builder: (context) => RateFeedBack(pingsCallback:callback,userId:widget.userId,index:index,userPhoto:pingsDataStore.userPhotoPath,userName:userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId),
-                                      //   ),
-                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => RateFeed(meetId:meetId,service: 'Local Assistant',),
+                                        ),
+                                      );
                                     },
                                     child: Container(
                                       width: screenWidth*0.70,
@@ -1482,12 +1483,12 @@ class _PingSectionState extends State<PingsSection>{
                                       :(meetStatus=='close')
                                       ? InkWell(
                                     onTap: (){
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //     builder: (context) => RateFeedBack(pingsCallback:callback,index:index,userPhoto: pingsDataStore.userPhotoPath,userName:userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId,userId:widget.userId),
-                                      //   ),
-                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>  RateFeed(meetId:meetId,service: 'Local Assistant',),
+                                        ),
+                                      );
                                     },
                                     child: Container(
                                       width: screenWidth*0.70,

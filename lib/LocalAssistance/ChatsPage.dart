@@ -56,6 +56,7 @@ class _ChatsPageState extends State<ChatsPage> {
   FocusNode _textFieldFocusNode = FocusNode();
   ScrollController _scrollController = ScrollController();
   String liveLocation = 'Fetching location...';
+  List <String>userWith10km=[],userWith10kmDist=[],userWith15km=[],userWith15kmDist=[];
   bool isContentLoaded = false;
   List<String>suggestedTexts = [
     'Need Mechanical help for my car ',
@@ -70,7 +71,7 @@ class _ChatsPageState extends State<ChatsPage> {
   bool pageVisitor = true; // true means person coming to this page is user while in else condition its helper
   bool messageTyping = false;// Default text
   bool isScrollingUp = false;
-  int helpingHands = 0;
+  int? helpingHands;
 
 
 
@@ -99,11 +100,14 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
   Future<String> createMeetRequest() async {
-    final url = Uri.parse('$serverUrl/updateLocalAssistantMeetDetails');
+      final url = Uri.parse('$serverUrl/updateLocalAssistantMeetDetails');
     // Replace with your data
     Map<String, dynamic> requestData = {
       "userId": widget.userId,
-      "helperIds": userIds,
+      "helperIds": userWith10km,
+      "helperIds2": userWith15km,
+      "helperDist" : userWith10kmDist,
+      "helperDist2":userWith15kmDist,
       "meetTitle": _controller.text,
       "paymentStatus":'initiated',
       "time":DateTime.now().toIso8601String()
@@ -216,8 +220,8 @@ class _ChatsPageState extends State<ChatsPage> {
       "time":setCurrentTime(),
       "date":formattedDate,
       "title": _controller.text,
-      "distances":distance,
-      "helperIds":userIds,
+      "distances":userWith10kmDist,
+      "helperIds":userWith10km,
       'meetId':meetId,
       'meetStatus':meetStatus,
       'userName':userName,
@@ -505,8 +509,7 @@ class _ChatsPageState extends State<ChatsPage> {
   @override
   void initState() {
     super.initState();
-    if(widget.meetId==null || widget.state=='user')
-      _getUserLocation();
+    getLocation();
     _textFieldFocusNode.addListener(() {
       setState(() {
         _isTyping = _textFieldFocusNode.hasFocus;
@@ -524,7 +527,7 @@ class _ChatsPageState extends State<ChatsPage> {
       pageVisitor = false;
     }
     if(pageVisitor){
-      userIds = ['65923b5dc9567082165a2f7a','659239aec9567082165a2f57'];
+      userIds = userWith10km;
       distance = ['0.05','0.09'];
     }
     if(widget.meetId!=null) {
@@ -559,10 +562,22 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
 
-  Future<Map<String, double>> getUserIdsAndDistances(String providedLatitude, String providedLongitude, String userIdToRemove, int vardis) async {
-    setState(() {
-      helpingHands = 0;
+  Map<String, double> findUnique(Map<String, double> data1, Map<String, double> data2) {
+    Map<String,double> uniqueData = {};
+
+    data2.forEach((key, _) {
+      if (!data1.containsKey(key)) {
+        uniqueData[key] = data2[key]!;
+      }
     });
+    print('Help:${uniqueData}');
+    return uniqueData;
+  }
+
+  Future<Map<String,double>> getUserIdsAndDistances(String providedLatitude, String providedLongitude, String userIdToRemove, int vardis) async {
+    // setState(() {
+    //   helpingHands = 0;
+    // });
 
 
     final String serverUrl = Constant().serverUrl;
@@ -580,18 +595,22 @@ class _ChatsPageState extends State<ChatsPage> {
           userIdsAndDistances[item['userId']] = item['distance'].toDouble();
         });
 
-        // Check if the userIdToRemove exists and remove it
-        if (userIdsAndDistances.containsKey(userIdToRemove)) {
-          userIdsAndDistances.remove(userIdToRemove);
-        }
 
 
 
         print('helping hands');
         setState(() {
-          helpingHands = userIdsAndDistances.length;
+          if(vardis==10){
+            helpingHands = userIdsAndDistances.length;
+          }
+          // if(vardis==10){
+          //   userWith10km = users;
+          //   userWith10kmDist = dist;
+          // }else{
+          //   userWith15km = users;
+          //   userWith15kmDist = dist;
+          // }
         });
-        print(userIdsAndDistances);
         return userIdsAndDistances;
       } else {
         throw Exception('Failed to load data for helping hands');
@@ -740,6 +759,10 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
 
+
+  Future<void> getLocation() async{
+    await _getUserLocation();
+  }
   // Function to get user location
   Future<void> _getUserLocation() async {
     setState(() {
@@ -756,7 +779,33 @@ class _ChatsPageState extends State<ChatsPage> {
       getAndPrintLocationName(position.latitude, position.longitude);
       // Update the state with the user location
 
-      getUserIdsAndDistances(providedLatitude, providedLongiude, "6572cc23e816febdac42873b",12);
+      if(widget.meetId==null){
+        Map<String,double> tenKm = await getUserIdsAndDistances(providedLatitude, providedLongiude, userID,10);
+
+        Map<String,double> fifteenKm = await getUserIdsAndDistances(providedLatitude, providedLongiude, userID,15);
+
+        fifteenKm = findUnique(tenKm, fifteenKm);
+
+        // Check if the userIdToRemove exists and remove it
+        if (tenKm.containsKey(userID)) {
+          tenKm.remove(userID);
+        }
+
+        tenKm.forEach((key, value) {
+          userWith10km.add(key);
+          userWith10kmDist.add(value.toString());
+        });
+
+        fifteenKm.forEach((key, value) {
+          userWith15km.add(key);
+          userWith15kmDist.add(value.toString());
+        });
+
+        print('Helppp');
+        print(userWith10km);
+        print(userWith15km);
+      }
+
 
       setState(() {
          rotateButton = false;
@@ -1019,7 +1068,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                       InkWell(
                                         onTap:(){
 
-                                          _getUserLocation();
+                                          getLocation();
                                           setState(() {
                                             rotateButton = true;
                                           });
@@ -1058,7 +1107,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                     ? SizedBox(height: 20)
                                     : SizedBox(height: 0),
 
-                                helpingHands == 0 && pageVisitor
+                                helpingHands==null && pageVisitor && messages.length==0
                                 ? Container(
                                   height : 600,
                                   child: Center(
@@ -1072,7 +1121,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                     Column(
 
                                       children: [
-                                        Container(
+                                        widget.meetId==null
+                                            ? Container(
                                           width : 286,
                                           height: 246,
                                           margin: EdgeInsets.only(left:16,right:16,),
@@ -1115,7 +1165,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                               SizedBox(height : 20),
                                             ],
                                           ),
-                                        ),
+                                        )
+                                            :SizedBox(height: 0,),
                                         messages.length!=0
                                           ?SizedBox(height:0)
                                         : Column(
@@ -2828,10 +2879,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                       // _refreshPage(meetingId);
                                     }else{
                                       _handleSend();
+                                      await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',widget.meetId!,widget.userId);
                                     }
                                     setState(() {});
                                   }else{
                                     _handleSend();
+                                    await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',widget.meetId!,widget.userId);
                                     setState(() {});
                                   }
                                   setState(() {
