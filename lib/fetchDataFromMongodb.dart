@@ -3,6 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 String userName = '';
 String userID = '';
+String userPhoneNumber = '';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -20,6 +21,8 @@ Future<void> fetchDataFromMongoDB() async {
       var userData = userQuery.docs.first.data();
       String uName = userData['name'];
       String uId = userData['userMongoId'];
+      String uNumber = userData['phoneNumber'];
+      userPhoneNumber = uNumber;
       userName = uName;
       print('userName: $userName');
       userID = uId;

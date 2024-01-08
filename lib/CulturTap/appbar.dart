@@ -69,7 +69,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 },
                 child: Container(
 
-                  width: 80,
+
+                  width: 70,
 
                   height: 75,
 
@@ -77,6 +78,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                   child: Column(
                       mainAxisAlignment: MainAxisAlignment.center,
+
                       children: [
 
                         Container(
@@ -142,7 +144,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             child: Container(
 
 
-              width: 80,
+              width: 70,
 
               height: 75,
 
@@ -203,7 +205,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   }
                 },
                 child: Container(
-                  width: 80,
+
+                  width: 70,
 
                   height: 75,
 
@@ -238,7 +241,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                             if(notificationCount>0)
                               Positioned(
                                 top: -3,
-                                right: 21,
+                                right: 17,
                                 // height: 20,
                                 child: Container(
                                   padding: EdgeInsets.all(3),

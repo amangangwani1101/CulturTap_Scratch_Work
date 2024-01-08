@@ -19,12 +19,21 @@ import '../widgets/Constant.dart';
 
 // AppBar Section
 class ProfileHeader extends StatefulWidget {
+
    int reqPage;
    String? imagePath;
    String? userId,text,userName;
    VoidCallback? onButtonPressed;
   ProfileDataProvider?profileDataProvider;
    String? profileStatus;
+
+  int reqPage;
+  String? imagePath;
+  String? userId,text,userName;
+  VoidCallback? onButtonPressed;
+  ProfileDataProvider?profileDataProvider;
+  String? profileStatus;
+
 
   ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed});
   @override
@@ -66,7 +75,11 @@ class _ProfileHeaderState extends State<ProfileHeader> {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
+
               widget.reqPage<1
+
+          widget.reqPage<1
+
               ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -105,44 +118,45 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
 
                   child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
 
-                      Container(
-                        height : 32,
-                        width : 32,
+                        Container(
+                          height : 32,
+                          width : 32,
 
 
-                        child: Visibility(
+                          child: Visibility(
 
-                          visible: widget.imagePath != null,
-                          child: CircleAvatar(
-                            backgroundColor: Colors.transparent,
-                            radius: 20.0,
+                            visible: widget.imagePath != null,
+                            child: CircleAvatar(
+                              backgroundColor: Colors.transparent,
+                              radius: 20.0,
 
+                            ),
+                            replacement: SvgPicture.asset(
+                              'assets/images/profile_icon.svg',
+                              color : Theme.of(context).primaryColor,
+                              width: 50.0,
+                              height: 50.0,
+                            ),
                           ),
-                          replacement: SvgPicture.asset(
-                            'assets/images/profile_icon.svg',
-                            color : Theme.of(context).primaryColor,
-                            width: 50.0,
-                            height: 50.0,
-                          ),
+
+
+
+
                         ),
-
-
-
-
+                        SizedBox(height: 2,),
+                        Text('Profile',style: Theme.of(context).textTheme.bodyText1),
+                      ]
                   ),
-                      SizedBox(height: 2,),
-                      Text('Profile',style: Theme.of(context).textTheme.bodyText1),
-                    ]
-                ),
                 ),
               ),
 
             ],
           )
               : widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
+
                 ? Container (
                 // decoration: BoxDecoration(
                 //   border: Border.all(
@@ -182,6 +196,47 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               )
                 : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 30,): SizedBox(height: 0,),
               widget.reqPage>=1
+
+              ? Container (
+            // decoration: BoxDecoration(
+            //   border: Border.all(
+            //     color: Colors.black,
+            //     width: 2,
+            //   ),
+            // ),
+            width: 60,
+            height: 30,
+            child: GestureDetector(
+              onTap: (){
+                if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                }
+                else if(widget.text=='chats'){
+                  widget.onButtonPressed!();
+                }
+                else if(widget.text=='meetingPings'){
+                  print('${widget.userName!}');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ),
+                  );
+                }
+                else if(widget.text=='You are all set'){
+                  widget.onButtonPressed!();
+                }
+                else{
+                  Navigator.of(context).pop();
+                }
+              },
+              child: Image.asset('assets/images/back.png',width: 60,height: 30,),
+            ),
+          )
+              : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 30,): SizedBox(height: 0,),
+          widget.reqPage>=1
+
               ? Image.asset('assets/images/logo.png',width: 155,)
               : Image.asset('assets/images/logo.png',width: 155,),
           if (widget.reqPage<=1) Column(

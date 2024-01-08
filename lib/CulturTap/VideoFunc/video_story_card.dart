@@ -82,7 +82,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
         Container(
           height: 500,
           width: 300,
-          margin: EdgeInsets.only(left : 12,top:8),
+          margin: EdgeInsets.only(left : 16,top:8),
           child: Stack(
             clipBehavior: Clip.none,
             children: [

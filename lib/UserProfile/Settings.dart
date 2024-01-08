@@ -11,6 +11,7 @@ import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
+import 'package:learn_flutter/SignUp/SecondPage.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
@@ -26,6 +27,8 @@ import 'CoverPage.dart';
 import 'UserInfo.dart';
 import '../widgets/Constant.dart';
 import '../widgets/CustomAlertImageBox.dart';
+import 'package:url_launcher/url_launcher.dart';
+
 
 
 
@@ -118,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
             await _auth.signOut();
             // Redirect to the login or splash screen after logout
             // For example:
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FirstPage()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SecondPage()));
           } catch (e) {
             print('Error while logging out: $e');
             // Handle the error as needed
@@ -673,7 +676,51 @@ class _EditProfileState extends State<EditProfile>{
                         dob = value;
                       }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
                       ),
+
                       SizedBox(height : 0),
+
+
+
+                      SizedBox(height : 20),
+
+                      Center(
+                        child: Container(
+
+                          padding: EdgeInsets.only(left : 10, right : 10),
+
+
+
+                          child: Column(
+                            children: [
+                              InkWell(
+                                onTap: (){
+                                  sendDataToBackend();
+                                },
+                                child: Container(height : 53,width : double.infinity,
+
+                                  decoration: BoxDecoration(
+                                    color: Colors.orange,
+                                    borderRadius: BorderRadius.circular(10),
+                                    boxShadow: [
+                                      BoxShadow(
+                                        color: Colors.grey.withOpacity(0.5), // Shadow color
+                                        spreadRadius: 0.5,  // Spread radius
+                                        blurRadius: 0.3,    // Blur radius
+                                        offset: Offset(1, 1 ), // Offset (elevation of the shadow)
+                                      ),
+                                    ],
+                                     // Adjust the value for the desired border radius
+                                  ),
+                                  child : Center(child: Text('SUBMIT',style:TextStyle(fontSize: 18,color : Colors.white,fontWeight: FontWeight.bold))),
+                                ),
+                              ),
+                              SizedBox(height : 35),
+
+                            ],
+                          ),
+                        ),
+                      ),
+
                     ],
 
                   ),
@@ -686,36 +733,12 @@ class _EditProfileState extends State<EditProfile>{
           bottomNavigationBar: AnimatedContainer(
 
             duration: Duration(milliseconds: 100),
-            height : 160,
+            height : 70,
             color: Colors.white,
 
 
 
-            child:Center(
-              child: Container(
-
-
-                child: Column(
-                  children: [
-                    Container(
-                      padding : EdgeInsets.only(left : 20, right : 20),
-
-                      child: InkWell(
-                        onTap: (){
-                          sendDataToBackend();
-                        },
-                        child: Container(height : 50,width : double.infinity,
-                        color : Colors.orange,
-                        child : Center(child: Text('SUBMIT',style:TextStyle(fontSize: 14,color : Colors.white,fontWeight: FontWeight.bold))),
-                        ),
-                      )
-                    ),
-                    SizedBox(height : 35),
-                    CustomFooter(userName: userName, userId: userID, lode: 'home',),
-                  ],
-                ),
-              ),
-            ),
+            child:   CustomFooter(userName: userName, userId: userID, lode: 'home',),
           )
 
       ),
@@ -1012,136 +1035,224 @@ class AboutUs extends StatelessWidget{
 }
 
 
-class Help extends StatelessWidget{
 
-  void sendEmail() {
-    final String email = 'mailto:amangangwani1101@example.com';
-
-    if (Platform.isIOS || Platform.isAndroid) {
-      launch(email);
-    } else {
-      // For other platforms, provide a user prompt or alternative behavior
-      print('Platform not supported for sending emails');
-    }
-  }
-
-  Future<void> launch(String url) async {
-    try {
-        await launch(url);
-        print('Launched');
-    } catch(e) {
-      print('Error launching URL: $e');
-    }
-  }
-
-  String textValue='';
+class Help extends StatefulWidget {
   @override
-  Widget build(BuildContext context){
+  _HelpState createState() => _HelpState();
+}
+
+class _HelpState extends State<Help> {
+  TextEditingController _bodyController = TextEditingController();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 2,),automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
-      body:Center(
-        child: Container(
-          padding : EdgeInsets.all(30),
-          color : Colors.white,
-
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      appBar: AppBar(title : ProfileHeader(reqPage: 2,),automaticallyImplyLeading: false,),
+      body: ListView(
+        padding: EdgeInsets.symmetric(horizontal: 30, vertical: 10),
+        children: [
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              Container(
-
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Help',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold),),
-                        SizedBox(height : 10),
-                        Text('Tell us your concern !',style:TextStyle(fontFamily: 'Poppins',fontSize: 16,)),
-                        SizedBox(height : 20),
-                      ],
-                    ),
-                    SingleChildScrollView(
-                      child: Container(
-                        color: HexColor('#D9D9D9'),
-
-                        child: TextField(
-                          style: TextStyle(fontSize: 16,),
-                          onChanged: (value) {
-                            textValue = value;
-                          },
-                          decoration: InputDecoration(
-                            hintText: 'Type here........',
-                            border: OutlineInputBorder(),
-                          ),
-                          maxLines: 15, // Increase the maxLines for a larger text area
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          SizedBox(height : 10),
-                          Text('Or',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 16),),
-                          Text('Submit your concern with us at',style: TextStyle(fontWeight: FontWeight.bold,fontFamily: 'Poppins',fontSize: 16),),
-                          Text('Info@culturtap.com',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
-                        ],
-                      ),
-                    ),
-                  ],
+              SizedBox(height : 20),
+              Text(
+                'Help',
+                style: TextStyle(
+                  fontFamily: 'Poppins',
+                  fontSize: 16,
+                  fontWeight: FontWeight.bold,
                 ),
               ),
-              Container(
-                width: 326,
-                height: 53,
-                child: FiledButton(
-                    backgroundColor: HexColor('#FB8C00'),
-                    onPressed: () {
-                      sendEmail();
-                      Navigator.push(context, MaterialPageRoute(builder: (context) => ThankYou(),));
-                    },
-                    child: Center(
-                        child: Text('SUBMIT',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 18)))),
+              SizedBox(height: 5),
+              Text(
+                'Tell us your concern!',
+                style: TextStyle(fontFamily: 'Poppins', fontSize: 16),
               ),
+              SizedBox(height: 30),
             ],
           ),
-        ),
+          Container(
+            padding: EdgeInsets.only(top: 10),
+            color: Color(0xFFD9D9D9),
+            child: TextField(
+              controller: _bodyController,
+              style: TextStyle(fontSize: 16),
+              onChanged: (value) {
+                // Do any additional handling if neededs
+              },
+              decoration: InputDecoration(
+                hintText: 'Type here........',
+                contentPadding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
+                border: InputBorder.none,
+              ),
+              maxLines: 15,
+            ),
+          ),
+          SizedBox(height: 30),
+
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  'Or',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    fontSize: 16,
+                  ),
+                ),
+                Text(
+                  'Submit your concern with us at',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontFamily: 'Poppins',
+                    fontSize: 16,
+                  ),
+                ),
+                TextButton(
+                  onPressed: () {
+                    launchEmail();
+                  },
+                  child: Text(
+                    'Info@culturtap.com',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontFamily: 'Poppins',
+                      fontWeight: FontWeight.bold,
+                      color: Colors.orange,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          SizedBox(height: 30),
+          Container(
+            height : 53,
+            child: ElevatedButton(
+
+              style: ElevatedButton.styleFrom(
+                primary: Colors.orange,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(5.0),
+                ),
+              ),
+              onPressed: () {
+                sendUserRequest();
+              },
+              child: Center(
+                child: Text(
+                  'SUBMIT',
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
+  void sendUserRequest() async {
+    final String apiUrl = '${Constant().serverUrl}/saveUserRequest'; // Replace with your server URL
+
+    try {
+      final response = await http.post(
+        Uri.parse(apiUrl),
+        headers: {'Content-Type': 'application/json'},
+        body: jsonEncode({
+          'userID': userID, // Replace with the actual user ID
+          'userName': userName,
+          'userPhoneNumber': '8979909117',
+          'body': _bodyController.text,
+        }),
+      );
+
+      if (response.statusCode == 200) {
+        print('User request sent successfully');
+        // Handle success, e.g., show a thank you message
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => ThankYou()),
+        );
+      } else {
+        print('Failed to send user request. StatusCode: ${response.statusCode}');
+        // Handle error
+      }
+    } catch (error) {
+      print('Error sending user request: $error');
+      // Handle error
+    }
+  }
+
+  void launchEmail() async {
+    final Uri _emailLaunchUri = Uri(
+      scheme: 'mailto',
+      path: 'Info@culturtap.com',
+      query: 'subject=Want some help&body=Dear CulturTap team, \n\nI need help with...',
+    );
+    if (await canLaunch(_emailLaunchUri.toString())) {
+      await launch(_emailLaunchUri.toString());
+    } else {
+      // Handle error
+      print('Could not launch email');
+    }
+  }
 }
 
-class ThankYou extends StatelessWidget{
+
+class ThankYou extends StatefulWidget {
   @override
-  Widget build(BuildContext context){
+  _ThankYouState createState() => _ThankYouState();
+}
+
+class _ThankYouState extends State<ThankYou> {
+  @override
+  void initState() {
+    super.initState();
+    // Set a delay of 2 seconds before navigating to HomePage
+    Timer(Duration(seconds: 2), () {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => HomePage()),
+      );
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title:ProfileHeader(reqPage: 6,),automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
-      body:WillPopScope(
-        onWillPop: ()async{
-
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
-          );
-
-          return true;
+      body: WillPopScope(
+        onWillPop: () async {
+          // Prevent going back
+          return false;
         },
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Image.asset('assets/images/heart.png'),
-              Center(child: Text('Thank you for submitting \nyour concern to us .',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,fontFamily: 'Poppins'),textAlign: TextAlign.center,)),
-              SizedBox(height: 100,),
-            ],
-          ),
-
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            SizedBox(height: 70),
+            Image.asset('assets/images/heart.png'),
+            SizedBox(height: 50),
+            Center(
+              child: Text(
+                'Thank you for submitting \nyour concern to us .',
+                style: TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                  fontFamily: 'Poppins',
+                ),
+                textAlign: TextAlign.center,
+              ),
+            ),
+            SizedBox(height: 50),
+            Text(
+              'CulturTap Will Get Back To You Soon !',
+              style: Theme.of(context).textTheme.subtitle2,
+            ),
+            SizedBox(height: 100),
+          ],
         ),
       ),
     );

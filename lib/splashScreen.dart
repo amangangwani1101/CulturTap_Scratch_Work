@@ -7,6 +7,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/SignUp/FirstPage.dart';
 import 'package:http/http.dart' as http;
+import 'package:learn_flutter/SignUp/SecondPage.dart';
 
 class splashScreen extends StatefulWidget {
   @override
@@ -43,7 +44,7 @@ class _splashScreenState extends State<splashScreen>{
     else {
       Timer(Duration(seconds: 3), () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => FirstPage()));
+            context, MaterialPageRoute(builder: (context) => SecondPage()));
       });
     }
   }

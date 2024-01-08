@@ -42,8 +42,13 @@ class FirstPage extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return Center(
+
         child: const MyHomePage(title: 'LogIn'),
       );
+
+      child: const MyHomePage(title: 'LogIn'),
+    );
+
   }
 }
 
@@ -120,11 +125,11 @@ class _MyHomePageState extends State<MyHomePage> {
                             style: TextStyle(fontSize: 20, color: Colors.black))),
                     Text('Please Enter Your Name',
                         style: TextStyle(
-                            fontSize: 20,
-                            color: Colors.black,
+                          fontSize: 20,
+                          color: Colors.black,
 
-                            fontWeight: FontWeight.w600,
-                            )),
+                          fontWeight: FontWeight.w600,
+                        )),
                     Container(
                       height: 10,
                     ),

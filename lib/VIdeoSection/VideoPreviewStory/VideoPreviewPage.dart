@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
@@ -11,19 +12,6 @@ import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'package:geolocator/geolocator.dart';
 
 
-Map<String, List<VideoInfo>> videoData = {};
-
-class VideoInfo {
-  final String videoUrl;
-  final double latitude;
-  final double longitude;
-
-  VideoInfo({
-    required this.videoUrl,
-    required this.latitude,
-    required this.longitude,
-  });
-}
 
 class VideoPreviewPage extends StatefulWidget {
   final List<String> videoPaths;
@@ -50,7 +38,7 @@ class VideoPreviewPage extends StatefulWidget {
 class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
 
-
+  bool isLoading = true;
 
   double? firstVideoLatitude;
   double? firstVideoLongitude;
@@ -62,6 +50,8 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
   void initState() {
     super.initState();
+
+    isLoading = false;
 
     _databaseHelper = VideoDatabaseHelper();
 
@@ -174,7 +164,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
   void handleAddNewVideoButton() async{
     if (userLatitude != null && userLongitude != null) {
-      double radiusInMeters = 200.0;
+      double radiusInMeters = 300.0;
       double distance = Geolocator.distanceBetween(
         userLatitude!,
         userLongitude!,
@@ -248,20 +238,60 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
 
   Future<void> _handleRefresh() async {
     // Perform any asynchronous operation (e.g., refetching data) here
-    await Future.delayed(Duration(seconds: 1));
+     setState(() {
+       isLoading = true;
+     });
 
 
 
-    // Call setState to trigger a rebuild of the widget
+      bool hasVideos = await VideoDatabaseHelper().hasVideos();
+
+      if (hasVideos) {
+
+        // Navigate to VideoPreviewPage with data from the database
+        List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+        List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+
+        // Extract the required data from the list of videos
+        List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+        String userLocation = ''; // Replace with your logic to get user location
+        double latitude = allVideos[0].latitude;
+        double longitude = allVideos[0].longitude;
+
+        print('latitude : $latitude');
+        print('longitude : $longitude');
+
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => VideoPreviewPage(
+              videoPaths: videoPaths,
+              userLocation: userLocation,
+              latitude: latitude,
+              longitude: longitude,
+            ),
+          ),
+        );
 
 
-    // You can print a message if needed
+      } else {
+        // Navigate to CameraApp
+        Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+      }
+      // _changeIconColor('add');
+
+
+
     print('Page refreshed');
   }
 
 
   Future<void> removeVideo(String videoPath) async {
+
+    _handleRefresh();
+
     setState(() {
+      isLoading = true;
       // Find the location associated with the videoPath
       String location = widget.userLocation;
 
@@ -290,6 +320,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
       }
     });
 
+
     if (widget.videoPaths.isEmpty) {
       Navigator.pop(context);
 
@@ -309,17 +340,39 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
   @override
   Widget build(BuildContext context) {
     return WillPopScope(
-        onWillPop: () => backButtonHandler4.onWillPop(context, true),
+        onWillPop: () async {
+          // If you want to prevent the user from going back, return false
+          // return false;
+
+          // If you want to navigate directly to the homepage
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => HomePage()),
+          );
+
+          return false; // Returning true will allow the user to pop the page
+        },
     child: Scaffold(
       appBar: VideoAppBar(
         title:'Edit Story',
-        exit : 'a',
+        exit : 'home',
       ),
       body: RefreshIndicator(
         onRefresh: _handleRefresh,
-        child: Container(
+        child:Container(
           color: Theme.of(context).primaryColorLight,
-          child: Column(
+          child: isLoading ? Container(
+            width : double.infinity,
+            height : MediaQuery.of(context).size.height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Container(child: CircularProgressIndicator(color : Theme.of(context).backgroundColor,)),
+              ],
+            ),
+          )
+
+              :  Column(
             children: [
               Expanded(
                 child: GridView.builder(
@@ -366,7 +419,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                                         child: Column(
                                           children: [
                                             Text(
-                                              'You are removing a film shoot',
+                                              'You are removing a shoot',
                                               style: TextStyle(
                                                 fontSize: 16,
                                                 color: Colors.white,
@@ -467,11 +520,11 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                           ),
                         ),
                         Text(
-                          'Add New Film',
+                          'Add Shoot',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
                       ],
@@ -509,7 +562,7 @@ class _VideoPreviewPageState extends State<VideoPreviewPage> {
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             color: Colors.white,
-                            fontSize: 18,
+                            fontSize: 16,
                           ),
                         ),
                       ],
@@ -545,6 +598,7 @@ class _VideoItemState extends State<VideoItem> {
   @override
   void initState() {
     super.initState();
+
 
 
 
@@ -623,69 +677,68 @@ class _VideoItemState extends State<VideoItem> {
       onLongPress: () {
         _toggleFullScreen();
       },
-      child: ClipRRect(
-        borderRadius: BorderRadius.circular(12.0),
-        child: Container(
-          margin: EdgeInsets.all(10.0),
-          decoration: BoxDecoration(
-            border: Border.all(color: Colors.white, width: 4.0),
-          ),
-          child: Stack(
-            children: [
-              AspectRatio(
-                aspectRatio: 2 / 3.15,
-                child: VideoPlayer(_controller),
-              ),
-              Align(
-                alignment: Alignment.center,
-                child: IconButton(
-                  onPressed: _togglePlayPause,
-                  icon: Icon(
-                    _isPlaying ? Icons.pause : Icons.play_arrow,
-                    size: 40.0,
-                    color: Colors.white,
-                  ),
-                ),
-              ),
-              Positioned(
-                top: 8.0,
-                left: 8.0,
-                child: Container(
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    border: Border.all(
+        child : Container(
+          width: 250,
+          height: 300,
+          margin: EdgeInsets.all(5.0),
+          child: ClipRRect(
+            borderRadius: BorderRadius.circular(10),
+            child: Stack(
+              children: [
+                VideoPlayer(_controller),
+                Align(
+                  alignment: Alignment.center,
+                  child: IconButton(
+                    onPressed: _togglePlayPause,
+                    icon: Icon(
+                      _isPlaying ? Icons.pause : Icons.play_arrow,
+                      size: 40.0,
                       color: Colors.white,
-                      width: 2.0,
                     ),
                   ),
-                  child: CircleAvatar(
-                    backgroundColor: Colors.transparent,
-                    child: Text(
-                      widget.videoNumber.toString(),
-                      style: TextStyle(
+                ),
+                Positioned(
+                  top: 8.0,
+                  left: 8.0,
+                  child: Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      border: Border.all(
                         color: Colors.white,
-                        fontWeight: FontWeight.bold,
+                        width: 2.0,
+                      ),
+                    ),
+                    child: CircleAvatar(
+                      backgroundColor: Colors.transparent,
+                      child: Text(
+                        widget.videoNumber.toString(),
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ),
                   ),
                 ),
-              ),
-              Positioned(
-                top: 2.0,
-                right: 2.0,
-                child: IconButton(
-                  onPressed: widget.onClosePressed,
-                  icon: Icon(
-                    Icons.highlight_remove_rounded,
-                    size: 30.0,
-                    color: Colors.white70,
+                Positioned(
+                  top: 2.0,
+                  right: 2.0,
+                  child: IconButton(
+                    onPressed: widget.onClosePressed,
+                    icon: Icon(
+                      Icons.highlight_remove_rounded,
+                      size: 30.0,
+                      color: Colors.white70,
+                    ),
                   ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-      ),
+        )
+
+
+
     );
   }
 

@@ -5,15 +5,14 @@ import 'package:camera/camera.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:learn_flutter/HomePage.dart';
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
-import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
-import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
-import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
-import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
+import 'package:learn_flutter/VIdeoSection/Draft/EditDraftPage.dart';
+
 import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
-import 'package:torch_controller/torch_controller.dart';
+import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
+import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
 
 
 
@@ -26,27 +25,42 @@ import 'package:torch_light/torch_light.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
-void main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  final cameras = await availableCameras();
-  final firstCamera = cameras.first;
-  runApp(
-    CameraApp(),
-  );
-}
+
+// void main() async {
+//   WidgetsFlutterBinding.ensureInitialized();
+//   final cameras = await availableCameras();
+//   final firstCamera = cameras.first;
+//   runApp(
+//     MaterialApp(
+//       navigatorKey: navigatorKey,
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(
+//         fontFamily: 'Poppins',
+//         primaryColor: Colors.orange, // Set your primary color
+//
+//       ),
+//       home: AddCamera(),
+//     ),
+//   );
+// }
+
+class AddCamera extends StatefulWidget {
+  final Draft draft;
 
 
-class CameraApp extends StatefulWidget {
+
+  AddCamera({required this.draft});
+
   @override
-  _CameraAppState createState() => _CameraAppState();
+  _AddCameraState createState() => _AddCameraState();
 }
 
-class _CameraAppState extends State<CameraApp> {
+class _AddCameraState extends State<AddCamera> {
   double _currentZoom = 1.0;
   double _minZoom = 1.0;
   double _maxZoom = 2.0;
 
-  late VideoDatabaseHelper _databaseHelper;
+
 
   List<CameraDescription> cameras = [];
   Geolocator _geolocator = Geolocator();
@@ -72,21 +86,10 @@ class _CameraAppState extends State<CameraApp> {
 
   bool locationFetched = false;
 
-  final torchController = TorchController();
-
-
-
   @override
   void initState() {
     super.initState();
     initializeCamera();
-
-    _databaseHelper = VideoDatabaseHelper();
-
-
-    /// Returns a singleton with the controller that you had initialized
-    /// on `main.dart`
-    TorchController().initialize();
 
 
     // if(){
@@ -98,8 +101,6 @@ class _CameraAppState extends State<CameraApp> {
     // Check if at least one video has been recorded
     updateCloseButtonVisibility();
   }
-
-
 
   Future<void> initializeCamera() async {
     final cameras = await availableCameras();
@@ -120,7 +121,7 @@ class _CameraAppState extends State<CameraApp> {
 
   void updateCloseButtonVisibility() async{
 
-    bool hasVideos = await VideoDatabaseHelper().hasVideos();
+    bool hasVideos = true;
     setState(() {
       if(hasVideos){
         hasRecordedVideos = true;
@@ -166,23 +167,6 @@ class _CameraAppState extends State<CameraApp> {
     }
   }
 
-  Future<void> saveVideoToDatabase(String videoPath, double latitude, double longitude) async {
-    try {
-      // Create a VideoInfo object
-      VideoInfo2 videoInfo = VideoInfo2(
-        videoUrl: videoPath,
-        latitude: latitude,
-        longitude: longitude,
-      );
-
-
-      await _databaseHelper.insertVideo(videoInfo);
-
-      print('Video added to the local database.');
-    } catch (e) {
-      print('Error adding video to the local database: $e');
-    }
-  }
 
 
   Future<void> fetchUserLocation() async {
@@ -233,8 +217,6 @@ class _CameraAppState extends State<CameraApp> {
   void startRecording() async {
 
 
-    // await torchController.toggle();
-
 
     requestLocationPermission();
 
@@ -277,51 +259,70 @@ class _CameraAppState extends State<CameraApp> {
 
 
 
-  void navigateToPreviewPage(BuildContext context) async{
-    bool hasVideos = await VideoDatabaseHelper().hasVideos();
-
-    if (hasVideos) {
-
-      // Navigate to VideoPreviewPage with data from the database
-      List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
-      List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
-
-      // Extract the required data from the list of videos
-      List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
-      String userLocation = ''; // Replace with your logic to get user location
-      double latitude = allVideos[0].latitude;
-      double longitude = allVideos[0].longitude;
-
-      print('latitude : $latitude');
-      print('longitude : $longitude');
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ComposePage(
-            userLocation: userLocation,
-            videoPaths: videoPaths,
-            latitude: latitude,
-            longitude: longitude,
-            videoData: videoData,
-          ),
-        ),
-      );
-    } else {
-      // Navigate to CameraApp
-      Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-    }
-  }
 
   bool _isFlashlightOn = false;
 
+  void toggleFlashlight() async {
+    try {
+      bool hasTorch = await TorchLight.isTorchAvailable();
 
+      if (hasTorch) {
+        if (_isFlashlightOn) {
+          await TorchLight.disableTorch();
+        } else {
+          await TorchLight.enableTorch();
+        }
+
+        setState(() {
+          _isFlashlightOn = !_isFlashlightOn;
+        });
+      } else {
+        print('Flashlight is not available on this device.');
+      }
+    } on EnableTorchExistentUserException catch (e) {
+      print('The camera is in use.');
+    } on EnableTorchNotAvailableException catch (e) {
+      print('Torch was not detected.');
+    } on EnableTorchException catch (e) {
+      print('Torch could not be enabled due to another error.');
+    } on DisableTorchExistentUserException catch (e) {
+      print('The camera is in use.');
+    } on DisableTorchNotAvailableException catch (e) {
+      print('Torch was not detected.');
+    } on DisableTorchException catch (e) {
+      print('Torch could not be disabled due to another error.');
+    }
+  }
+
+
+
+  Future<void> updateDraftWithNewVideo(String newVideoPath) async {
+    var updatedVideoPaths = widget.draft.videoPaths.split(',');
+    updatedVideoPaths.add(newVideoPath);
+    widget.draft.videoPaths = updatedVideoPaths.join(',');
+
+    // Update the database
+    DatabaseHelper.instance.updateDraft(widget.draft);
+  }
 
 
   void stopRecording() async {
 
     _countdownTimer?.cancel();
     XFile? videoFile = await _controller!.stopVideoRecording();
+
+    if (videoFile.path != null) {
+      // Update the draft with the new video information
+      print('yha print kr rhe hain ${videoFile.path}');
+      updateDraftWithNewVideo(videoFile.path);
+
+    }
+
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (context) => EditDraftPage(draft : widget.draft),
+      ),
+    );
 
 
 
@@ -340,10 +341,9 @@ class _CameraAppState extends State<CameraApp> {
       updateCloseButtonVisibility();
       String videoPath = videoFile.path;
 
-      saveVideoToDatabase(videoPath, liveLatitude, liveLongitude);
 
 
-      recordedVideoPaths.add(videoPath);
+
 
 
 
@@ -352,7 +352,7 @@ class _CameraAppState extends State<CameraApp> {
 
 
       print('navigating to preview page');
-      navigateToPreviewPage(context);
+
       print('navigated to preview page');
     }
   }
@@ -434,19 +434,19 @@ class _CameraAppState extends State<CameraApp> {
   Widget build(BuildContext context) {
     if (_controller == null || !_controller!.value.isInitialized) {
       return Scaffold(
-          body: Container(
-            color: Color(0xFF263238),
-            child: Center(
-              child: CircularProgressIndicator(
+        body: Container(
+          color: Color(0xFF263238),
+          child: Center(
+            child: CircularProgressIndicator(
 
-                valueColor: AlwaysStoppedAnimation<Color>(
-                  Colors.orange,
+              valueColor: AlwaysStoppedAnimation<Color>(
+                Colors.orange,
 
-                ),
               ),
             ),
           ),
-        );
+        ),
+      );
     } else {
       return GestureDetector(
         onScaleUpdate: onScaleUpdate,
@@ -496,10 +496,7 @@ class _CameraAppState extends State<CameraApp> {
                               size: 25.0,
                               color: Colors.white,
                             ),
-                            onPressed: (){
-
-
-                            },
+                            onPressed: toggleFlashlight,
                           ),
                         ),
 
@@ -509,8 +506,6 @@ class _CameraAppState extends State<CameraApp> {
                             child: IconButton(
                               onPressed: () {
 
-                                navigateToPreviewPage(context);
-                                print('has videos ');
 
 
 
@@ -566,7 +561,7 @@ class _CameraAppState extends State<CameraApp> {
                     // CameraPreview(_controller!),
 
 
-                      Positioned(
+                    Positioned(
                       bottom: 190,
                       left: 10,
                       right: 0,
@@ -591,7 +586,7 @@ class _CameraAppState extends State<CameraApp> {
                         ],
                       ),
                     ),
-                      Positioned(
+                    Positioned(
                       bottom: 30,
                       left: 0,
                       right: 0,
@@ -642,13 +637,13 @@ class _CameraAppState extends State<CameraApp> {
                               ),
                               if(!_isRecording)
                                 Text(
-                                'Start Shooting',
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 16,
+                                  'Start Shooting',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 16,
+                                  ),
                                 ),
-                              ),
                               if(_isRecording)
                                 Text(
                                   'Shooting ..',
