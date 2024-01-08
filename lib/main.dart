@@ -1,25 +1,32 @@
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/splashScreen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
-import 'package:torch_controller/torch_controller.dart';
 
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
-  TorchController().initialize();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
 }
 
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async{
+  await Firebase.initializeApp();
+  print('Background message came:${message.notification!.title.toString()}');
+}
 
 
+Future<void> onSelectNotification(String? payload) async {
+  // Handle notification click here (optional)
+}
 
-String darkMode = 'yes';
+String darkMode = 'ys';
 
 
 
@@ -42,7 +49,7 @@ class MyApp extends StatelessWidget {
 
       title: 'CulturTap',
       debugShowCheckedModeBanner: false,
-      theme: darkMode == 'ys' ?
+      theme: darkMode == 'yes' ?
 
       ThemeData(
 
@@ -87,7 +94,6 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           backgroundColor: Color(0xFF1E2529) , // Change the AppBar background color
           foregroundColor: Colors.white,
-
           // Change the AppBar text color
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -97,18 +103,13 @@ class MyApp extends StatelessWidget {
 
       ThemeData(
 
-        primarySwatch: Colors.green,
-        primaryColorDark: Colors.yellow,
-
         fontFamily: 'Poppins',
 
 
         primaryColor: Color(0xFF001B33), // Change the primary color
         primaryColorLight : Color(0xFF1E2529),
-
         // accentColor: Colors.orange, // Change the accent color
         backgroundColor: Colors.white, // Change the background color
-        scaffoldBackgroundColor: Colors.white,
 
         // Change the scaffold background color
         // Add more color properties as needed
@@ -120,9 +121,9 @@ class MyApp extends StatelessWidget {
           bodyText2: TextStyle(fontSize: (12 * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33) ,),
           button: TextStyle(fontSize: (10 * MediaQuery.of(context).textScaleFactor),color : Colors.white ,fontWeight: FontWeight.bold),
           subtitle1: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
-          subtitle2: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), ),
+          subtitle2: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight : FontWeight.w600),
 
-          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.w200),
+          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color :Colors.orange , fontWeight: FontWeight.bold),
           headline1: TextStyle(fontSize: (25  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold), // Adjust the font size and weight as needed
           headline2: TextStyle(fontSize: (18  * MediaQuery.of(context).textScaleFactor),color :Color(0xFF001B33) , fontWeight: FontWeight.bold),
           headline5: TextStyle(fontSize: (16 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.bold),
@@ -134,33 +135,24 @@ class MyApp extends StatelessWidget {
 
         ),
 
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.orange,  // Customize the text cursor color
-          selectionColor: Colors.orange.withOpacity(0.5),  // Customize the text selection color
-          selectionHandleColor: Colors.orange,  // Customize the text selection handle color
-        ),
-
         // Optional: Define colors for specific components
         appBarTheme: AppBarTheme(
-
           backgroundColor: Colors.white, // Change the AppBar background color
-          foregroundColor: Colors.white,
-
-          scrolledUnderElevation: 5.0// Change the AppBar text color
+          foregroundColor: Colors.black, // Change the AppBar text color
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: Colors.orange, // Change the FloatingActionButton color
         ),
       ),
 
-      home: HomePage(),
+      home: splashScreen(),
     );
   }
 
 
 }
 
-
+//
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key, required this.title});
   final String title;

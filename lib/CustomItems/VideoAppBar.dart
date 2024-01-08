@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/HomePage.dart';
-import 'package:learn_flutter/Settings.dart';
+import 'package:learn_flutter/UserProfile/Settings.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 
 class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {

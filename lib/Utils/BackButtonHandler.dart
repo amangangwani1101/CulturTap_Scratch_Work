@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:flutter/services.dart';
 import 'package:learn_flutter/HomePage.dart';
-import 'package:learn_flutter/Settings.dart';
+import 'package:learn_flutter/UserProfile/Settings.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 
 

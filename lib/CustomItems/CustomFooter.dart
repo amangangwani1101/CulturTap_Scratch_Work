@@ -4,7 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 import 'package:learn_flutter/SearchEngine/searchPage.dart';
-import 'package:learn_flutter/Settings.dart';
+import 'package:learn_flutter/UserProfile/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';

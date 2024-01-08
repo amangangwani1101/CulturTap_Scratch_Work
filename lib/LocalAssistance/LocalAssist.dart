@@ -1,20 +1,21 @@
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
 
-import 'package:fluttertoast/fluttertoast.dart';
-
 import 'package:learn_flutter/LocalAssistance/EmergenceAssist.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist2.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
-import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+
+import '../ServiceSections/PingsSection/Pings.dart';
+import '../widgets/CustomDialogBox.dart';
 
 class LocalAssist extends StatefulWidget {
   @override
@@ -23,44 +24,15 @@ class LocalAssist extends StatefulWidget {
 
 class _LocalAssistState extends State<LocalAssist> {
 
-  String liveLocation = 'Fetching location...';
-
   String ?meetId,state;
-
-  Future<void> PingsAssistanceChecker(userId) async {
-    try{
-      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
-      final url = Uri.parse('$serverUrl/checkLocalUserPings/${userId}'); // Replace with your backend URL
-      final http.Response response = await http.get(url);
-
-      if (response.statusCode == 200) {
-        final data = json.decode(response.body);
-        print(data);
-        setState(() {
-          if(data['meetId']!=null){
-            meetId = data['meetId'];
-            state = data['state'];
-          }
-        });
-        print('Meeting Ongoing : $meetId');
-
-      } else {
-        // Handle error
-        print('Failed to fetch dataset: ${response.statusCode}');
-      }
-    }
-    catch(err){
-      print('Error $err');
-    }
-  }
-
-
+  bool? eligible;
+  String liveLocation = 'Fetching location...';
   @override
   void initState() {
     super.initState();
     // Your initialization code goes here
-    checkIsMeetOngoing();
     _getUserLocation();
+    checkIsMeetOngoing();
     print('LocalAssist Page initialized');
   }
 
@@ -70,9 +42,6 @@ class _LocalAssistState extends State<LocalAssist> {
   Future<Map<String, double>> getUserIdsAndDistances(String providedLatitude, String providedLongitude) async {
     final String serverUrl = Constant().serverUrl;
     final Uri uri = Uri.parse('$serverUrl/findUserIdsAndDistancesWithin10Km?providedLatitude=$providedLatitude&providedLongitude=$providedLongitude');
-
-
-
 
     try {
       final response = await http.get(uri);
@@ -148,9 +117,84 @@ class _LocalAssistState extends State<LocalAssist> {
     }
   }
 
+  // check is meeting ongoing
   Future<void> checkIsMeetOngoing()async {
     await PingsAssistanceChecker(userID);
   }
+
+  Future<void> checkIsEligible() async{
+    await PingsAssistanceEligible(userID);
+  }
+
+  Future<void> PingsAssistanceChecker(userId) async {
+    try{
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final url = Uri.parse('$serverUrl/checkLocalUserPings/${userId}'); // Replace with your backend URL
+      final http.Response response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(data);
+        setState(() {
+          if(data['meetId']!=null){
+            meetId = data['meetId'];
+          }
+          if(data['state']!=null){
+            state = data['state'];
+          }
+          if(data['eligible']!=null){
+            eligible = data['eligible'];
+          }
+        });
+        print('Meeting Ongoing : $meetId');
+
+      } else {
+        // Handle error
+        print('Failed to fetch dataset: ${response.statusCode}');
+      }
+    }
+    catch(err){
+      print('Error $err');
+    }
+  }
+
+  Future<void> PingsAssistanceEligible(userId) async {
+    try{
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final url = Uri.parse('$serverUrl/checkLocalUserEligible/${userId}'); // Replace with your backend URL
+      final http.Response response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(data);
+
+      } else {
+        // Handle error
+        print('Failed to fetch dataset: ${response.statusCode}');
+      }
+    }
+    catch(err){
+      print('Error $err');
+    }
+  }
+
+  Future<bool> showConfirmationDialog(BuildContext context, String receiverName) async {
+    return await showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ConfirmationDialog(
+          message: 'Are You Sure To Cancel Meet With $receiverName',
+          onCancel: () {
+            Navigator.of(context).pop(false); // Return false when canceled
+          },
+          onConfirm: () {
+            Navigator.of(context).pop(true); // Return true when confirmed
+          },
+        );
+      },
+    );
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -175,15 +219,9 @@ class _LocalAssistState extends State<LocalAssist> {
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
-
-
-
-                
-                
                 children: [
-
-                  SizedBox(height: 50,),
-                  state!=null
+                  // SizedBox(height: 20,),
+                  state!=null && state!='ongoing'
                       ?Builder(
                       builder: (context) {
                         return GestureDetector(
@@ -210,43 +248,50 @@ class _LocalAssistState extends State<LocalAssist> {
                       }
                   )
                       :SizedBox(height: 0,),
-                  SizedBox(height: 50,),
-                  SizedBox(height : 20),
+                  state!=null && state!='ongoing'
+                      ? SizedBox(height : 20)
+                      : SizedBox(height: 0,),
                   InkWell(
-
-
                     onTap: ()async{
-
-                      await checkIsMeetOngoing();
-                      if(meetId!=null){
-                        if(state=='user'){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
-                            state: 'user',
-                            meetId: meetId,
-                          ),));
-                        }
-                        else if(state=='helper'){
-                          // toast
-                          Fluttertoast.showToast(
-                            msg: "Finish Ongoing Services",
-                            toastLength: Toast.LENGTH_LONG,
-                            gravity: ToastGravity.BOTTOM,
-                          );
+                      bool userConfirmed = true;
+                      if(eligible!=null && eligible==false){
+                        userConfirmed = await showConfirmationDialog(context, userName!);
+                        if(userConfirmed){
+                          await checkIsEligible();
                         }
                       }
-                      else{
-                        Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
-                          state: 'user',
-                        ),));
+                      if(userConfirmed){
+                        if(meetId!=null){
+                          if(state=='user' || state=='ongoing'){
+                            await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
+                              state: 'user',
+                              meetId: meetId,
+                            ),));
+                            await checkIsMeetOngoing();
+                          }
+                          else if(state=='helper'){
+                            // toast
+                            Fluttertoast.showToast(
+                              msg: "Finish Ongoing Services",
+                              toastLength: Toast.LENGTH_LONG,
+                              gravity: ToastGravity.BOTTOM,
+                            );
+                            await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
+                              state: 'helper',
+                              meetId: meetId,
+                            ),));
+                            await checkIsMeetOngoing();
+                          }
+                        }
+                        else {
+                          await Navigator.push(context, MaterialPageRoute(
+                            builder: (context) =>
+                                ChatsPage(userId: userID,
+                                  state: 'user',
+                                ),));
+                          await checkIsMeetOngoing();
+                        }
                       }
-
-
-                      Navigator.pushReplacement(
-                        context,
-                        // MaterialPageRoute(builder: (context) => LocalAssist2()),
-                        MaterialPageRoute(builder: (context) => ChatsPage(userId: userID)),
-                      );
-
                     },
                     child: Container(
 
@@ -318,7 +363,7 @@ class _LocalAssistState extends State<LocalAssist> {
                     onTap: (){
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => LocalAssist2()),
+                        MaterialPageRoute(builder: (context) => EmergenceAssist()),
                       );
                     },
                     child: Container(
@@ -465,11 +510,11 @@ class _LocalAssistState extends State<LocalAssist> {
           ),
         ),
         bottomNavigationBar: AnimatedContainer(
-          duration: Duration(milliseconds: 100),
+            duration: Duration(milliseconds: 100),
 
 
-          height:  70 ,
-          child: CustomFooter(addButtonAdd: 'add',)
+            height:  70 ,
+            child: CustomFooter(addButtonAdd: 'add',)
         ),
       ),
     );

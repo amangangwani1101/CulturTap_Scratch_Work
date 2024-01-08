@@ -21,12 +21,12 @@ import 'package:learn_flutter/widgets/CustomAutoSuggestionDropDown.dart';
 import 'package:learn_flutter/widgets/CustomButton.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:http/http.dart' as http;
-import 'ServiceSections/ServiceCards.dart';
-import 'SignUp/FirstPage.dart';
-import 'UserProfile/CoverPage.dart';
-import 'UserProfile/UserInfo.dart';
-import 'widgets/Constant.dart';
-import 'widgets/CustomAlertImageBox.dart';
+import '../ServiceSections/ServiceCards.dart';
+import '../SignUp/FirstPage.dart';
+import 'CoverPage.dart';
+import 'UserInfo.dart';
+import '../widgets/Constant.dart';
+import '../widgets/CustomAlertImageBox.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
