@@ -197,7 +197,11 @@ setState(() {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height :  70,
+      height :  80,
+
+      decoration: BoxDecoration(
+          color : mode == 'dark' ? Colors.black : Colors.white,
+          border: Border.all(color :mode == 'dark' ?  Colors.black : Colors.white,width : 0.00)),
 
 
 

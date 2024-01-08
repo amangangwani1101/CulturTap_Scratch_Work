@@ -282,11 +282,13 @@ class _HomePageState extends State<HomePage> {
     ...generateCategoryData(specificName: 'Local Fashion for you !', name: 'Popular & Trending here', apiEndpoint: '/popularFashion/api/popular-fashion-places'),
     ...generateCategoryData(specificName: 'Party Tonight ?', name: 'Popular & Trending Clubs Here', apiEndpoint: 'api/nearby-places/Party-Clubs & Bars'),
     ...generateCategoryData(specificName: 'Party Tonight ?', name: 'Nearby Hotels & Resorts', apiEndpoint: 'api/nearby-places/Resorts'),
-    ...generateCategoryData(specificName: 'Other Outlets', name: 'Local Furniture', apiEndpoint: '/api/local-furniture'),
-    ...generateCategoryData(specificName: 'Other Outlets', name: 'Handy-Crafts', apiEndpoint: '/api/handyCrafts'),
+    ...generateCategoryData(specificName: 'Other Outlets', name: 'Local Furniture', apiEndpoint: 'api/stories/best/businessCategory/Furniture'),
+    ...generateCategoryData(specificName: 'Other Outlets', name: 'Handy-Crafts', apiEndpoint: 'api/stories/best/businessCategory/Handicraft'),
     ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Forests Near you', apiEndpoint: 'api/nearby-places/Forests'),
     ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Famous RiverSides Here', apiEndpoint: 'api/nearby-places/Riverside'),
     ...generateCategoryData(specificName: '', name: 'Islands Here', apiEndpoint: 'api/nearby-places/Island'),
+
+
   ];
 
 
@@ -408,6 +410,7 @@ class _HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
+          height : _isVisible ? 70 : 0,
 
 
 

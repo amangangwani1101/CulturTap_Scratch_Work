@@ -44,7 +44,7 @@ class _splashScreenState extends State<splashScreen>{
     else {
       Timer(Duration(seconds: 3), () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => HomePage()));
+            context, MaterialPageRoute(builder: (context) => SecondPage()));
       });
     }
   }

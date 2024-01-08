@@ -13,6 +13,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:geolocator/geolocator.dart';
 import 'dart:async';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:torch_controller/torch_controller.dart';
 
 
 
@@ -25,24 +26,15 @@ import 'package:torch_light/torch_light.dart';
 final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
 
 
-
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   final cameras = await availableCameras();
   final firstCamera = cameras.first;
   runApp(
-    MaterialApp(
-      navigatorKey: navigatorKey,
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        fontFamily: 'Poppins',
-        primaryColor: Colors.orange, // Set your primary color
-
-      ),
-      home: CameraApp(),
-    ),
+    CameraApp(),
   );
 }
+
 
 class CameraApp extends StatefulWidget {
   @override
@@ -80,11 +72,22 @@ class _CameraAppState extends State<CameraApp> {
 
   bool locationFetched = false;
 
+  final torchController = TorchController();
+
+
+
   @override
   void initState() {
     super.initState();
     initializeCamera();
+
     _databaseHelper = VideoDatabaseHelper();
+
+
+    /// Returns a singleton with the controller that you had initialized
+    /// on `main.dart`
+    TorchController().initialize();
+
 
     // if(){
     //   hasRecordedVideos = true;
@@ -95,6 +98,8 @@ class _CameraAppState extends State<CameraApp> {
     // Check if at least one video has been recorded
     updateCloseButtonVisibility();
   }
+
+
 
   Future<void> initializeCamera() async {
     final cameras = await availableCameras();
@@ -228,6 +233,8 @@ class _CameraAppState extends State<CameraApp> {
   void startRecording() async {
 
 
+    // await torchController.toggle();
+
 
     requestLocationPermission();
 
@@ -308,37 +315,8 @@ class _CameraAppState extends State<CameraApp> {
 
   bool _isFlashlightOn = false;
 
-  void toggleFlashlight() async {
-    try {
-      bool hasTorch = await TorchLight.isTorchAvailable();
 
-      if (hasTorch) {
-        if (_isFlashlightOn) {
-          await TorchLight.disableTorch();
-        } else {
-          await TorchLight.enableTorch();
-        }
 
-        setState(() {
-          _isFlashlightOn = !_isFlashlightOn;
-        });
-      } else {
-        print('Flashlight is not available on this device.');
-      }
-    } on EnableTorchExistentUserException catch (e) {
-      print('The camera is in use.');
-    } on EnableTorchNotAvailableException catch (e) {
-      print('Torch was not detected.');
-    } on EnableTorchException catch (e) {
-      print('Torch could not be enabled due to another error.');
-    } on DisableTorchExistentUserException catch (e) {
-      print('The camera is in use.');
-    } on DisableTorchNotAvailableException catch (e) {
-      print('Torch was not detected.');
-    } on DisableTorchException catch (e) {
-      print('Torch could not be disabled due to another error.');
-    }
-  }
 
   void stopRecording() async {
 
@@ -518,7 +496,10 @@ class _CameraAppState extends State<CameraApp> {
                               size: 25.0,
                               color: Colors.white,
                             ),
-                            onPressed: toggleFlashlight,
+                            onPressed: (){
+
+
+                            },
                           ),
                         ),
 

@@ -456,7 +456,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
           bottomNavigationBar: AnimatedContainer(
             duration: Duration(milliseconds: 100),
-            height: _isVisible ? 70 : 0.0,
+            height: _isVisible ? 80 : 0.0,
             child: CustomFooter(userName: userName, userId: userID, lode : 'dark',addButtonAdd: 'add',),
           ),
         ),
@@ -475,6 +475,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
           _chewieController?.pause();
           setState(() {
             showPlayPauseIcon = false;
+            // _isVisible = false;
           });
         }
         return false; // Return false to allow the notification to continue to be dispatched to further ancestors
@@ -720,7 +721,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         ),
                         Text(
                           ' 21',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),
@@ -734,7 +735,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         ),
                         Text(
                           ' 21',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),
@@ -748,7 +749,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         ),
                         Text(
                           '${storyDetails["starRating"]}',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),
@@ -762,7 +763,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         ),
                         Text(
                           ' Share ',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),
@@ -866,23 +867,48 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                 SizedBox(height: 18),
                 Text(
                   'Cost of trip planning interaction call',
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme.of(context).textTheme.subtitle2,
                 ),
-                Text(
-                  '${storyDetails["dontLikeDesc"]}',
-                  style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green,),
+                SizedBox(height: 1),
+
+                Container(
+                  child: Row(
+                    children: [
+                      Text('1000 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+                      IconButton(
+                        icon: Icon(Icons.help_outline),
+                        color : Colors.orange,
+                        onPressed: () {
+
+                        },
+
+                      ),
+                    ],
+                  ),
                 ),
 
-                SizedBox(height: 18),
+                SizedBox(height: 15),
                 Text(
                   'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
-                  style: Theme.of(context).textTheme.subtitle1,
+                  style: Theme.of(context).textTheme.subtitle2,
+                ),
+                SizedBox(height: 1),
+
+                Row(
+                  children: [
+                    Text('500 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+                    IconButton(
+                      icon: Icon(Icons.help_outline),
+                      color : Colors.orange,
+                      onPressed: () {
+
+                      },
+
+                    ),
+                  ],
+
                 ),
 
-                Text(
-                  '${storyDetails["dontLikeDesc"]}',
-                  style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green,),
-                ),
 
                 SizedBox(height : 30),
                 Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
@@ -920,6 +946,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                               // Change text color
                               fontWeight: FontWeight.bold , // Change font weight
                               fontSize: 16,
+                              color:Colors.white,
                             ),
                           ),
                         ],

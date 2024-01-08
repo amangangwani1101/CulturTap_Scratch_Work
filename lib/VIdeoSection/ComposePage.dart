@@ -152,7 +152,7 @@ class _ComposePageState extends State<ComposePage> {
   bool showOtherLoveAboutHereInput = false;
   TextEditingController loveAboutHereInputController = TextEditingController();
   String dontLikeAboutHere = ''; // New input for "What You Don't Like About This Place"
-  String selectedaCategory = "Select1";
+  String selectedaCategory = "Select";
   String reviewText = ''; // New input for "Review This Place"
   int starRating = 0; // New input for star rating
   String selectedVisibility = 'Public';
@@ -508,12 +508,13 @@ class _ComposePageState extends State<ComposePage> {
           "transportationPricing": transportationPricing,
           "label": selectedLabel,
           "category": selectedCategory,
+          "businessCategory":selectedaCategory,
           "genre": selectedGenre,
           "userID" : userID,
           "userName" : userName,
         },
         "label": selectedLabel,
-        "category": selectedCategory,
+        "category": selectedCategory != '' ? selectedCategory : selectedaCategory,
         "genre": selectedGenre,
         "userID" : userID,
       };
@@ -760,7 +761,7 @@ class _ComposePageState extends State<ComposePage> {
       child: Scaffold(
         appBar: VideoAppBar(
           title : 'Compose Story',
-          exit : 'b',
+          exit : 'home',
         ),
         body: Container(
           color:Theme.of(context).primaryColorLight,
@@ -1982,9 +1983,10 @@ class _ComposePageState extends State<ComposePage> {
                                   });
                                 },
                                 items: <String>[
-                                  'Select1', // Ensure there's exactly one 'Select' item
+                                  'Select', // Ensure there's exactly one 'Select' item
                                   'Furniture',
-                                  'Handicraft',
+                                  'Handicraft Items',
+                                  'Handicraft Clothes',
                                   'Other',
                                 ].map<DropdownMenuItem<String>>((String value) {
                                   return DropdownMenuItem<String>(
@@ -2176,7 +2178,9 @@ class _ComposePageState extends State<ComposePage> {
                                       child: TextField(
                                         keyboardType: TextInputType.phone,
                                         onChanged: (value) {
-                                          setState(() {});
+                                          setState(() {
+                                            productPrice = value;
+                                          });
                                         },
                                         decoration: InputDecoration(
                                           filled: true,

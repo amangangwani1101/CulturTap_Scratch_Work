@@ -318,7 +318,7 @@ class _LocalAssistState extends State<LocalAssist> {
                     onTap: (){
                       Navigator.pushReplacement(
                         context,
-                        MaterialPageRoute(builder: (context) => EmergenceAssist()),
+                        MaterialPageRoute(builder: (context) => LocalAssist2()),
                       );
                     },
                     child: Container(
