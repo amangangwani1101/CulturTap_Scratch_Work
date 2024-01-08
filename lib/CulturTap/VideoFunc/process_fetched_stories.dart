@@ -40,6 +40,7 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
 
   for (var story in fetchedStoryList) {
     dynamic videoPathData = story['videoPath'];
+    print('story here in here ${story}');
 
     double storyLat = story['latitude'];
     double storyLng = story['longitude'];
@@ -59,9 +60,7 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
     String category = story['category'];
     String genre = story['genre'];
     String storyCategory = story['category'];
-    print('printing from process_fetched_stories');
-    print(story['userID']);
-    print(story['userName']);
+    String label = story['label'];
     String userID = story['userID'];
     String userName = story['userName'];
     int likes = story['likes'];
@@ -72,7 +71,7 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
 
     if (videoPathData is List) {
       List<String> videoPaths = videoPathData
-          .whereType<String>() // Filter out non-string elements
+          .whereType<String>()
           .toList();
 
 
@@ -91,6 +90,7 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
         'storyTitle': storyTitle,
         'productDescription': productDescription,
         'category': category,
+        'label' : label,
         'genre': genre,
         'userID' : userID,
         'userName' : userName,

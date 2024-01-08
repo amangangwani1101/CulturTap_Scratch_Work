@@ -704,6 +704,9 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+
+
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
@@ -769,58 +772,68 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                     ),
                   ],
                 ),
-                SizedBox(height: 35),
-                Row(
-                  children: [
-                    Text(
-                      'Location : ',
-                      style: Theme.of(context).textTheme.subtitle1,
-                    ),
-                    Text(
-                      '${storyDetails["storyLocation"]}',
-                      style: Theme.of(context).textTheme.subtitle2,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      'Category : ',
-                      style: Theme.of(context).textTheme.subtitle1,
-                    ),
-                    Text(
-                      '${storyDetails["storyCategory"]}',
-                      style: Theme.of(context).textTheme.subtitle2,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      'Genre : ',
-                      style: Theme.of(context).textTheme.subtitle1,
-                    ),
-                    Text(
-                      '${storyDetails["genre"]}',
-                      style: Theme.of(context).textTheme.subtitle2,
-                    ),
-                  ],
-                ),
-                Row(
-                  children: [
-                    Text(
-                      'Uploader : ',
-                      style: Theme.of(context).textTheme.subtitle1,
-                    ),
-                    Text(
-                      '${storyDetails["userName"]}',
-                      style: Theme.of(context).textTheme.subtitle2,
-                    ),
-                  ],
-                ),
-                SizedBox(height: 18),
-                Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
 
+                Column(children : [
+                  SizedBox(height: 35),
+                  Row(
+                    children: [
+                      Text(
+                        'Location : ',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
+                      Text(
+                        '${storyDetails["storyLocation"]}',
+                        style: Theme.of(context).textTheme.subtitle2,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Category : ',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
+                      Text(
+                        '${storyDetails["storyCategory"]}',
+                        style: Theme.of(context).textTheme.subtitle2,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      storyDetails['businessCategory']!='' || storyDetails['businessCategory']!=null  ?
+                      Text(
+                        'Genre : ',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ) :  Text(
+                        'Genre : ',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
+                      Text(
+                        '${storyDetails["genre"]}',
+                        style: Theme.of(context).textTheme.subtitle2,
+                      ),
+                    ],
+                  ),
+                  Row(
+                    children: [
+                      Text(
+                        'Uploader : ',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
+                      Text(
+                        '${storyDetails["userName"]}',
+                        style: Theme.of(context).textTheme.subtitle2,
+                      ),
+                    ],
+                  ),
+                  SizedBox(height: 18),
+                  Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+                ]),
+
+              storyDetails['label'] == 'Regular Story' ?
+
+              Column(children:[
                 SizedBox(height: 18),
                 Text(
                   'Story Title',
@@ -836,192 +849,325 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                   'Description',
                   style: Theme.of(context).textTheme.subtitle1,
                 ),
-                Text(
-                  '${storyDetails["storyDescription"]}',
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
-                SizedBox(height: 18),
-                Text(
-                  'What ${storyDetails["userName"]} Love About This Place ?',
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
-                Text(
-                  '${storyDetails["placeLoveDesc"]}',
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
-                SizedBox(height: 18),
-                Text(
-                  'What ${storyDetails["userName"]} don`t like about About This Place ?',
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
-                Text(
-                  '${storyDetails["dontLikeDesc"]}',
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
-                SizedBox(height: 18),
-                Text(
-                  'Connect with ${storyDetails["userName"]} for trip planning advice & guidance for your upcoming ${storyDetails["storyCityLocation"]} visits.',
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
 
-                SizedBox(height: 18),
-                Text(
-                  'Cost of trip planning interaction call',
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
-                SizedBox(height: 1),
-
-                Container(
-                  child: Row(
-                    children: [
-                      Text('1000 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
-                      IconButton(
-                        icon: Icon(Icons.help_outline),
-                        color : Colors.orange,
-                        onPressed: () {
-
-                        },
-
-                      ),
-                    ],
-                  ),
-                ),
-
-                SizedBox(height: 15),
-                Text(
-                  'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
-                SizedBox(height: 1),
-
-                Row(
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('500 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
-                    IconButton(
-                      icon: Icon(Icons.help_outline),
-                      color : Colors.orange,
-                      onPressed: () {
-
-                      },
-
+                    Text(
+                      '${storyDetails["storyDescription"]}',
+                      style: Theme.of(context).textTheme.subtitle2,
                     ),
-                  ],
+                    SizedBox(height: 18),
+                    Text(
+                      'What ${storyDetails["userName"]} Love About This Place ?',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                    Text(
+                      '${storyDetails["placeLoveDesc"]}',
+                      style: Theme.of(context).textTheme.subtitle2,
+                    ),
+                    SizedBox(height: 18),
+                    Text(
+                      'What ${storyDetails["userName"]} don`t like about About This Place ?',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+                    Text(
+                      '${storyDetails["dontLikeDesc"]}',
+                      style: Theme.of(context).textTheme.subtitle2,
+                    ),
+                    SizedBox(height: 18),
+                    Text(
+                      'Connect with ${storyDetails["userName"]} for trip planning advice & guidance for your upcoming ${storyDetails["storyCityLocation"]} visits.',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
 
-                ),
+                    SizedBox(height: 18),
+                    Text(
+                      'Cost of trip planning interaction call',
+                      style: Theme.of(context).textTheme.subtitle2,
+                    ),
+                    SizedBox(height: 1),
 
-
-                SizedBox(height : 30),
-                Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
-                SizedBox(height : 30),
-                Center(
-                  child: Container(
-                    width : 250,
-                    height: 63,
-                    child: ElevatedButton(
-                      onPressed: () async{
-
-                      },
-                      style: ElevatedButton.styleFrom(
-                        primary: Colors.orange, // Change background color
-                        elevation: 0, // No shadow
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(5.0),
-                          side: BorderSide(color: Colors.orange, width: 2.0),
-                        ),
-                        padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                      ),
+                    Container(
                       child: Row(
                         children: [
+                          Text('1000 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
                           IconButton(
-                            icon: Icon(Icons.location_on_outlined),
-                            color : Colors.white,
+                            icon: Icon(Icons.help_outline),
+                            color : Colors.orange,
                             onPressed: () {
-                              FinalProfile(userId:userID,clickedId: storyUserID,);
+
                             },
 
-                          ),
-                          Text(
-                            'Follow Location',
-                            style: TextStyle(
-                              // Change text color
-                              fontWeight: FontWeight.bold , // Change font weight
-                              fontSize: 16,
-                              color:Colors.white,
-                            ),
                           ),
                         ],
                       ),
                     ),
-                  ),
-                ),
-                SizedBox(height : 30),
-                Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
 
-                SizedBox(height : 40),
-                Container(
-                    child:Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    SizedBox(height: 15),
+                    Text(
+                      'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
+                      style: Theme.of(context).textTheme.subtitle2,
+                    ),
+                    SizedBox(height: 1),
+
+                    Row(
                       children: [
-                        Container(
-                          height : 32,
-                          width : 32,
-
-
-                          child: Visibility(
-
-                            // visible: widget.imagePath != null,
-                            child: CircleAvatar(
-                              backgroundColor: Colors.transparent,
-                              radius: 20.0,
-
-                            ),
-                            replacement: SvgPicture.asset(
-                              'assets/images/profile_icon.svg',
-                              width: 50.0,
-                              height: 50.0,
-                            ),
-                          ),
-
-
-
-
-                        ),
-                        Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Check Visitor Profile', style:TextStyle(color : Colors.orange,fontWeight:FontWeight.bold,fontSize: 16)),
-                            Text('${storyDetails["userName"]}',style:TextStyle(fontSize: 14)),
-                          ],
-                        ),
-
+                        Text('500 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
                         IconButton(
-                          icon: Icon(Icons.arrow_forward_ios_outlined),
+                          icon: Icon(Icons.help_outline),
                           color : Colors.orange,
                           onPressed: () {
-                            print('userID');
-                            print(userID);
-                            print('storyuserID');
-                            print(storyUserID);
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
-                                create:(context) => ProfileDataProvider(),
-                                child: FinalProfile(userId: userID,clickedId: storyUserID,),
-                              ),),
-                            );
 
                           },
 
                         ),
-
-
                       ],
-                    )
 
-                ),
-                SizedBox(height : 30),
+                    ),
 
-                Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+
+                    SizedBox(height : 30),
+                    Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+                    SizedBox(height : 30),
+                    Center(
+                      child: Container(
+                        width : 250,
+                        height: 63,
+                        child: ElevatedButton(
+                          onPressed: () async{
+
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: Colors.orange, // Change background color
+                            elevation: 0, // No shadow
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              side: BorderSide(color: Colors.orange, width: 2.0),
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                          ),
+                          child: Row(
+                            children: [
+                              IconButton(
+                                icon: Icon(Icons.location_on_outlined),
+                                color : Colors.white,
+                                onPressed: () {
+                                  FinalProfile(userId:userID,clickedId: storyUserID,);
+                                },
+
+                              ),
+                              Text(
+                                'Follow Location',
+                                style: TextStyle(
+                                  // Change text color
+                                  fontWeight: FontWeight.bold , // Change font weight
+                                  fontSize: 16,
+                                  color:Colors.white,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height : 30),
+
+
+
+                  ],),
+              ]) : Container(),
+
+
+
+
+                //
+                // if(storyDetails["businessCategory"] != '')
+                //   Column(
+                //     crossAxisAlignment: CrossAxisAlignment.start,
+                //     children: [
+                //       Text(
+                //         '${storyDetails["storyDescription"]}',
+                //         style: Theme.of(context).textTheme.subtitle2,
+                //       ),
+                //       SizedBox(height: 18),
+                //
+                //
+                //       Text(
+                //         'Door Step service / delivery available ?',
+                //         style: Theme.of(context).textTheme.subtitle2,
+                //       ),
+                //       SizedBox(height: 18),
+                //       Text(
+                //         '${storyDetails["selectedOption"]}',
+                //         style: Theme.of(context).textTheme.subtitle2,
+                //       ),
+                //       SizedBox(height: 1),
+                //
+                //       Container(
+                //         child: Row(
+                //           children: [
+                //             Text('1000 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+                //             IconButton(
+                //               icon: Icon(Icons.help_outline),
+                //               color : Colors.orange,
+                //               onPressed: () {
+                //
+                //               },
+                //
+                //             ),
+                //           ],
+                //         ),
+                //       ),
+                //
+                //       SizedBox(height: 15),
+                //       Text(
+                //         'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
+                //         style: Theme.of(context).textTheme.subtitle2,
+                //       ),
+                //       SizedBox(height: 1),
+                //
+                //       Row(
+                //         children: [
+                //           Text('500 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+                //           IconButton(
+                //             icon: Icon(Icons.help_outline),
+                //             color : Colors.orange,
+                //             onPressed: () {
+                //
+                //             },
+                //
+                //           ),
+                //         ],
+                //
+                //       ),
+                //
+                //
+                //       SizedBox(height : 30),
+                //       Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+                //       SizedBox(height : 30),
+                //       Center(
+                //         child: Container(
+                //           width : 250,
+                //           height: 63,
+                //           child: ElevatedButton(
+                //             onPressed: () async{
+                //
+                //             },
+                //             style: ElevatedButton.styleFrom(
+                //               primary: Colors.orange, // Change background color
+                //               elevation: 0, // No shadow
+                //               shape: RoundedRectangleBorder(
+                //                 borderRadius: BorderRadius.circular(5.0),
+                //                 side: BorderSide(color: Colors.orange, width: 2.0),
+                //               ),
+                //               padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                //             ),
+                //             child: Row(
+                //               children: [
+                //                 IconButton(
+                //                   icon: Icon(Icons.location_on_outlined),
+                //                   color : Colors.white,
+                //                   onPressed: () {
+                //                     FinalProfile(userId:userID,clickedId: storyUserID,);
+                //                   },
+                //
+                //                 ),
+                //                 Text(
+                //                   'Follow Location',
+                //                   style: TextStyle(
+                //                     // Change text color
+                //                     fontWeight: FontWeight.bold , // Change font weight
+                //                     fontSize: 16,
+                //                     color:Colors.white,
+                //                   ),
+                //                 ),
+                //               ],
+                //             ),
+                //           ),
+                //         ),
+                //       ),
+                //       SizedBox(height : 30),
+                //
+                //
+                //
+                //     ],),
+                //
+
+
+
+                Column(children : [
+                  SizedBox(height : 30),
+                  Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+                  SizedBox(height : 40),
+
+                  Container(
+                      child:Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Container(
+                            height : 32,
+                            width : 32,
+
+
+                            child: Visibility(
+
+                              // visible: widget.imagePath != null,
+                              child: CircleAvatar(
+                                backgroundColor: Colors.transparent,
+                                radius: 20.0,
+
+                              ),
+                              replacement: SvgPicture.asset(
+                                'assets/images/profile_icon.svg',
+                                width: 50.0,
+                                height: 50.0,
+                              ),
+                            ),
+
+
+
+
+                          ),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Check Visitor Profile', style:TextStyle(color : Colors.orange,fontWeight:FontWeight.bold,fontSize: 16)),
+                              Text('${storyDetails["userName"]}',style:TextStyle(fontSize: 14)),
+                            ],
+                          ),
+
+                          IconButton(
+                            icon: Icon(Icons.arrow_forward_ios_outlined),
+                            color : Colors.orange,
+                            onPressed: () {
+                              print('userID');
+                              print(userID);
+                              print('storyuserID');
+                              print(storyUserID);
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                                  create:(context) => ProfileDataProvider(),
+                                  child: FinalProfile(userId: userID,clickedId: storyUserID,),
+                                ),),
+                              );
+
+                            },
+
+                          ),
+
+
+                        ],
+                      )
+
+                  ),
+                  SizedBox(height : 30),
+
+                  Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+
+                ]),
+
 
 
 

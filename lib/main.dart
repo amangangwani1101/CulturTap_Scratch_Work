@@ -18,7 +18,7 @@ Future<void> main() async{
 
 
 
-String darkMode = 'ys';
+String darkMode = 'yes';
 
 
 
@@ -41,7 +41,7 @@ class MyApp extends StatelessWidget {
 
       title: 'CulturTap',
       debugShowCheckedModeBanner: false,
-      theme: darkMode == 'yes' ?
+      theme: darkMode == 'ys' ?
 
       ThemeData(
 

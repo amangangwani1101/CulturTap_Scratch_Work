@@ -147,6 +147,7 @@ class _HomePageState extends State<HomePage> {
       categoryData[categoryIndex]['thumbnail_url'] = processedData['thumbnail_urls'];
       categoryData[categoryIndex]['storyDetailsList'] = processedData['storyDetailsList'];
 
+
       setState(() {
         isLoading = false;
       });
@@ -287,7 +288,6 @@ class _HomePageState extends State<HomePage> {
     ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Forests Near you', apiEndpoint: 'api/nearby-places/Forests'),
     ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Famous RiverSides Here', apiEndpoint: 'api/nearby-places/Riverside'),
     ...generateCategoryData(specificName: '', name: 'Islands Here', apiEndpoint: 'api/nearby-places/Island'),
-
 
   ];
 
