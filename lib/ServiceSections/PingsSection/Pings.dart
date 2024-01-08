@@ -15,10 +15,12 @@ import 'package:learn_flutter/widgets/Constant.dart';
 import '../../UserProfile/FinalUserProfile.dart';
 import '../../UserProfile/ProfileHeader.dart';
 // import '../../rating.dart';
+import '../../fetchDataFromMongodb.dart';
 import '../../widgets/CustomButton.dart';
 import '../../widgets/CustomDialogBox.dart';
 import '../../widgets/hexColor.dart';
 import '../../LocalAssistance/ChatsPage.dart';
+import '../RatingSection.dart';
 import '../TripCalling/ChatSection/ChatSection.dart';
 import 'package:upi_india/upi_india.dart';
 // void main(){
@@ -167,6 +169,26 @@ class _PingSectionState extends State<PingsSection>{
     final List<String> parts = dateStr.split('/');
     final day = int.parse(parts[0]);
     final month = months[parts[1]]!;
+    final year = parts[2];
+
+    final formattedDate = DateTime(int.parse(year), int.parse(month), day);
+    final dayName = formattedDate.weekday; // Get the day of the week (1 for Monday, 7 for Sunday)
+
+    final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+
+    return days[dayName - 1]; // Adjust to index of days array (0 for Monday, 6 for Sunday)
+  }
+
+  String convertToDate2(String dateStr) {
+    final Map<String, String> months = {
+      'Jan': '01', 'Feb': '02', 'Mar': '03', 'Apr': '04',
+      'May': '05', 'Jun': '06', 'Jul': '07', 'Aug': '08',
+      'Sep': '09', 'Oct': '10', 'Nov': '11', 'Dec': '12'
+    };
+
+    final List<String> parts = dateStr.split('/');
+    final day = int.parse(parts[0]);
+    final month = parts[1];
     final year = parts[2];
 
     final formattedDate = DateTime(int.parse(year), int.parse(month), day);
@@ -331,12 +353,45 @@ class _PingSectionState extends State<PingsSection>{
 
 
 
+  Future<void> removePingsHelper(String meetId) async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/removeHelperPings');
+    // Replace with your data
+    Map<String, dynamic> requestData = {
+      'meetId':meetId,
+    };
+    print('Messa::$requestData');
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        final responseData = jsonDecode(response.body);
+        print("Response: $responseData");
+        _refreshPage();
+      } else {
+        print("Failed to update pings. Status code: ${response.statusCode}");
+        throw Exception("Failed to update pings");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Error during API call");
+    }
+  }
+
+
   Future<void> updateLocalHelperPings(String meetId,String meetStatus) async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
     final url = Uri.parse('$serverUrl/updateLocalHelpersPings');
     // Replace with your data
     Map<String, dynamic> requestData = {
-      "userId": widget.userId,
+      "userId": userID,
       'meetId':meetId,
       'meetStatus':meetStatus,
     };
@@ -364,6 +419,35 @@ class _PingSectionState extends State<PingsSection>{
       throw Exception("Error during API call");
     }
   }
+
+  Future<void> updateMeetingChats(String meetId,List<String>meetDetails)async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'meetId':meetId,
+        'conversation':meetDetails,
+      };
+      print('Meeting Chats Request Sent : $data');
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/storeLocalMeetingConversation'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+      } else {
+        print('Failed to update meeting chats : ${response.statusCode}');
+      }
+    }catch(err){
+      print("failed to update meeting chats : $err");
+    }
+  }
+
 
   Future<void> updateLocalUserPings(String userId,String meetId,String meetStatus) async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
@@ -422,7 +506,8 @@ class _PingSectionState extends State<PingsSection>{
       'meetId':meetId,
       'meetStatus':meetStatus,
       "userName":userName,
-      "userPhoto":userPhoto
+      "userPhoto":userPhoto,
+      "helperId":userID,
     };
 
     try {
@@ -500,7 +585,9 @@ class _PingSectionState extends State<PingsSection>{
             onRefresh: ()=>_refreshPage(),
             child: SingleChildScrollView(
         child: Container(
-          color : Colors.white,
+          padding: EdgeInsets.only(left: 10,right:10),
+          color : HexColor('#FDFDFD'),
+          // height : MediaQuery.of(context).size.height,
           width: screenWidth,
           child: Column(
               children: [
@@ -508,8 +595,8 @@ class _PingSectionState extends State<PingsSection>{
                 SizedBox(height: 40,),
                 Center(
                   child: Container(
-                    width:screenWidth*0.95,
-                    height: 35,
+                    // width:screenWidth*0.95,
+                    // height: 35,
                     child: Row(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -614,89 +701,87 @@ class _PingSectionState extends State<PingsSection>{
                 ),
                 SizedBox(height: 30,),
                 toggle
-                ? Center(
-                  child: Container(
-                    width: screenWidth*0.85,
-                    height: 50,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
+                ? Container(
+                  padding: EdgeInsets.only(left:15,right:20),
+                  // width: screenWidth*0.85,
+                  // height: 50,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
 
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              height: 35,
-                              padding: EdgeInsets.only(left: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: HexColor('#FB8C00')
-                                ),
-                                borderRadius: BorderRadius.circular(10),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            height: 35,
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: HexColor('#FB8C00')
                               ),
-                              child: DropdownButton<String>(
-                                value: _selectedService,
-                                items: <String>['Trip Planning', 'Local Assistant']
-                                    .map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  if (newValue != null) {
-                                    print(newValue);
-                                    _updateSelectedService(newValue);
-                                  }
-                                },
-                                style: TextStyle(color: Colors.red), // Change the dropdown text style
-                                underline: Container(), // Hide the underline
-                                icon: Icon(Icons.keyboard_arrow_down, color: HexColor('#FB8C00')), // Change the dropdown icon
-                              ),
+                              borderRadius: BorderRadius.circular(5),
                             ),
-                          ],
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: <Widget>[
-                            Container(
-                              width: 140,
-                              height: 35,
-                              padding: EdgeInsets.only(left: 10),
-                              decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: HexColor('#FB8C00')
-                                ),
-                                borderRadius: BorderRadius.circular(10),
-                              ),
-                              child: DropdownButton<String>(
-                                value: _selectedValue,
-                                items:  <String>['All','Scheduled', 'Accepted', 'Pending' , 'Closed','Cancelled']
-                                    .map((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value,style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
-                                  );
-                                }).toList(),
-                                onChanged: (String? newValue) {
-                                  if (newValue != null) {
-                                    print(':::');
-                                    _updateSelectedValue(newValue);
-                                  }
-                                },
-                                style: TextStyle(color: Colors.red), // Change the dropdown text style
-                                underline: Container(), // Hide the underline
-                                icon: Icon(Icons.keyboard_arrow_down, color: HexColor('#FB8C00')), // Change the dropdown icon
-                              ),
+                            child: DropdownButton<String>(
+                              alignment: AlignmentDirectional.bottomEnd,
+                              dropdownColor: Theme.of(context).backgroundColor,
+                              value: _selectedService,
+                              items: <String>['Trip Planning', 'Local Assistant']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value,style:  TextStyle(color: Colors.orange,fontSize: 14,fontFamily: 'Poppins'),),);
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  print(newValue);
+                                  _updateSelectedService(newValue);
+                                }
+                              },
+                              // Change the dropdown text style
+                              underline: Container(), // Hide the underline
+                              icon: Icon(Icons.keyboard_arrow_down, color: HexColor('#FB8C00')), // Change the dropdown icon
                             ),
-                          ],
-                        ),
-                      ],
-                    ),
+                          ),
+                        ],
+                      ),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          Container(
+                            height: 35,
+                            padding: EdgeInsets.all(5),
+                            decoration: BoxDecoration(
+                              border: Border.all(
+                                  color: HexColor('#FB8C00')
+                              ),
+                              borderRadius: BorderRadius.circular(5),
+                            ),
+                            child: DropdownButton<String>(
+                              value: _selectedValue,
+                              items:  <String>['All','Scheduled', 'Accepted', 'Pending' , 'Closed','Cancelled']
+                                  .map((String value) {
+                                return DropdownMenuItem<String>(
+                                  value: value,
+                                  child: Text(value,style:  TextStyle(color: Colors.orange,fontSize: 14,fontFamily: 'Poppins'),),
+                                );
+                              }).toList(),
+                              onChanged: (String? newValue) {
+                                if (newValue != null) {
+                                  print(':::');
+                                  _updateSelectedValue(newValue);
+                                }
+                              },// Change the dropdown text style
+                              underline: Container(), // Hide the underline
+                              icon: Icon(Icons.keyboard_arrow_down, color: HexColor('#FB8C00')), // Change the dropdown icon
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 )
                 : SizedBox(height: 0,),
-                SizedBox(height: 30,),
+                SizedBox(height: 10,),
                 toggle
                 ? _selectedService=='Trip Planning'
                   ? Column(
@@ -1059,9 +1144,11 @@ class _PingSectionState extends State<PingsSection>{
                           String meetStatus = meetDetails['meetStatus'];
                           String meetTitle = meetDetails['title'];
                           String userId = meetDetails['userId'];
+                          String ?helperId = meetDetails['helperId'];
                           String ?distance = meetDetails['distance']==null?'':meetDetails['distance'];
                           String ?userName = meetDetails['userName']==null?'':meetDetails['userName'];
-                          String ?userPhoto = meetDetails['userPhoto']==null?'':meetDetails['userPhoto'];
+                          String ?userPhoto = meetDetails['userPhoto'];
+                          String ?date = meetDetails['date']!=null?meetDetails['date']:'';
                           return Container(
                             child:
                             ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
@@ -1079,12 +1166,12 @@ class _PingSectionState extends State<PingsSection>{
                                   _refreshPage();
                               },
                               child: Container(
-                                width: screenWidth*0.85,
-                                padding: EdgeInsets.only(top:10,bottom:20),
-                                margin: EdgeInsets.only(bottom: 40),
+
+                                padding: EdgeInsets.all(18),
+                                margin: EdgeInsets.only(left:12,right:15,top:10,bottom:20),
                                 decoration: BoxDecoration(
                                   color: Colors.white, // Container background color
-                                  borderRadius: BorderRadius.circular(10),
+                                  borderRadius: BorderRadius.circular(3),
                                   boxShadow: [
                                     BoxShadow(
                                       color: Colors.grey.withOpacity(0.5), // Shadow color
@@ -1095,196 +1182,191 @@ class _PingSectionState extends State<PingsSection>{
                                   ],
                                 ),
                                 child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(height: 10,),
-                                    Center(
-                                      child: Container(
-                                        width:screenWidth*0.73,
-                                        height: 36,
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween ,
-                                          crossAxisAlignment: CrossAxisAlignment.center,
-                                          children: [
-                                            Row(
-                                              children: [
-                                                userId==widget.userId
-                                                    ? CircleAvatar(
-                                                  radius: 20.0,
-                                                  backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
-                                                      ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                                      : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                )
-                                                    : CircleAvatar(
-                                                  radius: 20.0,
-                                                  backgroundImage: userPhoto!= null && userPhoto!= ''
-                                                      ? FileImage(File(userPhoto)) as ImageProvider<Object>?
-                                                      : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                ),
-                                                SizedBox(width: 6,),
-                                                Image.asset('assets/images/trip_assistant_logo.png',width: 25,height: 25,),
-                                                // IconButton(
-                                                //   onPressed: () {},
-                                                //   icon: SvgPicture.asset(
-                                                //     'assets/images/tripassit.svg', // Replace with the path to your SVG icon
-                                                //     height: 24,
-                                                //   ),
-                                                // ),
-                                                SizedBox(width: 6,),
-                                                userId==widget.userId
-                                                    ? CircleAvatar(
-                                                  radius: 20.0,
-                                                  backgroundImage: userPhoto!= null && userPhoto!= ''
-                                                      ? FileImage(File(userPhoto)) as ImageProvider<Object>?
-                                                      : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                )
-                                                    :CircleAvatar(
-                                                  radius: 20.0,
-                                                  backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
-                                                      ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                                      : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                ),
-                                              ],
-                                            ),
-                                            SizedBox(width: 20,),
-                                            meetStatus=='pending' || meetStatus=='cancel'?
-                                            Container(
-                                              color: Colors.red, // Background color red
-                                              height: 16  , // Height set to 16
-                                              constraints: BoxConstraints(
-                                                minWidth: 0,
-                                                maxWidth: double.infinity, // Adjust width according to text
-                                              ),
-                                              child: Text('   '+
-                                                  (meetStatus=='pending'?'Request Pending':'Cancelled')+'   ',
-                                                style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
-                                              ),
-                                            )
-                                                : meetStatus=='accept'
-                                                ? Container(
-                                              color: HexColor('FB8C00'), // Background color red
-                                              height: 16  , // Height set to 16
-                                              constraints: BoxConstraints(
-                                                minWidth: 0,
-                                                maxWidth: double.infinity, // Adjust width according to text
-                                              ),
-                                              child: Text('   '+
-                                                  'Accepted'+'   ',
-                                                style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
-                                              ),
-                                            )
-                                                : meetStatus=='schedule'
-                                                ? Container(
-                                              color: HexColor('0A8100'), // Background color red
-                                              height: 16  , // Height set to 16
-                                              constraints: BoxConstraints(
-                                                minWidth: 0,
-                                                maxWidth: double.infinity, // Adjust width according to text
-                                              ),
-                                              child: Text('   '+
-                                                  'Scheduled'+'   ',
-                                                style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
-                                              ),
-                                            )
-                                                :meetStatus=='choose'
-                                                ?SizedBox(height: 0,)
-                                                : Container(
-                                              color: HexColor('FB8C00'), // Background color red
-                                              height: 16  , // Height set to 16
-                                              constraints: BoxConstraints(
-                                                minWidth: 0,
-                                                maxWidth: double.infinity, // Adjust width according to text
-                                              ),
-                                              child: Text('   '+
-                                                  'Closed'+'   ',
-                                                style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
-                                              ),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
+                                    Container(
+                                      padding:EdgeInsets.only(top:10,bottom:20),
+                                      child: Text('Immediate Trip Assistance',style:Theme.of(context).textTheme.subtitle1),
                                     ),
-                                    SizedBox(height: 15,),
-                                    userId==widget.userId
-                                        ? userPhoto!= ''
-                                          ?Center(
-                                      child: Container(
-                                        width: screenWidth*0.71,
-                                        height:21,
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                          children: [
-                                            Text('Service Handler',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w500),),
-                                            Text('${userName}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
-                                          ],
-                                        ),
-                                      ),
-                                    )
-                                          :SizedBox(height: 0,)
-                                        :Container(
-                                      width: screenWidth*0.70,
-                                      height:21,
+                                    Container(
+                                      // width:screenWidth*0.73,
+                                      // height: 36,
                                       child: Row(
-                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
                                         children: [
-                                          Text('Message From',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w500),),
-                                          Text('${userName}',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),)
+                                          Row(
+                                            children: [
+                                              userId==widget.userId
+                                                  ? CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
+                                                    ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
+                                                    : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                              )
+                                                  : CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundImage: userPhoto!= null
+                                                    ? FileImage(File(userPhoto)) as ImageProvider<Object>?
+                                                    : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                              ),
+                                              SizedBox(width: 6,),
+                                              SvgPicture.asset(
+                                                'assets/images/local_assist_logo.svg', // Replace with the path to your SVG file
+                                                width: 25, // Specify the width
+                                                height: 25, // Specify the height
+                                                color: Colors.black, // Change the color if needed
+                                              ),// IconButton(
+                                              //   onPressed: () {},
+                                              //   icon: SvgPicture.asset(
+                                              //     'assets/images/tripassit.svg', // Replace with the path to your SVG icon
+                                              //     height: 24,
+                                              //   ),
+                                              // ),
+                                              SizedBox(width: 6,),
+                                              userId==widget.userId
+                                                  ? CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundColor: Colors.white,
+                                                backgroundImage: userPhoto!= null
+                                                    ? FileImage(File(userPhoto)) as ImageProvider<Object>?
+                                                    : AssetImage('assets/images/profile_image.png'),// Use a default asset image
+                                              )
+                                                  :CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundColor: Colors.white,
+                                                backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
+                                                    ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
+                                                    : AssetImage('assets/images/profile_image.png'),// Use a default asset image
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(width: 20,),
+                                          meetStatus=='pending' || meetStatus=='cancel'?
+                                          Container(
+                                            color: Colors.red, // Background color red
+                                            height: 16  , // Height set to 16
+                                            constraints: BoxConstraints(
+                                              minWidth: 0,
+                                              maxWidth: double.infinity, // Adjust width according to text
+                                            ),
+                                            child: Text('   '+
+                                                (meetStatus=='pending'?'Request Pending':'Cancelled')+'   ',
+                                              style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                            ),
+                                          )
+                                              : meetStatus=='accept'
+                                              ? Container(
+                                            color: HexColor('FB8C00'), // Background color red
+                                            height: 16  , // Height set to 16
+                                            constraints: BoxConstraints(
+                                              minWidth: 0,
+                                              maxWidth: double.infinity, // Adjust width according to text
+                                            ),
+                                            child: Text('   '+
+                                                'Accepted'+'   ',
+                                              style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                            ),
+                                          )
+                                              : meetStatus=='schedule'
+                                              ? Container(
+                                            color: HexColor('0A8100'), // Background color red
+                                            height: 16  , // Height set to 16
+                                            constraints: BoxConstraints(
+                                              minWidth: 0,
+                                              maxWidth: double.infinity, // Adjust width according to text
+                                            ),
+                                            child: Text('   '+
+                                                'Scheduled'+'   ',
+                                              style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                            ),
+                                          )
+                                              :meetStatus=='choose'
+                                              ?SizedBox(height: 0,)
+                                              : Container(
+                                            color: HexColor('FB8C00'), // Background color red
+                                            height: 16  , // Height set to 16
+                                            constraints: BoxConstraints(
+                                              minWidth: 0,
+                                              maxWidth: double.infinity, // Adjust width according to text
+                                            ),
+                                            child: Text('   '+
+                                                'Closed'+'   ',
+                                              style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
+                                            ),
+                                          ),
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height: 15,),
-                                    Center(
-                                      child: Container(
-                                        width:screenWidth*0.72 ,
-                                        height: 22,
-                                        child: Row(
-                                          // mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              child: Image.asset('assets/images/time_icon.png',width: 22,height: 22,),
+                                    SizedBox(height: 18,),
+                                    userName!=''
+                                      ? userId==widget.userId
+                                        ?Container(
+                                            height:21,
+                                            child: Row(
+                                              mainAxisAlignment: MainAxisAlignment.start,
+                                              children: [
+                                                Text('Meesage With',style: Theme.of(context).textTheme.subtitle2,),
+                                                SizedBox(width:3),
+                                                Text('${userName}',style: Theme.of(context).textTheme.subtitle2,),
+                                              ],
                                             ),
-                                            Text(' ${startTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                            Text('India',style: TextStyle(fontSize:14,fontFamily: 'Poppins'),)
-                                          ],
-                                        ),
+                                          )
+                                        :Container(
+                                      height:21,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text('Meesage From',style: Theme.of(context).textTheme.subtitle2,),
+                                          SizedBox(width:3),
+                                          Text('${userName}',style: Theme.of(context).textTheme.subtitle2,),
+                                        ],
+                                      ),
+                                    )
+                                      :SizedBox(height: 0,),
+                                    SizedBox(height: 7,),
+                                    Container(
+                                      height: 20,
+                                      child: Row(
+                                        // mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,  ),
+                                          ),
+                                          Text(' ${startTime} \t',style: Theme.of(context).textTheme.subtitle2),
+                                          Text('India',style: Theme.of(context).textTheme.subtitle2,)
+                                        ],
                                       ),
                                     ),
-                                    SizedBox(height: 4,),
+                                    SizedBox(height: 7,),
                                     Container(
-                                      width: screenWidth*0.72,
                                       // decoration: BoxDecoration(border:Border.all(width: 1)),
                                       child: Row(
                                         children: [
                                           Container(
                                             child: Image.asset('assets/images/calendar.png',width: 22,height: 22,),
                                           ),
-                                          //Text(' Date ${date} "${convertToDate(date)}"',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                          Text(' Date ${date} "${convertToDate2(date!)}"',style: Theme.of(context).textTheme.subtitle2),
                                         ],
                                       ),
                                     ),
                                     SizedBox(height: 7,),
                                     Container(
-                                      width: screenWidth*0.71,
-                                      // decoration: BoxDecoration(border:Border.all(width: 1)),
+                                      // decoration: BoxDecoration(border: Border.all(color:Colors.green)),
+                                      padding:EdgeInsets.only(left:3),
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.start,
                                         children: [
                                           Container(
-                                            width:180,
-                                            child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                            width:260,
+                                            child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style:Theme.of(context).textTheme.subtitle2,),
                                           ),
-                                          // InkWell(
-                                          //   onTap:(){
-                                          //     setState(() {
-                                          //
-                                          //   });},
-                                          //   child: Container(
-                                          //     child: Image.asset('assets/images/arrow_down.png',width: 35,height: 35,),
-                                          //   ),
-                                          // ),
                                         ],
                                       ),
                                     ),
-                                    SizedBox(height:20 ,),
+                                    (userId==widget.userId && meetStatus=='pending') || (meetStatus=='cancel' || meetStatus=='closed')
+                                      ?SizedBox(height:10,)
+                                      :SizedBox(height:32),
                                     (meetStatus=='pending' && userId==widget.userId)
                                       ?InkWell(
                                       onTap: ()  async{
@@ -1293,8 +1375,15 @@ class _PingSectionState extends State<PingsSection>{
                                         if (userConfirmed) {
                                           // User confirmed, do something
                                           print('User confirmed');
-                                          await updateLocalUserPings(widget.userId, meetId, 'cancel');
                                           await updateLocalUserPings(userId, meetId, 'cancel');
+                                          if(helperId!=null){
+                                            await updateLocalUserPings(helperId, meetId, 'cancel');
+                                          }
+                                          else{
+                                            await removePingsHelper(meetId);
+                                          }
+                                          await updateMeetingChats(meetId!,['','admin-cancel']);
+                                          await updatePaymentStatus('close',meetId);
                                           _refreshPage();
 
                                         } else {
@@ -1302,14 +1391,13 @@ class _PingSectionState extends State<PingsSection>{
                                           print('User canceled');
                                         }
                                       },
-                                      child: Container(width:screenWidth*0.72,child: Center(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)),))
+                                      child: Center(child: Container(child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)))
                                       :(meetStatus=='pending' && userId!=widget.userId)
-                                      ?Container(width:screenWidth*0.72,child: Text('*Payment Pending. Please wait for event. ',style: TextStyle(fontSize: 12,fontWeight: FontWeight.w300,fontFamily: 'Poppins',color: HexColor('#FF0000')),),)
+                                      ?Center(child: Container(child: Text('*Payment Pending. Please wait for event. ',style: TextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontFamily: 'Poppins',color: HexColor('#FF0000')),),))
                                       :(meetStatus=='accept')
                                       ?Container(
-                                    width: screenWidth*0.73,
                                     child: Row(
-                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
                                       children: [
                                         InkWell(
                                             onTap: ()async{
@@ -1317,8 +1405,9 @@ class _PingSectionState extends State<PingsSection>{
                                               if (userConfirmed) {
                                                 // User confirmed, do something
                                                 print('User confirmed');
-                                                await updateLocalUserPings(widget.userId, meetId, 'cancel');
                                                 await updateLocalUserPings(userId, meetId, 'cancel');
+                                                await updateLocalUserPings(helperId!, meetId, 'cancel');
+                                                await updateMeetingChats(meetId!,['','admin-cancel']);
                                                 await updatePaymentStatus('close',meetId);
                                                 _refreshPage();
 
@@ -1327,30 +1416,37 @@ class _PingSectionState extends State<PingsSection>{
                                                 print('User canceled');
                                               }
                                             },
-                                            child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
-                                        SizedBox(width: screenWidth*0.08,),
-                                        // InkWell(
-                                        //     onTap: ()async{
-                                        //       // payment ka funda
-                                        //       bool res = await Navigator.push(
-                                        //         context,
-                                        //         MaterialPageRoute(
-                                        //           builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:pingsDataStore.userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
-                                        //         ),
-                                        //       );
-                                        //       // paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber())
-                                        //       if(res){
-                                        //         await updateLocalUserPings(widget.userId, meetId, 'schedule');
-                                        //         await updateLocalUserPings(userId, meetId, 'schedule');
-                                        //       }else{
-                                        //         ScaffoldMessenger.of(context).showSnackBar(
-                                        //           const SnackBar(
-                                        //             content: Text('Payment is successful'),
-                                        //           ),
-                                        //         );
-                                        //       }
-                                        //     },
-                                        //     child: Container(child: Text('Pay Charge',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
+                                            child: Container(child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)),
+                                        // SizedBox(width: screenWidth*0.08,),
+                                        InkWell(
+                                            onTap: ()async{
+                                              // payment ka funda
+                                              // bool res = await Navigator.push(
+                                              //   context,
+                                              //   MaterialPageRoute(
+                                              //     builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:pingsDataStore.userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
+                                              //   ),
+                                              // );
+                                              // // paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber())
+                                              // if(res){
+                                                await updateLocalUserPings(userId, meetId, 'schedule');
+                                                await updateLocalUserPings(helperId!, meetId, 'schedule');
+                                                await updatePaymentStatus('pending',meetId);
+                                                await updateMeetingChats(meetId!,['','admin-helper-1']);
+                                                  await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                                    state: widget.userId==userId?'user':'helper',
+                                                    meetId: meetId,
+                                                  ),));
+                                                _refreshPage();
+                                              // }else{
+                                              //   ScaffoldMessenger.of(context).showSnackBar(
+                                              //     const SnackBar(
+                                              //       content: Text('Payment is UnSuccessful'),
+                                              //     ),
+                                              //   );
+                                              // }
+                                            },
+                                            child: Container(child: Text('Pay Charge',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
 
                                       ],
                                     ),
@@ -1360,23 +1456,24 @@ class _PingSectionState extends State<PingsSection>{
                                         onTap: ()  async{
                                           //   Accept ka funda
                                           await updateLocalHelperPings(meetId, 'pending');
-                                          await createUpdateLocalUserPings(userId, meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
+                                          await createUpdateLocalUserPings(userId ,meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
+                                          await updateMeetingChats(meetId,[userID,'admin-user-1']);
                                           await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                                             state: 'helper',
                                             meetId: meetId,
                                           ),));
                                           _refreshPage();
                                           },
-                                        child: Container(width:screenWidth*0.72,child: Center(child: Text('Accept & Reply',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)),))
+                                        child: Center(child: Container(child: Text('Accept & Reply',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)))
                                       :(meetStatus=='close' && userId!=widget.userId)
                                       ?InkWell(
                                     onTap: (){
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //     builder: (context) => RateFeedBack(pingsCallback:callback,userId:widget.userId,index:index,userPhoto:pingsDataStore.userPhotoPath,userName:userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId),
-                                      //   ),
-                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => RateFeed(meetId:meetId,service: 'Local Assistant',),
+                                        ),
+                                      );
                                     },
                                     child: Container(
                                       width: screenWidth*0.70,
@@ -1386,12 +1483,12 @@ class _PingSectionState extends State<PingsSection>{
                                       :(meetStatus=='close')
                                       ? InkWell(
                                     onTap: (){
-                                      // Navigator.push(
-                                      //   context,
-                                      //   MaterialPageRoute(
-                                      //     builder: (context) => RateFeedBack(pingsCallback:callback,index:index,userPhoto: pingsDataStore.userPhotoPath,userName:userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId,userId:widget.userId),
-                                      //   ),
-                                      // );
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>  RateFeed(meetId:meetId,service: 'Local Assistant',),
+                                        ),
+                                      );
                                     },
                                     child: Container(
                                       width: screenWidth*0.70,
@@ -1407,7 +1504,7 @@ class _PingSectionState extends State<PingsSection>{
                                           ),));
                                           _refreshPage();
                                         },
-                                        child: Container(child: Text('Continue',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),))
+                                        child: Center(child: Container(child: Text('Continue',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)))
                                       :SizedBox(height: 0,),
                                   ],
                                 ),

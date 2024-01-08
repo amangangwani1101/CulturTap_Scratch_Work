@@ -23,9 +23,9 @@ import 'hexColor.dart';
 import '../UserProfile/ProfileHeader.dart';
 
 
-String? globalStartTime;
-String? globalEndTime;
-String? globalSlots;
+String? globalStartTime='6:00 PM';
+String? globalEndTime='9:00 PM';
+String? globalSlots = 'choice_1';
 List<PaymentDetails> globalCards =[];
 bool isGone=false;
 
@@ -254,12 +254,52 @@ class _TimePickerState extends State<TimePicker>{
 
   Future<void> _selectStartTime(BuildContext context) async{
     final pickedTime = await showTimePicker(
+      initialEntryMode: TimePickerEntryMode.dialOnly,
       context: context, initialTime: _startTime,
       builder: (BuildContext context, Widget? child) {
         return MediaQuery(
+
           data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child: child!,
-        );
+          child:Theme(
+            data: Theme.of(context).copyWith(
+            // Modify the TimePickerThemeData here
+            // primaryTextTheme: TextTheme(),
+            timePickerTheme: TimePickerThemeData(
+              padding:EdgeInsets.all(10),
+              entryModeIconColor: Theme.of(context).primaryColor,
+               helpTextStyle: TextStyle(fontSize: 16,color: Theme.of(context).primaryColor,fontFamily: 'Poppins',fontWeight: FontWeight.bold),
+               dialBackgroundColor: Theme.of(context).primaryColor,
+            dialTextColor: Theme.of(context).backgroundColor,
+             dialTextStyle: Theme.of(context).textTheme.headline5,
+            dialHandColor:Colors.white.withOpacity(0.5),
+            backgroundColor: Theme.of(context).backgroundColor, // Background color of the picker
+            hourMinuteTextStyle: Theme.of(context).textTheme.headline1,
+            hourMinuteTextColor: Colors.white, // Text color for hour and minute
+            // dialHandColor: Colors.orange.withOpacity(0.2), // Color of the dial hand
+            hourMinuteColor: Theme.of(context).primaryColor, // Color of the hour and minute hands
+            dayPeriodTextColor: Colors.white, // Text color for AM/PM
+            dayPeriodColor:Theme.of(context).primaryColor, // Color of AM/PM indicator
+            dayPeriodTextStyle: Theme.of(context).textTheme.headline2,
+              // shape: ShapeBorder().dimensions,
+              // Add other properties as needed
+            ),
+            ),
+        child: Column(
+          children: [
+            SizedBox(height: 10,),
+            TextButtonTheme(
+            data: TextButtonThemeData(
+            style: ButtonStyle(
+            // Style the Cancel button
+              textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.headline5),
+            foregroundColor: MaterialStateProperty.all(Theme.of(context).primaryColor), // Text color// Background color
+            // Add other styles for the OK button
+            ),
+            ),
+            child: child!,),
+          ],
+        )
+        ));
       },
     );
 
@@ -326,11 +366,15 @@ class _TimePickerState extends State<TimePicker>{
     if (widget.startTime != null) {
       _startTime = convertStringToTimeOfDay(widget.startTime!);
       globalStartTime=widget.startTime!;
+    }else{
+      globalStartTime = '6:00 PM';
     }
 
     if (widget.endTime != null) {
       _endTime = convertStringToTimeOfDay(widget.endTime!);
       globalEndTime = widget.endTime!;
+    }else{
+      globalEndTime = '9:00 PM';
     }
 
   }
@@ -375,6 +419,7 @@ class _TimePickerState extends State<TimePicker>{
                       child: Center(
                         child: GestureDetector(
                             onTap: (){
+                              // start time
                               _selectStartTime(context);
                               print(_startTime);
                             },
@@ -449,7 +494,7 @@ class BandWidthSelect extends StatefulWidget{
 }
 
 class _BandWidthSelectState extends State<BandWidthSelect>{
-  String _radioValue='';
+  String _radioValue='choice_1';
 
   @override
   void initState(){
@@ -517,14 +562,51 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
     }
   }
 
-  bool isStartTimeBeforeEndTime(String startTime, String endTime) {
-    // Parse time strings manually
-    DateTime startDateTime = _parseTime(startTime);
-    DateTime endDateTime = _parseTime(endTime);
+  Duration calculateTimeDifference(String startTimeStr, String endTimeStr) {
+    // Parse the time strings into TimeOfDay objects
+    TimeOfDay startTime = _parseTimeString(startTimeStr);
+    TimeOfDay endTime = _parseTimeString(endTimeStr);
 
-    // Compare the DateTime objects
-    return startDateTime.isBefore(endDateTime);
+    // Convert TimeOfDay objects to DateTime objects for easier manipulation
+    DateTime startDateTime = DateTime(2023, 1, 1, startTime.hour, startTime.minute);
+    DateTime endDateTime = DateTime(2023, 1, 1, endTime.hour, endTime.minute);
+
+    // Calculate the difference between times
+    Duration difference = endDateTime.difference(startDateTime);
+
+    // Ensure positive time difference if end time is earlier than start time
+    if (difference.isNegative) {
+      difference = Duration(hours: 24) + difference;
+    }
+
+    return difference;
   }
+
+  TimeOfDay _parseTimeString(String timeStr) {
+    // Parse the time string in the format "6:00 PM" to TimeOfDay object
+    List<String> splitTime = timeStr.split(' ');
+    String time = splitTime[0];
+    String period = splitTime[1];
+    List<String> splitHourMinute = time.split(':');
+    int hour = int.parse(splitHourMinute[0]);
+    int minute = int.parse(splitHourMinute[1]);
+
+    // Convert 12-hour format to 24-hour format if needed
+    if (period.toLowerCase() == 'pm' && hour < 12) {
+      hour += 12;
+    } else if (period.toLowerCase() == 'am' && hour == 12) {
+      hour = 0;
+    }
+
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  bool isTimeDifferenceGreaterThan30Minutes(String startTimeStr, String endTimeStr) {
+    Duration difference = calculateTimeDifference(startTimeStr, endTimeStr);
+    return difference.inMinutes > 30;
+  }
+
+
 
   DateTime _parseTime(String time) {
     // Split the time string into parts
@@ -564,10 +646,10 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
       );
       return false;
     }
-    if(isStartTimeBeforeEndTime(globalStartTime!,globalEndTime!) ==false){
-      ScaffoldMessenger.of(context).showSnackBar(
+    if(isTimeDifferenceGreaterThan30Minutes(globalStartTime!,globalEndTime!) ==false){
+       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Time Set Is Invalid!'),
+          content: Text('Give a PopUp'),
         ),
       );
       return false;

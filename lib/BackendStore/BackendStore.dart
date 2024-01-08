@@ -211,7 +211,7 @@ class ProfileData{
       'userId':userSetId,
       'userPhoto':imagePath,
       'userName':name,
-      'emailId':emailId,
+      'userEmailId':emailId,
       'userDOB':dob?.toUtc()?.toIso8601String(),
       'profileStatus':profileStatus,
       'userQuote':quote,
@@ -249,6 +249,10 @@ class ProfileDataProvider extends ChangeNotifier {
     _profileData.imagePath = path;
     print('Path is $path');
     notifyListeners();
+  }
+
+  String? retImagePath(){
+    return _profileData.imagePath;
   }
 
   void updateName(String userName) {

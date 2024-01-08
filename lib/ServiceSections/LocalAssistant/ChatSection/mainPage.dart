@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/CulturTap/appbar.dart';
+import '../../../fetchDataFromMongodb.dart';
 import '../../../widgets/Constant.dart';
 import '../../../widgets/CustomDialogBox.dart';
 import '../../PingsSection/Pings.dart';
@@ -61,8 +62,10 @@ class _MaainState extends State<Maain>  {
 
 
   Future<void> checkIsMeetOngoing()async {
-    await PingsAssistanceChecker('652a31f77ff9b6023a14838a');
+    await PingsAssistanceChecker(userID);
   }
+
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -73,7 +76,7 @@ class _MaainState extends State<Maain>  {
       ),
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: '652a31f77ff9b6023a14838a',),automaticallyImplyLeading: false,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 0,userId: userID,),automaticallyImplyLeading: false,),
         body: Column(
           mainAxisAlignment: MainAxisAlignment.start,
           children: [
@@ -83,7 +86,7 @@ class _MaainState extends State<Maain>  {
                 builder: (context) {
                   return GestureDetector(
                     onTap: (){
-                      Navigator.push(context, MaterialPageRoute(builder: (context) =>PingsSection(userId: '652a31f77ff9b6023a14838a',selectedService: 'Local Assistant',)));
+                      Navigator.push(context, MaterialPageRoute(builder: (context) =>PingsSection(userId: userID,selectedService: 'Local Assistant',)));
                     },
                     child: Container(
                     width: 328,

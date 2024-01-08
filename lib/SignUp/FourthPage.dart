@@ -15,6 +15,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 import '../BackendStore/BackendStore.dart';
 import '../CustomItems/CostumAppbar.dart';
+import '../Notifications/notification.dart';
 
 class FourthPage extends StatefulWidget {
   final String userName,phoneNumber,userCredId;
@@ -62,12 +63,24 @@ class UserModel{
 
 class _FourthPageState extends State<FourthPage> {
   var _locationController = TextEditingController();
+  NotificationServices notificationServices  = NotificationServices();
   bool _isLoading = false;
   String?latitude,longitude,token,userId;
   @override
   void initState() {
     super.initState();
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.setupInteractMessage(context);
+    tokenGenerator();
     _fetchLocation();
+  }
+
+  void tokenGenerator()async{
+    String?tokenGenerated = await notificationServices.getDeviceToken();
+    setState(() {
+      token = tokenGenerated;
+    });
   }
 
   void registerUser() async {
@@ -134,8 +147,6 @@ class _FourthPageState extends State<FourthPage> {
       final current = DateTime.now();
 
       final String createdAt = '${current.day}/${current.month}/${current.year}';
-      token = '';
-      print(token);
       final userModel = UserModel(name: widget.userName, token: token==null?'':token!, createdAt: createdAt, phoneNo: int.parse(widget.phoneNumber), uid: widget.userCredId,userMongoId:userId!);
 
       await userRef.set(userModel.toJson());

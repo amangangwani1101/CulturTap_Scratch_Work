@@ -59,65 +59,6 @@ class Constant {
     'Zoologist',
     'Others'
   ];
-  // Future<void> fetchDataset() async {
-  //   final String serverUrl = Constant().serverUrl; // Replace with your server's URL
-  //   final url = Uri.parse('$serverUrl/professionList'); // Replace with your backend URL
-  //   final http.Response response = await http.get(url);
-  //
-  //   if (response.statusCode == 200) {
-  //     final data = json.decode(response.body);
-  //     professionList = data['list'];
-  //   } else {
-  //     professionList = [
-  //       'Doctor',
-  //       'Engineer',
-  //       'Teacher',
-  //       'Software Developer',
-  //       'Graphic Designer',
-  //       'Accountant',
-  //       'Chef',
-  //       'Architect',
-  //       'Lawyer',
-  //       'Police Officer',
-  //       'Firefighter',
-  //       'Pilot',
-  //       'Dentist',
-  //       'Electrician',
-  //       'Plumber',
-  //       'Journalist',
-  //       'Actor',
-  //       'Musician',
-  //       'Athlete',
-  //       'Scientist',
-  //       'Psychologist',
-  //       'Social Worker',
-  //       'Librarian',
-  //       'Fashion Designer',
-  //       'Marketing Manager',
-  //       'Biologist',
-  //       'Economist',
-  //       'Mechanic',
-  //       'Photographer',
-  //       'Nurse',
-  //       'Pharmacist',
-  //       'Veterinarian',
-  //       'Artist',
-  //       'Carpenter',
-  //       'Dancer',
-  //       'Entrepreneur',
-  //       'Hair Stylist',
-  //       'Interior Designer',
-  //       'Investment Banker',
-  //       'Meteorologist',
-  //       'Paramedic',
-  //       'Physicist',
-  //       'Speech Therapist',
-  //       'Translator',
-  //       'Zoologist',
-  //       'Others'
-  //     ];
-  //   }
-  // }
   List<String> cityList = [
     'Mumbai',
     'Delhi',
@@ -151,8 +92,6 @@ class Constant {
     'Dhanbad',
     'Others'
   ];
-
-
   List<String> languageList = [
     'English',
     'Spanish',

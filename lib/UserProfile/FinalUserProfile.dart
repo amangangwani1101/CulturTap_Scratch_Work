@@ -45,7 +45,7 @@ class _FinalProfileState extends State<FinalProfile> {
   @override
   void initState() {
     super.initState();
-
+    
     fetchDataset();
     // print('userid is');
     // print(userID);
@@ -373,8 +373,8 @@ class _FinalProfileState extends State<FinalProfile> {
 
 // Services Selected By User -> Its Data || Currently Trip Calling Is Available
 class TripCalling extends StatefulWidget{
-  final  ServiceTripCallingData? data;
-  final String? currentUserId , actualUserId,name;
+  ServiceTripCallingData? data;
+   String? currentUserId , actualUserId,name;
   Map<String, dynamic>? plans;
   TripCalling({this.data,this.actualUserId,this.currentUserId,this.plans,this.name});
   @override
@@ -382,8 +382,60 @@ class TripCalling extends StatefulWidget{
 }
 class _TripCallingState extends State<TripCalling>{
   final costCall = Constant().tripPlaningCost;
+
+
+
+  Duration calculateTimeDifference(String startTimeStr, String endTimeStr) {
+    // Parse the time strings into TimeOfDay objects
+    TimeOfDay startTime = _parseTimeString(startTimeStr);
+    TimeOfDay endTime = _parseTimeString(endTimeStr);
+
+    // Convert TimeOfDay objects to DateTime objects for easier manipulation
+    DateTime startDateTime = DateTime(2023, 1, 1, startTime.hour, startTime.minute);
+    DateTime endDateTime = DateTime(2023, 1, 1, endTime.hour, endTime.minute);
+
+    // Calculate the difference between times
+    Duration difference = endDateTime.difference(startDateTime);
+
+    // Ensure positive time difference if end time is earlier than start time
+    if (difference.isNegative) {
+      difference = Duration(hours: 24) + difference;
+    }
+
+    return difference;
+  }
+
+  TimeOfDay _parseTimeString(String timeStr) {
+    // Parse the time string in the format "6:00 PM" to TimeOfDay object
+    List<String> splitTime = timeStr.split(' ');
+    String time = splitTime[0];
+    String period = splitTime[1];
+    List<String> splitHourMinute = time.split(':');
+    int hour = int.parse(splitHourMinute[0]);
+    int minute = int.parse(splitHourMinute[1]);
+
+    // Convert 12-hour format to 24-hour format if needed
+    if (period.toLowerCase() == 'pm' && hour < 12) {
+      hour += 12;
+    } else if (period.toLowerCase() == 'am' && hour == 12) {
+      hour = 0;
+    }
+
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  Duration isTimeDifferenceGreaterThan30Minutes(String startTimeStr, String endTimeStr) {
+    Duration difference = calculateTimeDifference(startTimeStr, endTimeStr);
+    return difference;
+  }
+
+
+
   @override
   Widget build(BuildContext context) {
+    Duration timing = isTimeDifferenceGreaterThan30Minutes((widget.data?.setStartTime)!,(widget.data?.setEndTime)!);
+    int hour  = timing.inHours;
+    int min  = timing.inMinutes;
     return Center(
       child: Container(
         width:331,
@@ -411,14 +463,15 @@ class _TripCallingState extends State<TripCalling>{
                       Row(
                         children: [
                           Image.asset('assets/images/time_icon.png',width: 22,height: 22,),
-                          SizedBox(width: 10,),
-                          Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India',style: Theme.of(context).textTheme.headline6),
+                          SizedBox(width: 20,),
+                          Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India (${hour>0?hour:min} ${hour>0?'H':'M'})', style: Theme.of(context).textTheme.headline6),
                         ],
                       ),
                       widget.currentUserId == widget.actualUserId
                           ? InkWell(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(userId: widget.actualUserId,data:widget.data)));
+                        onTap: ()async{
+                          await Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(userId: widget.actualUserId,data:widget.data)));
+                          setState(() {});
                         },
                         child: Row(
                           children:[
