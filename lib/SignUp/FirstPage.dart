@@ -9,7 +9,32 @@ void main() {
   runApp(const FirstPage());
 }
 
-
+// Widget build(BuildContext context) {
+//     return MaterialApp(
+//       // title: 'Flutter Demo',
+//       // debugShowCheckedModeBanner: false,
+//       // theme: ThemeData(
+//       //   fontFamily: 'Poppins',
+//       //   colorScheme: ColorScheme(
+//       //     primary: Colors.black,
+//       //     secondary: Colors.white,
+//       //     surface: Colors.white,
+//       //     background: Colors.white,
+//       //     error: Colors.red,
+//       //     onPrimary: Colors.black,
+//       //     onSecondary: Colors.white,
+//       //     onSurface: Colors.black,
+//       //     onBackground: Colors.black,
+//       //     onError: Colors.red,
+//       //     brightness: Brightness.light,
+//       //   ),
+//       //   useMaterial3: true,
+//       // ),
+//       home: Center(
+//         child: const MyHomePage(title: 'LogIn'),
+//       ),
+//     );
+//   }
 class FirstPage extends StatelessWidget {
   const FirstPage({super.key});
 
@@ -17,11 +42,8 @@ class FirstPage extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return Center(
-
-        child: const MyHomePage(title: 'LogIn'),
-      );
-
-
+      child: const MyHomePage(title: 'LogIn'),
+    );
   }
 }
 
