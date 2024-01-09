@@ -80,3 +80,4 @@ dependencies {
     implementation "com.google.android.exoplayer:exoplayer-hls:2.4.0"
     implementation 'androidx.multidex:multidex:2.0.1'
 
+}

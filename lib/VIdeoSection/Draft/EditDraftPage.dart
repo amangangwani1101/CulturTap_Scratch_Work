@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
-import 'package:learn_flutter/UserProfile/Settings.dart';
+import 'package:learn_flutter/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/AddCamera.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';

@@ -740,17 +740,6 @@ packages:
       sha256: "555d5d736339b0478e821167ac521c810d7b51c3b2734e6802a9f046b64ea37a"
       url: "https://pub.dev"
     source: hosted
-
-    version: "0.2.2"
-  google_maps:
-    dependency: transitive
-    description:
-      name: google_maps
-      sha256: "555d5d736339b0478e821167ac521c810d7b51c3b2734e6802a9f046b64ea37a"
-      url: "https://pub.dev"
-    source: hosted
-
-
     version: "6.3.0"
   google_maps_flutter:
     dependency: "direct main"
@@ -788,17 +777,10 @@ packages:
     dependency: transitive
     description:
       name: google_maps_flutter_web
-
       sha256: "05067c5aa762ebee44b7ef4902a311ed8cf891ef655e2798bae063aa3050c8d9"
       url: "https://pub.dev"
     source: hosted
     version: "0.5.4+1"
-
-      sha256: "6245721c160d6f531c1ef568cf9bef8d660cd585a982aa75121269030163785a"
-      url: "https://pub.dev"
-    source: hosted
-    version: "0.5.4+3"
-
   google_sign_in:
     dependency: "direct main"
     description:

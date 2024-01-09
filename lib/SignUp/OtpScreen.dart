@@ -32,6 +32,8 @@ class _OtpScreenState extends State<OtpScreen>{
   }
 
   void autofillOtp() {
+    print('yha hai yeh ');
+    print(widget.otp);
     if (widget.otp != null && widget.otp!.length == 6) {
       for (int i = 0; i < 6; i++) {
         _controllers[i].text = widget.otp![i];
@@ -75,7 +77,7 @@ class _OtpScreenState extends State<OtpScreen>{
         print('${widget.userName} , ${widget.phoneNumber} , ${userCredId}');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName!,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
+          MaterialPageRoute(builder: (context) => FourthPage(userName:'utkarsh',phoneNumber:widget.phoneNumber,userCredId:userCredId)),
         );
       }
 

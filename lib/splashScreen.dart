@@ -27,27 +27,34 @@ class _splashScreenState extends State<splashScreen>{
 
   }
 
-  void currentUserStatus() async{
+  void currentUserStatus() async {
     User? user = _auth.currentUser;
     if (user != null) {
       // User is already signed in, navigate to the desired screen
-      var userQuery = await firestore.collection('users').where('uid',isEqualTo:user.uid).limit(1).get();
+      var userQuery = await firestore.collection('users').where('uid', isEqualTo: user.uid).limit(1).get();
 
-      var userData = userQuery.docs.first.data();
-      String userName = userData['name'];
-      String userId = userData['userMongoId'];
-      Navigator.push(
-        context,
-        MaterialPageRoute(builder: (context) => HomePage()),
-      );
-    }
-    else {
+      if (userQuery.docs.isNotEmpty) {
+        var userData = userQuery.docs.first.data();
+        String userName = userData['name'];
+        String userId = userData['userMongoId'];
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => HomePage()),
+        );
+      } else {
+        // Handle the case where no documents are found for the user
+        print('No user data found');
+      }
+    } else {
       Timer(Duration(seconds: 3), () {
         Navigator.pushReplacement(
-            context, MaterialPageRoute(builder: (context) => SecondPage()));
+          context,
+          MaterialPageRoute(builder: (context) => SecondPage()),
+        );
       });
     }
   }
+
 
   @override
   Widget build(BuildContext context){

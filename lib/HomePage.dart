@@ -334,6 +334,8 @@ class _HomePageState extends State<HomePage> {
                 title: ProfileHeader(reqPage: 0, userId:userID),
                 automaticallyImplyLeading: false,
                 shadowColor: Colors.transparent,
+                backgroundColor: Colors.white,
+
 
 
                 toolbarHeight: 90,
