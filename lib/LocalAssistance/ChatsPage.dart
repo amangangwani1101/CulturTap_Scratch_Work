@@ -993,6 +993,7 @@ class _ChatsPageState extends State<ChatsPage> {
       child: Scaffold(
           appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent,toolbarHeight: 90,),
           body: Container(
+            color: Colors.white,
             height : MediaQuery.of(context).size.height,
             child: Stack(
 
@@ -1004,7 +1005,6 @@ class _ChatsPageState extends State<ChatsPage> {
                       controller: widget.meetId!=null?_scrollController:null,
                       physics: BouncingScrollPhysics(),
                       child: Container(
-                        color : Colors.white,
                         child: Padding(
                           padding: const EdgeInsets.all(0.0),
                           child: Container(
@@ -2960,6 +2960,7 @@ class _ChatsPageState extends State<ChatsPage> {
     socket.dispose();
   }
 }
+
 class LoadingDotAnimation extends StatefulWidget {
   @override
   _LoadingDotAnimationState createState() => _LoadingDotAnimationState();

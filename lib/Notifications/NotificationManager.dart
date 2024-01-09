@@ -5,7 +5,7 @@ import 'package:learn_flutter/widgets/Constant.dart';
 
 class NotificationManager{
   Future<void> localAssistantNotification(List<String> userIds,String title,String body,String meetId,String userId) async {
-    String userToken = 'dykmYyTASBaxWdc6_MWupE:APA91bGsfEORr82tsQAfBOewZePe-dqGedHyq-wN0XrzyAn8H9_3QQTRBttBuP6kjDNfu_4NbD2Dsp91h96k_5ZYvC-WNizMJhvnFCftGinwBmdvA8fHNuu5ldfgnCbreH6f0KleIqdG';
+    String userToken = 'edeJeynyR7y4nO_85-p_P9:APA91bFn7VurBoroOHm6CDpvLbftEHBsmNexR07po_KuMl7h6X_hbQoxOmrsfxMzvolR4U7ZHIFlmdhEYMlxc3V7ljvPH0Yl-hajqiPmpiWFtaLt16EwFcvOzmy67MLhHjwsYCbVZB7-';
     await sendCustomNotificationToUser(userToken, title, body, body, meetId, 'helper', 'local_assistant_service',userId);
     // final url = Uri.parse('${Constant().serverUrl}/notificationHandler');
       // Replace with your data
