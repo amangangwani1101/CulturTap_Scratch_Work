@@ -772,11 +772,12 @@ class _ComposePageState extends State<ComposePage> {
 
 
                 Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                  // crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
                     SizedBox(height : 20),
                     Container(
+                      width : double.infinity,
                       padding: EdgeInsets.only(left : 26),
                         child: Text('Shooted Films',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color : Colors.white))),
                     SizedBox(height : 16),

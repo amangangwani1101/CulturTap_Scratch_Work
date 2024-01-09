@@ -338,8 +338,6 @@ class _HomePageState extends State<HomePage> {
                 shadowColor: Colors.transparent,
                 backgroundColor: Colors.white,
 
-
-
                 toolbarHeight: 90,
                 // Adjust as needed
                 floating: true,
