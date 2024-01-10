@@ -55,107 +55,111 @@ class _ServiceCardState extends State<ServiceCard>{
     print(widget.userId);
     print(widget.text);
     print(widget.haveCards);
-    return Container(
-      width: 400,
-      height: 250,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
-            children: [
-              Text(widget.titleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-              // IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-              //   showDialog(context: context, builder: (BuildContext context){
-              //     return Container(child: CustomHelpOverlay(imagePath: widget.iconImage,serviceSettings: false),);
-              //   },
-              //   );
-              // },
-              // ),
-              //
-              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-                showDialog(context: context, builder: (BuildContext context){
-                  return Container(child:
+    return Column(
+      children: [
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Container(
+                width: 200,
+                child: Text(widget.titleLabel,style: Theme.of(context).textTheme.subtitle1,)),
+            // IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+            //   showDialog(context: context, builder: (BuildContext context){
+            //     return Container(child: CustomHelpOverlay(imagePath: widget.iconImage,serviceSettings: false),);
+            //   },
+            //   );
+            // },
+            // ),
+            //
+            InkWell(
+                onTap: (){
+                  showDialog(context: context, builder: (BuildContext context){
+                    return Container(child:
 
-                  widget.iconImage == 'assets/images/service_help_1.jpg' ?
+                    widget.iconImage == 'assets/images/service_help_1.jpg' ?
 
-                  CustomPopUp(
-                    imagePath: "assets/images/coverStoryPopup.svg",
-                    textField: "Set Your Cover Story !" ,
-                    extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
-                    what:'OK',
-                  ) : CustomPopUp(
-                    imagePath: "assets/images/coverStoryPopup.svg",
-                    textField: "Set Your Cover Story !" ,
-                    extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
-                    what:'OK',
-                  )
+                    CustomPopUp(
+                      imagePath: "assets/images/coverStoryPopup.svg",
+                      textField: "Set Your Cover Story !" ,
+                      extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
+                      what:'OK',
+                    ) : CustomPopUp(
+                      imagePath: "assets/images/coverStoryPopup.svg",
+                      textField: "Set Your Cover Story !" ,
+                      extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
+                      what:'OK',
+                    )
+                    );
+                  },
                   );
                 },
-                );
-              },
-              ),
-            ],
-          ),
-          Container(
-            decoration: BoxDecoration(
-              border: Border.all(
-                color: Colors.black,
-                width: 1,
-              ),
+                child: Icon(Icons.help_outline,color: HexColor('#FB8C00')),
             ),
-            child: Container(
-
-              height: 120,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Image.asset(widget.serviceImage,width: 160,height: 89,fit: BoxFit.contain,),
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(widget.subTitleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                      Container(
-                        child: RichText(
-                          text: TextSpan(
-                            style: DefaultTextStyle.of(context).style,
-                            children: [
-                              TextSpan(
-                                  text: 'Earn Easy'
-                              ),
-                              TextSpan(
-                                text: ' 500 INR',
-                                style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.green),
-                              ),
-                              TextSpan(
-                                  text: '\nper Call'
-                              ),
-                            ],
-                          ),
+          ],
+        ),
+        SizedBox(height: 27,),
+        Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: Colors.black,
+              width: 1,
+            ),
+          ),
+          child: Container(
+            padding: EdgeInsets.all(10),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Image.asset(widget.serviceImage,width: 160,height: 89,fit: BoxFit.contain,),
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(widget.subTitleLabel,style: Theme.of(context).textTheme.subtitle1,),
+                    Container(
+                      child: RichText(
+                        text: TextSpan(
+                          style:Theme.of(context).textTheme.headline6,
+                          children: [
+                            TextSpan(
+                                text: 'Earn Easy'
+                            ),
+                            TextSpan(
+                              text: ' 500 INR',
+                              style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.green),
+                            ),
+                            TextSpan(
+                                text: '\nper Call'
+                            ),
+                          ],
                         ),
                       ),
-                      Text('*Terms & Conditions applied',style: TextStyle(fontSize: 7,fontFamily: 'Poppins',color: Colors.red),),
-                    ],
-                  ),
-                ],
-              ),
+                    ),
+                    Text('*Terms & Conditions applied',style: TextStyle(fontSize: 7,fontFamily: 'Poppins',color: Colors.red),),
+                  ],
+                ),
+              ],
             ),
           ),
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceAround,
-          //   children: [
-          //     Text(widget.endLabel),
-          //     ConcentricCircles(haveCards:widget.haveCards,profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId,text:widget.text),
-          //   ],
-          // ),
-          Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: [
-          RichText(
+        ),
+        // Row(
+        //   mainAxisAlignment: MainAxisAlignment.spaceAround,
+        //   children: [
+        //     Text(widget.endLabel),
+        //     ConcentricCircles(haveCards:widget.haveCards,profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId,text:widget.text),
+        //   ],
+        // ),
+        SizedBox(height: 27,),
+        Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Container(
+          width: 200,
+          child: RichText(
             text: TextSpan(
               text: 'Turn yourself', // Replace with your actual text
-              style: DefaultTextStyle.of(context).style,
+              style: Theme.of(context).textTheme.bodyText2,
               children: <TextSpan>[
                 TextSpan(
                   text: ' ON ',
@@ -171,10 +175,10 @@ class _ServiceCardState extends State<ServiceCard>{
               ],
             ),
           ),
-          ConcentricCircles(haveCards:widget.haveCards,profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId,text:widget.text),
-        ],
-      ),],),
-    );
+        ),
+        ConcentricCircles(haveCards:widget.haveCards,profileDataProvider:widget.profileDataProvider,isToggled:widget.isToggle,userId:widget.userId,text:widget.text),
+      ],
+    ),],);
   }
 }
 
