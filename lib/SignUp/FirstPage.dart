@@ -46,8 +46,6 @@ class FirstPage extends StatelessWidget {
         child: const MyHomePage(title: 'LogIn'),
       );
 
-      child: const MyHomePage(title: 'LogIn'),
-    );
 
   }
 }

@@ -252,37 +252,6 @@ class _LocalAssistState extends State<LocalAssist> {
                   state!=null && state!='ongoing'
                     ? SizedBox(height : 20)
                     : SizedBox(height: 0,),
-
-                      ?Builder(
-                      builder: (context) {
-                        return GestureDetector(
-                          onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) =>PingsSection(userId: userID,selectedService: 'Local Assistant',)));
-                          },
-                          child: Container(
-                            width: 328,
-                            height: 40,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
-                              border: Border.all(color: Colors.orange),
-                            ),
-                            padding: EdgeInsets.only(left: 20,right: 20,top: 2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Ongoing Services',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Colors.orange),),
-                                Icon(Icons.arrow_forward_ios,size: 14,color: Colors.orange,),
-                              ],
-                            ),
-                          ),
-                        );
-                      }
-                  )
-                      :SizedBox(height: 0,),
-                  state!=null && state!='ongoing'
-                      ? SizedBox(height : 20)
-                      : SizedBox(height: 0,),
-
                   InkWell(
                     onTap: ()async{
                       bool userConfirmed = true;

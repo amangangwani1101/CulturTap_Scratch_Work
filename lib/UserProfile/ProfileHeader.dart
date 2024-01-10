@@ -27,13 +27,6 @@ class ProfileHeader extends StatefulWidget {
   ProfileDataProvider?profileDataProvider;
    String? profileStatus;
 
-  int reqPage;
-  String? imagePath;
-  String? userId,text,userName;
-  VoidCallback? onButtonPressed;
-  ProfileDataProvider?profileDataProvider;
-  String? profileStatus;
-
 
   ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed});
   @override
@@ -77,8 +70,6 @@ class _ProfileHeaderState extends State<ProfileHeader> {
         children: [
 
               widget.reqPage<1
-
-          widget.reqPage<1
 
               ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
