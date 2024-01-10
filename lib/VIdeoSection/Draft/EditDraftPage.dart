@@ -3,6 +3,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
 import 'package:learn_flutter/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/AddCamera.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
@@ -11,7 +12,35 @@ import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'dart:io';
+import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/CustomItems/loading_dialog.dart';
+import 'package:learn_flutter/CustomItems/pulseUpload.dart';
+import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
 
+import 'package:video_player/video_player.dart';
+import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
+import 'package:geocoding/geocoding.dart';
+import 'dart:math';
+import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
+import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
+
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
+import 'dart:convert';
+import 'package:flutter_ffmpeg/flutter_ffmpeg.dart';
+import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
+import 'package:http/http.dart' as http;
+import 'package:path/path.dart' as path;
+import 'package:http_parser/http_parser.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 
 class VideoGridItem extends StatefulWidget {
@@ -49,6 +78,10 @@ class _VideoGridItemState extends State<VideoGridItem> {
     // });
 
   }
+
+
+
+
 
   @override
   void dispose() {
@@ -229,6 +262,197 @@ class _EditDraftPageState extends State<EditDraftPage> {
 
   double userLatitude = 0.0;
   double userLongitude = 0.0;
+  List<String> finalVideoPaths = [];
+
+
+
+
+  Future<void> uploadCompressedVideos(List<File> videoPaths, BuildContext context) async {
+    try {
+
+
+
+
+
+      List<String> compressedPaths = [];
+
+      // Compress videos
+      for (int i = 0; i < videoPaths.length; i++) {
+        String compressedVideoPath = await compressVideo(videoPaths[i]);
+        compressedPaths.add(compressedVideoPath);
+        print('videopaths after compression $compressedPaths');
+      }
+
+      // Upload compressed videos
+      final String serverUrl = 'http://173.212.193.109:8080/main/api/uploadVideos';
+      final request = http.MultipartRequest('POST', Uri.parse(serverUrl));
+
+      print('compressedPaths.length ${compressedPaths.length}');
+      for (int i = 0; i < compressedPaths.length; i++) {
+        // Extract filename and extension from the path
+        String filename = 'culturTap.com_${path.basename(compressedPaths[i])}';
+        String extension = path.extension(compressedPaths[i]);
+        finalVideoPaths.add(filename);
+        print('filename is : $filename');
+        print('extension is : $extension');
+
+        // Append filename and extension to the request
+        request.files.add(
+          await http.MultipartFile.fromPath('videos', compressedPaths[i],
+              filename: filename, contentType: MediaType('video', extension)),
+        );
+      }
+
+      final response = await request.send();
+
+      // Close loading popup
+
+
+      if (response.statusCode == 201) {
+        // Successfully uploaded all compressed videos.
+        // You can now save their URLs to MongoDB.
+        // Add the logic to save video URLs to your MongoDB database here.
+        print('Compressed videos successfully uploaded to the server');
+        showDialog(
+          context: context,
+          builder: (context) {
+            return ImagePopUpWithOK(
+              imagePath: "assets/images/storyUploaded.svg",
+              textField: "Your Story is Successfully Uploaded",
+              what:"home",
+              isDarkMode:"dark",
+
+
+
+            );
+          },
+        );
+
+      } else {
+        print('Failed to upload compressed videos. Error: ${response.reasonPhrase}');
+      }
+    } catch (e) {
+      print('Error: $e');
+    }
+  }
+
+  Future<String> compressVideo(File videoFile) async {
+    String outputDirectory = '/root/videos';
+    String outputFileName = 'video.mp4';
+
+    String outputPath = '$outputDirectory/$outputFileName';
+
+    FlutterFFmpeg flutterFFmpeg = FlutterFFmpeg();
+
+    // Run FFmpeg command to compress the video
+    int rc = await flutterFFmpeg.execute(
+        '-i ${videoFile.path} -b:v 1500k -max_muxing_queue_size 1024 $outputPath');
+
+    if (rc == 0) {
+      // Compression successful
+      return outputPath;
+    } else {
+      print('compression failed');
+      // Compression failed
+      return videoFile.path;
+    }
+  }
+
+
+  List<File> convertPathsToFiles(List<String> videoPaths) {
+    List<File> videoFiles = [];
+    for (String path in videoPaths) {
+      videoFiles.add(File(path));
+    }
+    return videoFiles;
+  }
+
+
+
+  Future<void> sendDataToBackend() async {
+
+
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
+
+    var videoPaths = widget.draft.videoPaths.split(',');
+    List<File> videoFiles = convertPathsToFiles(videoPaths);
+    await uploadCompressedVideos(videoFiles,context);
+
+
+    print('final video paths $videoPathsEditCompose');
+    print('publish button clicked');
+    try{
+      VideoDatabaseHelper myDatabaseHelper = VideoDatabaseHelper();
+
+      await myDatabaseHelper.deleteAllVideos();
+
+
+      final data = {
+        "singleStoryData": {
+          "videoPath": videoFiles,
+          "latitude": firstVideoLatitude,
+          "longitude": firstVideoLongitude,
+          "location": liveLocation,
+          "expDescription": experienceDescription,
+          "placeLoveDesc": selectedLoveAboutHere.join(','),
+          "dontLikeDesc": dontLikeAboutHere,
+          "review": reviewText,
+          "starRating": starRating,
+          "selectedVisibility": selectedVisibility,
+          "storyTitle": storyTitle,
+          "productDescription": productDescription,
+          "liveLocation" : liveLocation,
+          "selectedOption": selectedOption,
+          "productPrice": productPricing,
+          "transportationPricing": transportationPricing,
+          "label": selectedLabel,
+          "category": selectedCategory,
+          "businessCategory":selectedaCategory,
+          "genre": selectedGenre,
+          "userID" : userID,
+          "userName" : userName,
+        },
+        "label": selectedLabel,
+        "category": selectedCategory,
+        "genre": selectedGenre,
+        "userID" : userID,
+      };
+
+
+      print('printing data $data');
+
+      final String serverUrl = 'http://173.212.193.109:8080/main/api/publish';
+
+      final http.Response response = await http.post(
+        Uri.parse(serverUrl),
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: jsonEncode(data),
+      );
+
+      print('Response: ${response.statusCode} ${response.reasonPhrase}');
+
+      if (response.statusCode == 201) {
+        print('Data sent successfully yes yes');
+        print('Response Data: ${response.body}');
+
+
+
+
+      } else {
+        print('Failed to send data. Error: ${response.reasonPhrase}');
+      }
+    }catch(error){
+      print("Error: $error");
+    }
+
+  }
+
+
 
 
 
@@ -471,6 +695,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
       restaurantType: draft.restaurantType,
       otherGenre: draft.otherGenre,
       otherCategory: draft.otherCategory,
+
     );
 
     final rowsUpdated = await database.update('drafts', updatedDraft.toMap(),
@@ -820,6 +1045,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                     ),
 
                     //for regular story
+
                     Visibility(
                       visible: selectedLabel == 'Regular Story',
                       child: Padding(
@@ -1070,7 +1296,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                           ElevatedButton(
                                             onPressed: () {
                                               setState(() {
-                                                isFoodFamous = true;
+                                                isFoodFamous = isFoodFamous;
                                               });
                                             },
                                             style: ElevatedButton.styleFrom(
@@ -1722,6 +1948,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
 
 
                           // category dropdown here
+
                           Padding(
                             padding: EdgeInsets.only(left: 26.0),
                             child: Column(
@@ -1743,7 +1970,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                       });
                                     },
                                     items: <String>[
-                                      'Select1', // Ensure there's exactly one 'Select' item
+                                      'Select', // Ensure there's exactly one 'Select' item
                                       'Furniture',
                                       'Handicraft',
                                       'Other',
@@ -2023,6 +2250,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
                                 onPressed: () {
                                   // Implement the functionality for discarding changes
                                   // You can navigate back to the previous page or show a confirmation dialog
+                                  sendDataToBackend();
                                 },
                                 style: ElevatedButton.styleFrom(
                                   primary: isPublishClicked
@@ -2076,8 +2304,3 @@ class _EditDraftPageState extends State<EditDraftPage> {
     );
   }
 }
-
-
-
-
-

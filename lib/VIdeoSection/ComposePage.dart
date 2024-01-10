@@ -43,64 +43,64 @@ class VideoInfo {
 }
 
 
-
-class UploadPopup extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return AlertDialog(
-      backgroundColor: Color(0xFF263238),
-      content: Container(
-        height : 300,
-        width : 300,
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 30),
-            PulseEffect(),
-            SizedBox(height: 30),
-            // CircularProgressIndicator(
-            //   color : Color(0xFFFB8C00),
-            // ),
-            SizedBox(height: 0),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Text('While CulturTap Upload',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
-                Text('Your Amazing Story...',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
-
-              ],
-            ),
-            SizedBox(height: 30),
-            Positioned(
-              top : 30,
-              child: ElevatedButton(
-                onPressed: () {
-                  // Navigate to the homepage
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomePage()),  // Replace with your homepage
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  primary: Color(0xFFFB8C00),  // Set the button color
-                  onPrimary: Colors.white,  // Set the text color
-                  textStyle: TextStyle(
-                    fontSize: 18.0,  // Set the font size
-                    fontWeight: FontWeight.bold,  // Set the font weight
-                  ),
-                ),
-                child: Text('Explore Homepage'),
-              ),
-            )
-
-
-          ],
-        ),
-      ),
-    );
-  }
-}
-
+//
+// class UploadPopup extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return AlertDialog(
+//       backgroundColor: Color(0xFF263238),
+//       content: Container(
+//         height : 300,
+//         width : 300,
+//         child: Column(
+//           mainAxisSize: MainAxisSize.min,
+//           children: [
+//             SizedBox(height: 30),
+//             PulseEffect(),
+//             SizedBox(height: 30),
+//             // CircularProgressIndicator(
+//             //   color : Color(0xFFFB8C00),
+//             // ),
+//             SizedBox(height: 0),
+//             Column(
+//               crossAxisAlignment: CrossAxisAlignment.center,
+//               children: [
+//                 Text('While CulturTap Upload',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
+//                 Text('Your Amazing Story...',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
+//
+//               ],
+//             ),
+//             SizedBox(height: 30),
+//             Positioned(
+//               top : 30,
+//               child: ElevatedButton(
+//                 onPressed: () {
+//                   // Navigate to the homepage
+//                   Navigator.pushReplacement(
+//                     context,
+//                     MaterialPageRoute(builder: (context) => HomePage()),  // Replace with your homepage
+//                   );
+//                 },
+//                 style: ElevatedButton.styleFrom(
+//                   primary: Color(0xFFFB8C00),  // Set the button color
+//                   onPrimary: Colors.white,  // Set the text color
+//                   textStyle: TextStyle(
+//                     fontSize: 18.0,  // Set the font size
+//                     fontWeight: FontWeight.bold,  // Set the font weight
+//                   ),
+//                 ),
+//                 child: Text('Explore Homepage'),
+//               ),
+//             )
+//
+//
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+//
 
 
 
@@ -327,13 +327,7 @@ class _ComposePageState extends State<ComposePage> {
     try {
 
 
-      showDialog(
-        context: context,
-        barrierDismissible: false,
-        builder: (BuildContext context) {
-          return UploadPopup();
-        },
-      );
+
 
 
       List<String> compressedPaths = [];
@@ -477,6 +471,12 @@ class _ComposePageState extends State<ComposePage> {
   Future<void> sendDataToBackend() async {
 
 
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage()),
+                  );
+
+
     List<File> videoFiles = convertPathsToFiles(widget.videoPaths);
     await uploadCompressedVideos(videoFiles,context);
 
@@ -514,7 +514,7 @@ class _ComposePageState extends State<ComposePage> {
           "userName" : userName,
         },
         "label": selectedLabel,
-        "category": selectedCategory != '' ? selectedCategory : selectedaCategory,
+        "category": selectedCategory,
         "genre": selectedGenre,
         "userID" : userID,
       };

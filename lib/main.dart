@@ -10,6 +10,41 @@ Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
 
+  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+  FlutterLocalNotificationsPlugin();
+
+
+  // Configure the initialization settings
+  final AndroidInitializationSettings initializationSettingsAndroid =
+  AndroidInitializationSettings('@mipmap/ic_launcher');
+  final InitializationSettings initializationSettings = InitializationSettings(
+    android: initializationSettingsAndroid,
+
+  );
+
+
+
+
+
+
+  // Initialize the plugin
+  await flutterLocalNotificationsPlugin.initialize(
+    initializationSettings,
+    onSelectNotification: (String? payload) async {
+      // Handle notification click event
+      // You can navigate to different pages here based on the payload
+      // For example:
+      if (payload == "page1") {
+        print("Navigating to page 1");
+        // Implement your navigation logic here
+      } else if (payload == "page2") {
+        print("Navigating to page 2");
+        // Implement your navigation logic here
+      }
+    },
+  );
+
+
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
   runApp(const MyApp());
