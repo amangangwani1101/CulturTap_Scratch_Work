@@ -1,13 +1,14 @@
 import 'dart:io';
 import 'dart:math';
-
+import 'package:timezone/data/latest.dart' as tz;
+import 'package:timezone/timezone.dart' as tz;
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
-
+import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'Chat.dart';
 // import 'package:learn_flutter/Notify/Chat.dart';
 // import 'package:learn_flutter/rating.dart';
@@ -19,17 +20,20 @@ class NotificationServices{
   void firebaseInit(BuildContext context){
     FirebaseMessaging.onMessage.listen((message) {
       if(kDebugMode){
-        // print(message.notification!.title.toString());
-        // print(message.notification!.body.toString());
-        print('Messafe is ');
-        print(message.data.toString());
-        // print(message.data['type']);
+        print('Notification Received :)');
       }
       if(Platform.isAndroid){
         initLocalNotification(context, message);
       }else{}
-      showNotification(message);
-      // showProgressBarNotification(100);
+      // showNotification(message);
+
+      if(message.data['type']=='local_assistant_request_pending')
+        _scheduleNotification();
+      else if(message.data['type']=='local_assistant_request_updated')
+        _removeNotification();
+      else if(message.data['type']=='local_assistant_service')
+        showNotification(message);
+        // showProgressBarNotification(100);
       // showChatMessageNotification(message);
     });
   }
@@ -44,24 +48,54 @@ class NotificationServices{
     await _flutterLocalNotificationsPlugin.initialize(
       initializationSetting,
       onDidReceiveNotificationResponse:(payload){
+        print('Payload Received :| ');
         print(payload);
-        if(payload=='action_1'){
-          print('Pressed Accept');
-        }
-        else if(payload=='action_2'){
-          print('Pressed Cancel');
-        }else{
-          handleMessage(context, message);
-        }
+        handleMessage(context, message);
       }
     );
   }
+
+
+  Future<void> _scheduleNotification() async {
+    const int minutesDelay = 10;
+    // Initialize the timezone
+    tz.initializeTimeZones();
+
+    // Get the local timezone
+    final String timeZoneName = tz.local.name;
+
+    // Convert the scheduled time to TZDateTime
+    final tz.TZDateTime scheduledDate =
+    tz.TZDateTime.now(tz.getLocation(timeZoneName))
+        .add(Duration(minutes: minutesDelay));
+
+    await _flutterLocalNotificationsPlugin.show(
+      Random.secure().nextInt(100000),
+      'Local Assistant Scheuled',
+      'Waiting for helping hands...',
+      const NotificationDetails(
+        android: AndroidNotificationDetails(
+          'Local Assistant Ongoing Notificaion',
+          'Local Assistant',
+          channelDescription: 'Ongoing Meet',
+          ongoing: true,
+        ),
+      ),
+
+    );
+  }
+
+    Future<void> _removeNotification() async {
+      await _flutterLocalNotificationsPlugin.cancel(0);
+    }
 
   Future<void> showNotification(RemoteMessage message)async{
 
     AndroidNotificationChannel channel = AndroidNotificationChannel(
         Random.secure().nextInt(100000).toString(),
         'Trip Calling',
+        description: 'i am description',
+        groupId: message.data['meetId']??null,
         importance: Importance.max
     );
 
@@ -331,7 +365,7 @@ class NotificationServices{
   }
 
   void handleMessage(BuildContext context,RemoteMessage message){
-      if(message.data['type']=='local_assistant_service'){
+      if(message.data['type']=='chat'){
         print('Local Assistant');
         // print(message.data.toString());
         Navigator.push(
@@ -341,13 +375,14 @@ class NotificationServices{
           ),
         );
       }
-    else if (message.data['type'] == 'chat') {
-      String chatId = message.data['chatId'];
+    else if (message.data['type'] == 'local_assistant_service') {
+      // String chatId = message.data['chatId'];
+        print('inside boy');
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (context) => Chat(
-            navigationData: message.data['navigationData'],
+            navigationData: message.data['userId'],
           ),
         ),
       );
