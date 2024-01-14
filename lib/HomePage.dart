@@ -415,11 +415,13 @@ class _HomePageState extends State<HomePage> {
 
                     isLoading ? Container(
                       height : 500,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
-                        ],
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
+                          ],
+                        ),
                       ),
                     ) :
                     Column(

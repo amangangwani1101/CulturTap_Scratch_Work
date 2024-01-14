@@ -191,6 +191,11 @@ setState(() {
       setState(() {
         orange = 'yes';
       });
+    }else{
+      setState((){
+        orange = '';
+
+      });
     }
 
   }
@@ -464,86 +469,80 @@ setState(() {
                           alignment: Alignment(0.0, 0.0),
                           child: Transform.translate(
                             offset: Offset(0, -30.0),
-                            child: SizedBox(
-                              width : 100,
-                              height : 100,
-
-
-                              child:Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.2),
-                                      spreadRadius: 0.2,
-                                      blurRadius: 0.4,
-                                      offset: Offset(1, 2),
-                                    ),
-                                  ],
-                                  //
-
-                                  border: Border.all(
-                                    color: Colors.transparent,
-                                    width: 3.0, // Adjust the width of the border as needed
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    spreadRadius: 0.2,
+                                    blurRadius: 0.4,
+                                    offset: Offset(1, 2),
                                   ),
+                                ],
+                                //
+
+                                border: Border.all(
+                                  color: Colors.transparent,
+                                  width: 3.0, // Adjust the width of the border as needed
                                 ),
-                                child: InkWell(
-                                  onTap: ()async{
+                              ),
+                              child: InkWell(
+                                onTap: ()async{
 
 
 
-                                    bool hasVideos = await VideoDatabaseHelper().hasVideos();
+                                  bool hasVideos = await VideoDatabaseHelper().hasVideos();
 
-                                    if (hasVideos) {
+                                  if (hasVideos) {
 
-                                      // Navigate to VideoPreviewPage with data from the database
-                                      List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
-                                      List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+                                    // Navigate to VideoPreviewPage with data from the database
+                                    List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                                    List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
 
-                                      // Extract the required data from the list of videos
-                                      List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
-                                      String userLocation = ''; // Replace with your logic to get user location
-                                      double latitude = allVideos[0].latitude;
-                                      double longitude = allVideos[0].longitude;
+                                    // Extract the required data from the list of videos
+                                    List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                                    String userLocation = ''; // Replace with your logic to get user location
+                                    double latitude = allVideos[0].latitude;
+                                    double longitude = allVideos[0].longitude;
 
-                                      print('latitude : $latitude');
-                                      print('longitude : $longitude');
+                                    print('latitude : $latitude');
+                                    print('longitude : $longitude');
 
-                                      Navigator.push(
-                                        context,
-                                        MaterialPageRoute(
-                                          builder: (context) => ComposePage(
-                                            videoPaths: videoPaths,
+                                    Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (context) => ComposePage(
+                                          videoPaths: videoPaths,
 
-                                            latitude: latitude,
-                                            longitude: longitude,
-                                            videoData: videoData,
-                                          ),
+                                          latitude: latitude,
+                                          longitude: longitude,
+                                          videoData: videoData,
                                         ),
-                                      );
+                                      ),
+                                    );
 
-                                      _showVideoDialog(context);
-                                    } else {
-                                      // Navigate to CameraApp
-                                      Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-                                    }
-                                    // _changeIconColor('add');
+                                    _showVideoDialog(context);
+                                  } else {
+                                    // Navigate to CameraApp
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                                  }
+                                  // _changeIconColor('add');
 
 
-                                  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.all(22.0), // Adjust the padding as needed
-                                    child: SvgPicture.asset(
-                                      'assets/images/addIcon.svg',
-                                      color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
-                                      height: 14,
-                                      width: 14,
-                                    ),
+                                },
+                                child: Padding(
+                                  padding: const EdgeInsets.all(22.0), // Adjust the padding as needed
+                                  child: SvgPicture.asset(
+                                    'assets/images/addIcon.svg',
+
+                                    color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+                                    height: 24,
+                                    width: 24,
                                   ),
                                 ),
                               ),
-
                             ),
                           ),
                         ),

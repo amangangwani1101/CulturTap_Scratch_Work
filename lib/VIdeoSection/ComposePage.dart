@@ -42,68 +42,6 @@ class VideoInfo {
   });
 }
 
-
-//
-// class UploadPopup extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//     return AlertDialog(
-//       backgroundColor: Color(0xFF263238),
-//       content: Container(
-//         height : 300,
-//         width : 300,
-//         child: Column(
-//           mainAxisSize: MainAxisSize.min,
-//           children: [
-//             SizedBox(height: 30),
-//             PulseEffect(),
-//             SizedBox(height: 30),
-//             // CircularProgressIndicator(
-//             //   color : Color(0xFFFB8C00),
-//             // ),
-//             SizedBox(height: 0),
-//             Column(
-//               crossAxisAlignment: CrossAxisAlignment.center,
-//               children: [
-//                 Text('While CulturTap Upload',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
-//                 Text('Your Amazing Story...',style:TextStyle(fontWeight: FontWeight.bold, color: Colors.white,)),
-//
-//               ],
-//             ),
-//             SizedBox(height: 30),
-//             Positioned(
-//               top : 30,
-//               child: ElevatedButton(
-//                 onPressed: () {
-//                   // Navigate to the homepage
-//                   Navigator.pushReplacement(
-//                     context,
-//                     MaterialPageRoute(builder: (context) => HomePage()),  // Replace with your homepage
-//                   );
-//                 },
-//                 style: ElevatedButton.styleFrom(
-//                   primary: Color(0xFFFB8C00),  // Set the button color
-//                   onPrimary: Colors.white,  // Set the text color
-//                   textStyle: TextStyle(
-//                     fontSize: 18.0,  // Set the font size
-//                     fontWeight: FontWeight.bold,  // Set the font weight
-//                   ),
-//                 ),
-//                 child: Text('Explore Homepage'),
-//               ),
-//             )
-//
-//
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
-//
-
-
-
 class ComposePage extends StatefulWidget {
   VideoDatabaseHelper myDatabaseHelper = VideoDatabaseHelper();
   final List<String> videoPaths;
@@ -471,10 +409,10 @@ class _ComposePageState extends State<ComposePage> {
   Future<void> sendDataToBackend() async {
 
 
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomePage()),
-                  );
+    Navigator.pushReplacement(
+      context,
+      MaterialPageRoute(builder: (context) => HomePage()),
+    );
 
 
     List<File> videoFiles = convertPathsToFiles(widget.videoPaths);
@@ -577,9 +515,11 @@ class _ComposePageState extends State<ComposePage> {
   late DatabaseHelper _databaseHelper;
 
   Future<void> saveDraft() async {
+    await Permission.storage.request();
     print('userIDindraft$userID');
     final status = await Permission.storage.request();
     if(status.isGranted){
+      print('status granted');
       final database = await DatabaseHelper.instance.database;
       final draft = Draft(
         latitude: widget.latitude,
@@ -633,6 +573,18 @@ class _ComposePageState extends State<ComposePage> {
         },
       );
     }
+    else {
+      // Permission not granted, request it
+      print('Storage permission not granted, requesting...');
+      final newStatus = await Permission.storage.request();
+      if (newStatus.isGranted) {
+        // Permission granted after the request, proceed with your logic
+        print('Storage permission granted after request');
+        // ... rest of your code ...
+      } else {
+        // Permission denied after the request
+        print('Storage permission denied after request');
+      }}
   }
 
 
@@ -777,8 +729,8 @@ class _ComposePageState extends State<ComposePage> {
 
                     SizedBox(height : 20),
                     Container(
-                      width : double.infinity,
-                      padding: EdgeInsets.only(left : 26),
+                        width : double.infinity,
+                        padding: EdgeInsets.only(left : 22),
                         child: Text('Shooted Films',style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color : Colors.white))),
                     SizedBox(height : 16),
 
@@ -979,16 +931,17 @@ class _ComposePageState extends State<ComposePage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
 
-                    SizedBox(height: 50),
+                    SizedBox(height: 30),
+
                     Padding(
-                      padding: EdgeInsets.only(left: 26.0),
+                      padding: EdgeInsets.only(left: 20.0),
                       child: Row(
                         children: [
                           Icon(Icons.location_on, color: Colors.white),
-                          SizedBox(width: 8),
+                          SizedBox(width: 4),
                           Text(
                             'Location',
-                           style:Theme.of(context).textTheme.headline5,
+                            style:Theme.of(context).textTheme.headline5,
                           ),
 
 
@@ -999,23 +952,23 @@ class _ComposePageState extends State<ComposePage> {
                     ),
 
                     Padding(
-                      padding: EdgeInsets.only(left: 16.0),
-                      child: Row(
-                        children: [
 
-                          SizedBox(width: 18),
-                          Text(
-                            liveLocation.isNotEmpty ? liveLocation : 'Fetching Location...',
-                           style: Theme.of(context).textTheme.headline4,
-                          ),
-                        ],
+                      padding: const EdgeInsets.only(left : 20.0),
+                      child: Container(
+
+                        width : 300,
+
+                        child: Text(
+                          liveLocation.isNotEmpty ? liveLocation : 'Fetching Location...',
+                          style: Theme.of(context).textTheme.headline4,
+                        ),
                       ),
                     ),
 
                     SizedBox(height: 30),
 
                     Padding(
-                      padding: EdgeInsets.only(left: 26.0),
+                      padding: EdgeInsets.only(left: 20.0),
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -1054,12 +1007,13 @@ class _ComposePageState extends State<ComposePage> {
                               ),
                             ),
                           ),
+                          SizedBox(height : 20),
                         ],
                       ),
                     ),
 
                     Padding(
-                      padding : EdgeInsets.all(26.0),
+                      padding : EdgeInsets.all(20.0),
                       child : Container(
                         height : 0.5,
                         decoration: BoxDecoration(
@@ -1083,10 +1037,11 @@ class _ComposePageState extends State<ComposePage> {
 
                       // category for regular stories
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
+                            SizedBox(height : 20),
                             Text(
                               'Category',
                               style:Theme.of(context).textTheme.headline5,
@@ -1126,7 +1081,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       if (selectedCategory == 'Others')
                         Padding(
-                          padding: EdgeInsets.only(left: 26.0),
+                          padding: EdgeInsets.only(left: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1158,7 +1113,7 @@ class _ComposePageState extends State<ComposePage> {
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                       ),
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                       maxLines: null,
                                     ),
                                   ),
@@ -1174,7 +1129,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //genre for regular story
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1215,7 +1170,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       if (selectedGenre == 'Others')
                         Padding(
-                          padding: EdgeInsets.only(left: 26.0),
+                          padding: EdgeInsets.only(left: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1247,7 +1202,7 @@ class _ComposePageState extends State<ComposePage> {
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                       ),
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                       maxLines: null,
                                     ),
                                   ),
@@ -1261,7 +1216,7 @@ class _ComposePageState extends State<ComposePage> {
                       // Additional field for famous food if genre is 'Food'
                       if (selectedGenre == 'Festivals')
                         Padding(
-                          padding: EdgeInsets.only(left: 26.0),
+                          padding: EdgeInsets.only(left: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1293,7 +1248,7 @@ class _ComposePageState extends State<ComposePage> {
                                         enabledBorder: InputBorder.none,
                                         focusedBorder: InputBorder.none,
                                       ),
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                       maxLines: null,
                                     ),
                                   ),
@@ -1307,7 +1262,7 @@ class _ComposePageState extends State<ComposePage> {
                       // Additional field for famous food if genre is 'Food'
                       if (selectedGenre == 'Street Foods')
                         Padding(
-                          padding: EdgeInsets.only(left: 26.0),
+                          padding: EdgeInsets.only(left: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1334,7 +1289,7 @@ class _ComposePageState extends State<ComposePage> {
                                     ),
                                     child: Text(
                                       'Yes',
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                     ),
                                   ),
                                   SizedBox(width: 10),
@@ -1355,7 +1310,7 @@ class _ComposePageState extends State<ComposePage> {
                                     ),
                                     child: Text(
                                       'No',
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                     ),
                                   ),
                                 ],
@@ -1388,7 +1343,7 @@ class _ComposePageState extends State<ComposePage> {
                                           enabledBorder: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                         ),
-                                       style: Theme.of(context).textTheme.headline4,
+                                        style: Theme.of(context).textTheme.headline4,
                                         maxLines: null,
                                       ),
                                     ),
@@ -1402,7 +1357,7 @@ class _ComposePageState extends State<ComposePage> {
                       // Additional field for famous fashion if genre is 'Fashion'
                       if (selectedGenre == 'Fashion')
                         Padding(
-                          padding: EdgeInsets.only(left: 26.0),
+                          padding: EdgeInsets.only(left: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1429,7 +1384,7 @@ class _ComposePageState extends State<ComposePage> {
                                     ),
                                     child: Text(
                                       'Yes',
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                     ),
                                   ),
                                   SizedBox(width: 20),
@@ -1450,7 +1405,7 @@ class _ComposePageState extends State<ComposePage> {
                                     ),
                                     child: Text(
                                       'No',
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                     ),
                                   ),
                                 ],
@@ -1485,7 +1440,7 @@ class _ComposePageState extends State<ComposePage> {
                                           enabledBorder: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                         ),
-                                       style: Theme.of(context).textTheme.headline4,
+                                        style: Theme.of(context).textTheme.headline4,
                                         maxLines: null,
                                       ),
                                     ),
@@ -1500,7 +1455,7 @@ class _ComposePageState extends State<ComposePage> {
                       // Additional field for famous Restaurant if genre is 'Restaurant'
                       if (selectedGenre == 'Restaurants')
                         Padding(
-                          padding: EdgeInsets.only(left: 26.0),
+                          padding: EdgeInsets.only(left: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -1527,7 +1482,7 @@ class _ComposePageState extends State<ComposePage> {
                                     ),
                                     child: Text(
                                       'Yes',
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                     ),
                                   ),
                                   SizedBox(width: 20),
@@ -1548,7 +1503,7 @@ class _ComposePageState extends State<ComposePage> {
                                     ),
                                     child: Text(
                                       'No',
-                                     style: Theme.of(context).textTheme.headline4,
+                                      style: Theme.of(context).textTheme.headline4,
                                     ),
                                   ),
                                 ],
@@ -1583,7 +1538,7 @@ class _ComposePageState extends State<ComposePage> {
                                           enabledBorder: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                         ),
-                                       style: Theme.of(context).textTheme.headline4,
+                                        style: Theme.of(context).textTheme.headline4,
                                         maxLines: null,
                                       ),
                                     ),
@@ -1597,7 +1552,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //story title for regular story
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1624,7 +1579,7 @@ class _ComposePageState extends State<ComposePage> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                 ),
-                               style: Theme.of(context).textTheme.headline4,
+                                style: Theme.of(context).textTheme.headline4,
                                 maxLines: null,
                               ),
                             ),
@@ -1635,7 +1590,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //experience for regular story
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1662,7 +1617,7 @@ class _ComposePageState extends State<ComposePage> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                 ),
-                               style: Theme.of(context).textTheme.headline4,
+                                style: Theme.of(context).textTheme.headline4,
                                 maxLines: null,
                               ),
                             ),
@@ -1673,7 +1628,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //what you love about here
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Text(
                           'What You Love About Here',
                           style:Theme.of(context).textTheme.headline5,
@@ -1681,10 +1636,10 @@ class _ComposePageState extends State<ComposePage> {
                       ),
                       SizedBox(height: 25),
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Wrap(
-                          spacing: 16.0, // Horizontal spacing between buttons
-                          runSpacing: 8.0, // Vertical spacing between rows of buttons
+                          spacing: 10.0, // Horizontal spacing between buttons
+                          runSpacing: 5.0, // Vertical spacing between rows of buttons
                           children: loveAboutHereOptions.map((option) {
                             return ElevatedButton(
                               onPressed: () {
@@ -1711,7 +1666,7 @@ class _ComposePageState extends State<ComposePage> {
                               ),
                               child: Text(
                                 option,
-                               style: Theme.of(context).textTheme.headline4,
+                                style: Theme.of(context).textTheme.headline4,
                               ),
                             );
                           }).toList(),
@@ -1719,7 +1674,7 @@ class _ComposePageState extends State<ComposePage> {
                       ),
                       if (showOtherLoveAboutHereInput)
                         Padding(
-                          padding: EdgeInsets.only(left: 26.0),
+                          padding: EdgeInsets.only(left: 20.0),
                           child: Row(
                             children: [
                               Container(
@@ -1742,7 +1697,7 @@ class _ComposePageState extends State<ComposePage> {
                                     enabledBorder: InputBorder.none,
                                     focusedBorder: InputBorder.none,
                                   ),
-                                 style: Theme.of(context).textTheme.headline4,
+                                  style: Theme.of(context).textTheme.headline4,
                                   maxLines: null,
                                 ),
                               ),
@@ -1769,7 +1724,7 @@ class _ComposePageState extends State<ComposePage> {
                                 ),
                                 child: Text(
                                   'Add',
-                                 style: Theme.of(context).textTheme.headline4,
+                                  style: Theme.of(context).textTheme.headline4,
                                 ),
                               ),
                             ],
@@ -1779,7 +1734,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //review this place
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1806,7 +1761,7 @@ class _ComposePageState extends State<ComposePage> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                 ),
-                               style: Theme.of(context).textTheme.headline4,
+                                style: Theme.of(context).textTheme.headline4,
                                 maxLines: null,
                               ),
                             ),
@@ -1816,9 +1771,9 @@ class _ComposePageState extends State<ComposePage> {
                       SizedBox(height: 35),
 
 
-      // New input section for star rating
+                      // New input section for star rating
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1845,7 +1800,7 @@ class _ComposePageState extends State<ComposePage> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                 ),
-                               style: Theme.of(context).textTheme.headline4,
+                                style: Theme.of(context).textTheme.headline4,
                                 maxLines: null,
                               ),
                             ),
@@ -1856,7 +1811,7 @@ class _ComposePageState extends State<ComposePage> {
 
 
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1892,7 +1847,7 @@ class _ComposePageState extends State<ComposePage> {
 
 
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -1940,7 +1895,7 @@ class _ComposePageState extends State<ComposePage> {
                             ),
 
 
-                            SizedBox(height: 35),
+                            SizedBox(height: 0),
 
 
                           ],
@@ -1963,8 +1918,9 @@ class _ComposePageState extends State<ComposePage> {
 
 
                       // category dropdown here
+                      SizedBox(height : 20),
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -2010,7 +1966,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //story title here
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -2037,7 +1993,7 @@ class _ComposePageState extends State<ComposePage> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                 ),
-                               style: Theme.of(context).textTheme.headline4,
+                                style: Theme.of(context).textTheme.headline4,
                                 maxLines: null,
                               ),
                             ),
@@ -2048,7 +2004,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //product description here
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -2075,7 +2031,7 @@ class _ComposePageState extends State<ComposePage> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                 ),
-                               style: Theme.of(context).textTheme.headline4,
+                                style: Theme.of(context).textTheme.headline4,
                                 maxLines: null,
                               ),
                             ),
@@ -2086,7 +2042,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       // New input section for "What You Don't Like About This Place"
                       Padding(
-                        padding: EdgeInsets.only(left : 26.0),
+                        padding: EdgeInsets.only(left : 20.0),
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
@@ -2133,7 +2089,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //offered prices of your product
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -2166,7 +2122,7 @@ class _ComposePageState extends State<ComposePage> {
                                           child: Text(
 
                                             value,
-                                           style: Theme.of(context).textTheme.headline4, // Set text color to white
+                                            style: Theme.of(context).textTheme.headline4, // Set text color to white
                                           ),
                                         );
                                       }).toList(),
@@ -2196,7 +2152,7 @@ class _ComposePageState extends State<ComposePage> {
                                           hintText: 'Ex : 2250',
                                           hintStyle: TextStyle(color: Colors.white), // Set hint text color to white
                                         ),
-                                       style: Theme.of(context).textTheme.headline4, // Set text color to white
+                                        style: Theme.of(context).textTheme.headline4, // Set text color to white
                                       ),
                                     ),
                                   ),
@@ -2210,7 +2166,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //Delivery / transport Charges
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -2237,7 +2193,7 @@ class _ComposePageState extends State<ComposePage> {
                                   enabledBorder: InputBorder.none,
                                   focusedBorder: InputBorder.none,
                                 ),
-                               style: Theme.of(context).textTheme.headline4,
+                                style: Theme.of(context).textTheme.headline4,
                                 maxLines: null,
                               ),
                             ),
@@ -2248,7 +2204,7 @@ class _ComposePageState extends State<ComposePage> {
 
                       //make this story public or private
                       Padding(
-                        padding: EdgeInsets.only(left: 26.0),
+                        padding: EdgeInsets.only(left: 20.0),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -2295,13 +2251,13 @@ class _ComposePageState extends State<ComposePage> {
                             ),
 
 
-                            SizedBox(height: 35),
+
 
 
                           ],
                         ),
                       ),
-                      SizedBox(height  : 30),
+                      SizedBox(height  :0),
 
 
 
@@ -2332,71 +2288,73 @@ class _ComposePageState extends State<ComposePage> {
           color: Theme.of(context).primaryColorLight,
           duration: Duration(milliseconds: 100),
           height: _isVisible ? kBottomNavigationBarHeight + 25 : 0.0,
+          padding : EdgeInsets.only(left : 18, right : 20),
           child:Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children:[
                 SizedBox(height : 10),
 
                 Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
                   children: [
-                    Container(
-                      width: 156,
-                      height: 63,
-                      child: ElevatedButton(
-                        onPressed: () async{
-                          await saveDraft();
-                          setState(() {
-                            isSaveDraftClicked = !isSaveDraftClicked;
-                            isPublishClicked = false; // Reset the other button's state
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: isSaveDraftClicked ? Color(0xFFFB8C00) : Colors.transparent, // Change background color
-                          elevation: 0, // No shadow
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                    Expanded(
+                      child: Container(
+                      
+                        height: 63,
+                        child: ElevatedButton(
+                          onPressed: () async{
+                            await saveDraft();
+                            setState(() {
+                              isSaveDraftClicked = !isSaveDraftClicked;
+                              isPublishClicked = false; // Reset the other button's state
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: isSaveDraftClicked ? Color(0xFFFB8C00) : Colors.transparent, // Change background color
+                            elevation: 0, // No shadow
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                        ),
-                        child: Text(
-                          'Save Draft',
-                          style:Theme.of(context).textTheme.caption,
+                          child: Text(
+                            'Save Draft',
+                            style:Theme.of(context).textTheme.caption,
+                          ),
                         ),
                       ),
                     ),
-                    Container(
-                      width: 156,
-                      height: 63,
-                      child: ElevatedButton(
-                        // onPressed: () {
-                        //   Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(builder: (context) => SavedDraftsPage()),
-                        //   );
-                        onPressed: () {
-
-                          sendDataToBackend();
-
-                          // Implement the functionality for publishing here
-                          setState(() {
-                            isPublishClicked = !isPublishClicked;
-                            isSaveDraftClicked = false; // Reset the other button's state
-                          });
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: isPublishClicked ? Color(0xFFFB8C00) : Colors.transparent, // Change background color
-                          elevation: 0, // No shadow
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                    SizedBox(width : 10),
+                    Expanded(
+                      child: Container(
+                      
+                        height: 63,
+                        child: ElevatedButton(
+                      
+                          onPressed: () {
+                      
+                            sendDataToBackend();
+                      
+                            // Implement the functionality for publishing here
+                            setState(() {
+                              isPublishClicked = !isPublishClicked;
+                              isSaveDraftClicked = false; // Reset the other button's state
+                            });
+                          },
+                          style: ElevatedButton.styleFrom(
+                            primary: isPublishClicked ? Color(0xFFFB8C00) : Colors.transparent, // Change background color
+                            elevation: 0, // No shadow
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(5.0),
+                              side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                            ),
+                            padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
                           ),
-                          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                        ),
-                        child: Text(
-                          'Publish',
-                          style:Theme.of(context).textTheme.caption,
+                          child: Text(
+                            'Publish',
+                            style:TextStyle(color : Colors.white30, fontWeight : FontWeight.bold,fontSize : 18),
+                          ),
                         ),
                       ),
                     ),

@@ -144,7 +144,7 @@ class MyApp extends StatelessWidget {
 
       ThemeData(
 
-        primarySwatch: Colors.blue,
+
 
 
 
@@ -156,7 +156,7 @@ class MyApp extends StatelessWidget {
         primaryColorLight : Color(0xFF1E2529),
 
         backgroundColor:Color(0xFF1E2529) ,
-        scaffoldBackgroundColor: Colors.black,// Change the background color
+        scaffoldBackgroundColor: Color(0xFF1E2529),// Change the background color
 
 
         // Custom Text Styles
@@ -198,7 +198,7 @@ class MyApp extends StatelessWidget {
       ) :
 
       ThemeData(
-        primarySwatch: Colors.blue,
+
 
 
 
@@ -234,8 +234,9 @@ class MyApp extends StatelessWidget {
 
         // Optional: Define colors for specific components
         appBarTheme: AppBarTheme(
+          color : Colors.white,
+          elevation : 0,
 
-          backgroundColor: Colors.white, // Change the AppBar background color
           foregroundColor: Colors.black,
 
           // Change the AppBar text color

@@ -376,19 +376,7 @@ class _SearchPageState extends State<SearchPage> {
           child: CustomScrollView(
             controller: _scrollController,
             slivers: [
-              // SliverAppBar(
-              //   title: ProfileHeader(reqPage: 0, userId: userID, userName: userName),
-              //   automaticallyImplyLeading: false,
-              //   shadowColor: Colors.transparent,
-              //   toolbarHeight: 90,
-              //   // Adjust as needed
-              //   floating: true,
-              //   pinned: false,
-              //   flexibleSpace: FlexibleSpaceBar(
-              //
-              //     // You can add more customization to the flexible space here
-              //   ),
-              // ),
+
 
               SliverList(
                 delegate: SliverChildListDelegate(
@@ -448,7 +436,7 @@ class _SearchPageState extends State<SearchPage> {
                             ],
                           ),
                         ),
-                        SizedBox(height: 20),
+                        SizedBox(height: 30),
                         FiltersWithHorizontalScroll(
                           selectedFilter: selectedFilter,
                           onFilterSelected: (filter) {
@@ -460,40 +448,45 @@ class _SearchPageState extends State<SearchPage> {
                             fetchUserLocationAndData(); // Fetch data based on the new filter
                           },
                         ),
-                        SizedBox(height: 30),
+                        SizedBox(height: 20),
                       ],
                     ),
                     if (!_searchController.text.isEmpty)
                       isLoading
-                          ? SuggestionList(
-                        suggestions: suggestions,
-                        searchController: _searchController,
-                        onSuggestionSelected: (selectedSuggestion) async {
-                          // Handle the selected suggestion
-                          print('Selected suggestion: $selectedSuggestion');
+                          ? Container(
+                        height : 600,
+                            child: SingleChildScrollView(
+                              child: SuggestionList(
+                                                      suggestions: suggestions,
+                                                      searchController: _searchController,
+                                                      onSuggestionSelected: (selectedSuggestion) async {
+                              // Handle the selected suggestion
+                              print('Selected suggestion: $selectedSuggestion');
 
-                          // Set the search input value
-                          _searchController.text = selectedSuggestion;
-
-
-                          await onSuggestionSearch(selectedSuggestion);
-
-                        },
-                        onSuggestionSearch: (query) async {
-
-                          print('Performing search for: $query');
-
-                          setState(() {
-
-                            isLoading = true;
-
-                          });
-                          fetchUserLocationAndData();
+                              // Set the search input value
+                              _searchController.text = selectedSuggestion;
 
 
-                          // Add your search logic here
-                        },
-                      )
+                              await onSuggestionSearch(selectedSuggestion);
+
+                                                      },
+                                                      onSuggestionSearch: (query) async {
+
+                              print('Performing search for: $query');
+
+                              setState(() {
+
+                                isLoading = true;
+
+                              });
+                              fetchUserLocationAndData();
+
+
+                              // Add your search logic here
+                                                      },
+                                                    ),
+                            ),
+                          )
                           : Column(
                               children:
                                   categoryData.asMap().entries.map((entry) {
