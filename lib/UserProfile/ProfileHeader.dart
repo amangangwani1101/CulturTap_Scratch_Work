@@ -20,12 +20,14 @@ import '../widgets/Constant.dart';
 // AppBar Section
 class ProfileHeader extends StatefulWidget {
 
-   int reqPage;
-   String? imagePath;
-   String? userId,text,userName;
-   VoidCallback? onButtonPressed;
+  int reqPage;
+  String? imagePath;
+  String? userId,text,userName;
+  VoidCallback? onButtonPressed;
   ProfileDataProvider?profileDataProvider;
-   String? profileStatus;
+  String? profileStatus;
+
+
 
 
   ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed});
@@ -65,11 +67,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     print('Use:${widget.userId}');
     return Container(
 
+
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
 
-              widget.reqPage<1
+
+
+          widget.reqPage<1
 
               ? Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -102,7 +107,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 },
                 child: Container(
 
-                  width: 80,
+                  width: 70,
 
                   height: 75,
 
@@ -146,19 +151,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
             ],
           )
-
-                : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 30,): SizedBox(height: 0,),
-              widget.reqPage>=1
+              : widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
 
               ? Container (
-            // decoration: BoxDecoration(
-            //   border: Border.all(
-            //     color: Colors.black,
-            //     width: 2,
-            //   ),
-            // ),
-            width: 60,
-            height: 30,
+
+
+            width: 70,
+            height: 75,
+
             child: GestureDetector(
               onTap: (){
                 if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
@@ -184,14 +184,27 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   Navigator.of(context).pop();
                 }
               },
-              child: Image.asset('assets/images/back.png',width: 60,height: 30,),
+              child: Center(child: Text('< Back ', style : TextStyle(fontSize: 16,fontWeight: FontWeight.w600),textAlign: TextAlign.center,)),
             ),
           )
-              : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 30,): SizedBox(height: 0,),
+              : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 0,): SizedBox(height: 0,),
           widget.reqPage>=1
 
-              ? Image.asset('assets/images/logo.png',width: 155,)
-              : Image.asset('assets/images/logo.png',width: 155,),
+
+
+              ? Column(
+
+            children: [
+              SizedBox(height : 5),
+              Container(height : 75,child: Center(child: Image.asset('assets/images/logo.png',width: 155,))),
+            ],
+          )
+              :Column(
+            children: [
+              SizedBox(height : 5),
+              Container(height : 75,child: Center(child: Image.asset('assets/images/logo.png',width: 155,))),
+            ],
+          ),
           if (widget.reqPage<=1) Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
@@ -208,7 +221,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   }
                 },
                 child: Container(
-                  width: 80,
+                  width: 70,
 
                   height: 75,
 
@@ -217,49 +230,36 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   child:Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      InkWell(
-                        onTap: (){
-                          print('Us2e:${widget.userId}');
-                          if(widget.userId!=null){
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => PingsSection(userId: userID,state: 'schedule',),
-                              ),
-                            );
-                          }
-                        },
-                        child: Stack(
-                          children: [
-                            Align(alignment: Alignment.topCenter, child: SvgPicture.asset(
-                              'assets/images/pings_icon.svg', // Replace with the path to your SVG icon
-                              color : Theme.of(context).primaryColor,
-                              width: 28,
-                              height: 28,
+                      Stack(
+                        children: [
+                          Align(alignment: Alignment.topCenter, child: SvgPicture.asset(
+                            'assets/images/pings_icon.svg', // Replace with the path to your SVG icon
+                            color : Theme.of(context).primaryColor,
+                            width: 28,
+                            height: 28,
 
 
 
-                            ),),
-                            if(notificationCount>0)
-                              Positioned(
-                                top: -3,
-                                right: 21,
-                                // height: 20,
-                                child: Container(
-                                  padding: EdgeInsets.all(3),
-                                  decoration: BoxDecoration(
-                                    color: Colors.red,
-                                    shape: BoxShape.circle,
-                                  ),
-                                  child: Text(
-                                    notificationCount.toString(),
+                          ),),
+                          if(notificationCount>0)
+                            Positioned(
+                              top: -3,
+                              right: 21,
+                              // height: 20,
+                              child: Container(
+                                padding: EdgeInsets.all(3),
+                                decoration: BoxDecoration(
+                                  color: Colors.red,
+                                  shape: BoxShape.circle,
+                                ),
+                                child: Text(
+                                  notificationCount.toString(),
 
-                                    style: Theme.of(context).textTheme.button,
-                                  ),
+                                  style: Theme.of(context).textTheme.button,
                                 ),
                               ),
-                          ],
-                        ),
+                            ),
+                        ],
                       ),
                       SizedBox(height: 2,),
                       Text('Pings',style: Theme.of(context).textTheme.bodyText1),
@@ -297,7 +297,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
                   : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
             ),
-          ):SizedBox(width: 0,),
+          ):SizedBox(width: 70,),
         ],
       ),
     );

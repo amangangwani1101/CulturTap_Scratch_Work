@@ -1,5 +1,6 @@
 //homepage
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/dummyHomePage.dart';
@@ -13,6 +14,7 @@ import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/MyCustomScrollPhysics.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
+import 'package:learn_flutter/Notifications/notification.dart';
 import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
@@ -30,9 +32,28 @@ import 'package:learn_flutter/widgets/Constant.dart';
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+
 
   runApp(MyApp());
 }
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async{
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyD_Q30r4nDBH0HOpvpclE4U4V8ny6QPJj4",
+      authDomain: "culturtap-19340.web.app",
+      projectId: "culturtap-19340",
+      storageBucket: "culturtap-19340.appspot.com",
+      messagingSenderId: "268794997426",
+      appId: "1:268794997426:android:694506cda12a213f13f7ab ",
+    ),
+  );
+  print(message.notification!.title.toString());
+}
+
 
 
 //new stuff
@@ -95,6 +116,23 @@ Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async
     throw error; // Add this line to explicitly return an error
   }
 }
+
+Future<void> sendNotificationsToAll() async {
+  final String serverUrl = '${Constant().serverUrl}/send/send-notifications'; // Update with your server URL
+
+  try {
+    final response = await http.post(Uri.parse(serverUrl));
+
+    if (response.statusCode == 200) {
+      print('Notifications sent successfully');
+    } else {
+      print('Failed to send notifications. Status code: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error sending notifications: $error');
+  }
+}
+
 
 
 
@@ -233,12 +271,20 @@ class _HomePageState extends State<HomePage> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  NotificationServices notificationServices  = NotificationServices();
+
 
 
   @override
   void initState() {
 
     super.initState();
+
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.setupInteractMessage(context);
+    notificationServices.isTokenRefresh();
+    f();
 
     fetchDataFromMongoDB();
     requestLocationPermission();
@@ -263,6 +309,11 @@ class _HomePageState extends State<HomePage> {
   }
 
   //updated code from here
+
+  void f()async{
+    String?token = await notificationServices.getDeviceToken();
+    print('Token $token');
+  }
 
 
 
@@ -338,8 +389,6 @@ class _HomePageState extends State<HomePage> {
                 shadowColor: Colors.transparent,
                 backgroundColor: Colors.white,
 
-
-
                 toolbarHeight: 90,
                 // Adjust as needed
                 floating: true,
@@ -366,11 +415,13 @@ class _HomePageState extends State<HomePage> {
 
                     isLoading ? Container(
                       height : 500,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
-                        ],
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
+                          ],
+                        ),
                       ),
                     ) :
                     Column(

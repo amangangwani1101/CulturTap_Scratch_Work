@@ -191,6 +191,11 @@ setState(() {
       setState(() {
         orange = 'yes';
       });
+    }else{
+      setState((){
+        orange = '';
+
+      });
     }
 
   }
@@ -367,12 +372,15 @@ setState(() {
                       Expanded(
                         child: InkWell(
                           onTap: (){
+                            _changeIcon('home');
                             Navigator.pushReplacement(
                               context,
                               MaterialPageRoute(builder: (context) => HomePage()),
                             );
                           },
                           child: Column(
+
+
                             children: [
                               IconButton(
                                 onPressed: () {
@@ -380,17 +388,20 @@ setState(() {
                                     context,
                                     MaterialPageRoute(builder: (context) => HomePage()),
                                   );
-                  
-                  
+
+
                                    _changeIcon('home');
+
                                 },
                                 icon: SvgPicture.asset(
                                   page=='home' ? 'assets/images/home_oicon.svg'  : 'assets/images/home_icon.svg', // Replace with the path to your SVG icon
                                   color: page == 'home' ? Colors.orange :mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
-                  
-                  
-                  
+
+
+
+
                                 ),
+                                iconSize: 30,
                               ),
                               Text(
                                 'Home',
@@ -405,6 +416,7 @@ setState(() {
                       Expanded(
                         child: InkWell(
                           onTap: (){
+                            _changeIcon('search');
                   
                             Navigator.pushReplacement(
                               context,
@@ -457,11 +469,25 @@ setState(() {
                           alignment: Alignment(0.0, 0.0),
                           child: Transform.translate(
                             offset: Offset(0, -30.0),
-                            child: SizedBox(
-                              width : 100,
-                              height : 100,
-                  
-                  
+                            child: Container(
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: Colors.white,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.2),
+                                    spreadRadius: 0.2,
+                                    blurRadius: 0.4,
+                                    offset: Offset(1, 2),
+                                  ),
+                                ],
+                                //
+
+                                border: Border.all(
+                                  color: Colors.transparent,
+                                  width: 3.0, // Adjust the width of the border as needed
+                                ),
+                              ),
                               child: InkWell(
                                 onTap: ()async{
 
@@ -506,66 +532,14 @@ setState(() {
 
 
                                 },
-                                child: Container(
-                  
-                  
-                                  // decoration: BoxDecoration(
-                                  //   shape: BoxShape.circle,
-                                  //   border: Border.all(
-                                  //     color: Colors.orange,
-                                  //     width: 3.0, // Adjust the width of the border as needed
-                                  //   ),
-                                  // ),
-                  
-                                  child: ElevatedButton(
-                                    onPressed: ()async{
+                                child: Padding(
+                                  padding: const EdgeInsets.all(22.0), // Adjust the padding as needed
+                                  child: SvgPicture.asset(
+                                    'assets/images/addIcon.svg',
 
-                                      bool hasVideos = await VideoDatabaseHelper().hasVideos();
-
-                                      if (hasVideos) {
-
-                                        // Navigate to VideoPreviewPage with data from the database
-                                        List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
-                                        List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
-
-                                        // Extract the required data from the list of videos
-                                        List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
-                                        String userLocation = ''; // Replace with your logic to get user location
-                                        double latitude = allVideos[0].latitude;
-                                        double longitude = allVideos[0].longitude;
-
-                                        print('latitude : $latitude');
-                                        print('longitude : $longitude');
-
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => ComposePage(
-                                              videoPaths: videoPaths,
-                                              videoData: videoData,
-                                              latitude: latitude,
-                                              longitude: longitude,
-                                            ),
-                                          ),
-                                        );
-
-                                        _showVideoDialog(context);
-                                      } else {
-                                        // Navigate to CameraApp
-                                        Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-                                      }
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      primary: mode == 'dark' ? Colors.black : Colors.white,
-                  
-                                      shape: CircleBorder(),
-                                    ),
-                                    child: SvgPicture.asset(
-                                      'assets/images/addIcon.svg',
-                                      color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor ,
-                                      height: 24,
-                                      width: 24,
-                                    ),
+                                    color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+                                    height: 24,
+                                    width: 24,
                                   ),
                                 ),
                               ),

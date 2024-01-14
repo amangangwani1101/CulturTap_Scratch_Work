@@ -148,6 +148,7 @@ class _UserImageState extends State<UserImage>{
                           textField: "Set Your Cover Story !" ,
                           extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
                           what:'OK',
+                          button : "OK, Get it"
                         );
                       },
                     );

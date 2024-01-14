@@ -136,7 +136,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+      appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,backgroundColor : Colors.white),
       body: WillPopScope(
         onWillPop: ()async{
 
@@ -165,302 +165,300 @@ class _SettingsPageState extends State<SettingsPage> {
                 // ),
                 // SizedBox(height: 20,),
                 Container(
-
-                  child: Center(
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        Builder(
-                            builder: (context) {
-                              return GestureDetector(
-                                onTap: ()async {
-                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(),));
-                                  // setState(() {
-                                  //   fetchDataset();
-                                  // });
-                                },
-                                child: Container(
-                                  width: 330,
-                                  // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                  // decoration: BoxDecoration(border: Border(top: BorderSide(width: 0,color: HexColor('#263238').withOpacity(0.3)))),
-                                  height: 83,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment. center,
-                                    children: [
-                                      Container(
-                                        width:20,
-                                        height: 20,
-                                        child: SvgPicture.asset('assets/images/profile_image.svg', color:Theme.of(context).primaryColor),
-                                      ),
-                                      Container(
-                                        width: 220,
-                                        child: Text('Edit Profile',style: Theme.of(context).textTheme.subtitle2,),
-                                      ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
-
-
-
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
-                        ),
-                        Builder(
-                            builder: (context) {
-                              return GestureDetector(
-                                onTap: ()async {
-                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices(),));
-                                  setState(() {
-                                    fetchDataset();
-                                  });
-                                },
-                                child: Container(
-                                  width: 330,
-                                  // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                  decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
-                                  height: 83,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment. center,
-                                    children: [
-                                      Container(
-                                        width:20,
-                                        height: 20,
-                                        child: SvgPicture.asset('assets/images/services-icon.svg', color:Theme.of(context).primaryColor),
-                                      ),
-                                      Container(
-                                        width: 220,
-                                        child: Text('Services',style: Theme.of(context).textTheme.subtitle2,),
-                                      ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
-
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
-                        ),
-                        Builder(
-                            builder: (context) {
-                              return GestureDetector(
-                                onTap: ()async {
-                                  await Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments()));
-                                  setState(() {
-                                    fetchDataset();
-                                  });
-                                },
-                                child: Container(
-                                  width: 330,
-                                  // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                  decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
-                                  height: 83,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment. center,
-                                    children: [
-                                      Container(
-                                        width:20,
-                                        height: 20,
-                                        child: SvgPicture.asset('assets/images/payments-icon.svg', color:Theme.of(context).primaryColor),
-                                      ),
-                                      Container(
-                                        width: 220,
-                                        child: Text('Payments',style: Theme.of(context).textTheme.subtitle2,),
-                                      ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
-                        ),
-                        dataset?['userServiceTripCallingData']!=null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null
-                            ? Builder(
-                            builder: (context) {
-                              return GestureDetector(
-                                onTap: (){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => CalendarHelper(userName:dataset?['userName']!=null?(dataset?['userName']):'',plans:dataset?['userServiceTripCallingData']['dayPlans']!=null?(dataset?['userServiceTripCallingData']['dayPlans']):{},choosenDate:formatDate(DateTime.now()),startTime:dataset?['userServiceTripCallingData']['startTimeFrom'],endTime:dataset?['userServiceTripCallingData']['endTimeTo'],slotChossen:dataset?['userServiceTripCallingData']['slotsChossen'],date:formatToSpecialDate(DateTime.now())!),
+                  padding: const EdgeInsets.only(left : 46, right : 46,),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Builder(
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: ()async {
+                                await Navigator.push(context, MaterialPageRoute(builder: (context) => EditProfile(),));
+                                // setState(() {
+                                //   fetchDataset();
+                                // });
+                              },
+                              child: Container(
+                                
+                                // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                // decoration: BoxDecoration(border: Border(top: BorderSide(width: 0,color: HexColor('#263238').withOpacity(0.3)))),
+                                height: 83,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment. center,
+                                  children: [
+                                    Container(
+                                      width:20,
+                                      height: 20,
+                                      child: SvgPicture.asset('assets/images/profile_image.svg', color:Theme.of(context).primaryColor),
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 330,
-                                  // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                  decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
-                                  height: 83,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment. center,
-                                    children: [
-                                      Container(
-                                        width:20,
-                                        height: 20,
-                                        child: SvgPicture.asset('assets/images/calendar.svg'),
-                                      ),
-                                      Container(
-                                        width: 220,
-                                        child: Text('Calendar',style: Theme.of(context).textTheme.subtitle2,),
-                                      ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
-                        )
-                            : SizedBox(height: 0,),
-                        Builder(
-                            builder: (context) {
-                              return GestureDetector(
-                                onTap: (){
-                                  Navigator.of(context).push(
-                                    MaterialPageRoute(
-                                      builder: (context) => SavedDraftsPage(),
+                                    Container(
+                                      width: 220,
+                                      child: Text('Edit Profile',style: Theme.of(context).textTheme.subtitle2,),
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 330,
-                                  // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                  decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
-                                  height: 83,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment. center,
-                                    children: [
-                                      Container(
-                                        width:20,
-                                        height: 20,
-                                        child: SvgPicture.asset('assets/images/draft-icon.svg', color:Theme.of(context).primaryColor),
-                                      ),
-                                      Container(
-                                        width: 220,
-                                        child: Text('Drafts',style: Theme.of(context).textTheme.subtitle2,),
-                                      ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {
-                                        Navigator.push(
-                                          context,
-                                          MaterialPageRoute(
-                                            builder: (context) => SavedDraftsPage(),
-                                          ),
-                                        );
-                                      },),
-                                    ],
-                                  ),
+                                    IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+
+
+
+                                  ],
                                 ),
-                              );
-                            }
-                        ),
-                        Builder(
-                            builder: (context) {
-                              return GestureDetector(
-                                onTap: (){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => AboutUs(),
+                              ),
+                            );
+                          }
+                      ),
+                      Builder(
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: ()async {
+                                await Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices(),));
+                                setState(() {
+                                  fetchDataset();
+                                });
+                              },
+                              child: Container(
+                                
+                                // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
+                                height: 83,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment. center,
+                                  children: [
+                                    Container(
+                                      width:20,
+                                      height: 20,
+                                      child: SvgPicture.asset('assets/images/services-icon.svg', color:Theme.of(context).primaryColor),
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 330,
-                                  // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                  decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
-                                  height: 83,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment. center,
-                                    children: [
-                                      Container(
-                                        width:20,
-                                        height: 20,
-                                        child: SvgPicture.asset('assets/images/about-icon.svg', color:Theme.of(context).primaryColor),
-                                      ),
-                                      Container(
-                                        width: 220,
-                                        child: Text('About CulturTap',style: Theme.of(context).textTheme.subtitle2,),
-                                      ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
-                                    ],
-                                  ),
-                                ),
-                              );
-                            }
-                        ),
-                        Builder(
-                            builder: (context) {
-                              return GestureDetector(
-                                onTap: (){
-                                  Navigator.push(
-                                    context,
-                                    MaterialPageRoute(
-                                      builder: (context) => Help(),
+                                    Container(
+                                      width: 220,
+                                      child: Text('Services',style: Theme.of(context).textTheme.subtitle2,),
                                     ),
-                                  );
-                                },
-                                child: Container(
-                                  width: 330,
-                                  // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                  decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
-                                  height: 83,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment. center,
-                                    children: [
-                                      Container(
-                                        width:20,
-                                        height: 20,
-                                        child: SvgPicture.asset('assets/images/help-icon.svg', color:Theme.of(context).primaryColor),
-                                      ),
-                                      Container(
-                                        width: 220,
-                                        child: Text('Help',style: Theme.of(context).textTheme.subtitle2,),
-                                      ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
-                                    ],
-                                  ),
+                                    IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+
+                                  ],
                                 ),
-                              );
-                            }
-                        ),
-                        Builder(
-                            builder: (context) {
-                              return GestureDetector(
-                                onTap: (){
-                                  showCustomAlertBox(context);
-                                },
-                                child: Container(
-                                  width: 330,
-                                  // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
-                                  decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
-                                  height: 83,
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment: CrossAxisAlignment. center,
-                                    children: [
-                                      Container(
-                                        width:20,
-                                        height: 20,
-                                        child: SvgPicture.asset('assets/images/logout-icon.svg', color:Theme.of(context).primaryColor),
-                                      ),
-                                      Container(
-                                        width: 220,
-                                        child: Text('Logout',style: Theme.of(context).textTheme.subtitle2,),
-                                      ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
-                                    ],
-                                  ),
+                              ),
+                            );
+                          }
+                      ),
+                      Builder(
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: ()async {
+                                await Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments()));
+                                setState(() {
+                                  fetchDataset();
+                                });
+                              },
+                              child: Container(
+                                
+                                // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
+                                height: 83,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment. center,
+                                  children: [
+                                    Container(
+                                      width:20,
+                                      height: 20,
+                                      child: SvgPicture.asset('assets/images/payments-icon.svg', color:Theme.of(context).primaryColor),
+                                    ),
+                                    Container(
+                                      width: 220,
+                                      child: Text('Payments',style: Theme.of(context).textTheme.subtitle2,),
+                                    ),
+                                    IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+                                  ],
                                 ),
-                              );
-                            }
-                        ),
-                      ],
-                    ),
+                              ),
+                            );
+                          }
+                      ),
+                      dataset?['userServiceTripCallingData']!=null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null
+                          ? Builder(
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: (){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => CalendarHelper(userName:dataset?['userName']!=null?(dataset?['userName']):'',plans:dataset?['userServiceTripCallingData']['dayPlans']!=null?(dataset?['userServiceTripCallingData']['dayPlans']):{},choosenDate:formatDate(DateTime.now()),startTime:dataset?['userServiceTripCallingData']['startTimeFrom'],endTime:dataset?['userServiceTripCallingData']['endTimeTo'],slotChossen:dataset?['userServiceTripCallingData']['slotsChossen'],date:formatToSpecialDate(DateTime.now())!),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                
+                                // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
+                                height: 83,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment. center,
+                                  children: [
+                                    Container(
+                                      width:20,
+                                      height: 20,
+                                      child: SvgPicture.asset('assets/images/calendar.svg'),
+                                    ),
+                                    Container(
+                                      width: 220,
+                                      child: Text('Calendar',style: Theme.of(context).textTheme.subtitle2,),
+                                    ),
+                                    IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                      )
+                          : SizedBox(height: 0,),
+                      Builder(
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: (){
+                                Navigator.of(context).push(
+                                  MaterialPageRoute(
+                                    builder: (context) => SavedDraftsPage(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                
+                                // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
+                                height: 83,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment. center,
+                                  children: [
+                                    Container(
+                                      width:20,
+                                      height: 20,
+                                      child: SvgPicture.asset('assets/images/draft-icon.svg', color:Theme.of(context).primaryColor),
+                                    ),
+                                    Container(
+                                      width: 220,
+                                      child: Text('Drafts',style: Theme.of(context).textTheme.subtitle2,),
+                                    ),
+                                    IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SavedDraftsPage(),
+                                        ),
+                                      );
+                                    },),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                      ),
+                      Builder(
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: (){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => AboutUs(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                
+                                // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
+                                height: 83,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment. center,
+                                  children: [
+                                    Container(
+                                      width:20,
+                                      height: 20,
+                                      child: SvgPicture.asset('assets/images/about-icon.svg', color:Theme.of(context).primaryColor),
+                                    ),
+                                    Container(
+                                      width: 220,
+                                      child: Text('About CulturTap',style: Theme.of(context).textTheme.subtitle2,),
+                                    ),
+                                    IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                      ),
+                      Builder(
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: (){
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => Help(),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                
+                                // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
+                                height: 83,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment. center,
+                                  children: [
+                                    Container(
+                                      width:20,
+                                      height: 20,
+                                      child: SvgPicture.asset('assets/images/help-icon.svg', color:Theme.of(context).primaryColor),
+                                    ),
+                                    Container(
+                                      width: 220,
+                                      child: Text('Help',style: Theme.of(context).textTheme.subtitle2,),
+                                    ),
+                                    IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                      ),
+                      Builder(
+                          builder: (context) {
+                            return GestureDetector(
+                              onTap: (){
+                                showCustomAlertBox(context);
+                              },
+                              child: Container(
+                                
+                                // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
+                                decoration: BoxDecoration(border: Border(top: BorderSide(width: 1,color: HexColor('#263238').withOpacity(0.3)))),
+                                height: 83,
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment. center,
+                                  children: [
+                                    Container(
+                                      width:20,
+                                      height: 20,
+                                      child: SvgPicture.asset('assets/images/logout-icon.svg', color:Theme.of(context).primaryColor),
+                                    ),
+                                    Container(
+                                      width: 220,
+                                      child: Text('Logout',style: Theme.of(context).textTheme.subtitle2,),
+                                    ),
+                                    IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+                                  ],
+                                ),
+                              ),
+                            );
+                          }
+                      ),
+                    ],
                   ),
                 ),
                 Center(
@@ -729,7 +727,15 @@ class _EditProfileState extends State<EditProfile>{
             ),
           ),
         )
-            :Center(child: CircularProgressIndicator(),),
+            :Container(
+          height : MediaQuery.of(context).size.height,
+          child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
+          ],
+        ),
+      ),
           bottomNavigationBar: AnimatedContainer(
 
             duration: Duration(milliseconds: 100),
@@ -745,6 +751,9 @@ class _EditProfileState extends State<EditProfile>{
     );
   }
 }
+
+
+
 
 class EditServices extends StatefulWidget{
   bool ?service1,service2,service3,haveCards;
@@ -803,24 +812,35 @@ class _EditServicesState extends State<EditServices>{
         appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: userID,),automaticallyImplyLeading: false,shadowColor: Colors.transparent,toolbarHeight: 90),
         body:  widget.service1!=null
             ? Container(
-          padding : EdgeInsets.only(left : 22, right : 22, ),
+          height : MediaQuery.of(context).size.height,
+          padding : EdgeInsets.only(left : 26, right : 26, ),
 
-          color : Colors.white,
 
-          height: 860,
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
 
-            children: [
-              SizedBox(height: 40,),
-              ServiceCard(text:'edit',haveCards:widget.haveCards,userId:userID,isToggle:widget.service1,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: ' for Becoming \nTrip planner '),
-              SizedBox(height: 30,),
-              ServiceCard(text:'editService2',userId:userID,isToggle:widget.service2,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming \nSuperhero as a saviour ! '),
-              // ServiceCard(isToggle:widget.service3,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !'),
-            ],
+
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+            
+              children: [
+                SizedBox(height: 0,),
+                ServiceCard(text:'edit',haveCards:widget.haveCards,userId:userID,isToggle:widget.service1,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: ' for Becoming \nTrip planner '),
+                SizedBox(height: 30,),
+                ServiceCard(text:'editService2',userId:userID,isToggle:widget.service2,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming \nSuperhero as a saviour ! '),
+                // ServiceCard(isToggle:widget.service3,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !'),
+              ],
+            ),
           ),
         )
-            :Center(child: CircularProgressIndicator(),),
+            :Container(
+          height : MediaQuery.of(context).size.height,
+          child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
+          ],
+        ),
+      ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
 
@@ -834,6 +854,9 @@ class _EditServicesState extends State<EditServices>{
   }
 
 }
+
+
+
 
 class EditPayments extends StatefulWidget{
   List<dynamic>?savedCards;
@@ -893,7 +916,15 @@ class _EditPaymentsState extends State<EditPayments>{
     return Scaffold(
       body: widget.savedCards!=null
       ? PaymentSection(savedCards: convertToCardDetailsList(widget.savedCards!),text: 'edit',userId: widget.userId,)
-      :Center(child: CircularProgressIndicator(),),
+      :Container(
+        height : MediaQuery.of(context).size.height,
+        child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
+        ],
+      ),
+    )
     );
 
   }
@@ -904,7 +935,7 @@ class AboutUs extends StatelessWidget{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 2,),automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
+      appBar: AppBar(title: ProfileHeader(reqPage: 2,),backgroundColor : Colors.white,automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
       body:  SingleChildScrollView(
         child: Container(
           padding : EdgeInsets.all(30),

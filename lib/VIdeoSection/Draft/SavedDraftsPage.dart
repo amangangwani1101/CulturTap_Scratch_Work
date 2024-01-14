@@ -1,12 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
+import 'package:learn_flutter/Settings.dart';
 import 'package:learn_flutter/Utils/BackButtonHandler.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/DraftVideoListPage.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/EditDraftPage.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/database_helper.dart';
 import 'package:learn_flutter/VIdeoSection/Draft_Local_Database/draft.dart';
 import 'package:learn_flutter/VIdeoSection/RemoveDialog.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:video_player/video_player.dart';
 import 'dart:io';
 
@@ -178,7 +180,15 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
   @override
   Widget build(BuildContext context) {
     return  WillPopScope(
-        onWillPop: () => backButtonHandler17.onWillPop(context, true),
+        onWillPop: ()async{
+
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SettingsPage(userId : userID)),
+          );
+
+          return true;
+        },
     child: Scaffold(
       appBar: VideoAppBar(
         title:'Your Drafts',
