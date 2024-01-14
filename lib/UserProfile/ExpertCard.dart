@@ -89,7 +89,7 @@ class ExpertCardDetails extends StatelessWidget{
                 children: [
                   Text('Expert in locations',style: Theme.of(context).textTheme.subtitle1,),
                   Container(
-                    child: expertLocations.isEmpty ? Text('N/A', style: Theme.of(context).textTheme.headline6,):
+                    child: expertLocations.isEmpty ? Text('iufbiqbgl lvhi3goh evhb3yobvhefhbl3rvhj ergyu4bvejligrbv eruig efj4vui efiubewvjkebgiuefjk vewuibgekj', style: Theme.of(context).textTheme.headline6,):
                     Wrap(
                       runSpacing: 8.0, // Vertical spacing between lines of items
                       children: [

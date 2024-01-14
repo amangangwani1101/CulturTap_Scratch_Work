@@ -8,7 +8,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
-import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
+// import 'package:android_alarm_manager_plus/android_alarm_manager_plus.dart';
 import 'Chat.dart';
 // import 'package:learn_flutter/Notify/Chat.dart';
 // import 'package:learn_flutter/rating.dart';
