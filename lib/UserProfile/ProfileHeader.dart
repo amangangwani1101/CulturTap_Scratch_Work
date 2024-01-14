@@ -146,45 +146,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
             ],
           )
-              : widget.reqPage!=6 && widget.reqPage!=4 && widget.reqPage!=8
 
-                ? Container (
-                // decoration: BoxDecoration(
-                //   border: Border.all(
-                //     color: Colors.black,
-                //     width: 2,
-                //   ),
-                // ),
-                width: 60,
-                height: 30,
-                child: GestureDetector(
-                  onTap: (){
-                    if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    }
-                    else if(widget.text=='chats'){
-                      widget.onButtonPressed!();
-                    }
-                    else if(widget.text=='meetingPings'){
-                      print('${widget.userName!}');
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => HomePage(),
-                        ),
-                      );
-                    }
-                    else if(widget.text=='You are all set'){
-                      widget.onButtonPressed!();
-                    }
-                    else{
-                      Navigator.of(context).pop();
-                    }
-                  },
-                  child: Image.asset('assets/images/back.png',width: 60,height: 30,),
-                ),
-              )
                 : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 30,): SizedBox(height: 0,),
               widget.reqPage>=1
 

@@ -2633,25 +2633,25 @@ class _ChatsPageState extends State<ChatsPage> {
                                 // Payment Gateway Open
                                 // payment success then true else false
 
-                                // bool res = await Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) => UpiPayments(name:userName,merchant:helperName,amount:500,phoneNo:helperNumber),
-                                //   ),
-                                // );
-                                // if(res){
+                                bool res = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => UpiPayments(name:userName,merchant:helperName,amount:500,phoneNo:helperNumber),
+                                  ),
+                                );
+                                if(res){
                                 await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
                                 await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
                                 updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
                                 socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
                                 setState(() {});
-                                // }else{
-                                //   ScaffoldMessenger.of(context).showSnackBar(
-                                //     const SnackBar(
-                                //       content: Text('Payment UnSuccessful. Try Again!'),
-                                //     ),
-                                //   );
-                                // }
+                                }else{
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Payment UnSuccessful. Try Again!'),
+                                    ),
+                                  );
+                                }
                               },
                               child: Container(
                                 // width: 325,
