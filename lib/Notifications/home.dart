@@ -8,6 +8,7 @@ import 'package:flutter/material.dart';
 // import 'package:learn_flutter/Notify/notification.dart';
 import 'package:http/http.dart'as http;
 
+import 'NotificationData.dart';
 import 'NotificationHandler.dart';
 import 'notification.dart';
 void main()async{
@@ -63,6 +64,17 @@ class _HomeState extends State<Home> {
     String?token = await notificationServices.getDeviceToken();
     print('Token $token');
   }
+  var notificationSchema = createNotificationSchema(
+    to: 'cTFrw1v1Tfy67O9yRLGQya:APA91bGmtJYw-kUVCaXMME3FzwBDHUfSLVfq9fWU99FmuXq1S8y4kJj3XP6DPoJVncqycSjQ_6a1KCRFA_79-OFyUR2suuc-LRB3naI-QGPS6CiTqd52Tuz-xur955XzrqHLmvSab29k',
+    priority: 'high',
+    title: 'CulturTap',
+    body: 'Call requested by | Aishwary',
+    type: 'local_assistant_service',
+    meetId: '12345',
+    userId: '0',
+    state: 'helper',
+    innerBody: '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>'
+  );
 
   @override
   Widget build(BuildContext context) {
@@ -70,11 +82,7 @@ class _HomeState extends State<Home> {
       home:Scaffold(
         body: InkWell(
             onTap: ()async{
-                sendCustomNotificationToUser(
-                  'csXW7v91SE6uq_0xC5GSHd:APA91bFa8DrFB8NufB1DwyAMK7TOE3fZFurn5uFgAg6B7zv2bx-ACSlT18T4ZgsAg5RQTbV5TBuMM1NbGA0iJuUQ0DlpGztTYw-nh-2HLk0ysHQTBruDGddTp4jfiMaZtt48f0dF8d89',
-                    'CulturTap',
-                    'Call requested by | Aishwary',
-                    '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23','4');
+                sendCustomNotificationToUser2(notificationSchema.toJson());
             },
             child: Center(child: Text('Send Notification'))),
       ),
@@ -84,3 +92,6 @@ class _HomeState extends State<Home> {
 
 // token : csXW7v91SE6uq_0xC5GSHd:APA91bFa8DrFB8NufB1DwyAMK7TOE3fZFurn5uFgAg6B7zv2bx-ACSlT18T4ZgsAg5RQTbV5TBuMM1NbGA0iJuUQ0DlpGztTYw-nh-2HLk0ysHQTBruDGddTp4jfiMaZtt48f0dF8d89
 // token : dykmYyTASBaxWdc6_MWupE:APA91bGsfEORr82tsQAfBOewZePe-dqGedHyq-wN0XrzyAn8H9_3QQTRBttBuP6kjDNfu_4NbD2Dsp91h96k_5ZYvC-WNizMJhvnFCftGinwBmdvA8fHNuu5ldfgnCbreH6f0KleIqdG
+
+// cTFrw1v1Tfy67O9yRLGQya:APA91bGmtJYw-kUVCaXMME3FzwBDHUfSLVfq9fWU99FmuXq1S8y4kJj3XP6DPoJVncqycSjQ_6a1KCRFA_79-OFyUR2suuc-LRB3naI-QGPS6CiTqd52Tuz-xur955XzrqHLmvSab29k
+// c7saCPIvTbGQTMX9n23Wt2:APA91bFuAWwKUapZSlsQB3nN7TTzBkyU4GPh1u_Y5k5qFwKvM3d443ggqRjo46c45t-fghXkbcvk1l9Yk87GfwfSpUNw9Bha9Hz1QgctyYkRcCx8HEZ89VpetkfauVPdLoC6fnJtN65m

@@ -100,7 +100,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
   Future<String> createMeetRequest() async {
-    final url = Uri.parse('$serverUrl/updateLocalAssistantMeetDetails');
+      final url = Uri.parse('$serverUrl/updateLocalAssistantMeetDetails');
     // Replace with your data
     Map<String, dynamic> requestData = {
       "userId": widget.userId,
@@ -376,7 +376,7 @@ class _ChatsPageState extends State<ChatsPage> {
       final data = json.decode(response.body);
       print('Data Of Meet $data');
       setState(() {
-        meetStatus = data['meetStatus'];
+          meetStatus = data['meetStatus'];
       });
       print('Current Meeting Status $meetStatus');
     } else {
@@ -546,7 +546,7 @@ class _ChatsPageState extends State<ChatsPage> {
         }
       });
       SignallingService.instance.socket!.on("leaveCall", (data) {
-        setState(() => callEnded = true);
+          setState(() => callEnded = true);
       });
     }
   }
@@ -808,7 +808,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
       setState(() {
-        rotateButton = false;
+         rotateButton = false;
       });
 
 
@@ -970,16 +970,16 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-        // If you want to prevent the user from going back, return false
-        // return false;
+          // If you want to prevent the user from going back, return false
+          // return false;
 
-        // If you want to navigate directly to the homepage
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => LocalAssist()),
-        );
+          // If you want to navigate directly to the homepage
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LocalAssist()),
+          );
 
-        // Returning true will allow the user to pop the page
+          // Returning true will allow the user to pop the page
 
 
         setState(() {
@@ -991,1576 +991,1576 @@ class _ChatsPageState extends State<ChatsPage> {
         return false; // Returning true will allow the user to pop the page
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent,toolbarHeight: 90,),
-        body: Container(
-          color: Colors.white,
-          height : MediaQuery.of(context).size.height,
-          child: Stack(
+          appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent,toolbarHeight: 90,),
+          body: Container(
+            color: Colors.white,
+            height : MediaQuery.of(context).size.height,
+            child: Stack(
 
-              children : [
-                Container(
-                  margin: EdgeInsets.only(bottom: 70),
-                  // decoration: BoxDecoration(border:Border.all(color:Colors.green)),
-                  child: SingleChildScrollView(
-                    controller: widget.meetId!=null?_scrollController:null,
-                    physics: BouncingScrollPhysics(),
-                    child: Container(
-                      child: Padding(
-                        padding: const EdgeInsets.all(0.0),
-                        child: Container(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                children : [
+                  Container(
+                    margin: EdgeInsets.only(bottom: 70),
+                    // decoration: BoxDecoration(border:Border.all(color:Colors.green)),
+                    child: SingleChildScrollView(
+                      controller: widget.meetId!=null?_scrollController:null,
+                      physics: BouncingScrollPhysics(),
+                      child: Container(
+                          child: Padding(
+                          padding: const EdgeInsets.all(0.0),
+                          child: Container(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
 
-                              Container(
-                                padding: EdgeInsets.only(top:16,left:22,right:16,bottom:16),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(height: 0),
-                                    Text('Immediate Local Assistance',
-                                        style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-                                    Text('Get help at your fingertip from locals',
-                                        style: TextStyle(fontSize: 16)),
-                                    SizedBox(height: 30),
-                                  ],
-                                ),
-                              ),
-
-                              pageVisitor
-                                  ? Container(
-                                padding: EdgeInsets.only(left:16,right:16,),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    InkWell(
-                                      onTap: (){},
-                                      child: Icon(Icons.location_on, color: Colors.black,size: 35),
-                                    ),
-                                    Container(
-                                      width: 250,
-                                      child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Row(
-                                            children: [
-                                              Text('Location '),
-                                            ],
-                                          ),
-                                          Text(liveLocation), // Display user location here
-                                        ],
-                                      ),
-                                    )
-                                  ],
-                                ),
-                              )
-                                  :SizedBox(height:0),
-                              pageVisitor
-                                  ? SizedBox(height: 30)
-                                  : SizedBox(height: 0),
-
-                              pageVisitor
-                                  ? Container(
-                                padding: EdgeInsets.only(left:16,right:16),
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    InkWell(
-                                      onTap:(){
-
-                                        getLocation();
-                                        setState(() {
-                                          rotateButton = true;
-                                        });
-
-
-                                      },
-                                      child: Row(
-                                        children: [
-                                          InkWell(
-                                            onTap:(){},
-                                            child: Transform.rotate(
-                                              angle: rotateButton ? 3.14 : 0, // Rotate by 180 degrees if true, 0 degrees if false
-                                              child: Icon(Icons.refresh, color: Colors.orange, size: 25),
-                                            ),
-                                          ),
-                                          Text('Refresh',style:TextStyle(fontWeight : FontWeight.bold,fontSize:16,color :Colors.orange)),
-                                        ],
-                                      ),
-                                    ),
-                                    SizedBox(width : 20),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(Icons.share, color: Colors.orange,size: 25,),
-                                          onPressed: () {},
-                                        ),
-                                        Text('Share Location',style:TextStyle(fontWeight : FontWeight.bold,fontSize:16,color :Colors.orange)),
-                                      ],
-                                    )
-                                  ],
-                                ),
-                              )
-                                  : SizedBox(height: 0,),
-
-                              pageVisitor
-                                  ? SizedBox(height: 20)
-                                  : SizedBox(height: 0),
-
-                              helpingHands==null && pageVisitor && messages.length==0
-                                  ? Container(
-                                height : 600,
-                                child: Center(
-                                    child: Text('Finding Helping Hands ...',style : TextStyle(fontSize:16))
-                                ),
-                              )
-                                  : pageVisitor ?
-                              Column(
-                                children: [
-                                  SizedBox(height : 10),
-                                  Column(
-
+                                Container(
+                                  padding: EdgeInsets.only(top:16,left:22,right:16,bottom:16),
+                                  child: Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      widget.meetId==null
-                                          ? Container(
-                                        width : 286,
-                                        height: 246,
-                                        margin: EdgeInsets.only(left:16,right:16,),
-                                        color : Color(0xFFEBEBEB),
+                                      SizedBox(height: 0),
+                                      Text('Immediate Local Assistance',
+                                          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                                      Text('Get help at your fingertip from locals',
+                                          style: TextStyle(fontSize: 16)),
+                                      SizedBox(height: 30),
+                                    ],
+                                  ),
+                                ),
+
+                                pageVisitor
+                                    ? Container(
+                                  padding: EdgeInsets.only(left:16,right:16,),
+                                  child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                      InkWell(
+                                        onTap: (){},
+                                        child: Icon(Icons.location_on, color: Colors.black,size: 35),
+                                      ),
+                                      Container(
+                                        width: 250,
                                         child: Column(
-                                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                          crossAxisAlignment: CrossAxisAlignment.start,
                                           children: [
-                                            SizedBox(height : 10),
-                                            Container(
-                                                width: 236,
-                                                child: Text('Hello ! How can Culturtap help you?',style: TextStyle(fontSize: 13,fontFamily: 'Poppins',fontWeight: FontWeight.w600),)),
-                                            SizedBox(height : 10),
-                                            Container(
-                                              width: 236,
-                                              child: Text.rich(
-                                                TextSpan(
-                                                  text: 'You can find here local assistance immediately, we have found ',
-                                                  style: TextStyle(fontWeight: FontWeight.w500, fontFamily: 'Poppins', fontSize: 13),
-                                                  children: [
-                                                    TextSpan(
-                                                      text: ' $helpingHands helping hands ',
-                                                      style: TextStyle(fontWeight: FontWeight.bold, ),
-                                                    ),
-                                                    TextSpan(
-                                                      text: ' near you. Please raise a request for help.',
-                                                    ),
-                                                  ],
-                                                ),
-
-                                              ),
-
+                                            Row(
+                                              children: [
+                                                Text('Location '),
+                                              ],
                                             ),
-                                            SizedBox(height : 10),
-
-                                            Container(
-                                              width: 236,
-                                              child: Text('Type your request carefully before sending it to the local assistant .',
-                                                style: TextStyle(fontWeight: FontWeight.w500,fontFamily: 'Poppins',fontSize: 13,color: Colors.green),),
-                                            ),
-                                            SizedBox(height : 20),
+                                            Text(liveLocation), // Display user location here
                                           ],
                                         ),
                                       )
-                                          :SizedBox(height: 0,),
-                                      messages.length!=0
-                                          ?SizedBox(height:0)
-                                          : Column(
-                                        children:List.generate(suggestedTexts.length, (index) {
-                                          return GestureDetector(
-                                            onTap: (){
-                                              print('Text: ${suggestedTexts[index]}');
-                                              setState(() {
-                                                messageTyping = true;
-                                                _controller.text = suggestedTexts[index];
-                                              });
-                                            },
-                                            child: Container(
-                                              width: 286,
-                                              height: 69,
-                                              decoration: BoxDecoration(
-                                                border: Border.all(
-                                                  color: Colors.black12,
-                                                ),
+                                  ],
+                                ),
+                                    )
+                                    :SizedBox(height:0),
+                                pageVisitor
+                                    ? SizedBox(height: 30)
+                                    : SizedBox(height: 0),
+
+                                pageVisitor
+                                    ? Container(
+                                  padding: EdgeInsets.only(left:16,right:16),
+                                  child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                      InkWell(
+                                        onTap:(){
+
+                                          getLocation();
+                                          setState(() {
+                                            rotateButton = true;
+                                          });
+
+
+                                        },
+                                        child: Row(
+                                          children: [
+                                            InkWell(
+                                              onTap:(){},
+                                              child: Transform.rotate(
+                                              angle: rotateButton ? 3.14 : 0, // Rotate by 180 degrees if true, 0 degrees if false
+                                                child: Icon(Icons.refresh, color: Colors.orange, size: 25),
                                               ),
-                                              padding: EdgeInsets.all(25),
-                                              margin: EdgeInsets.only(bottom: 0.2),
-                                              child: Text(suggestedTexts[index],
-                                                style: TextStyle(fontWeight: FontWeight.w500,fontFamily: 'Poppins',fontSize: 13),),
                                             ),
-                                          );
-                                        }),
+                                            Text('Refresh',style:TextStyle(fontWeight : FontWeight.bold,fontSize:16,color :Colors.orange)),
+                                          ],
+                                        ),
                                       ),
-                                    ],
+                                      SizedBox(width : 20),
+                                      Row(
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Icons.share, color: Colors.orange,size: 25,),
+                                            onPressed: () {},
+                                          ),
+                                          Text('Share Location',style:TextStyle(fontWeight : FontWeight.bold,fontSize:16,color :Colors.orange)),
+                                        ],
+                                      )
+                                  ],
+                                ),
+                                    )
+                                    : SizedBox(height: 0,),
+
+                                pageVisitor
+                                    ? SizedBox(height: 20)
+                                    : SizedBox(height: 0),
+
+                                helpingHands==null && pageVisitor && messages.length==0
+                                ? Container(
+                                  height : 600,
+                                  child: Center(
+                                      child: Text('Finding Helping Hands ...',style : TextStyle(fontSize:16))
                                   ),
-                                ],
-                              )
-                                  :SizedBox(height:0),
+                                )
+                                : pageVisitor ?
+                                Column(
+                                  children: [
+                                    SizedBox(height : 10),
+                                    Column(
 
-                              //
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
                                       children: [
-                                        // Row(
-                                        //   children: [
-                                        //     SizedBox(
-                                        //       width: 25,
-                                        //     ),
-                                        //     Column(
-                                        //       children: [
-                                        //         if (incomingSDPOffer != null)
-                                        //           Center(
-                                        //             child: Container(
-                                        //               width: screenWidth * 0.70,
-                                        //               height: 35,
-                                        //               decoration: BoxDecoration(
-                                        //                 borderRadius: BorderRadius.circular(30.0),
-                                        //                 color: Colors.grey.withOpacity(0.5),
-                                        //               ),
-                                        //               child: Row(
-                                        //                 mainAxisAlignment: MainAxisAlignment.center,
-                                        //                 children: [
-                                        //                   Container(
-                                        //                     width: 100,
-                                        //                     child: Text(
-                                        //                       "Voice Call from $userName",
-                                        //                       style: TextStyle(
-                                        //                         fontSize: 12,
-                                        //                         fontWeight: FontWeight.bold,
-                                        //                       ),
-                                        //                     ),
-                                        //                   ),
-                                        //                   IconButton(
-                                        //                     icon: const Icon(Icons.call_end),
-                                        //                     color: Colors.redAccent,
-                                        //                     onPressed: () {
-                                        //                       SignallingService.instance.socket!
-                                        //                           .emit("leaveCall", {
-                                        //                         "id": widget.meetId,
-                                        //                       });
-                                        //                       setState(() => incomingSDPOffer = null);
-                                        //                     },
-                                        //                   ),
-                                        //                   IconButton(
-                                        //                     icon: const Icon(Icons.call),
-                                        //                     color: Colors.greenAccent,
-                                        //                     onPressed: () async {
-                                        //                       if (callEnded) {
-                                        //                       } else {
-                                        //                         await _joinCall(
-                                        //                           callerId:
-                                        //                           incomingSDPOffer["callerId"]!,
-                                        //                           calleeId: widget.meetId!,
-                                        //                           offer: incomingSDPOffer["sdpOffer"],
-                                        //                           section:
-                                        //                           incomingSDPOffer["section"],
-                                        //                           imageOwn:
-                                        //                           incomingSDPOffer["imageOther"],
-                                        //                           imageOther:
-                                        //                           incomingSDPOffer["imageOwn"],
-                                        //                         );
-                                        //                       }
-                                        //                       setState(() => incomingSDPOffer = null);
-                                        //                     },
-                                        //                   ),
-                                        //                 ],
-                                        //               ),
-                                        //             ),
-                                        //           ),
-                                        //         pageVisitor
-                                        //             ? Column(
-                                        //           children: [
-                                        //             Container(
-                                        //               color: Colors.grey.withOpacity(0.3),
-                                        //               width: 286,
-                                        //               height: 246,
-                                        //               padding: EdgeInsets.all(13),
-                                        //               child: Column(
-                                        //                 mainAxisAlignment:
-                                        //                 MainAxisAlignment.spaceEvenly,
-                                        //                 children: [
-                                        //                   Container(
-                                        //                       width: 236,
-                                        //                       child: Text(
-                                        //                         'Hello ! How can Culturtap help you?',
-                                        //                         textAlign: TextAlign.justify,
-                                        //                         style: TextStyle(
-                                        //                             fontSize: 13,
-                                        //                             fontFamily: 'Poppins',
-                                        //                             fontWeight:
-                                        //                             FontWeight.w600),
-                                        //                       )),
-                                        //                   Container(
-                                        //                       width: 236,
-                                        //                       child: Text(
-                                        //                         'You can find here local assistance immediately, we have found ' +
-                                        //                             '${userIds.length} helping hands' +
-                                        //                             ' near you.Please raise request for help',
-                                        //                         textAlign: TextAlign.justify,
-                                        //                         style: TextStyle(
-                                        //                             fontWeight: FontWeight.w500,
-                                        //                             fontFamily: 'Poppins',
-                                        //                             fontSize: 13),
-                                        //                       )),
-                                        //                   Container(
-                                        //                     width: 236,
-                                        //                     child: Text(
-                                        //                       'Type your request carefully before sending it to the local assistant .',
-                                        //                       textAlign: TextAlign.justify,
-                                        //                       style: TextStyle(
-                                        //                           fontWeight: FontWeight.w500,
-                                        //                           fontFamily: 'Poppins',
-                                        //                           fontSize: 13,
-                                        //                           color: Colors.green),
-                                        //                     ),
-                                        //                   ),
-                                        //                 ],
-                                        //               ),
-                                        //             ),
-                                        //             messages.length != 0
-                                        //                 ? SizedBox(
-                                        //               height: 0,
-                                        //             )
-                                        //                 : Column(
-                                        //               children: List.generate(
-                                        //                   suggestedTexts.length, (index) {
-                                        //                 return GestureDetector(
-                                        //                   onTap: () {
-                                        //                     print(
-                                        //                         'Text: ${suggestedTexts[index]}');
-                                        //                     setState(() {
-                                        //                       messageTyping = true;
-                                        //                       _controller.text =
-                                        //                       suggestedTexts[index];
-                                        //                     });
-                                        //                   },
-                                        //                   child: Container(
-                                        //                     width: 276,
-                                        //                     height: 69,
-                                        //                     decoration: BoxDecoration(
-                                        //                       border: Border.all(
-                                        //                         color: Colors.black12,
-                                        //                       ),
-                                        //                     ),
-                                        //                     padding: EdgeInsets.all(25),
-                                        //                     margin: EdgeInsets.only(
-                                        //                         bottom: 0.2),
-                                        //                     child: Text(
-                                        //                       suggestedTexts[index],
-                                        //                       style: TextStyle(
-                                        //                           fontWeight:
-                                        //                           FontWeight.w500,
-                                        //                           fontFamily: 'Poppins',
-                                        //                           fontSize: 13),
-                                        //                     ),
-                                        //                   ),
-                                        //                 );
-                                        //               }),
-                                        //             ),
-                                        //           ],
-                                        //         )
-                                        //             : SizedBox(
-                                        //           height: 0,
-                                        //         ),
-                                        //       ],
-                                        //     ),
-                                        //   ],
-                                        // ),
-
-                                        messages.length > 0
+                                        widget.meetId==null
                                             ? Container(
+                                          width : 286,
+                                          height: 246,
+                                          margin: EdgeInsets.only(left:16,right:16,),
+                                          color : Color(0xFFEBEBEB),
                                           child: Column(
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: messages.map((message) {
-                                              return ListTile(
-                                                title: message[1] == 'admin-helper-1'
-                                                    ? widget.state == 'user'
-                                                    ? Align(
-                                                  alignment: Alignment.centerLeft,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
+                                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                            children: [
+                                              SizedBox(height : 10),
+                                              Container(
+                                                  width: 236,
+                                                  child: Text('Hello ! How can Culturtap help you?',style: TextStyle(fontSize: 13,fontFamily: 'Poppins',fontWeight: FontWeight.w600),)),
+                                              SizedBox(height : 10),
+                                              Container(
+                                                width: 236,
+                                                child: Text.rich(
+                                                  TextSpan(
+                                                    text: 'You can find here local assistance immediately, we have found ',
+                                                    style: TextStyle(fontWeight: FontWeight.w500, fontFamily: 'Poppins', fontSize: 13),
                                                     children: [
-                                                      GestureDetector(
-                                                        onTap: () async {
-                                                          String mapsUrl =
-                                                              'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
-                                                          if (await canLaunch(
-                                                              mapsUrl)) {
-                                                            await launch(mapsUrl);
-                                                          } else {
-                                                            throw 'Could not launch $mapsUrl';
-                                                          }
-                                                        },
-                                                        child: Container(
-                                                          width: 306,
-                                                          decoration:
-                                                          BoxDecoration(
-                                                            borderRadius: BorderRadius.circular(3),
-                                                            color: HexColor('#EBEBEB'),
-                                                          ),
-                                                          padding: EdgeInsets.all(5),
-                                                          child: Row(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: [
-                                                              Container(
-                                                                padding:EdgeInsets.all(4),
-                                                                child: CircleAvatar(
-                                                                  radius: 20.0,
-                                                                  backgroundImage: FileImage(
-                                                                      File(
-                                                                          helperPhoto))
-                                                                  as ImageProvider<
-                                                                      Object>, // Use a default asset image
-                                                                ),
-                                                              ),
-                                                              Container(
-                                                                padding: EdgeInsets.only(left: 4,bottom: 10,top:10),
-                                                                width:230,
-                                                                // decoration: BoxDecoration(border:Border.all(color:Colors.orange)),
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                                  children: [
-                                                                    SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.start,
-                                                                      children: [
-                                                                        SvgPicture.asset('assets/images/success_logo.svg',width:18,height: 22,),
-                                                                        SizedBox(width: 14,),
-                                                                        Text(
-                                                                          '( Payment Successful )',
-                                                                          style: TextStyle(
-                                                                              fontSize:
-                                                                              13,
-                                                                              fontFamily:
-                                                                              'Poppins',
-                                                                              color: Colors
-                                                                                  .green),
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 21,
-                                                                    ),
-                                                                    Text(
-                                                                      'We already share your location with your Savior.',
-                                                                      style:Theme.of(context).textTheme.subtitle2,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 21,
-                                                                    ),
-                                                                    Row(
-                                                                      crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                      children: [
-                                                                        SvgPicture.asset('assets/images/location_logo.svg',width:21,height: 24,),
-                                                                        SizedBox(
-                                                                          width: 10,
-                                                                        ),
-                                                                        Column(
-                                                                          crossAxisAlignment:
-                                                                          CrossAxisAlignment
-                                                                              .start,
-                                                                          children: [
-                                                                            Row(
-                                                                              mainAxisAlignment: MainAxisAlignment.start,
-                                                                              children: [
-                                                                                Text(
-                                                                                  'Location',
-                                                                                  style: TextStyle(
-                                                                                      fontSize:(12 * MediaQuery.of(context).textScaleFactor),
-                                                                                      fontFamily: 'Poppins',
-                                                                                      fontWeight:
-                                                                                      FontWeight.w600,color:  Color(0xFF001B33)),
-                                                                                ),
-                                                                                SizedBox(width: 2,),
-                                                                                Icon(Icons.keyboard_arrow_down,size: 14,color: Color(0xFF001B33),),
-                                                                              ],
-                                                                            ),
-                                                                            Container(
-                                                                                width: 190,
-                                                                                child:
-                                                                                Text(
-                                                                                    helperAddress,
-                                                                                    style:Theme.of(context).textTheme.bodyText2 )),
-                                                                          ],
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
+                                                      TextSpan(
+                                                        text: ' $helpingHands helping hands ',
+                                                        style: TextStyle(fontWeight: FontWeight.bold, ),
                                                       ),
-                                                      SizedBox(
-                                                        height: 15,
-                                                      ),
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          FlutterClipboard.copy(
-                                                              helperNumber)
-                                                              .then((value) {
-                                                            Fluttertoast.showToast(
-                                                              msg:
-                                                              'Copied to clipboard: $helperNumber',
-                                                              toastLength:
-                                                              Toast.LENGTH_SHORT,
-                                                              gravity:
-                                                              ToastGravity.BOTTOM,
-                                                              backgroundColor:
-                                                              Colors.green,
-                                                              textColor: Colors.white,
-                                                              fontSize: 16.0,
-                                                            );
-                                                          });
-                                                          launch("tel:$helperNumber");
-                                                        },
-                                                        child: Container(
-                                                          width: 306,
-                                                          decoration:
-                                                          BoxDecoration(
-                                                            borderRadius: BorderRadius.circular(3),
-                                                            color: HexColor('#EBEBEB'),
-                                                          ),
-                                                          padding: EdgeInsets.all(5),
-                                                          child: Row(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: [
-                                                              Container(
-                                                                padding:EdgeInsets.all(4),
-                                                                child: CircleAvatar(
-                                                                  radius: 20.0,
-                                                                  backgroundImage: FileImage(
-                                                                      File(
-                                                                          helperPhoto))
-                                                                  as ImageProvider<
-                                                                      Object>, // Use a default asset image
-                                                                ),
-                                                              ),
-                                                              Container(
-                                                                padding: EdgeInsets.only(left: 4,bottom: 10,top:10),
-                                                                width:230,
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                                  children: [
-                                                                    SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Text(
-                                                                      'Call Your Saviour',
-                                                                      style: Theme.of(context).textTheme.subtitle2,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 20,
-                                                                    ),
-                                                                    Column(
-                                                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                                                      children: [
-                                                                        Text(
-                                                                          helperName,
-                                                                          style: Theme.of(context).textTheme.headline6,
-                                                                        ),
-                                                                        Text(
-                                                                          helperNumber,
-                                                                          style: TextStyle(
-                                                                              fontWeight:
-                                                                              FontWeight
-                                                                                  .bold,
-                                                                              fontSize:
-                                                                              16,
-                                                                              fontFamily:
-                                                                              'Poppins',
-                                                                              color: Colors
-                                                                                  .green),
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 20,
-                                                                    ),
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.start,
-                                                                      children: [
-                                                                        SvgPicture.asset('assets/images/contact_logo.svg',width:20,height: 22,),
-                                                                        SizedBox(width: 5,),
-                                                                        Text(
-                                                                          'Copy Contact',
-                                                                          style: TextStyle(
-                                                                              fontSize:
-                                                                              16,
-                                                                              fontWeight:
-                                                                              FontWeight
-                                                                                  .bold,
-                                                                              color: Colors
-                                                                                  .orange,
-                                                                              fontFamily:
-                                                                              'Poppins'),
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
+                                                      TextSpan(
+                                                        text: ' near you. Please raise a request for help.',
                                                       ),
                                                     ],
                                                   ),
-                                                )
-                                                    : Align(
-                                                  alignment: Alignment.centerLeft,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment.start,
-                                                    children: [
-                                                      GestureDetector(
-                                                        onTap: () {
-                                                          FlutterClipboard.copy(
-                                                              helperNumber)
-                                                              .then((value) {
-                                                            Fluttertoast.showToast(
-                                                              msg:
-                                                              'Copied to clipboard: $helperNumber',
-                                                              toastLength:
-                                                              Toast.LENGTH_SHORT,
-                                                              gravity:
-                                                              ToastGravity.BOTTOM,
-                                                              backgroundColor:
-                                                              Colors.green,
-                                                              textColor: Colors.white,
-                                                              fontSize: 16.0,
-                                                            );
-                                                          });
-                                                        },
-                                                        child: Container(
-                                                          width: 306,
-                                                          decoration:
-                                                          BoxDecoration(
-                                                            borderRadius: BorderRadius.circular(3),
-                                                            color: HexColor('#EBEBEB'),
-                                                          ),
-                                                          padding: EdgeInsets.all(5),
-                                                          child: Row(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: [
-                                                              Container(
-                                                                padding:EdgeInsets.all(4),
-                                                                child: CircleAvatar(
-                                                                  radius: 20.0,
-                                                                  backgroundImage: FileImage(
-                                                                      File(
-                                                                          helperPhoto))
-                                                                  as ImageProvider<
-                                                                      Object>, // Use a default asset image
-                                                                ),
-                                                              ),
-                                                              Container(
-                                                                padding: EdgeInsets.only(left: 4,bottom: 10,top:10),
-                                                                width:230,
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                                  children: [
-                                                                    Text(
-                                                                      'Call Tourist Now',
-                                                                      style: Theme.of(context).textTheme.subtitle2,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 21,
-                                                                    ),
-                                                                    Text(
-                                                                      capitalizeWords('first, get connect with user and understand his issue , Plan accordingly to rescue or help them.'),
-                                                                      style: Theme.of(context).textTheme.headline6,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 21,
-                                                                    ),
-                                                                    Column(
-                                                                      crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                      children: [
-                                                                        Text(
-                                                                          helperName,
-                                                                          style:Theme.of(context).textTheme.headline6,
-                                                                        ),
-                                                                        Text(
-                                                                          helperNumber,
-                                                                          style: TextStyle(
-                                                                              fontWeight:
-                                                                              FontWeight
-                                                                                  .bold,
-                                                                              fontSize:
-                                                                              16,
-                                                                              fontFamily:
-                                                                              'Poppins',
-                                                                              color: Colors
-                                                                                  .green),
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 21,
-                                                                    ),
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.start,
-                                                                      children: [
-                                                                        SvgPicture.asset('assets/images/contact_logo.svg',width:20,height: 22,),
-                                                                        SizedBox(width:5),
-                                                                        Text(
-                                                                          'Copy Contact',
-                                                                          style: TextStyle(
-                                                                              fontSize:
-                                                                              16,
-                                                                              fontWeight:
-                                                                              FontWeight
-                                                                                  .bold,
-                                                                              color: Colors
-                                                                                  .orange,
-                                                                              fontFamily:
-                                                                              'Poppins'),
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                      SizedBox(
-                                                        height: 15,
-                                                      ),
-                                                      GestureDetector(
-                                                        //gafv
-                                                        onTap: () async {
-                                                          String mapsUrl =
-                                                              'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
-                                                          if (await canLaunch(
-                                                              mapsUrl)) {
-                                                            await launch(mapsUrl);
-                                                          } else {
-                                                            throw 'Could not launch $mapsUrl';
-                                                          }
-                                                          // Navigator.push(
-                                                          //   context,
-                                                          //   MaterialPageRoute(
-                                                          //     builder: (context) => MapNavigatorScreen(latitude:double.parse(helperLatitude),longitude:double.parse(helperLongitude)),
-                                                          //   ),
-                                                          // );
-                                                        },
-                                                        child: Container(
-                                                          width: 306,
-                                                          decoration:
-                                                          BoxDecoration(
-                                                            borderRadius: BorderRadius.circular(3),
-                                                            color: HexColor('#EBEBEB'),
-                                                          ),
-                                                          padding: EdgeInsets.all(5),
-                                                          child: Row(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: [
-                                                              Container(
-                                                                padding:EdgeInsets.all(4),
-                                                                child: CircleAvatar(
-                                                                  radius: 20.0,
-                                                                  backgroundImage: FileImage(
-                                                                      File(
-                                                                          helperPhoto))
-                                                                  as ImageProvider<
-                                                                      Object>, // Use a default asset image
-                                                                ),
-                                                              ),
-                                                              Container(
-                                                                width:230,
-                                                                padding: EdgeInsets.only(left: 4,bottom: 10,top:10),
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                                  children: [
-                                                                    SizedBox(
-                                                                      height: 5,
-                                                                    ),
-                                                                    Text(
-                                                                      'Tourist Location',
-                                                                      style: Theme.of(context).textTheme.subtitle2,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 11,
-                                                                    ),
-                                                                    Text(
-                                                                      "Hurry up, it may be the concern of someone's life. ",
-                                                                      style:Theme.of(context).textTheme.headline6,
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 21,
-                                                                    ),
-                                                                    Row(
-                                                                      crossAxisAlignment:
-                                                                      CrossAxisAlignment
-                                                                          .start,
-                                                                      children: [
-                                                                        SvgPicture.asset('assets/images/location_logo.svg',width:21,height: 24,),
-                                                                        SizedBox(
-                                                                          width: 10,
-                                                                        ),
-                                                                        Column(
-                                                                          crossAxisAlignment:
-                                                                          CrossAxisAlignment
-                                                                              .start,
-                                                                          children: [
-                                                                            Row(
-                                                                              mainAxisAlignment: MainAxisAlignment.start,
-                                                                              children: [
-                                                                                Text(
-                                                                                  'Location',
-                                                                                  style: TextStyle(
-                                                                                      fontSize:(12 * MediaQuery.of(context).textScaleFactor),
-                                                                                      fontFamily: 'Poppins',
-                                                                                      fontWeight:
-                                                                                      FontWeight.w600,color:  Color(0xFF001B33)),
-                                                                                ),
-                                                                                SizedBox(width: 2,),
-                                                                                Icon(Icons.keyboard_arrow_down,size: 14,color: Color(0xFF001B33),),
-                                                                              ],
-                                                                            ),
-                                                                            Container(
-                                                                                width: 190,
-                                                                                child:
-                                                                                Text(
-                                                                                    helperAddress,
-                                                                                    style:Theme.of(context).textTheme.bodyText2 )),
-                                                                          ],
-                                                                        ),
-                                                                      ],
-                                                                    ),
-                                                                    SizedBox(
-                                                                      height: 21,
-                                                                    ),
-                                                                    Row(
-                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                      children: [
-                                                                        Text(
-                                                                          'Go to The Map',
-                                                                          style: TextStyle(
-                                                                              fontSize:
-                                                                              16,
-                                                                              fontWeight:
-                                                                              FontWeight
-                                                                                  .bold,
-                                                                              color: Colors
-                                                                                  .orange,
-                                                                              fontFamily:
-                                                                              'Poppins'),
-                                                                        ),
-                                                                        Image.asset(
-                                                                          'assets/images/arrow_fwd.png',
-                                                                          width: 16,
-                                                                          height: 16,
-                                                                        )
-                                                                      ],
-                                                                    ),
-                                                                  ],
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ],
+
+                                                ),
+
+                                              ),
+                                              SizedBox(height : 10),
+
+                                              Container(
+                                                width: 236,
+                                                child: Text('Type your request carefully before sending it to the local assistant .',
+                                                  style: TextStyle(fontWeight: FontWeight.w500,fontFamily: 'Poppins',fontSize: 13,color: Colors.green),),
+                                              ),
+                                              SizedBox(height : 20),
+                                            ],
+                                          ),
+                                        )
+                                            :SizedBox(height: 0,),
+                                        messages.length!=0
+                                          ?SizedBox(height:0)
+                                        : Column(
+                                          children:List.generate(suggestedTexts.length, (index) {
+                                            return GestureDetector(
+                                              onTap: (){
+                                                print('Text: ${suggestedTexts[index]}');
+                                                setState(() {
+                                                  messageTyping = true;
+                                                  _controller.text = suggestedTexts[index];
+                                                });
+                                              },
+                                              child: Container(
+                                                width: 286,
+                                                height: 69,
+                                                decoration: BoxDecoration(
+                                                  border: Border.all(
+                                                    color: Colors.black12,
                                                   ),
-                                                )
-                                                    : message[1] == 'admin-cancel'
-                                                    ? widget.state == 'user'
-                                                    ? Align(
-                                                  alignment:
-                                                  Alignment.centerRight,
-                                                  child: Container(
-                                                    width: screenWidth * 0.80,
-                                                    alignment: Alignment.center,
-                                                    decoration: BoxDecoration(
-                                                      color: HexColor('#E9EAEB')
-                                                          .withOpacity(1),
-                                                    ),
-                                                    padding: EdgeInsets.all(10),
-                                                    child: Text(
-                                                      'Meeting Is Cancelled By You',
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          fontFamily: 'Poppins'),
-                                                    ),
-                                                  ),
-                                                )
-                                                    : Align(
-                                                  alignment: Alignment.centerLeft,
-                                                  child: Container(
-                                                    width: screenWidth * 0.80,
-                                                    alignment: Alignment.center,
-                                                    decoration: BoxDecoration(
-                                                      color: HexColor('#E9EAEB')
-                                                          .withOpacity(1),
-                                                    ),
-                                                    padding: EdgeInsets.all(10),
-                                                    child: Text(
-                                                      'Meeting Is Cancelled By ${helperName}',
-                                                      style: TextStyle(
-                                                          fontSize: 14,
-                                                          fontFamily: 'Poppins'),
-                                                    ),
-                                                  ),
-                                                )
-                                                    : message[1] == 'user'
-                                                    ? widget.state == 'helper'
-                                                    ? Align(
-                                                  alignment:
-                                                  Alignment.centerLeft,
-                                                  child: Container(
-                                                    width: 306,
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                      HexColor('#EBEBEB'),
-                                                      borderRadius: BorderRadius.circular(5),
-                                                    ),
-                                                    padding:
-                                                    EdgeInsets.all(5),
-                                                    child: Row(
+                                                ),
+                                                padding: EdgeInsets.all(25),
+                                                margin: EdgeInsets.only(bottom: 0.2),
+                                                child: Text(suggestedTexts[index],
+                                                  style: TextStyle(fontWeight: FontWeight.w500,fontFamily: 'Poppins',fontSize: 13),),
+                                              ),
+                                            );
+                                          }),
+                                        ),
+                                      ],
+                                    ),
+                                  ],
+                                )
+                                :SizedBox(height:0),
+
+                                //
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          // Row(
+                                          //   children: [
+                                          //     SizedBox(
+                                          //       width: 25,
+                                          //     ),
+                                          //     Column(
+                                          //       children: [
+                                          //         if (incomingSDPOffer != null)
+                                          //           Center(
+                                          //             child: Container(
+                                          //               width: screenWidth * 0.70,
+                                          //               height: 35,
+                                          //               decoration: BoxDecoration(
+                                          //                 borderRadius: BorderRadius.circular(30.0),
+                                          //                 color: Colors.grey.withOpacity(0.5),
+                                          //               ),
+                                          //               child: Row(
+                                          //                 mainAxisAlignment: MainAxisAlignment.center,
+                                          //                 children: [
+                                          //                   Container(
+                                          //                     width: 100,
+                                          //                     child: Text(
+                                          //                       "Voice Call from $userName",
+                                          //                       style: TextStyle(
+                                          //                         fontSize: 12,
+                                          //                         fontWeight: FontWeight.bold,
+                                          //                       ),
+                                          //                     ),
+                                          //                   ),
+                                          //                   IconButton(
+                                          //                     icon: const Icon(Icons.call_end),
+                                          //                     color: Colors.redAccent,
+                                          //                     onPressed: () {
+                                          //                       SignallingService.instance.socket!
+                                          //                           .emit("leaveCall", {
+                                          //                         "id": widget.meetId,
+                                          //                       });
+                                          //                       setState(() => incomingSDPOffer = null);
+                                          //                     },
+                                          //                   ),
+                                          //                   IconButton(
+                                          //                     icon: const Icon(Icons.call),
+                                          //                     color: Colors.greenAccent,
+                                          //                     onPressed: () async {
+                                          //                       if (callEnded) {
+                                          //                       } else {
+                                          //                         await _joinCall(
+                                          //                           callerId:
+                                          //                           incomingSDPOffer["callerId"]!,
+                                          //                           calleeId: widget.meetId!,
+                                          //                           offer: incomingSDPOffer["sdpOffer"],
+                                          //                           section:
+                                          //                           incomingSDPOffer["section"],
+                                          //                           imageOwn:
+                                          //                           incomingSDPOffer["imageOther"],
+                                          //                           imageOther:
+                                          //                           incomingSDPOffer["imageOwn"],
+                                          //                         );
+                                          //                       }
+                                          //                       setState(() => incomingSDPOffer = null);
+                                          //                     },
+                                          //                   ),
+                                          //                 ],
+                                          //               ),
+                                          //             ),
+                                          //           ),
+                                          //         pageVisitor
+                                          //             ? Column(
+                                          //           children: [
+                                          //             Container(
+                                          //               color: Colors.grey.withOpacity(0.3),
+                                          //               width: 286,
+                                          //               height: 246,
+                                          //               padding: EdgeInsets.all(13),
+                                          //               child: Column(
+                                          //                 mainAxisAlignment:
+                                          //                 MainAxisAlignment.spaceEvenly,
+                                          //                 children: [
+                                          //                   Container(
+                                          //                       width: 236,
+                                          //                       child: Text(
+                                          //                         'Hello ! How can Culturtap help you?',
+                                          //                         textAlign: TextAlign.justify,
+                                          //                         style: TextStyle(
+                                          //                             fontSize: 13,
+                                          //                             fontFamily: 'Poppins',
+                                          //                             fontWeight:
+                                          //                             FontWeight.w600),
+                                          //                       )),
+                                          //                   Container(
+                                          //                       width: 236,
+                                          //                       child: Text(
+                                          //                         'You can find here local assistance immediately, we have found ' +
+                                          //                             '${userIds.length} helping hands' +
+                                          //                             ' near you.Please raise request for help',
+                                          //                         textAlign: TextAlign.justify,
+                                          //                         style: TextStyle(
+                                          //                             fontWeight: FontWeight.w500,
+                                          //                             fontFamily: 'Poppins',
+                                          //                             fontSize: 13),
+                                          //                       )),
+                                          //                   Container(
+                                          //                     width: 236,
+                                          //                     child: Text(
+                                          //                       'Type your request carefully before sending it to the local assistant .',
+                                          //                       textAlign: TextAlign.justify,
+                                          //                       style: TextStyle(
+                                          //                           fontWeight: FontWeight.w500,
+                                          //                           fontFamily: 'Poppins',
+                                          //                           fontSize: 13,
+                                          //                           color: Colors.green),
+                                          //                     ),
+                                          //                   ),
+                                          //                 ],
+                                          //               ),
+                                          //             ),
+                                          //             messages.length != 0
+                                          //                 ? SizedBox(
+                                          //               height: 0,
+                                          //             )
+                                          //                 : Column(
+                                          //               children: List.generate(
+                                          //                   suggestedTexts.length, (index) {
+                                          //                 return GestureDetector(
+                                          //                   onTap: () {
+                                          //                     print(
+                                          //                         'Text: ${suggestedTexts[index]}');
+                                          //                     setState(() {
+                                          //                       messageTyping = true;
+                                          //                       _controller.text =
+                                          //                       suggestedTexts[index];
+                                          //                     });
+                                          //                   },
+                                          //                   child: Container(
+                                          //                     width: 276,
+                                          //                     height: 69,
+                                          //                     decoration: BoxDecoration(
+                                          //                       border: Border.all(
+                                          //                         color: Colors.black12,
+                                          //                       ),
+                                          //                     ),
+                                          //                     padding: EdgeInsets.all(25),
+                                          //                     margin: EdgeInsets.only(
+                                          //                         bottom: 0.2),
+                                          //                     child: Text(
+                                          //                       suggestedTexts[index],
+                                          //                       style: TextStyle(
+                                          //                           fontWeight:
+                                          //                           FontWeight.w500,
+                                          //                           fontFamily: 'Poppins',
+                                          //                           fontSize: 13),
+                                          //                     ),
+                                          //                   ),
+                                          //                 );
+                                          //               }),
+                                          //             ),
+                                          //           ],
+                                          //         )
+                                          //             : SizedBox(
+                                          //           height: 0,
+                                          //         ),
+                                          //       ],
+                                          //     ),
+                                          //   ],
+                                          // ),
+
+                                          messages.length > 0
+                                              ? Container(
+                                            child: Column(
+                                              crossAxisAlignment: CrossAxisAlignment.center,
+                                              children: messages.map((message) {
+                                                return ListTile(
+                                                  title: message[1] == 'admin-helper-1'
+                                                      ? widget.state == 'user'
+                                                      ? Align(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Column(
                                                       crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
+                                                      CrossAxisAlignment.start,
                                                       children: [
-                                                        Container(
-                                                          padding:EdgeInsets.all(4),
-                                                          child: CircleAvatar(
-                                                            radius: 20.0,
-                                                            backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          padding: EdgeInsets.only(left: 4),
-                                                          width:230,
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            mainAxisAlignment: MainAxisAlignment.start,
-                                                            children: [
-                                                              Text(
-                                                                helperName,
-                                                                style: Theme.of(context).textTheme.subtitle1,
-                                                              ),
-                                                              (message[0]).contains('.jpg') ||
-                                                                  (message[0]).contains(
-                                                                      '.jpeg') ||
-                                                                  (message[0]).contains(
-                                                                      '.png')
-                                                                  ? Image
-                                                                  .file(
-                                                                File(message[
-                                                                0]),
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              )
-                                                                  : message[0]
-                                                                  .contains('.pdf')
-                                                                  ? GestureDetector(
-                                                                onTap:
-                                                                    () {
-                                                                  _openFileWithDefaultApp(message[0]);
-                                                                },
-                                                                child: Container(
-                                                                    width: 200,
-                                                                    height: 200,
-                                                                    child: PDFView(
-                                                                      filePath: message[0],
-                                                                    )),
-                                                              )
-                                                                  : Text(
-                                                                message[0],
-                                                                style:
-                                                                Theme.of(context).textTheme.headline6,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                )
-                                                    : Align(
-                                                  alignment:
-                                                  Alignment.centerRight,
-                                                  child: Container(
-                                                    width: 306,
-                                                    decoration: BoxDecoration(
-                                                      color: HexColor('#FAFAFA'),
-                                                      borderRadius: BorderRadius.circular(5),
-                                                    ),
-                                                    padding:
-                                                    EdgeInsets.all(5),
-                                                    child: Row(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
-                                                      children: [
-                                                        Container(
-                                                          padding:EdgeInsets.all(4),
-                                                          child: CircleAvatar(
-                                                            radius: 20.0,
-                                                            backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          padding: EdgeInsets.only(left: 4),
-                                                          width:230,
-                                                          // decoration: BoxDecoration(border:Border.all(color:Colors.orange)),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            mainAxisAlignment: MainAxisAlignment.start,
-                                                            children: [
-                                                              Text(
-                                                                'You',
-                                                                style: Theme.of(context).textTheme.subtitle1,
-                                                              ),
-                                                              (message[0]).contains('.jpg') ||
-                                                                  (message[0]).contains(
-                                                                      '.jpeg') ||
-                                                                  (message[0]).contains(
-                                                                      '.png')
-                                                                  ? Image
-                                                                  .file(
-                                                                File(message[
-                                                                0]),
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              )
-                                                                  : message[0]
-                                                                  .contains('.pdf')
-                                                                  ? GestureDetector(
-                                                                onTap:
-                                                                    () {
-                                                                  _openFileWithDefaultApp(message[0]);
-                                                                },
-                                                                child: Container(
-                                                                    width: 200,
-                                                                    height: 200,
-                                                                    child: PDFView(
-                                                                      filePath: message[0],
-                                                                    )),
-                                                              )
-                                                                  : Text(
-                                                                message[0],
-                                                                style: Theme.of(context).textTheme.headline6,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                )
-                                                    : widget.state == 'user' &&
-                                                    message[1].contains(
-                                                        'admin') ==
-                                                        false
-                                                    ? Align(
-                                                  alignment:
-                                                  Alignment.centerLeft,
-                                                  child: Container(
-                                                    width: 306,
-                                                    decoration: BoxDecoration(
-                                                      color:
-                                                      HexColor('#EBEBEB'),
-                                                      borderRadius: BorderRadius.circular(5),
-                                                    ),
-                                                    padding:
-                                                    EdgeInsets.all(5),
-                                                    child: Row(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
-                                                      children: [
-                                                        Container(
-                                                          padding:EdgeInsets.all(4),
-                                                          child: CircleAvatar(
-                                                            radius: 20.0,
-                                                            backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                                          ),
-                                                        ),
-                                                        Container(
-                                                          padding: EdgeInsets.only(left: 4),
-                                                          width:230,
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            mainAxisAlignment: MainAxisAlignment.start,
-                                                            children: [
-                                                              Text(
-                                                                helperName,
-                                                                style: Theme.of(context).textTheme.subtitle1,
-                                                              ),
-                                                              (message[0]).contains('.jpg') ||
-                                                                  (message[0]).contains(
-                                                                      '.jpeg') ||
-                                                                  (message[0]).contains(
-                                                                      '.png')
-                                                                  ? Image
-                                                                  .file(
-                                                                File(message[
-                                                                0]),
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              )
-                                                                  : message[0]
-                                                                  .contains('.pdf')
-                                                                  ? GestureDetector(
-                                                                onTap:
-                                                                    () {
-                                                                  _openFileWithDefaultApp(message[0]);
-                                                                },
-                                                                child: Container(
-                                                                    width: 200,
-                                                                    height: 200,
-                                                                    child: PDFView(
-                                                                      filePath: message[0],
-                                                                    )),
-                                                              )
-                                                                  : Text(
-                                                                message[0],
-                                                                style: Theme.of(context).textTheme.headline6,
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                )
-                                                    : message[1].contains(
-                                                    'admin') ==
-                                                    false
-                                                    ? Align(
-                                                  alignment: Alignment
-                                                      .centerRight,
-                                                  child: Container(
-                                                    width: screenWidth *
-                                                        0.80,
-                                                    decoration:
-                                                    BoxDecoration(
-                                                      color: HexColor(
-                                                          '#FAFAFA')
-                                                          .withOpacity(1),
-                                                    ),
-                                                    padding:
-                                                    EdgeInsets.all(
-                                                        10),
-                                                    child: Row(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
-                                                      children: [
-                                                        Container(
-                                                          child:
-                                                          CircleAvatar(
-                                                            radius: 20.0,
-                                                            backgroundImage:
-                                                            AssetImage(
-                                                                'assets/images/profile_image.jpg'), // Use a default asset image
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width: 10,
-                                                        ),
-                                                        Expanded(
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: [
-                                                              Text(
-                                                                'You',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                    14,
-                                                                    fontWeight: FontWeight
-                                                                        .bold,
-                                                                    fontFamily:
-                                                                    'Poppins'),
-                                                              ),
-                                                              (message[0]).contains('.jpg') ||
-                                                                  (message[0]).contains(
-                                                                      '.jpeg') ||
-                                                                  (message[0]).contains(
-                                                                      '.png')
-                                                                  ? Image
-                                                                  .file(
-                                                                File(message[0]),
-                                                                fit:
-                                                                BoxFit.cover,
-                                                              )
-                                                                  : message[0].contains('.pdf')
-                                                                  ? GestureDetector(
-                                                                onTap: () {
-                                                                  _openFileWithDefaultApp(message[0]);
-                                                                },
-                                                                child: Container(
-                                                                    width: 200,
-                                                                    height: 200,
-                                                                    child: PDFView(
-                                                                      filePath: message[0],
-                                                                    )),
-                                                              )
-                                                                  : Text(
-                                                                message[0],
-                                                                style: TextStyle(
-                                                                  fontFamily: 'Poppins',
-                                                                  fontSize: 14,
-                                                                  color: Colors.black,
-                                                                ),
-                                                              ),
-                                                            ],
-                                                          ),
-                                                        ),
-                                                      ],
-                                                    ),
-                                                  ),
-                                                )
-                                                    : widget.state == 'user'
-                                                    ? message[1] ==
-                                                    'admin-user-1'
-                                                    ? Align(
-                                                  alignment: Alignment
-                                                      .centerLeft,
-                                                  child: Column(
-                                                    crossAxisAlignment:
-                                                    CrossAxisAlignment
-                                                        .start,
-                                                    children: [
-                                                      Container(
-                                                        width:306,
-                                                        decoration:
-                                                        BoxDecoration(
-                                                          borderRadius: BorderRadius.circular(3),
-                                                          color: HexColor('#EBEBEB'),
-                                                        ),
-                                                        padding:
-                                                        EdgeInsets.all(5),
-                                                        child:
-                                                        Row(
-                                                          crossAxisAlignment:
-                                                          CrossAxisAlignment.start,
-                                                          children: [
-                                                            Container(
-                                                              padding:EdgeInsets.all(4),
-                                                              child:
-                                                              CircleAvatar(
-                                                                radius: 20.0,
-                                                                backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                                              ),
+                                                        GestureDetector(
+                                                          onTap: () async {
+                                                            String mapsUrl =
+                                                                'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                                            if (await canLaunch(
+                                                                mapsUrl)) {
+                                                              await launch(mapsUrl);
+                                                            } else {
+                                                              throw 'Could not launch $mapsUrl';
+                                                            }
+                                                          },
+                                                          child: Container(
+                                                            width: 306,
+                                                            decoration:
+                                                            BoxDecoration(
+                                                              borderRadius: BorderRadius.circular(3),
+                                                              color: HexColor('#EBEBEB'),
                                                             ),
-                                                            Container(
-                                                              padding: EdgeInsets.only(left: 4),
-                                                              width:230,
-                                                              child: Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                                children: [
-                                                                  SizedBox(height: 5,),
-                                                                  Row(
-                                                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                            padding: EdgeInsets.all(5),
+                                                            child: Row(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              children: [
+                                                                Container(
+                                                                  padding:EdgeInsets.all(4),
+                                                                  child: CircleAvatar(
+                                                                    radius: 20.0,
+                                                                    backgroundImage: FileImage(
+                                                                        File(
+                                                                            helperPhoto))
+                                                                    as ImageProvider<
+                                                                        Object>, // Use a default asset image
+                                                                  ),
+                                                                ),
+                                                                Container(
+                                                                  padding: EdgeInsets.only(left: 4,bottom: 10,top:10),
+                                                                  width:230,
+                                                                  // decoration: BoxDecoration(border:Border.all(color:Colors.orange)),
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
                                                                     children: [
-                                                                      Text(
-                                                                        helperName,
-                                                                        style: Theme.of(context).textTheme.subtitle1,
+                                                                      SizedBox(
+                                                                        height: 5,
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                                        children: [
+                                                                          SvgPicture.asset('assets/images/success_logo.svg',width:18,height: 22,),
+                                                                          SizedBox(width: 14,),
+                                                                          Text(
+                                                                            '( Payment Successful )',
+                                                                            style: TextStyle(
+                                                                                fontSize:
+                                                                                13,
+                                                                                fontFamily:
+                                                                                'Poppins',
+                                                                                color: Colors
+                                                                                    .green),
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 21,
                                                                       ),
                                                                       Text(
-                                                                        '( Allotment Successful )',
-                                                                        style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, fontFamily: 'Poppins', color: Colors.green),
+                                                                        'We already share your location with your Savior.',
+                                                                        style:Theme.of(context).textTheme.subtitle2,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 21,
+                                                                      ),
+                                                                      Row(
+                                                                        crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                        children: [
+                                                                        SvgPicture.asset('assets/images/location_logo.svg',width:21,height: 24,),
+                                                                          SizedBox(
+                                                                            width: 10,
+                                                                          ),
+                                                                          Column(
+                                                                            crossAxisAlignment:
+                                                                            CrossAxisAlignment
+                                                                                .start,
+                                                                            children: [
+                                                                              Row(
+                                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                                children: [
+                                                                                  Text(
+                                                                                    'Location',
+                                                                                    style: TextStyle(
+                                                                                        fontSize:(12 * MediaQuery.of(context).textScaleFactor),
+                                                                                        fontFamily: 'Poppins',
+                                                                                        fontWeight:
+                                                                                        FontWeight.w600,color:  Color(0xFF001B33)),
+                                                                                  ),
+                                                                                  SizedBox(width: 2,),
+                                                                                  Icon(Icons.keyboard_arrow_down,size: 14,color: Color(0xFF001B33),),
+                                                                                ],
+                                                                              ),
+                                                                              Container(
+                                                                                  width: 190,
+                                                                                  child:
+                                                                                  Text(
+                                                                                    helperAddress,
+                                                                                    style:Theme.of(context).textTheme.bodyText2 )),
+                                                                            ],
+                                                                          ),
+                                                                        ],
                                                                       ),
                                                                     ],
                                                                   ),
-                                                                  SizedBox(height: 15,),
-                                                                  Text(
-                                                                    'Hey ${userName},I get your problem, let’s connect first on call. be calm down.',
-                                                                    style: Theme.of(context).textTheme.headline6,
-                                                                  ),
-                                                                  SizedBox(height: 15,),
-                                                                  Text(
-                                                                    'This service will cost you 500 Rs, you successfully get assistant !',
-                                                                    style: TextStyle(
-                                                                      fontFamily: 'Poppins',
-                                                                      fontWeight: FontWeight.normal,
-                                                                      fontSize: 14,
-                                                                      color: Colors.green,
-                                                                    ),
-                                                                  ),
-                                                                  SizedBox(height: 10,),
-                                                                ],
-                                                              ),
+                                                                ),
+                                                              ],
                                                             ),
-                                                          ],
+                                                          ),
                                                         ),
-                                                      ),
-                                                      SizedBox(
-                                                        height:
-                                                        15,
-                                                      ),
-                                                      Container(
-                                                        width:306,
-                                                        decoration:
-                                                        BoxDecoration(
-                                                          borderRadius: BorderRadius.circular(3),
-                                                          color: HexColor('#EBEBEB'),
+                                                        SizedBox(
+                                                          height: 15,
                                                         ),
-                                                        padding:
-                                                        EdgeInsets.all(5),
-                                                        child:
-                                                        Row(
-                                                          crossAxisAlignment:
-                                                          CrossAxisAlignment.start,
-                                                          children: [
-                                                            Container(
-                                                              padding:EdgeInsets.all(4),
-                                                              child:
-                                                              CircleAvatar(
-                                                                radius: 20.0,
-                                                                backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                                              ),
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            FlutterClipboard.copy(
+                                                                helperNumber)
+                                                                .then((value) {
+                                                              Fluttertoast.showToast(
+                                                                msg:
+                                                                'Copied to clipboard: $helperNumber',
+                                                                toastLength:
+                                                                Toast.LENGTH_SHORT,
+                                                                gravity:
+                                                                ToastGravity.BOTTOM,
+                                                                backgroundColor:
+                                                                Colors.green,
+                                                                textColor: Colors.white,
+                                                                fontSize: 16.0,
+                                                              );
+                                                            });
+                                                            launch("tel:$helperNumber");
+                                                          },
+                                                          child: Container(
+                                                            width: 306,
+                                                            decoration:
+                                                            BoxDecoration(
+                                                              borderRadius: BorderRadius.circular(3),
+                                                              color: HexColor('#EBEBEB'),
                                                             ),
-                                                            Container(
-                                                              padding: EdgeInsets.only(left: 4),
-                                                              width:230,
-                                                              child: Column(
-                                                                crossAxisAlignment: CrossAxisAlignment.start,
-                                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                                children: [
-                                                                  Column(
-                                                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                                            padding: EdgeInsets.all(5),
+                                                            child: Row(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              children: [
+                                                                Container(
+                                                                  padding:EdgeInsets.all(4),
+                                                                  child: CircleAvatar(
+                                                                    radius: 20.0,
+                                                                    backgroundImage: FileImage(
+                                                                        File(
+                                                                            helperPhoto))
+                                                                    as ImageProvider<
+                                                                        Object>, // Use a default asset image
+                                                                  ),
+                                                                ),
+                                                                Container(
+                                                                  padding: EdgeInsets.only(left: 4,bottom: 10,top:10),
+                                                                  width:230,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
                                                                     children: [
-                                                                      SizedBox(height: 5,),
-                                                                      Text(
-                                                                        helperName,
-                                                                        style: Theme.of(context).textTheme.subtitle1,
+                                                                      SizedBox(
+                                                                        height: 5,
                                                                       ),
-                                                                      SizedBox(height: 11,),
                                                                       Text(
-                                                                        'What you will get ?',
-                                                                        style:Theme.of(context).textTheme.subtitle2,
+                                                                        'Call Your Saviour',
+                                                                        style: Theme.of(context).textTheme.subtitle2,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 20,
+                                                                      ),
+                                                                      Column(
+                                                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                                                        children: [
+                                                                          Text(
+                                                                            helperName,
+                                                                            style: Theme.of(context).textTheme.headline6,
+                                                                          ),
+                                                                          Text(
+                                                                            helperNumber,
+                                                                            style: TextStyle(
+                                                                                fontWeight:
+                                                                                FontWeight
+                                                                                    .bold,
+                                                                                fontSize:
+                                                                                16,
+                                                                                fontFamily:
+                                                                                'Poppins',
+                                                                                color: Colors
+                                                                                    .green),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 20,
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                                        children: [
+                                                                          SvgPicture.asset('assets/images/contact_logo.svg',width:20,height: 22,),
+                                                                          SizedBox(width: 5,),
+                                                                          Text(
+                                                                            'Copy Contact',
+                                                                            style: TextStyle(
+                                                                                fontSize:
+                                                                                16,
+                                                                                fontWeight:
+                                                                                FontWeight
+                                                                                    .bold,
+                                                                                color: Colors
+                                                                                    .orange,
+                                                                                fontFamily:
+                                                                                'Poppins'),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                      : Align(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                      children: [
+                                                        GestureDetector(
+                                                          onTap: () {
+                                                            FlutterClipboard.copy(
+                                                                helperNumber)
+                                                                .then((value) {
+                                                              Fluttertoast.showToast(
+                                                                msg:
+                                                                'Copied to clipboard: $helperNumber',
+                                                                toastLength:
+                                                                Toast.LENGTH_SHORT,
+                                                                gravity:
+                                                                ToastGravity.BOTTOM,
+                                                                backgroundColor:
+                                                                Colors.green,
+                                                                textColor: Colors.white,
+                                                                fontSize: 16.0,
+                                                              );
+                                                            });
+                                                          },
+                                                          child: Container(
+                                                            width: 306,
+                                                            decoration:
+                                                            BoxDecoration(
+                                                              borderRadius: BorderRadius.circular(3),
+                                                              color: HexColor('#EBEBEB'),
+                                                            ),
+                                                            padding: EdgeInsets.all(5),
+                                                            child: Row(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              children: [
+                                                                Container(
+                                                                  padding:EdgeInsets.all(4),
+                                                                  child: CircleAvatar(
+                                                                    radius: 20.0,
+                                                                    backgroundImage: FileImage(
+                                                                        File(
+                                                                            helperPhoto))
+                                                                    as ImageProvider<
+                                                                        Object>, // Use a default asset image
+                                                                  ),
+                                                                ),
+                                                                Container(
+                                                                  padding: EdgeInsets.only(left: 4,bottom: 10,top:10),
+                                                                  width:230,
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                    children: [
+                                                                      Text(
+                                                                        'Call Tourist Now',
+                                                                        style: Theme.of(context).textTheme.subtitle2,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 21,
+                                                                      ),
+                                                                      Text(
+                                                                        capitalizeWords('first, get connect with user and understand his issue , Plan accordingly to rescue or help them.'),
+                                                                        style: Theme.of(context).textTheme.headline6,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 21,
+                                                                      ),
+                                                                      Column(
+                                                                        crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                        children: [
+                                                                          Text(
+                                                                            helperName,
+                                                                            style:Theme.of(context).textTheme.headline6,
+                                                                          ),
+                                                                          Text(
+                                                                            helperNumber,
+                                                                            style: TextStyle(
+                                                                                fontWeight:
+                                                                                FontWeight
+                                                                                    .bold,
+                                                                                fontSize:
+                                                                                16,
+                                                                                fontFamily:
+                                                                                'Poppins',
+                                                                                color: Colors
+                                                                                    .green),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 21,
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.start,
+                                                                        children: [
+                                                                          SvgPicture.asset('assets/images/contact_logo.svg',width:20,height: 22,),
+                                                                          SizedBox(width:5),
+                                                                          Text(
+                                                                            'Copy Contact',
+                                                                            style: TextStyle(
+                                                                                fontSize:
+                                                                                16,
+                                                                                fontWeight:
+                                                                                FontWeight
+                                                                                    .bold,
+                                                                                color: Colors
+                                                                                    .orange,
+                                                                                fontFamily:
+                                                                                'Poppins'),
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height: 15,
+                                                        ),
+                                                        GestureDetector(
+                                                          //gafv
+                                                          onTap: () async {
+                                                            // String mapsUrl =
+                                                            //     'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                                            // if (await canLaunch(
+                                                            //     mapsUrl)) {
+                                                            //   await launch(mapsUrl);
+                                                            // } else {
+                                                            //   throw 'Could not launch $mapsUrl';
+                                                            // }
+                                                            Navigator.push(
+                                                              context,
+                                                              MaterialPageRoute(
+                                                                builder: (context) => MapNavigatorScreen(latitude:double.parse(helperLatitude),longitude:double.parse(helperLongitude)),
+                                                              ),
+                                                            );
+                                                          },
+                                                          child: Container(
+                                                            width: 306,
+                                                            decoration:
+                                                            BoxDecoration(
+                                                              borderRadius: BorderRadius.circular(3),
+                                                              color: HexColor('#EBEBEB'),
+                                                            ),
+                                                            padding: EdgeInsets.all(5),
+                                                            child: Row(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              children: [
+                                                                Container(
+                                                                  padding:EdgeInsets.all(4),
+                                                                  child: CircleAvatar(
+                                                                    radius: 20.0,
+                                                                    backgroundImage: FileImage(
+                                                                        File(
+                                                                            helperPhoto))
+                                                                    as ImageProvider<
+                                                                        Object>, // Use a default asset image
+                                                                  ),
+                                                                ),
+                                                                Container(
+                                                                  width:230,
+                                                                  padding: EdgeInsets.only(left: 4,bottom: 10,top:10),
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                    children: [
+                                                                      SizedBox(
+                                                                        height: 5,
+                                                                      ),
+                                                                      Text(
+                                                                        'Tourist Location',
+                                                                        style: Theme.of(context).textTheme.subtitle2,
                                                                       ),
                                                                       SizedBox(
                                                                         height: 11,
                                                                       ),
                                                                       Text(
-                                                                        'You can connect with the person with multiple channel as like message , call even video call,and ask for the problem you facing, if needed than person will be available physically with the nature of help. ',
-                                                                        style: Theme.of(context).textTheme.headline6,
-                                                                      )
+                                                                        "Hurry up, it may be the concern of someone's life. ",
+                                                                        style:Theme.of(context).textTheme.headline6,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 21,
+                                                                      ),
+                                                                      Row(
+                                                                        crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .start,
+                                                                        children: [
+                                                                          SvgPicture.asset('assets/images/location_logo.svg',width:21,height: 24,),
+                                                                          SizedBox(
+                                                                            width: 10,
+                                                                          ),
+                                                                          Column(
+                                                                            crossAxisAlignment:
+                                                                            CrossAxisAlignment
+                                                                                .start,
+                                                                            children: [
+                                                                              Row(
+                                                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                                                children: [
+                                                                                  Text(
+                                                                                    'Location',
+                                                                                    style: TextStyle(
+                                                                                        fontSize:(12 * MediaQuery.of(context).textScaleFactor),
+                                                                                        fontFamily: 'Poppins',
+                                                                                        fontWeight:
+                                                                                        FontWeight.w600,color:  Color(0xFF001B33)),
+                                                                                  ),
+                                                                                  SizedBox(width: 2,),
+                                                                                  Icon(Icons.keyboard_arrow_down,size: 14,color: Color(0xFF001B33),),
+                                                                                ],
+                                                                              ),
+                                                                              Container(
+                                                                                  width: 190,
+                                                                                  child:
+                                                                                  Text(
+                                                                                      helperAddress,
+                                                                                      style:Theme.of(context).textTheme.bodyText2 )),
+                                                                            ],
+                                                                          ),
+                                                                        ],
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 21,
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                        children: [
+                                                                          Text(
+                                                                            'Go to The Map',
+                                                                            style: TextStyle(
+                                                                                fontSize:
+                                                                                16,
+                                                                                fontWeight:
+                                                                                FontWeight
+                                                                                    .bold,
+                                                                                color: Colors
+                                                                                    .orange,
+                                                                                fontFamily:
+                                                                                'Poppins'),
+                                                                          ),
+                                                                          Image.asset(
+                                                                            'assets/images/arrow_fwd.png',
+                                                                            width: 16,
+                                                                            height: 16,
+                                                                          )
+                                                                        ],
+                                                                      ),
                                                                     ],
                                                                   ),
-                                                                  SizedBox(
-                                                                    height: 30,
-                                                                  ),
-                                                                  Column(
-                                                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                                                    children: [
-                                                                      Text(
-                                                                        '*Terms & conditions',
-                                                                        style: TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.bold,color:Colors.red),
-                                                                      ),
-                                                                      SizedBox(
-                                                                        height: 5,
-                                                                      ),
-                                                                      Text(
-                                                                        'This 500 Rs payment is for the person allotment only, other extra expenditure will cost you separately.\n\nYou can talk clearly with your savior ,may communication itself a solution of your problems.',
-                                                                        style: TextStyle(fontFamily: 'Poppins', fontSize: 13,color:Colors.red),
-                                                                      ),
-                                                                      SizedBox(
-                                                                        height: 30,
-                                                                      ),
-                                                                      Text(
-                                                                        "Let's Connect !",
-                                                                        style: TextStyle(fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.bold,color:Colors.green),
-                                                                      ),
-                                                                      SizedBox(
-                                                                        height: 20,
-                                                                      ),
-                                                                    ],
-                                                                  ),
-                                                                ],
-                                                              ),
-                                                            ),
-                                                          ],
-                                                        ),
-                                                      ),
-                                                    ],
-                                                  ),
-                                                )
-                                                    : SizedBox(
-                                                  height: 0,
-                                                )
-                                                    : message[1] ==
-                                                    'admin-user-1'
-                                                    ? Align(
-                                                  alignment: Alignment
-                                                      .centerRight,
-                                                  child: Container(
-                                                    width: 306,
-                                                    decoration:
-                                                    BoxDecoration(
-                                                      color: HexColor('#FAFAFA'),
-                                                    ),
-                                                    padding:
-                                                    EdgeInsets.all(
-                                                        5),
-                                                    child:
-                                                    Row(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment.start,
-                                                      children: [
-                                                        Container(
-                                                          padding:EdgeInsets.all(4),
-                                                          child:
-                                                          CircleAvatar(
-                                                            radius: 20.0,
-                                                            backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                                          ),
-                                                        ),
-                                                        SizedBox(
-                                                          width:
-                                                          10,
-                                                        ),
-                                                        Column(
-                                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                                          children: [
-                                                            Row(
-                                                              children: [
-                                                                Text(
-                                                                  'You',
-                                                                  style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, fontFamily: 'Poppins'),
                                                                 ),
                                                               ],
                                                             ),
-                                                            Text(
-                                                              'Hey ${helperName},I get your problem, let’s connect first on call. be calm down.',
-                                                              style: Theme.of(context).textTheme.headline6,
-                                                            ),
-                                                          ],
+                                                          ),
                                                         ),
                                                       ],
                                                     ),
-                                                  ),
-                                                )
-                                                    : SizedBox(
-                                                  height: 0,
-                                                ),
-                                              );
-                                            }).toList(),
-                                          ),
-                                        )
-                                            : SizedBox(
-                                          height: 10,
-                                        ),
-
-                                        // Expanded(child: SizedBox(height: 10,)),
-                                        if (incomingSDPOffer != null)
-                                          Center(
-                                            child: Container(
-                                              width: screenWidth * 0.70,
-                                              height: 35,
-                                              decoration: BoxDecoration(
-                                                borderRadius: BorderRadius.circular(30.0),
-                                                color: Colors.grey.withOpacity(0.5),
-                                              ),
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.center,
-                                                children: [
-                                                  Text(
-                                                    "Voice Call from $userName",
-                                                    style: TextStyle(
-                                                      fontSize: 12,
-                                                      fontWeight: FontWeight.bold,
+                                                  )
+                                                      : message[1] == 'admin-cancel'
+                                                      ? widget.state == 'user'
+                                                      ? Align(
+                                                    alignment:
+                                                    Alignment.centerRight,
+                                                    child: Container(
+                                                      width: screenWidth * 0.80,
+                                                      alignment: Alignment.center,
+                                                      decoration: BoxDecoration(
+                                                        color: HexColor('#E9EAEB')
+                                                            .withOpacity(1),
+                                                      ),
+                                                      padding: EdgeInsets.all(10),
+                                                      child: Text(
+                                                        'Meeting Is Cancelled By You',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            fontFamily: 'Poppins'),
+                                                      ),
                                                     ),
+                                                  )
+                                                      : Align(
+                                                    alignment: Alignment.centerLeft,
+                                                    child: Container(
+                                                      width: screenWidth * 0.80,
+                                                      alignment: Alignment.center,
+                                                      decoration: BoxDecoration(
+                                                        color: HexColor('#E9EAEB')
+                                                            .withOpacity(1),
+                                                      ),
+                                                      padding: EdgeInsets.all(10),
+                                                      child: Text(
+                                                        'Meeting Is Cancelled By ${helperName}',
+                                                        style: TextStyle(
+                                                            fontSize: 14,
+                                                            fontFamily: 'Poppins'),
+                                                      ),
+                                                    ),
+                                                  )
+                                                      : message[1] == 'user'
+                                                      ? widget.state == 'helper'
+                                                      ? Align(
+                                                    alignment:
+                                                    Alignment.centerLeft,
+                                                    child: Container(
+                                                      width: 306,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                        HexColor('#EBEBEB'),
+                                                        borderRadius: BorderRadius.circular(5),
+                                                      ),
+                                                      padding:
+                                                      EdgeInsets.all(5),
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                        children: [
+                                                          Container(
+                                                            padding:EdgeInsets.all(4),
+                                                            child: CircleAvatar(
+                                                              radius: 20.0,
+                                                              backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            padding: EdgeInsets.only(left: 4),
+                                                            width:230,
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  helperName,
+                                                                  style: Theme.of(context).textTheme.subtitle1,
+                                                                ),
+                                                                (message[0]).contains('.jpg') ||
+                                                                    (message[0]).contains(
+                                                                        '.jpeg') ||
+                                                                    (message[0]).contains(
+                                                                        '.png')
+                                                                    ? Image
+                                                                    .file(
+                                                                  File(message[
+                                                                  0]),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                )
+                                                                    : message[0]
+                                                                    .contains('.pdf')
+                                                                    ? GestureDetector(
+                                                                  onTap:
+                                                                      () {
+                                                                    _openFileWithDefaultApp(message[0]);
+                                                                  },
+                                                                  child: Container(
+                                                                      width: 200,
+                                                                      height: 200,
+                                                                      child: PDFView(
+                                                                        filePath: message[0],
+                                                                      )),
+                                                                )
+                                                                    : Text(
+                                                                  message[0],
+                                                                  style:
+                                                                  Theme.of(context).textTheme.headline6,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                      : Align(
+                                                    alignment:
+                                                    Alignment.centerRight,
+                                                    child: Container(
+                                                      width: 306,
+                                                      decoration: BoxDecoration(
+                                                        color: HexColor('#FAFAFA'),
+                                                        borderRadius: BorderRadius.circular(5),
+                                                      ),
+                                                      padding:
+                                                      EdgeInsets.all(5),
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                        children: [
+                                                          Container(
+                                                            padding:EdgeInsets.all(4),
+                                                            child: CircleAvatar(
+                                                              radius: 20.0,
+                                                              backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                                              ),
+                                                          ),
+                                                          Container(
+                                                            padding: EdgeInsets.only(left: 4),
+                                                            width:230,
+                                                            // decoration: BoxDecoration(border:Border.all(color:Colors.orange)),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  'You',
+                                                                  style: Theme.of(context).textTheme.subtitle1,
+                                                                ),
+                                                                (message[0]).contains('.jpg') ||
+                                                                    (message[0]).contains(
+                                                                        '.jpeg') ||
+                                                                    (message[0]).contains(
+                                                                        '.png')
+                                                                    ? Image
+                                                                    .file(
+                                                                  File(message[
+                                                                  0]),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                )
+                                                                    : message[0]
+                                                                    .contains('.pdf')
+                                                                    ? GestureDetector(
+                                                                  onTap:
+                                                                      () {
+                                                                    _openFileWithDefaultApp(message[0]);
+                                                                  },
+                                                                  child: Container(
+                                                                      width: 200,
+                                                                      height: 200,
+                                                                      child: PDFView(
+                                                                        filePath: message[0],
+                                                                      )),
+                                                                )
+                                                                    : Text(
+                                                                  message[0],
+                                                                  style: Theme.of(context).textTheme.headline6,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                      : widget.state == 'user' &&
+                                                      message[1].contains(
+                                                          'admin') ==
+                                                          false
+                                                      ? Align(
+                                                    alignment:
+                                                    Alignment.centerLeft,
+                                                    child: Container(
+                                                      width: 306,
+                                                      decoration: BoxDecoration(
+                                                        color:
+                                                        HexColor('#EBEBEB'),
+                                                        borderRadius: BorderRadius.circular(5),
+                                                      ),
+                                                      padding:
+                                                      EdgeInsets.all(5),
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                        children: [
+                                                          Container(
+                                                            padding:EdgeInsets.all(4),
+                                                            child: CircleAvatar(
+                                                              radius: 20.0,
+                                                              backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                                            ),
+                                                          ),
+                                                          Container(
+                                                            padding: EdgeInsets.only(left: 4),
+                                                            width:230,
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  helperName,
+                                                                  style: Theme.of(context).textTheme.subtitle1,
+                                                                ),
+                                                                (message[0]).contains('.jpg') ||
+                                                                    (message[0]).contains(
+                                                                        '.jpeg') ||
+                                                                    (message[0]).contains(
+                                                                        '.png')
+                                                                    ? Image
+                                                                    .file(
+                                                                  File(message[
+                                                                  0]),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                )
+                                                                    : message[0]
+                                                                    .contains('.pdf')
+                                                                    ? GestureDetector(
+                                                                  onTap:
+                                                                      () {
+                                                                    _openFileWithDefaultApp(message[0]);
+                                                                  },
+                                                                  child: Container(
+                                                                      width: 200,
+                                                                      height: 200,
+                                                                      child: PDFView(
+                                                                        filePath: message[0],
+                                                                      )),
+                                                                )
+                                                                    : Text(
+                                                                  message[0],
+                                                                  style: Theme.of(context).textTheme.headline6,
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                      : message[1].contains(
+                                                      'admin') ==
+                                                      false
+                                                      ? Align(
+                                                    alignment: Alignment
+                                                        .centerRight,
+                                                    child: Container(
+                                                      width: screenWidth *
+                                                          0.80,
+                                                      decoration:
+                                                      BoxDecoration(
+                                                        color: HexColor(
+                                                            '#FAFAFA')
+                                                            .withOpacity(1),
+                                                      ),
+                                                      padding:
+                                                      EdgeInsets.all(
+                                                          10),
+                                                      child: Row(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment
+                                                            .start,
+                                                        children: [
+                                                          Container(
+                                                            child:
+                                                            CircleAvatar(
+                                                              radius: 20.0,
+                                                              backgroundImage:
+                                                              AssetImage(
+                                                                  'assets/images/profile_image.jpg'), // Use a default asset image
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            width: 10,
+                                                          ),
+                                                          Expanded(
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              children: [
+                                                                Text(
+                                                                  'You',
+                                                                  style: TextStyle(
+                                                                      fontSize:
+                                                                      14,
+                                                                      fontWeight: FontWeight
+                                                                          .bold,
+                                                                      fontFamily:
+                                                                      'Poppins'),
+                                                                ),
+                                                                (message[0]).contains('.jpg') ||
+                                                                    (message[0]).contains(
+                                                                        '.jpeg') ||
+                                                                    (message[0]).contains(
+                                                                        '.png')
+                                                                    ? Image
+                                                                    .file(
+                                                                  File(message[0]),
+                                                                  fit:
+                                                                  BoxFit.cover,
+                                                                )
+                                                                    : message[0].contains('.pdf')
+                                                                    ? GestureDetector(
+                                                                  onTap: () {
+                                                                    _openFileWithDefaultApp(message[0]);
+                                                                  },
+                                                                  child: Container(
+                                                                      width: 200,
+                                                                      height: 200,
+                                                                      child: PDFView(
+                                                                        filePath: message[0],
+                                                                      )),
+                                                                )
+                                                                    : Text(
+                                                                  message[0],
+                                                                  style: TextStyle(
+                                                                    fontFamily: 'Poppins',
+                                                                    fontSize: 14,
+                                                                    color: Colors.black,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                      : widget.state == 'user'
+                                                      ? message[1] ==
+                                                      'admin-user-1'
+                                                      ? Align(
+                                                    alignment: Alignment
+                                                        .centerLeft,
+                                                    child: Column(
+                                                      crossAxisAlignment:
+                                                      CrossAxisAlignment
+                                                          .start,
+                                                      children: [
+                                                        Container(
+                                                          width:306,
+                                                          decoration:
+                                                          BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(3),
+                                                            color: HexColor('#EBEBEB'),
+                                                          ),
+                                                          padding:
+                                                          EdgeInsets.all(5),
+                                                          child:
+                                                          Row(
+                                                            crossAxisAlignment:
+                                                            CrossAxisAlignment.start,
+                                                            children: [
+                                                              Container(
+                                                                padding:EdgeInsets.all(4),
+                                                                child:
+                                                                CircleAvatar(
+                                                                  radius: 20.0,
+                                                                  backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                padding: EdgeInsets.only(left: 4),
+                                                                width:230,
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                  children: [
+                                                                    SizedBox(height: 5,),
+                                                                    Row(
+                                                                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                      children: [
+                                                                        Text(
+                                                                          helperName,
+                                                                          style: Theme.of(context).textTheme.subtitle1,
+                                                                        ),
+                                                                        Text(
+                                                                          '( Allotment Successful )',
+                                                                          style: TextStyle(fontSize: 12, fontStyle: FontStyle.italic, fontFamily: 'Poppins', color: Colors.green),
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                    SizedBox(height: 15,),
+                                                                    Text(
+                                                                      'Hey ${userName},I get your problem, let’s connect first on call. be calm down.',
+                                                                      style: Theme.of(context).textTheme.headline6,
+                                                                    ),
+                                                                    SizedBox(height: 15,),
+                                                                    Text(
+                                                                      'This service will cost you 500 Rs, you successfully get assistant !',
+                                                                      style: TextStyle(
+                                                                        fontFamily: 'Poppins',
+                                                                        fontWeight: FontWeight.normal,
+                                                                        fontSize: 14,
+                                                                        color: Colors.green,
+                                                                      ),
+                                                                    ),
+                                                                    SizedBox(height: 10,),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                        SizedBox(
+                                                          height:
+                                                          15,
+                                                        ),
+                                                        Container(
+                                                          width:306,
+                                                          decoration:
+                                                          BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(3),
+                                                            color: HexColor('#EBEBEB'),
+                                                          ),
+                                                          padding:
+                                                          EdgeInsets.all(5),
+                                                          child:
+                                                          Row(
+                                                            crossAxisAlignment:
+                                                            CrossAxisAlignment.start,
+                                                            children: [
+                                                              Container(
+                                                                padding:EdgeInsets.all(4),
+                                                                child:
+                                                                CircleAvatar(
+                                                                  radius: 20.0,
+                                                                  backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                                                ),
+                                                              ),
+                                                              Container(
+                                                                padding: EdgeInsets.only(left: 4),
+                                                                width:230,
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                                  children: [
+                                                                    Column(
+                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                      children: [
+                                                                        SizedBox(height: 5,),
+                                                                        Text(
+                                                                          helperName,
+                                                                          style: Theme.of(context).textTheme.subtitle1,
+                                                                        ),
+                                                                        SizedBox(height: 11,),
+                                                                        Text(
+                                                                          'What you will get ?',
+                                                                          style:Theme.of(context).textTheme.subtitle2,
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height: 11,
+                                                                        ),
+                                                                        Text(
+                                                                          'You can connect with the person with multiple channel as like message , call even video call,and ask for the problem you facing, if needed than person will be available physically with the nature of help. ',
+                                                                          style: Theme.of(context).textTheme.headline6,
+                                                                        )
+                                                                      ],
+                                                                    ),
+                                                                    SizedBox(
+                                                                      height: 30,
+                                                                    ),
+                                                                    Column(
+                                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                                      children: [
+                                                                        Text(
+                                                                          '*Terms & conditions',
+                                                                          style: TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.bold,color:Colors.red),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height: 5,
+                                                                        ),
+                                                                        Text(
+                                                                          'This 500 Rs payment is for the person allotment only, other extra expenditure will cost you separately.\n\nYou can talk clearly with your savior ,may communication itself a solution of your problems.',
+                                                                          style: TextStyle(fontFamily: 'Poppins', fontSize: 13,color:Colors.red),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height: 30,
+                                                                        ),
+                                                                        Text(
+                                                                          "Let's Connect !",
+                                                                          style: TextStyle(fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.bold,color:Colors.green),
+                                                                        ),
+                                                                        SizedBox(
+                                                                          height: 20,
+                                                                        ),
+                                                                      ],
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                  )
+                                                      : SizedBox(
+                                                    height: 0,
+                                                  )
+                                                      : message[1] ==
+                                                      'admin-user-1'
+                                                      ? Align(
+                                                    alignment: Alignment
+                                                        .centerRight,
+                                                    child: Container(
+                                                      width: 306,
+                                                      decoration:
+                                                      BoxDecoration(
+                                                        color: HexColor('#FAFAFA'),
+                                                      ),
+                                                      padding:
+                                                      EdgeInsets.all(
+                                                          5),
+                                                      child:
+                                                      Row(
+                                                        crossAxisAlignment:
+                                                        CrossAxisAlignment.start,
+                                                        children: [
+                                                          Container(
+                                                            padding:EdgeInsets.all(4),
+                                                            child:
+                                                            CircleAvatar(
+                                                              radius: 20.0,
+                                                              backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                                            ),
+                                                          ),
+                                                          SizedBox(
+                                                            width:
+                                                            10,
+                                                          ),
+                                                          Column(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                                            children: [
+                                                              Row(
+                                                                children: [
+                                                                  Text(
+                                                                    'You',
+                                                                    style: TextStyle(fontSize: 13, fontWeight: FontWeight.w800, fontFamily: 'Poppins'),
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                              Text(
+                                                                'Hey ${helperName},I get your problem, let’s connect first on call. be calm down.',
+                                                                style: Theme.of(context).textTheme.headline6,
+                                                              ),
+                                                            ],
+                                                          ),
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  )
+                                                      : SizedBox(
+                                                    height: 0,
                                                   ),
-                                                  IconButton(
-                                                    icon: const Icon(Icons.call_end),
-                                                    color: Colors.redAccent,
-                                                    onPressed: () {
-                                                      setState(() => incomingSDPOffer = null);
-                                                    },
-                                                  ),
-                                                  IconButton(
-                                                    icon: const Icon(Icons.call),
-                                                    color: Colors.greenAccent,
-                                                    onPressed: () async {
-                                                      await _joinCall(
-                                                        callerId: incomingSDPOffer["callerId"]!,
-                                                        calleeId: widget.meetId!,
-                                                        offer: incomingSDPOffer["sdpOffer"],
-                                                        section: incomingSDPOffer["section"],
-                                                        imageOwn: incomingSDPOffer["imageOther"],
-                                                        imageOther: incomingSDPOffer["imageOwn"],
-                                                      );
-                                                      setState(() => incomingSDPOffer = null);
-                                                    },
-                                                  ),
-                                                ],
+                                                );
+                                              }).toList(),
+                                            ),
+                                          )
+                                              : SizedBox(
+                                            height: 10,
+                                          ),
+
+                                          // Expanded(child: SizedBox(height: 10,)),
+                                          if (incomingSDPOffer != null)
+                                            Center(
+                                              child: Container(
+                                                width: screenWidth * 0.70,
+                                                height: 35,
+                                                decoration: BoxDecoration(
+                                                  borderRadius: BorderRadius.circular(30.0),
+                                                  color: Colors.grey.withOpacity(0.5),
+                                                ),
+                                                child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      "Voice Call from $userName",
+                                                      style: TextStyle(
+                                                        fontSize: 12,
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    IconButton(
+                                                      icon: const Icon(Icons.call_end),
+                                                      color: Colors.redAccent,
+                                                      onPressed: () {
+                                                        setState(() => incomingSDPOffer = null);
+                                                      },
+                                                    ),
+                                                    IconButton(
+                                                      icon: const Icon(Icons.call),
+                                                      color: Colors.greenAccent,
+                                                      onPressed: () async {
+                                                        await _joinCall(
+                                                          callerId: incomingSDPOffer["callerId"]!,
+                                                          calleeId: widget.meetId!,
+                                                          offer: incomingSDPOffer["sdpOffer"],
+                                                          section: incomingSDPOffer["section"],
+                                                          imageOwn: incomingSDPOffer["imageOther"],
+                                                          imageOther: incomingSDPOffer["imageOwn"],
+                                                        );
+                                                        setState(() => incomingSDPOffer = null);
+                                                      },
+                                                    ),
+                                                  ],
+                                                ),
                                               ),
                                             ),
-                                          ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
-                              ),
+                                  ],
+                                ),
 
 
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),
                     ),
                   ),
-                ),
 
-                // Positioned(
-                //   bottom : 60,
-                //   right : 10,
-                //   child : IconButton(
-                //     icon: Icon(Icons.expand_circle_down_outlined, color: Colors.black,size: 25,),
-                //     onPressed: () {},
-                //   ),
-                //
-                // ),
-                Positioned(
+              // Positioned(
+              //   bottom : 60,
+              //   right : 10,
+              //   child : IconButton(
+              //     icon: Icon(Icons.expand_circle_down_outlined, color: Colors.black,size: 25,),
+              //     onPressed: () {},
+              //   ),
+              //
+              // ),
+              Positioned(
                   bottom: 70,
                   right:10,
                   child: InkWell(
@@ -2574,7 +2574,7 @@ class _ChatsPageState extends State<ChatsPage> {
                       });
                     },
                     child: Container(
-                        padding: EdgeInsets.all(5),
+                      padding: EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(50),
                           color:HexColor('#EBEBEB'),
@@ -2582,114 +2582,114 @@ class _ChatsPageState extends State<ChatsPage> {
                         child: SvgPicture.asset('assets/images/scroll_down.svg',width:18,height: 22,)
                     ),
                   ),
-                ),
-                Positioned(
-                  bottom : 0,
-                  left : 0,
-                  right : 0,
-                  child: Container(
-                    color : Colors.white,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        (widget.state=='user' && meetStatus=='accept')
-                            ?Column(
-                          children: [
-                            GestureDetector(
-                              onTap: ()async{
-                                bool userConfirmed = await showConfirmationDialog(context, userName!);
-                                if (userConfirmed) {
-                                  // User confirmed, do something
-                                  print('User confirmed');
-                                  await updateLocalUserPings(widget.userId, widget.meetId!, 'cancel');
-                                  await updateLocalUserPings(helperId, widget.meetId!, 'cancel');
-                                  updateMeetingChats(widget.meetId!,['','admin-cancel']);
-                                  socket.emit('message', {'message':'','user1':'admin-cancel','user2':''});
-                                  setState(() {});
-                                } else {
-                                  // User canceled, do something else
-                                  print('User canceled');
-                                }
-                              },
-                              child: Container(
-                                // width: 325,
-                                // height: 63,
-                                margin: EdgeInsets.only(left:30,right:30,top:5,bottom:5),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(5),
-                                    border: Border.all(color: Colors.orange)
-                                ),
-                                child: Center(child:Text('Cancel Request',style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.orange,
-                                    fontSize: 18))),
-                              ),
-                            ),
-
-                            GestureDetector(
-                              onTap:()async{
-                                // Payment Gateway Open
-                                // payment success then true else false
-
-                                bool res = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => UpiPayments(name:userName,merchant:helperName,amount:500,phoneNo:helperNumber),
+              ),
+              Positioned(
+                bottom : 0,
+                left : 0,
+                right : 0,
+                child: Container(
+                  color : Colors.white,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      (widget.state=='user' && meetStatus=='accept')
+                          ?Column(
+                            children: [
+                              GestureDetector(
+                                onTap: ()async{
+                                  bool userConfirmed = await showConfirmationDialog(context, userName!);
+                                  if (userConfirmed) {
+                                    // User confirmed, do something
+                                    print('User confirmed');
+                                    await updateLocalUserPings(widget.userId, widget.meetId!, 'cancel');
+                                    await updateLocalUserPings(helperId, widget.meetId!, 'cancel');
+                                    updateMeetingChats(widget.meetId!,['','admin-cancel']);
+                                    socket.emit('message', {'message':'','user1':'admin-cancel','user2':''});
+                                    setState(() {});
+                                  } else {
+                                    // User canceled, do something else
+                                    print('User canceled');
+                                  }
+                                },
+                                child: Container(
+                                  // width: 325,
+                                  // height: 63,
+                                  margin: EdgeInsets.only(left:30,right:30,top:5,bottom:5),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                      border: Border.all(color: Colors.orange)
                                   ),
-                                );
-                                if(res){
-                                await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
-                                await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
-                                updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
-                                socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
-                                setState(() {});
-                                }else{
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Payment UnSuccessful. Try Again!'),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Container(
-                                // width: 325,
-                                // height: 63,
-                                margin: EdgeInsets.only(left:30,right:30,top:5,bottom:5),
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(5),
-                                  color: Colors.orange,
+                                  child: Center(child:Text('Cancel Request',style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.orange,
+                                      fontSize: 18))),
                                 ),
-                                child: Center(child:Text('Continue To Pay',style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 18))),
                               ),
-                            ),
-                          ],
-                        )
-                            :(meetStatus=='cancel' || meetStatus=='close')
-                            ?Center(
-                          child: Container(
 
-                            width: 325,
-                            height: 63,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(10),
-                              border: Border.all(color: Colors.orange),
-                            ),
-                            child: Center(child:Text(meetStatus=='cancel'?'Cancelled':'Closed',style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                                fontSize: 18))),
+                              GestureDetector(
+                                onTap:()async{
+                                  // Payment Gateway Open
+                                  // payment success then true else false
+
+                                  // bool res = await Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => UpiPayments(name:userName,merchant:helperName,amount:500,phoneNo:helperNumber),
+                                  //   ),
+                                  // );
+                                  // if(res){
+                                    await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
+                                    await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
+                                    updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
+                                    socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
+                                    setState(() {});
+                                  // }else{
+                                  //   ScaffoldMessenger.of(context).showSnackBar(
+                                  //     const SnackBar(
+                                  //       content: Text('Payment UnSuccessful. Try Again!'),
+                                  //     ),
+                                  //   );
+                                  // }
+                                },
+                                child: Container(
+                                  // width: 325,
+                                  // height: 63,
+                                  margin: EdgeInsets.only(left:30,right:30,top:5,bottom:5),
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(5),
+                                    color: Colors.orange,
+                                  ),
+                                  child: Center(child:Text('Continue To Pay',style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 18))),
+                                ),
+                              ),
+                            ],
+                          )
+                          :(meetStatus=='cancel' || meetStatus=='close')
+                          ?Center(
+                        child: Container(
+
+                          width: 325,
+                          height: 63,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(10),
+                            border: Border.all(color: Colors.orange),
                           ),
-                        )
-                            :(widget.state=='helper' && meetStatus=='choose')
-                            ? Center(
-                          child: GestureDetector(
-                            onTap: ()async{
+                          child: Center(child:Text(meetStatus=='cancel'?'Cancelled':'Closed',style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.orange,
+                              fontSize: 18))),
+                        ),
+                      )
+                          :(widget.state=='helper' && meetStatus=='choose')
+                          ? Center(
+                        child: GestureDetector(
+                          onTap: ()async{
                               // User confirmed, do something
                               print('User confirmed');
                               await updateLocalHelperPings(widget.meetId!, 'pending');
@@ -2699,40 +2699,202 @@ class _ChatsPageState extends State<ChatsPage> {
                               await updateMeetingChats(widget.meetId!,[userID,'admin-user-1']);
                               socket.emit('message', {'message':userID,'user1':'admin-user-1','user2':''});
                               _refreshPage(widget.meetId!,state:'helper');
-                            },
-                            child: Container(
-                              margin: EdgeInsets.only(left:30,right:30,top:5,bottom:5),
-                              padding: EdgeInsets.all(10),
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(5),
-                                color: Colors.orange,
-                              ),
-                              child: Text('Accept & Reply',style: Theme.of(context).textTheme.caption),
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(left:30,right:30,top:5,bottom:5),
+                            padding: EdgeInsets.all(10),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(5),
+                              color: Colors.orange,
                             ),
+                            child: Text('Accept & Reply',style: Theme.of(context).textTheme.caption),
                           ),
-                        )
-                            : (!pageVisitor && meetStatus=='pending')
+                        ),
+                      )
+                          : (!pageVisitor && meetStatus=='pending')
                             ?Container(
-                            padding: EdgeInsets.all((20)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('Waiting For Customers Payment',style: Theme.of(context).textTheme.headline4,),
-                                SizedBox(width:10),
-                                LoadingDotAnimation(),
-                              ],
-                            ))
-                            :(meetStatus=='schedule' || sender.length<=1)
-                            ? Container(
-                          height: 70,
+                          padding: EdgeInsets.all((20)),
                           child: Row(
-                            mainAxisAlignment: MainAxisAlignment.start,
+                            mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              SizedBox(width: 10,),
-                              Flexible(
-                                child: Container(
+                              Text('Waiting For Customers Payment',style: Theme.of(context).textTheme.headline4,),
+                              SizedBox(width:10),
+                              LoadingDotAnimation(),
+                            ],
+                          ))
+                            :(meetStatus=='schedule' || sender.length<=1)
+                              ? Container(
+                        height: 70,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            SizedBox(width: 10,),
+                            Flexible(
+                              child: Container(
 
-                                  width: messageTyping?screenWidth:screenWidth*0.70,
+                                width: messageTyping?screenWidth:screenWidth*0.70,
+                                decoration: BoxDecoration(
+
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
+                                      spreadRadius: 0.5,
+                                      blurRadius: 0.2,
+                                      offset: Offset(0, 2), // Adjust the shadow offset
+                                    ),
+                                  ],
+                                  color : Colors.white,
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                padding: EdgeInsets.only(left: 10,right: 10),
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: <Widget>[
+                                    Expanded(
+                                      child: InkWell(
+                                        onTap: () {
+                                          setState(() {});
+                                        },
+                                        child: Container(
+                                          decoration: BoxDecoration(
+                                            // Set your desired background color
+
+                                          ),
+                                          child: TextField(
+                                            focusNode: _textFieldFocusNode,
+                                            onChanged: (text) {
+                                              setState(() {});
+
+                                              if (text.length > 0) {
+                                                setState(() {
+                                                  messageTyping = true;
+                                                });
+                                              } else {
+                                                setState(() {
+                                                  messageTyping = false;
+                                                });
+                                              }
+                                            },
+                                            maxLines: null,
+                                            controller: _controller,
+                                            decoration: InputDecoration(
+                                              hintText: 'Start Typing Here...',
+                                              hintStyle: TextStyle(fontWeight: FontWeight.w600),
+                                              border: InputBorder.none,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+
+                                    SizedBox(width: 10,),
+                                    (meetStatus=='schedule' ||  sender.length<=1)?GestureDetector(
+                                        onTap: ()async{
+                                          String ?path = await showDialog(context: context, builder: (BuildContext context){
+                                            return Container(child: UploadMethod());
+                                          },);
+                                          if(path!=null && path.length>0){
+                                            if(widget.state=='helper'){
+                                              updateMeetingChats(widget.meetId!,[path,'helper']);
+                                              socket.emit('message', {'message':path,'user1':'','user2':'helper'});
+                                            }
+                                            else{
+                                              updateMeetingChats(widget.meetId!,[path,'user']);
+                                              socket.emit('message', {'message':path,'user1':'user','user2':''});
+                                            }
+                                            setState(() {});
+                                          }
+                                        },
+                                        child: SvgPicture.asset('assets/images/attachment_icon.svg')):SizedBox(width: 0,),
+                                    SizedBox(width : 10),
+                                    messageTyping==false?SizedBox(width: 10,):SizedBox(width: 5,),
+                                    SizedBox(width : 10),
+                                    // messageTyping==false?Image.asset('assets/images/send_icon.png'):SizedBox(width: 0,),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            SizedBox(width: 5,),
+                            messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)? Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
+                                  spreadRadius: 0.5,
+                                  blurRadius: 0.2,
+                                  offset: Offset(0, 2), // Adjust the shadow offset
+                                ),
+                              ],
+                                color : Colors.white,
+                              ),
+                              child: IconButton(
+                                icon: Icon(Icons.call),
+                                onPressed:()async{
+                                  await _joinCall(
+                                    callerId: widget.meetId!,
+                                    calleeId: widget.meetId!,
+                                    section: 'audio',
+                                    imageOwn:userPhoto,
+                                    imageOther:helperPhoto,
+                                  );
+                                },
+                                // onPressed: !_isUiEnabled ? startCall : null,
+                              ),
+                            ):SizedBox(width: 0,),
+                            SizedBox(width : 5),
+                            messageTyping==false? SizedBox(width: 0,):SizedBox(width: 0,),
+                            if (messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)) Container(
+                              decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
+                                  spreadRadius: 0.5,
+                                  blurRadius: 0.2,
+                                  offset: Offset(0, 2), // Adjust the shadow offset
+                                ),
+                              ],
+                                color : Colors.white,
+                              ),
+                              child: IconButton(
+                                icon: Icon(Icons.videocam),
+                                // onPressed:initiateVideoCall,
+                                onPressed: (){
+                                  _joinCall(
+                                    callerId: widget.meetId!,
+                                    calleeId: widget.meetId!,
+                                    section: 'video',
+                                    imageOwn:userPhoto,
+                                    imageOther:helperPhoto,
+                                  );
+                                },
+                              ),
+                            ) else if((meetStatus=='schedule' ||  sender.length<=1)) GestureDetector(
+                              onTap: ()async{
+                                if(receiver.length==0 && sender.length>1){
+
+                                }else{
+                                  if(pageVisitor){
+                                    if(widget.meetId==null){
+                                      String meetingId = await createMeetRequest();
+                                      await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',meetingId,widget.userId);
+                                      _controller.clear();
+                                      // _refreshPage(meetingId);
+                                    }else{
+                                      _handleSend();
+                                      await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',widget.meetId!,widget.userId);
+                                    }
+                                    setState(() {});
+                                  }else{
+                                    _handleSend();
+                                    await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',widget.meetId!,widget.userId);
+                                    setState(() {});
+                                  }
+                                  setState(() {
+                                    messageTyping = false;
+                                  });
+                                }
+                              },
+                              child: Container(
+                                  padding: EdgeInsets.all(15),
+
                                   decoration: BoxDecoration(
 
                                     boxShadow: [
@@ -2744,196 +2906,34 @@ class _ChatsPageState extends State<ChatsPage> {
                                       ),
                                     ],
                                     color : Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
+                                    borderRadius: BorderRadius.circular(50),
                                   ),
-                                  padding: EdgeInsets.only(left: 10,right: 10),
-                                  child: Row(
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    children: <Widget>[
-                                      Expanded(
-                                        child: InkWell(
-                                          onTap: () {
-                                            setState(() {});
-                                          },
-                                          child: Container(
-                                            decoration: BoxDecoration(
-                                              // Set your desired background color
-
-                                            ),
-                                            child: TextField(
-                                              focusNode: _textFieldFocusNode,
-                                              onChanged: (text) {
-                                                setState(() {});
-
-                                                if (text.length > 0) {
-                                                  setState(() {
-                                                    messageTyping = true;
-                                                  });
-                                                } else {
-                                                  setState(() {
-                                                    messageTyping = false;
-                                                  });
-                                                }
-                                              },
-                                              maxLines: null,
-                                              controller: _controller,
-                                              decoration: InputDecoration(
-                                                hintText: 'Start Typing Here...',
-                                                hintStyle: TextStyle(fontWeight: FontWeight.w600),
-                                                border: InputBorder.none,
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
-
-                                      SizedBox(width: 10,),
-                                      (meetStatus=='schedule' ||  sender.length<=1)?GestureDetector(
-                                          onTap: ()async{
-                                            String ?path = await showDialog(context: context, builder: (BuildContext context){
-                                              return Container(child: UploadMethod());
-                                            },);
-                                            if(path!=null && path.length>0){
-                                              if(widget.state=='helper'){
-                                                updateMeetingChats(widget.meetId!,[path,'helper']);
-                                                socket.emit('message', {'message':path,'user1':'','user2':'helper'});
-                                              }
-                                              else{
-                                                updateMeetingChats(widget.meetId!,[path,'user']);
-                                                socket.emit('message', {'message':path,'user1':'user','user2':''});
-                                              }
-                                              setState(() {});
-                                            }
-                                          },
-                                          child: SvgPicture.asset('assets/images/attachment_icon.svg')):SizedBox(width: 0,),
-                                      SizedBox(width : 10),
-                                      messageTyping==false?SizedBox(width: 10,):SizedBox(width: 5,),
-                                      SizedBox(width : 10),
-                                      // messageTyping==false?Image.asset('assets/images/send_icon.png'):SizedBox(width: 0,),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 5,),
-                              messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)? Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
-                                    spreadRadius: 0.5,
-                                    blurRadius: 0.2,
-                                    offset: Offset(0, 2), // Adjust the shadow offset
-                                  ),
-                                ],
-                                  color : Colors.white,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(Icons.call),
-                                  onPressed:()async{
-                                    await _joinCall(
-                                      callerId: widget.meetId!,
-                                      calleeId: widget.meetId!,
-                                      section: 'audio',
-                                      imageOwn:userPhoto,
-                                      imageOther:helperPhoto,
-                                    );
-                                  },
-                                  // onPressed: !_isUiEnabled ? startCall : null,
-                                ),
-                              ):SizedBox(width: 0,),
-                              SizedBox(width : 5),
-                              messageTyping==false? SizedBox(width: 0,):SizedBox(width: 0,),
-                              if (messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)) Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
-                                    spreadRadius: 0.5,
-                                    blurRadius: 0.2,
-                                    offset: Offset(0, 2), // Adjust the shadow offset
-                                  ),
-                                ],
-                                  color : Colors.white,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(Icons.videocam),
-                                  // onPressed:initiateVideoCall,
-                                  onPressed: (){
-                                    _joinCall(
-                                      callerId: widget.meetId!,
-                                      calleeId: widget.meetId!,
-                                      section: 'video',
-                                      imageOwn:userPhoto,
-                                      imageOther:helperPhoto,
-                                    );
-                                  },
-                                ),
-                              ) else if((meetStatus=='schedule' ||  sender.length<=1)) GestureDetector(
-                                onTap: ()async{
-                                  if(receiver.length==0 && sender.length>1){
-
-                                  }else{
-                                    if(pageVisitor){
-                                      if(widget.meetId==null){
-                                        String meetingId = await createMeetRequest();
-                                        await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',meetingId,widget.userId);
-                                        _controller.clear();
-                                        // _refreshPage(meetingId);
-                                      }else{
-                                        _handleSend();
-                                        await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',widget.meetId!,widget.userId);
-                                      }
-                                      setState(() {});
-                                    }else{
-                                      _handleSend();
-                                      await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',widget.meetId!,widget.userId);
-                                      setState(() {});
-                                    }
-                                    setState(() {
-                                      messageTyping = false;
-                                    });
-                                  }
-                                },
-                                child: Container(
-                                    padding: EdgeInsets.all(15),
-
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.5,
-                                          blurRadius: 0.2,
-                                          offset: Offset(0, 2), // Adjust the shadow offset
-                                        ),
-                                      ],
-                                      color : Colors.white,
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    child: SvgPicture.asset('assets/images/send_msg.svg')),
-                              )
-                              else SizedBox(width: 10,),
-                              messageTyping==false?SizedBox(width: 10,):SizedBox(width: 10,),
+                                  child: SvgPicture.asset('assets/images/send_msg.svg')),
+                            )
+                            else SizedBox(width: 10,),
+                            messageTyping==false?SizedBox(width: 10,):SizedBox(width: 10,),
+                          ],
+                        ),
+                      )
+                              : Container(
+                          padding: EdgeInsets.all((20)),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text('Waiting For Response',style: Theme.of(context).textTheme.headline4,),
+                              SizedBox(width:10),
+                              LoadingDotAnimation(),
                             ],
-                          ),
-                        )
-                            : Container(
-                            padding: EdgeInsets.all((20)),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Text('Waiting For Response',style: Theme.of(context).textTheme.headline4,),
-                                SizedBox(width:10),
-                                LoadingDotAnimation(),
-                              ],
-                            )),
-                      ],
-                    ),
+                          )),
+                    ],
                   ),
                 ),
-              ]
+              ),
+            ]
 
+            ),
           ),
         ),
-      ),
     );
   }
 
@@ -2960,7 +2960,6 @@ class _ChatsPageState extends State<ChatsPage> {
     socket.dispose();
   }
 }
-
 class LoadingDotAnimation extends StatefulWidget {
   @override
   _LoadingDotAnimationState createState() => _LoadingDotAnimationState();
