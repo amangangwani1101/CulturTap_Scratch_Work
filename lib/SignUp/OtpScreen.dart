@@ -12,10 +12,9 @@ import '../HomePage.dart';
 
 class OtpScreen extends StatefulWidget {
   String? otp;
-  final String phoneNumber;
-  final String? userName;
+  final String userName,phoneNumber;
 
-  OtpScreen({this.otp,this.userName,required this.phoneNumber});
+  OtpScreen({this.otp,required this.userName,required this.phoneNumber});
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
@@ -75,7 +74,7 @@ class _OtpScreenState extends State<OtpScreen>{
         print('${widget.userName} , ${widget.phoneNumber} , ${userCredId}');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName!,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
+          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
         );
       }
 
@@ -90,9 +89,9 @@ class _OtpScreenState extends State<OtpScreen>{
     return Scaffold(
       appBar: CustomAppBar(title:""),
       body: Container(
-        color : Colors.white,
+          color : Colors.white,
           width: double.infinity,
-
+          height : double.infinity,
           child: Center(
             child: SingleChildScrollView(
               child: Container(
@@ -108,12 +107,12 @@ class _OtpScreenState extends State<OtpScreen>{
                         child : Image.asset('assets/images/thirdPage.png'),
                         color: Colors.white54),
                     Container(
-                      child : Image.asset('assets/images/SignUp2.png'),
+                      child : Image.asset('assets/images/SignUp3.png'),
                     ),
                     Container(
                       height : 20,
                     ),
-                    Text('Earn by assisting nearby turists !',style: TextStyle(fontWeight: FontWeight.w200,fontSize: 16,),),
+                    Text('Earn by assisting nearby turists !',style: TextStyle(fontWeight: FontWeight.w200,fontSize: 20,),),
                     Container(
                       width : double.infinity,
                       height : 20,
@@ -121,32 +120,30 @@ class _OtpScreenState extends State<OtpScreen>{
 
                     Text('ENTER OTP',
                         style: TextStyle(
-                          fontSize: 20,
+                          fontSize: 24,
                           color: Colors.black,
                           fontFamily: 'Poppins',
                           fontWeight: FontWeight.bold,
                         )),
                     Container(
                         margin: EdgeInsets.only(bottom: 31),
-                        child: Text('it should be autofilled \nor type manually',
+                        child: Text('it should be autofilled or type manually',
                             style: TextStyle(
-                                fontSize: 16, color: Colors.black))),
+                                fontSize: 20, color: Colors.black))),
 
                     Container(
+                      margin: EdgeInsets.only(bottom: 19),
 
-
-
+                      width: 325,
                       child :Row(
 
                         mainAxisAlignment: MainAxisAlignment.start,
                         children: List.generate(6, (index) {
                           return Container(
-
-                            width : 42,
-                            height : 55,
+                            width: 40,
+                            height: 50,
                             margin: EdgeInsets.symmetric(horizontal: 5),
                             child: TextField(
-                              style: TextStyle(color : Colors.black,fontSize : 16),
                               controller: _controllers[index],
                               focusNode: _focusNodes[index],
                               keyboardType: TextInputType.number,
@@ -156,8 +153,7 @@ class _OtpScreenState extends State<OtpScreen>{
                               decoration: InputDecoration(
                                 counterText: '',
                                 border: OutlineInputBorder(
-
-                                  borderSide: BorderSide(width: 1, color : Colors.orange,),
+                                  borderSide: BorderSide(width: 1),
                                 ),
                               ),
                               onChanged: (value) {
@@ -195,23 +191,29 @@ class _OtpScreenState extends State<OtpScreen>{
 
 
                     ),
-                    SizedBox(height : 20),
-                    Text("Didn't receive it?",
-                        style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w100)),
-                    TextButton(
-                      onPressed: () {
-                        // Resend login here
-                      },
-                      child: Text('RESEND !',
-                          style: TextStyle(
-                            color: Colors.orange,
-                            fontWeight: FontWeight.bold,
-                            fontSize: 18,
-                          ),),
-                    ),
-                    SizedBox(height : 10),
+
+                    Container(
+                        margin: EdgeInsets.only(bottom: 21),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text("Didn't receive it?",
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    fontWeight: FontWeight.w100)),
+                            TextButton(
+                              onPressed: () {
+                                // Resend login here
+                              },
+                              child: Text('RESEND !',
+                                  style: TextStyle(
+                                    color: Colors.orange,
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 20,
+                                  )),
+                            )
+                          ],
+                        )),
 
                     Container(
                         width: 325,

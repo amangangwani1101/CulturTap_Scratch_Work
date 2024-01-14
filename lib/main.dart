@@ -53,7 +53,12 @@ class MyApp extends StatelessWidget {
 
       ThemeData(
 
+        primarySwatch: Colors.blue,
+
+
+
         fontFamily: 'Poppins',
+
 
 
         primaryColor: Colors.white, // Change the primary color
@@ -94,6 +99,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           backgroundColor: Color(0xFF1E2529) , // Change the AppBar background color
           foregroundColor: Colors.white,
+
           // Change the AppBar text color
         ),
         floatingActionButtonTheme: FloatingActionButtonThemeData(
@@ -102,6 +108,9 @@ class MyApp extends StatelessWidget {
       ) :
 
       ThemeData(
+        primarySwatch: Colors.blue,
+
+
 
         fontFamily: 'Poppins',
 
@@ -123,7 +132,7 @@ class MyApp extends StatelessWidget {
           subtitle1: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
           subtitle2: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight : FontWeight.w600),
 
-          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color :Colors.orange , fontWeight: FontWeight.bold),
+          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),),
           headline1: TextStyle(fontSize: (25  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold), // Adjust the font size and weight as needed
           headline2: TextStyle(fontSize: (18  * MediaQuery.of(context).textScaleFactor),color :Color(0xFF001B33) , fontWeight: FontWeight.bold),
           headline5: TextStyle(fontSize: (16 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.bold),
@@ -137,9 +146,13 @@ class MyApp extends StatelessWidget {
 
         // Optional: Define colors for specific components
         appBarTheme: AppBarTheme(
+
           backgroundColor: Colors.white, // Change the AppBar background color
-          foregroundColor: Colors.black, // Change the AppBar text color
+          foregroundColor: Colors.black,
+
+          // Change the AppBar text color
         ),
+
         floatingActionButtonTheme: FloatingActionButtonThemeData(
           backgroundColor: Colors.orange, // Change the FloatingActionButton color
         ),

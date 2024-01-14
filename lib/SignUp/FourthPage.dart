@@ -290,19 +290,22 @@ class _FourthPageState extends State<FourthPage> {
                   ),
                   Text(
                     'CONFIRM YOUR LOCATION',
-                    style: Theme.of(context).textTheme.headline1,),
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.black,
+                      fontWeight: FontWeight.w600,),
+                  ),
                   Container(
                     margin: EdgeInsets.only(bottom: 31),
                     child: Text(
                       'Fetched Location',
-                      style:Theme.of(context).textTheme.subtitle1,
+                      style: TextStyle(fontSize: 20, color: Colors.black),
                     ),
                   ),
                   Container(
                     margin: EdgeInsets.only(bottom: 19),
                     width: 325,
                     child: TextField(
-                      style: Theme.of(context).textTheme.subtitle1,
                       controller: _locationController,
                       decoration: InputDecoration(
                         hintText: 'Fetching location...',

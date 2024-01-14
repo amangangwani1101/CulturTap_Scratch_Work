@@ -21,12 +21,12 @@ import 'package:learn_flutter/widgets/CustomAutoSuggestionDropDown.dart';
 import 'package:learn_flutter/widgets/CustomButton.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:http/http.dart' as http;
-import '../ServiceSections/ServiceCards.dart';
-import '../SignUp/FirstPage.dart';
-import 'CoverPage.dart';
-import 'UserInfo.dart';
-import '../widgets/Constant.dart';
-import '../widgets/CustomAlertImageBox.dart';
+import 'ServiceSections/ServiceCards.dart';
+import 'SignUp/FirstPage.dart';
+import 'UserProfile/CoverPage.dart';
+import 'UserProfile/UserInfo.dart';
+import 'widgets/Constant.dart';
+import 'widgets/CustomAlertImageBox.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 
@@ -121,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
             await _auth.signOut();
             // Redirect to the login or splash screen after logout
             // For example:
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SecondPage()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FirstPage()));
           } catch (e) {
             print('Error while logging out: $e');
             // Handle the error as needed

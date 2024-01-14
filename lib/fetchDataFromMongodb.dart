@@ -10,21 +10,31 @@ FirebaseFirestore firestore = FirebaseFirestore.instance;
 
 Future<void> fetchDataFromMongoDB() async {
   try {
+
     User? user = _auth.currentUser;
+    print('yeah rha user yha');
+    print(user);
     if (user != null) {
+      print('yeah rha user yha jadfhalksdf');
+
       var userQuery = await firestore
           .collection('users')
           .where('uid', isEqualTo: user.uid)
           .limit(1)
           .get();
 
+
       var userData = userQuery.docs.first.data();
+
+      print('abababa');
+      print(userData);
       String uName = userData['name'];
       String uId = userData['userMongoId'];
-      String uNumber = userData['phoneNumber'];
-      userPhoneNumber = uNumber;
-      userName = uName;
-      print('userName: $userName');
+      String uNumber = (userData['phoneNo'].toString());
+      print(uNumber);
+      // userPhoneNumber = uNumber;
+      // userName = uName;
+      print('userNamewa: $uName');
       userID = uId;
       print('userIDmmmmm: $userID');
     }

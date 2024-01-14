@@ -42,11 +42,8 @@ class FirstPage extends StatelessWidget {
 
   Widget build(BuildContext context) {
     return Center(
-
-        child: const MyHomePage(title: 'LogIn'),
-      );
-
-
+      child: const MyHomePage(title: 'LogIn'),
+    );
   }
 }
 

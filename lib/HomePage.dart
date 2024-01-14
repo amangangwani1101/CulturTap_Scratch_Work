@@ -237,6 +237,7 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+
     super.initState();
 
     fetchDataFromMongoDB();
@@ -257,6 +258,7 @@ class _HomePageState extends State<HomePage> {
 
 
     });
+    print('userID print kra rha hu $userID');
 
   }
 
@@ -334,6 +336,8 @@ class _HomePageState extends State<HomePage> {
                 title: ProfileHeader(reqPage: 0, userId:userID),
                 automaticallyImplyLeading: false,
                 shadowColor: Colors.transparent,
+                backgroundColor: Colors.white,
+
 
 
                 toolbarHeight: 90,
