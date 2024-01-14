@@ -1,5 +1,7 @@
+import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
+import 'package:http/http.dart' as http;
 
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/cupertino.dart';
@@ -7,6 +9,9 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
+import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
+import 'package:learn_flutter/widgets/Constant.dart';
 
 import 'Chat.dart';
 // import 'package:learn_flutter/Notify/Chat.dart';
@@ -16,6 +21,74 @@ class NotificationServices{
   FirebaseMessaging messaging = FirebaseMessaging.instance;
   final FlutterLocalNotificationsPlugin _flutterLocalNotificationsPlugin = FlutterLocalNotificationsPlugin();
   Map<String, List<String>> chatMessages = {};
+  String meetId = '';
+  String state = '';
+  String eligible = '';
+
+
+
+
+  // check is meeting ongoing
+  Future<void> checkIsMeetOngoing()async {
+    await PingsAssistanceChecker(userID);
+  }
+
+  Future<void> checkIsEligible() async{
+    await PingsAssistanceEligible(userID);
+  }
+
+  Future<void> PingsAssistanceChecker(userId) async {
+    try{
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final url = Uri.parse('$serverUrl/checkLocalUserPings/${userId}'); // Replace with your backend URL
+      final http.Response response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(data);
+
+          if(data['meetId']!=null){
+            meetId = data['meetId'];
+          }
+          if(data['state']!=null){
+            state = data['state'];
+          }
+          if(data['eligible']!=null){
+            eligible = data['eligible'];
+          }
+
+        print('Meeting Ongoing : $meetId');
+
+      } else {
+        // Handle error
+        print('Failed to fetch dataset: ${response.statusCode}');
+      }
+    }
+    catch(err){
+      print('Error $err');
+    }
+  }
+
+  Future<void> PingsAssistanceEligible(userId) async {
+    try{
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final url = Uri.parse('$serverUrl/checkLocalUserEligible/${userId}'); // Replace with your backend URL
+      final http.Response response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print(data);
+
+      } else {
+        // Handle error
+        print('Failed to fetch dataset: ${response.statusCode}');
+      }
+    }
+    catch(err){
+      print('Error $err');
+    }
+  }
+
   void firebaseInit(BuildContext context){
     FirebaseMessaging.onMessage.listen((message) {
       if(kDebugMode){
@@ -76,7 +149,7 @@ class NotificationServices{
     AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
       channel.id.toString(),
       channel.name.toString(),
-      channelDescription: 'Trip Planning Services',
+      channelDescription: 'Local Assistance Services',
       // sound: RawResourceAndroidNotificationSound('assets/sounds/camera_sound.mp3'),
       // icon: 'Iconing',
       vibrationPattern: Int64List.fromList([0, 500, 1000, 500]),
@@ -84,7 +157,7 @@ class NotificationServices{
       importance: Importance.high,
       priority: Priority.high,
       ticker: 'ticker',
-      subText: 'Trip Calling Service',
+      subText: 'Local Assistance Services',
       ledColor: const Color.fromARGB(255, 255, 0, 0), // Replace with your LED color
       ledOnMs: 1000, // LED on duration in milliseconds
       ledOffMs: 500, // LED off duration in milliseconds
@@ -102,7 +175,7 @@ class NotificationServices{
         htmlFormatTitle: true,
       ),
       color: Color.fromARGB(255, 255, 255, 255),
-      timeoutAfter: 300000, // Timeout after 5 minutes (300,000 milliseconds)
+      timeoutAfter: 300000,
       actions: [
         AndroidNotificationAction(
           'action_button_1',
@@ -160,119 +233,6 @@ class NotificationServices{
     });
   }
 
-  // Future<void> showProgressBarNotification(int progressPercentage) async {
-  //   AndroidNotificationChannel channel = AndroidNotificationChannel(
-  //       Random.secure().nextInt(100000).toString(),
-  //       'Notification',
-  //       importance: Importance.max
-  //   );
-  //   if (progressPercentage == 100) {
-  //     // Upload completed, show notification without progress bar
-  //     AndroidNotificationDetails androidNotificationDetails =
-  //     AndroidNotificationDetails(
-  //       channel.id.toString(),
-  //       channel.name.toString(),
-  //       channelDescription: 'Your channel description',
-  //       importance: Importance.high,
-  //       priority: Priority.high,
-  //       ticker: 'ticker',
-  //       color: const Color.fromARGB(255, 255, 165, 0), // Orange color
-  //       // Other details...
-  //       showProgress: false, // Hide progress bar
-  //     );
-  //   } else {
-  //     // Upload in progress, show notification with progress bar
-  //     AndroidNotificationDetails androidNotificationDetails =
-  //     AndroidNotificationDetails(
-  //       channel.id.toString(),
-  //       channel.name.toString(),
-  //       channelDescription: 'Your channel description',
-  //       importance: Importance.high,
-  //       priority: Priority.high,
-  //       ticker: 'ticker',
-  //       showProgress: true, // Show progress bar
-  //       maxProgress: 100, // The maximum progress value
-  //       progress: progressPercentage, // Current progress value (0-100)
-  //       color: const Color.fromARGB(255, 255, 165, 0), // Orange color
-  //       enableLights: true,
-  //       ledColor: const Color.fromARGB(255, 255, 165, 0), // Orange color
-  //     );
-  //   }
-  //
-  //   AndroidNotificationDetails androidNotificationDetails =
-  //   AndroidNotificationDetails(
-  //     channel.id.toString(),
-  //     channel.name.toString(),
-  //     channelDescription: 'Your channel description',
-  //     importance: Importance.high,
-  //     priority: Priority.high,
-  //     ticker: 'ticker',
-  //     color: const Color.fromARGB(255, 255, 165, 0), // Orange color
-  //     showProgress: true,
-  //     maxProgress: 100, // The maximum progress value
-  //     progress: progressPercentage, // Current progress value (0-100)
-  //     enableLights: true,
-  //     // Other details...
-  //   );
-  //
-  //   const DarwinNotificationDetails darwinNotificationDetails =
-  //   DarwinNotificationDetails(
-  //     presentAlert: true,
-  //     presentBadge: true,
-  //     presentSound: true,
-  //   );
-  //
-  //   NotificationDetails notificationDetails = NotificationDetails(
-  //     android: androidNotificationDetails,
-  //     iOS: darwinNotificationDetails,
-  //   );
-  //
-  //   if (progressPercentage >= 100) {
-  //     await _flutterLocalNotificationsPlugin.show(
-  //       0,
-  //       'Upload Complete',
-  //       'Uploaded successfully!',
-  //       notificationDetails,
-  //     );
-  //   } else {
-  //     await _flutterLocalNotificationsPlugin.show(
-  //       0,
-  //       'Uploading Progress',
-  //       'Uploading to server...',
-  //       notificationDetails,
-  //     );
-  //   }
-  // }
-  //
-  // Future<void> showChatMessageNotification(RemoteMessage message) async {
-  //   String chatId = message.data['chatId'];
-  //   String title = 'New Message';
-  //   String body = 'You have new messages';
-  //
-  //   if (!chatMessages.containsKey(chatId)) {
-  //     chatMessages[chatId] = [];
-  //   }
-  //   chatMessages[chatId]!.add(message.data['message']);
-  //
-  //   AndroidNotificationDetails androidNotificationDetails =
-  //   AndroidNotificationDetails(
-  //     'Chat Notification',
-  //     'Notification for new chat messages',
-  //     groupKey: chatId,
-  //     importance: Importance.high,
-  //     priority: Priority.high,
-  //   );
-  //
-  //   NotificationDetails notificationDetails =
-  //   NotificationDetails(android: androidNotificationDetails);
-  //
-  //   await _flutterLocalNotificationsPlugin.show(
-  //     0,
-  //     title,
-  //     body,
-  //     notificationDetails,
-  //   );
-  // }
 
 
   void requestNotificationPermission()async{
@@ -330,14 +290,22 @@ class NotificationServices{
     });
   }
 
+
+
+
+
   void handleMessage(BuildContext context,RemoteMessage message){
       if(message.data['type']=='local_assistant_service'){
-        print('Local Assistant');
-        // print(message.data.toString());
+        print('yha print kr rha hu');
+        print(message.data);
+        print('yha ki meet id');
+        print(message.data['meetId']);
+
+
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatsPage(userId: message.data['userId'],state: message.data['state'],meetId:  message.data['meetId'],),
+            builder: (context) => ChatsPage(userId : userID,state: 'user',meetId:'65a245069be96d5665009a80',),
           ),
         );
       }
@@ -346,8 +314,9 @@ class NotificationServices{
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => Chat(
-            navigationData: message.data['navigationData'],
+          builder: (context) => ChatsPage(
+            userId: userID,
+            // navigationData: message.data['navigationData'],
           ),
         ),
       );

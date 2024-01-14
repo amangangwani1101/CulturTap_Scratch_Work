@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:learn_flutter/All_Notifications/customizeNotification.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 import 'package:learn_flutter/ServiceSections/LocalAssistant/MapNavigator.dart';
@@ -47,7 +48,16 @@ class ChatsPage extends StatefulWidget {
 }
 
 class _ChatsPageState extends State<ChatsPage> {
-  NotificationManager serviceNotification = NotificationManager();
+
+
+
+
+  List<String> userTokens = [
+
+  ];
+
+
+
   List<String>userIds = [];
   List<String>distance = [];
   bool _isTyping = false;
@@ -579,6 +589,8 @@ class _ChatsPageState extends State<ChatsPage> {
     //   helpingHands = 0;
     // });
 
+    print('inside this function ');
+
 
     final String serverUrl = Constant().serverUrl;
     final Uri uri = Uri.parse('$serverUrl/findUserIdsAndDistancesWithin10Km?providedLatitude=$providedLatitude&providedLongitude=$providedLongitude&vardis=${vardis}');
@@ -589,7 +601,15 @@ class _ChatsPageState extends State<ChatsPage> {
       if (response.statusCode == 200) {
         final List<dynamic> data = json.decode(response.body)['allUserIdsAndDistances'];
 
+        print(data);
+        print('printing users data and token here');
+
         final Map<String, double> userIdsAndDistances = {};
+
+
+
+
+
 
         data.forEach((item) {
           userIdsAndDistances[item['userId']] = item['distance'].toDouble();
@@ -599,7 +619,11 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
         print('helping hands');
+
         setState(() {
+          userTokens = data.map((user) => user["uniqueToken"].toString()).toList();
+          print('printing users tokens here $userTokens');
+
           if(vardis==10){
             helpingHands = userIdsAndDistances.length;
           }
@@ -611,6 +635,9 @@ class _ChatsPageState extends State<ChatsPage> {
           //   userWith15kmDist = dist;
           // }
         });
+
+        print('printing users tokens here $userTokens');
+
         return userIdsAndDistances;
       } else {
         throw Exception('Failed to load data for helping hands');
@@ -2874,17 +2901,32 @@ class _ChatsPageState extends State<ChatsPage> {
                                     if(pageVisitor){
                                       if(widget.meetId==null){
                                         String meetingId = await createMeetRequest();
-                                        await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',meetingId,widget.userId);
+                                        sendCustomNotificationToUsers(
+
+                                            userTokens,
+                                            'Need Local Assistance',
+                                            '${_controller.text}',
+                                            '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+
                                         _controller.clear();
                                         // _refreshPage(meetingId);
                                       }else{
                                         _handleSend();
-                                        await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',widget.meetId!,widget.userId);
+                                        sendCustomNotificationToUsers(
+                                            userTokens,
+                                            'Need Local Assistance',
+                                            '${_controller.text}',
+                                            '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+
                                       }
                                       setState(() {});
                                     }else{
                                       _handleSend();
-                                      await serviceNotification.localAssistantNotification(userIds,'Trip assistant need from | ${userName}','<b> ${_controller.text} </b>',widget.meetId!,widget.userId);
+                                      sendCustomNotificationToUsers(
+                                          userTokens,
+                                          'Need Local Assistance',
+                                          '${_controller.text}',
+                                          '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
                                       setState(() {});
                                     }
                                     setState(() {

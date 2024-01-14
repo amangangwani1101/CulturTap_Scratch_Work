@@ -5,7 +5,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
-
 import 'package:learn_flutter/LocalAssistance/EmergenceAssist.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist2.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
@@ -13,7 +12,6 @@ import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import '../ServiceSections/PingsSection/Pings.dart';
 import '../widgets/CustomDialogBox.dart';
 
@@ -200,16 +198,13 @@ class _LocalAssistState extends State<LocalAssist> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // If you want to prevent the user from going back, return false
-        // return false;
 
-        // If you want to navigate directly to the homepage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
         );
 
-        return false; // Returning true will allow the user to pop the page
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(title : ProfileHeader(reqPage: 0,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
@@ -226,7 +221,7 @@ class _LocalAssistState extends State<LocalAssist> {
                       builder: (context) {
                         return GestureDetector(
                           onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) =>PingsSection(userId: userID,selectedService: 'Local Assistant',)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',)));
                           },
                           child: Container(
                             width: 328,
@@ -262,6 +257,7 @@ class _LocalAssistState extends State<LocalAssist> {
                       }
                       if(userConfirmed){
                         if(meetId!=null){
+                          print('meet id print krwa rhe hian $meetId');
                           if(state=='user' || state=='ongoing'){
                             await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
                               state: 'user',

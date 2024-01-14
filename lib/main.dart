@@ -1,54 +1,104 @@
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:learn_flutter/splashScreen.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 
+final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
+FlutterLocalNotificationsPlugin();
+
 
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
+
   await Firebase.initializeApp();
-
-  final FlutterLocalNotificationsPlugin flutterLocalNotificationsPlugin =
-  FlutterLocalNotificationsPlugin();
-
-
-  // Configure the initialization settings
-  final AndroidInitializationSettings initializationSettingsAndroid =
-  AndroidInitializationSettings('@mipmap/ic_launcher');
-  final InitializationSettings initializationSettings = InitializationSettings(
-    android: initializationSettingsAndroid,
-
-  );
-
-
-
-
-
-
-  // Initialize the plugin
-  await flutterLocalNotificationsPlugin.initialize(
-    initializationSettings,
-    onSelectNotification: (String? payload) async {
-      // Handle notification click event
-      // You can navigate to different pages here based on the payload
-      // For example:
-      if (payload == "page1") {
-        print("Navigating to page 1");
-        // Implement your navigation logic here
-      } else if (payload == "page2") {
-        print("Navigating to page 2");
-        // Implement your navigation logic here
-      }
-    },
-  );
-
 
   FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
 
+
+  FirebaseMessaging.onMessage.listen((RemoteMessage message) {
+    print("Received FCM notification: ${message.notification?.body}");
+  });
+
+
+
+  // Initialise the plugin.
+  const AndroidInitializationSettings initializationSettingsAndroid =
+  AndroidInitializationSettings('culturtap_logo');
+  final DarwinInitializationSettings initializationSettingsDarwin =
+  DarwinInitializationSettings(
+      onDidReceiveLocalNotification: onDidReceiveLocalNotification);
+  final LinuxInitializationSettings initializationSettingsLinux =
+  LinuxInitializationSettings(
+      defaultActionName: 'Open notification');
+  final InitializationSettings initializationSettings = InitializationSettings(
+      android: initializationSettingsAndroid,
+      iOS: initializationSettingsDarwin,
+      linux: initializationSettingsLinux);
+  await flutterLocalNotificationsPlugin.initialize(initializationSettings,
+      onDidReceiveNotificationResponse: onDidReceiveNotificationResponse);
+
   runApp(const MyApp());
 }
+
+final GlobalKey<NavigatorState> navigatorKey = GlobalKey<NavigatorState>();
+
+class SecondScreen extends StatelessWidget {
+  final String? payload;
+
+  SecondScreen(this.payload);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text('Second Screen'),
+      ),
+      body: Center(
+        child: Text('Payload: $payload'),
+      ),
+    );
+  }
+}
+
+void onDidReceiveLocalNotification(
+    int id, String? title, String? body, String? payload) async {
+  // Display a dialog with the notification details, tap ok to go to another page
+  showDialog(
+    context: navigatorKey.currentContext!,
+    builder: (BuildContext context) => CupertinoAlertDialog(
+      title: Text(title!),
+      content: Text(body!),
+      actions: [
+        CupertinoDialogAction(
+          isDefaultAction: true,
+          child: Text('Ok'),
+          onPressed: () async {
+            Navigator.of(context, rootNavigator: true).pop();
+
+            await Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => SecondScreen(payload),
+              ),
+            );
+          },
+        )
+      ],
+    ),
+  );
+}
+
+Future<void> onDidReceiveNotificationResponse(
+    NotificationResponse notificationResponse) async {
+
+  // Handle notification response here if needed
+  print('Notification response: ${notificationResponse.payload}');
+}
+
+
 
 @pragma('vm:entry-point')
 Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async{
@@ -64,10 +114,6 @@ Future<void> onSelectNotification(String? payload) async {
 String darkMode = 'ys';
 
 
-
-
-
-
 class MyApp extends StatelessWidget {
 
 
@@ -80,11 +126,21 @@ class MyApp extends StatelessWidget {
 
   Widget build(BuildContext context) {
 
+
+
     return MaterialApp(
 
       title: 'CulturTap',
       debugShowCheckedModeBanner: false,
+
+      builder: (BuildContext context, Widget? child) {
+        return MediaQuery(
+          data: MediaQuery.of(context).copyWith(textScaleFactor: 1.0),
+          child: child!,
+        );
+      },
       theme: darkMode == 'yes' ?
+
 
       ThemeData(
 
@@ -96,20 +152,19 @@ class MyApp extends StatelessWidget {
 
 
 
-        primaryColor: Colors.white, // Change the primary color
+        primaryColor: Colors.white,
         primaryColorLight : Color(0xFF1E2529),
-        // accentColor: Colors.orange, // Change the accent color
+
         backgroundColor:Color(0xFF1E2529) ,
         scaffoldBackgroundColor: Colors.black,// Change the background color
-        // Change the scaffold background color
-        // Add more color properties as needed
+
 
         // Custom Text Styles
         textTheme: TextTheme(
 
           bodyText1: TextStyle(fontSize: (10),color : Colors.white, fontWeight: FontWeight.w600),
           bodyText2: TextStyle(fontSize: (12),color : Colors.white, fontWeight: FontWeight.w600),
-          button: TextStyle(fontSize: (10 * MediaQuery.of(context).textScaleFactor),color : Colors.white ,fontWeight: FontWeight.bold),
+          button: TextStyle(fontSize: (10 ),color : Colors.white ,fontWeight: FontWeight.bold),
 
           subtitle1: TextStyle(fontSize: (14),color : Colors.white, fontWeight: FontWeight.bold),
           subtitle2: TextStyle(fontSize: (14),color : Colors.white),
@@ -125,7 +180,7 @@ class MyApp extends StatelessWidget {
 
           headline3: TextStyle(fontSize: (12),color : Colors.white, fontWeight: FontWeight.bold),
 
-          caption: TextStyle(fontSize: (18 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.bold),
+          caption: TextStyle(fontSize: (18 ),color :Colors.white , fontWeight: FontWeight.bold),
 
 
         ),
@@ -153,28 +208,26 @@ class MyApp extends StatelessWidget {
         primaryColor: Color(0xFF001B33), // Change the primary color
         primaryColorLight : Color(0xFF1E2529),
         // accentColor: Colors.orange, // Change the accent color
-        backgroundColor: Colors.white, // Change the background color
+        backgroundColor: Colors.white,
 
-        // Change the scaffold background color
-        // Add more color properties as needed
 
-        // Custom Text Styles
+
         textTheme: TextTheme(
 
-          bodyText1: TextStyle(fontSize: (10 * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
-          bodyText2: TextStyle(fontSize: (12 * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33) ,),
-          button: TextStyle(fontSize: (10 * MediaQuery.of(context).textScaleFactor),color : Colors.white ,fontWeight: FontWeight.bold),
-          subtitle1: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
-          subtitle2: TextStyle(fontSize: (14  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight : FontWeight.w600),
+          bodyText1: TextStyle(fontSize: (10 ),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
+          bodyText2: TextStyle(fontSize: (12 ),color : Color(0xFF001B33) ,),
+          button: TextStyle(fontSize: (10 ),color : Colors.white ,fontWeight: FontWeight.bold),
+          subtitle1: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
+          subtitle2: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight : FontWeight.w600),
 
-          headline4: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color :Colors.white , ),
-          headline1: TextStyle(fontSize: (25  * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33), fontWeight: FontWeight.bold), // Adjust the font size and weight as needed
-          headline2: TextStyle(fontSize: (18  * MediaQuery.of(context).textScaleFactor),color :Color(0xFF001B33) , fontWeight: FontWeight.bold),
-          headline5: TextStyle(fontSize: (16 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.bold),
-          headline6: TextStyle(fontSize: (14 * MediaQuery.of(context).textScaleFactor),color : Color(0xFF001B33),),
-          headline3: TextStyle(fontSize: (12 * MediaQuery.of(context).textScaleFactor),color : Colors.white, fontWeight: FontWeight.bold),
+          headline4: TextStyle(fontSize: (14 ),color :Colors.white , ),
+          headline1: TextStyle(fontSize: (25  ),color : Color(0xFF001B33), fontWeight: FontWeight.bold), // Adjust the font size and weight as needed
+          headline2: TextStyle(fontSize: (18  ),color :Color(0xFF001B33) , fontWeight: FontWeight.bold),
+          headline5: TextStyle(fontSize: (16 ),color :Colors.white , fontWeight: FontWeight.bold),
+          headline6: TextStyle(fontSize: (14 ),color : Color(0xFF001B33),),
+          headline3: TextStyle(fontSize: (12 ),color : Colors.white, fontWeight: FontWeight.bold),
 
-          caption: TextStyle(fontSize: (18 * MediaQuery.of(context).textScaleFactor),color :Colors.white , fontWeight: FontWeight.bold),
+          caption: TextStyle(fontSize: (18 ),color :Colors.white , fontWeight: FontWeight.bold),
 
 
         ),
@@ -198,24 +251,4 @@ class MyApp extends StatelessWidget {
   }
 
 
-}
-
-//
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
-  @override
-
-
-  Widget build(BuildContext context) {
-    return Scaffold(
-
-    );
-  }
 }
