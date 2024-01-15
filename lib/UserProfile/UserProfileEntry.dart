@@ -278,7 +278,7 @@ class UserInformationSection extends StatelessWidget {
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Profile Strength Now',style:Theme.of(context).textTheme.subtitle1,),
+                      Text('Profile Strength',style:Theme.of(context).textTheme.subtitle1,),
                       Text('Medium',style: Theme.of(context).textTheme.headline4,),
                     ],
                   ),
@@ -355,7 +355,13 @@ class ProfielStatusAndButton  extends StatelessWidget{
             reqPages==1?sendDataToBackend():null;
             reqPages<1
                 ?Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(userId:userId,userName:userName),))
-                :Navigator.push(context, MaterialPageRoute(builder: (context) => FinalProfile(userId:userID,clickedId:userID,)));
+                :Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                create:(context) => ProfileDataProvider(),
+                child: FinalProfile(userId: userID,clickedId: userID,),
+              ),),
+            );
           },
         // Navigator.push(
         //   context,

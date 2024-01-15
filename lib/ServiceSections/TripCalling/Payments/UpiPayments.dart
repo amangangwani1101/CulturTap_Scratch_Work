@@ -33,7 +33,7 @@ class _UpiPaymentsState extends State<UpiPayments> {
 
   @override
   void initState() {
-
+    super.initState();
     print('Comming');
     _upiIndia.getAllUpiApps(mandatoryTransactionId: false).then((value){
       setState(() {
@@ -43,7 +43,13 @@ class _UpiPaymentsState extends State<UpiPayments> {
       print('Upi Error $err');
       apps = [];
     });
-    super.initState();
+    stripeCardsShow();
+
+  }
+
+  Future<void> stripeCardsShow()async{
+    bool res =  await paymentHandler(widget.name!,widget.merchant!,1000.0,widget.phoneNo!);
+    Navigator.of(context).pop(res);
   }
 
   Future<UpiResponse> initiateTransaction(UpiApp app) async{
