@@ -8,7 +8,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
-import 'package:learn_flutter/UserProfile/Settings.dart';
+import 'package:learn_flutter/Settings.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';

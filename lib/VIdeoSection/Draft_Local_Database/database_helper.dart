@@ -48,8 +48,14 @@ class DatabaseHelper {
             storyTitle TEXT,
             productDescription TEXT,
             selectedOption TEXT,
+            transportationPricing TEXT,
             productPrice TEXT,
-            transportationPricing TEXT
+            festivalName TEXT,
+            foodType TEXT,
+            restaurantType TEXT,
+            otherGenre TEXT,
+            otherCategory TEXT
+            
           )
         ''');
       },

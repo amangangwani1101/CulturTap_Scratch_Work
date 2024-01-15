@@ -30,15 +30,13 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-
-        height: 440,
         width: 377,
         child: AlertDialog(
-          backgroundColor: Color(0xFF263238),
+          backgroundColor: Colors.white,
           content: Container(
-            height: 269,
             width: 300,
             child: Column(
+
               children: [
                 SizedBox(height: 30),
                 Padding(
@@ -48,32 +46,36 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
                   ),
                 ),
                 SizedBox(height: 30),
-                Text(
-                  textField,
-                  style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    color: Colors.white,
-                    fontSize: 25,
+                Center(
+                  child: Text(
+                    textField,
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                      fontSize: 25,
+                    ),
+                    textAlign: TextAlign.center, // Align the text to center
                   ),
                 ),
-                SizedBox(height: 20),
-                Center(
+
+                if (extraText != null)
+                  Center(
                   child: Padding(
                     padding: const EdgeInsets.only(),
                     child: Column(
                       children: [
-                        if (extraText != null) // Check if extraText is not null
-                    Text(
-                    extraText!,
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.red,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
-                  SizedBox(height: 26),
-
+                        SizedBox(height: 20),
+                         // Check if extraText is not null
+                          Text(
+                            extraText!,
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.red,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        SizedBox(height: 26),
                       ],
                     ),
                   ),
@@ -85,7 +87,6 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
-
                 TextButton(
                   onPressed: () {
                     Navigator.of(context).pop();
@@ -102,7 +103,6 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     // Remove video logic here
-
                     Navigator.of(context).pop();
                   },
                   child: Text(
@@ -118,8 +118,9 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
             ),
             SizedBox(height: 20),
           ],
-        )
+        ),
       ),
+
     );
   }
 

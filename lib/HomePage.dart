@@ -1,5 +1,6 @@
 //homepage
 import 'package:firebase_core/firebase_core.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:learn_flutter/CulturTap/VideoFunc/Dummy/dummyHomePage.dart';
@@ -11,7 +12,9 @@ import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/CustomItems/CostumAppbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/CustomItems/MyCustomScrollPhysics.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
+import 'package:learn_flutter/Notifications/notification.dart';
 import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
@@ -29,9 +32,28 @@ import 'package:learn_flutter/widgets/Constant.dart';
 Future<void> main() async{
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp();
+  FirebaseMessaging.onBackgroundMessage(_firebaseMessagingBackgroundHandler);
+
+
 
   runApp(MyApp());
 }
+
+@pragma('vm:entry-point')
+Future<void> _firebaseMessagingBackgroundHandler(RemoteMessage message) async{
+  await Firebase.initializeApp(
+    options: FirebaseOptions(
+      apiKey: "AIzaSyD_Q30r4nDBH0HOpvpclE4U4V8ny6QPJj4",
+      authDomain: "culturtap-19340.web.app",
+      projectId: "culturtap-19340",
+      storageBucket: "culturtap-19340.appspot.com",
+      messagingSenderId: "268794997426",
+      appId: "1:268794997426:android:694506cda12a213f13f7ab ",
+    ),
+  );
+  print(message.notification!.title.toString());
+}
+
 
 
 //new stuff
@@ -95,18 +117,35 @@ Future<List<dynamic>> fetchSearchResults(String query, String apiEndpoint) async
   }
 }
 
+Future<void> sendNotificationsToAll() async {
+  final String serverUrl = '${Constant().serverUrl}/send/send-notifications'; // Update with your server URL
+
+  try {
+    final response = await http.post(Uri.parse(serverUrl));
+
+    if (response.statusCode == 200) {
+      print('Notifications sent successfully');
+    } else {
+      print('Failed to send notifications. Status code: ${response.statusCode}');
+    }
+  } catch (error) {
+    print('Error sending notifications: $error');
+  }
+}
 
 
-// class MyApp extends StatelessWidget {
-//   @override
-//   Widget build(BuildContext context) {
-//
-//     return MaterialApp(
-//       debugShowCheckedModeBanner: false,
-//       home: HomePage(),
-//     );
-//   }
-// }
+
+
+class MyApp extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: HomePage(),
+    );
+  }
+}
 
 class HomePage extends StatefulWidget {
   @override
@@ -145,6 +184,7 @@ class _HomePageState extends State<HomePage> {
       categoryData[categoryIndex]['storyCategory'] = processedData['storyCategories'];
       categoryData[categoryIndex]['thumbnail_url'] = processedData['thumbnail_urls'];
       categoryData[categoryIndex]['storyDetailsList'] = processedData['storyDetailsList'];
+
 
       setState(() {
         isLoading = false;
@@ -231,11 +271,20 @@ class _HomePageState extends State<HomePage> {
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
+  NotificationServices notificationServices  = NotificationServices();
+
 
 
   @override
   void initState() {
+
     super.initState();
+
+    notificationServices.requestNotificationPermission();
+    notificationServices.firebaseInit(context);
+    notificationServices.setupInteractMessage(context);
+    notificationServices.isTokenRefresh();
+    f();
 
     fetchDataFromMongoDB();
     requestLocationPermission();
@@ -255,10 +304,16 @@ class _HomePageState extends State<HomePage> {
 
 
     });
+    print('userID print kra rha hu $userID');
 
   }
 
   //updated code from here
+
+  void f()async{
+    String?token = await notificationServices.getDeviceToken();
+    print('Token $token');
+  }
 
 
 
@@ -281,11 +336,12 @@ class _HomePageState extends State<HomePage> {
     ...generateCategoryData(specificName: 'Local Fashion for you !', name: 'Popular & Trending here', apiEndpoint: '/popularFashion/api/popular-fashion-places'),
     ...generateCategoryData(specificName: 'Party Tonight ?', name: 'Popular & Trending Clubs Here', apiEndpoint: 'api/nearby-places/Party-Clubs & Bars'),
     ...generateCategoryData(specificName: 'Party Tonight ?', name: 'Nearby Hotels & Resorts', apiEndpoint: 'api/nearby-places/Resorts'),
-    ...generateCategoryData(specificName: 'Other Outlets', name: 'Local Furniture', apiEndpoint: '/furniture/api/local-furniture'),
-    ...generateCategoryData(specificName: 'Other Outlets', name: 'Handy-Crafts', apiEndpoint: '/handy-crafts/api/handyCrafts'),
+    ...generateCategoryData(specificName: 'Other Outlets', name: 'Local Furniture', apiEndpoint: 'api/stories/best/businessCategory/Furniture'),
+    ...generateCategoryData(specificName: 'Other Outlets', name: 'Handy-Crafts', apiEndpoint: 'api/stories/best/businessCategory/Handicraft'),
     ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Forests Near you', apiEndpoint: 'api/nearby-places/Forests'),
     ...generateCategoryData(specificName: 'Famous Visiting Places', name: 'Famous RiverSides Here', apiEndpoint: 'api/nearby-places/Riverside'),
     ...generateCategoryData(specificName: '', name: 'Islands Here', apiEndpoint: 'api/nearby-places/Island'),
+
   ];
 
 
@@ -307,6 +363,10 @@ class _HomePageState extends State<HomePage> {
 
 
   Widget build(BuildContext context) {
+    // SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark.copyWith(
+    //   statusBarColor: Colors.white,
+    //   statusBarBrightness: Brightness.light,
+    // ));
     return WillPopScope(
 
       onWillPop: () => backButtonHandler10.onWillPop(context, true),
@@ -320,13 +380,14 @@ class _HomePageState extends State<HomePage> {
           color: Colors.orange,
           onRefresh: _refreshHomepage,
           child: CustomScrollView(
+            physics: MyBouncingScrollPhysics(),
             controller: _scrollController,
             slivers: [
               SliverAppBar(
                 title: ProfileHeader(reqPage: 0, userId:userID),
                 automaticallyImplyLeading: false,
                 shadowColor: Colors.transparent,
-
+                backgroundColor: Colors.white,
 
                 toolbarHeight: 90,
                 // Adjust as needed
@@ -354,11 +415,13 @@ class _HomePageState extends State<HomePage> {
 
                     isLoading ? Container(
                       height : 500,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
-                        ],
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
+                          ],
+                        ),
                       ),
                     ) :
                     Column(
@@ -402,9 +465,10 @@ class _HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
+          height : _isVisible ? 70 : 0,
 
 
-          height: _isVisible ? 70 : 0.0,
+
           child: CustomFooter(userName: userName, userId: userID, lode: 'home',),
         ),
       ),

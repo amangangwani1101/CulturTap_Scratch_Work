@@ -1421,14 +1421,14 @@ class _PingSectionState extends State<PingsSection>{
                                         InkWell(
                                             onTap: ()async{
                                               // payment ka funda
-                                              // bool res = await Navigator.push(
-                                              //   context,
-                                              //   MaterialPageRoute(
-                                              //     builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:pingsDataStore.userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
-                                              //   ),
-                                              // );
-                                              // // paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber())
-                                              // if(res){
+                                              bool res = await Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                  builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:pingsDataStore.userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
+                                                ),
+                                              );
+                                              // paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber())
+                                              if(res){
                                                 await updateLocalUserPings(userId, meetId, 'schedule');
                                                 await updateLocalUserPings(helperId!, meetId, 'schedule');
                                                 await updatePaymentStatus('pending',meetId);
@@ -1438,13 +1438,13 @@ class _PingSectionState extends State<PingsSection>{
                                                     meetId: meetId,
                                                   ),));
                                                 _refreshPage();
-                                              // }else{
-                                              //   ScaffoldMessenger.of(context).showSnackBar(
-                                              //     const SnackBar(
-                                              //       content: Text('Payment is UnSuccessful'),
-                                              //     ),
-                                              //   );
-                                              // }
+                                              }else{
+                                                ScaffoldMessenger.of(context).showSnackBar(
+                                                  const SnackBar(
+                                                    content: Text('Payment is UnSuccessful'),
+                                                  ),
+                                                );
+                                              }
                                             },
                                             child: Container(child: Text('Pay Charge',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
 

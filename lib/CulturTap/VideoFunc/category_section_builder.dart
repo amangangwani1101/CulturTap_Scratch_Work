@@ -38,12 +38,13 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, S
     builder: (context) {
       return Container(
         color: Theme.of(context).backgroundColor,
+
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
 
             Padding(
-              padding: EdgeInsets.only(left:18.0,right:10,top:18,bottom:10),
+              padding: EdgeInsets.only(left:25.0,right:10,top:18,bottom:10),
               child: Column(
                 children: [
 
@@ -94,7 +95,7 @@ Widget buildCategorySection( String specificCategoryName, String categoryName, S
                         },
                         child: Text(
                           'View All >',
-                          style: Theme.of(context).textTheme.headline4,
+                          style: TextStyle(color : Colors.orange, fontSize: 16,fontWeight: FontWeight.w600),
                         ),
                       ),
                     ],

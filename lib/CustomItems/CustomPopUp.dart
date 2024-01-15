@@ -13,7 +13,7 @@ class CustomPopUp extends StatelessWidget {
   final String textField;
   final String what;
   final String? extraText;
-  final String? button;
+  final String button;
   final String? isDarkMode;
 
   CustomPopUp({
@@ -22,7 +22,7 @@ class CustomPopUp extends StatelessWidget {
     required this.what,
     this.extraText,
     this.isDarkMode,
-    this.button,
+    required this.button,
   });
 
   @override
@@ -31,49 +31,52 @@ class CustomPopUp extends StatelessWidget {
 
     return Center(
       child: Container(
-        width: double.infinity,
-        child: AlertDialog(
-          content: Column(
-            mainAxisSize: MainAxisSize.min, // Set the mainAxisSize to min
-            children: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: [
-                  IconButton(
-                    icon: Icon(Icons.close),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  ),
-                ],
-              ),
-              SvgPicture.asset(
-                imagePath,
-                height : 200,
-                width: 316, // Adjust the width as needed
-              ),
-              SizedBox(height: 26),
-              Text(
-                textField,
-                style: Theme.of(context).textTheme.subtitle2,
-                textAlign: TextAlign.center,
-              ),
-              if (extraText != null) SizedBox(height: 15),
-              if (extraText != null)
-                Container(
-                  child: Text(
-                    extraText!,
-                    style: Theme.of(context).textTheme.headline6,
-                    textAlign: TextAlign.center,
-                  ),
+        padding : EdgeInsets.all(20),
+        margin:EdgeInsets.only(left : 20,right : 20),
+        color : Colors.white,
+        child : Column(
+          mainAxisSize: MainAxisSize.min, // Set the mainAxisSize to min
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.end,
+              children: [
+                GestureDetector(
+                  onTap: (){
+                    Navigator.of(context).pop();
+                  },
+                  child: Container(
+                      child: Icon(Icons.close)),
                 ),
-              SizedBox(height : 20),
+              ],
+            ),
+            SvgPicture.asset(
+              imagePath,
+              height : 200,
+              width: 316, // Adjust the width as needed
+            ),
+            SizedBox(height: 26),
+            Text(
+              textField,
+              style: Theme.of(context).textTheme.subtitle2,
+              textAlign: TextAlign.center,
+            ),
+            if (extraText != null) SizedBox(height: 15),
+            if (extraText != null)
+              Container(
+                child: Text(
+                  extraText!,
+                  style: Theme.of(context).textTheme.headline6,
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            SizedBox(height : 20),
+            if(button!=null)
               TextButton(
                 onPressed: (){
                   Navigator.of(context).pop();
                 },
                 child: Text(
-                  button!,
+                  button,
                   style: TextStyle(
                     color: Colors.orange,
                     fontSize: 20,
@@ -81,9 +84,7 @@ class CustomPopUp extends StatelessWidget {
                   ),
                 ),
               ),
-            ],
-          ),
-          backgroundColor: backgroundColor, // Set the background color
+          ],
         ),
       ),
 

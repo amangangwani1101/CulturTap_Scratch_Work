@@ -5,7 +5,6 @@ import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
-
 import 'package:learn_flutter/LocalAssistance/EmergenceAssist.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist2.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
@@ -13,7 +12,6 @@ import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-
 import '../ServiceSections/PingsSection/Pings.dart';
 import '../widgets/CustomDialogBox.dart';
 
@@ -200,16 +198,13 @@ class _LocalAssistState extends State<LocalAssist> {
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: () async {
-        // If you want to prevent the user from going back, return false
-        // return false;
 
-        // If you want to navigate directly to the homepage
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => HomePage()),
         );
 
-        return false; // Returning true will allow the user to pop the page
+        return false;
       },
       child: Scaffold(
         appBar: AppBar(title : ProfileHeader(reqPage: 0,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
@@ -222,35 +217,35 @@ class _LocalAssistState extends State<LocalAssist> {
                 children: [
                   // SizedBox(height: 20,),
                   state!=null && state!='ongoing'
-                    ?Builder(
-                    builder: (context) {
-                      return GestureDetector(
-                        onTap: (){
-                          Navigator.push(context, MaterialPageRoute(builder: (context) =>PingsSection(userId: userID,selectedService: 'Local Assistant',)));
-                        },
-                        child: Container(
-                          width: 328,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            border: Border.all(color: Colors.orange),
+                      ?Builder(
+                      builder: (context) {
+                        return GestureDetector(
+                          onTap: (){
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',)));
+                          },
+                          child: Container(
+                            width: 328,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              border: Border.all(color: Colors.orange),
+                            ),
+                            padding: EdgeInsets.only(left: 20,right: 20,top: 2),
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Ongoing Services',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Colors.orange),),
+                                Icon(Icons.arrow_forward_ios,size: 14,color: Colors.orange,),
+                              ],
+                            ),
                           ),
-                          padding: EdgeInsets.only(left: 20,right: 20,top: 2),
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Ongoing Services',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Colors.orange),),
-                              Icon(Icons.arrow_forward_ios,size: 14,color: Colors.orange,),
-                            ],
-                          ),
-                        ),
-                      );
-                    }
-                )
-                    :SizedBox(height: 0,),
+                        );
+                      }
+                  )
+                      :SizedBox(height: 0,),
                   state!=null && state!='ongoing'
-                    ? SizedBox(height : 20)
-                    : SizedBox(height: 0,),
+                      ? SizedBox(height : 20)
+                      : SizedBox(height: 0,),
                   InkWell(
                     onTap: ()async{
                       bool userConfirmed = true;
@@ -262,6 +257,7 @@ class _LocalAssistState extends State<LocalAssist> {
                       }
                       if(userConfirmed){
                         if(meetId!=null){
+                          print('meet id print krwa rhe hian $meetId');
                           if(state=='user' || state=='ongoing'){
                             await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
                               state: 'user',
@@ -510,11 +506,11 @@ class _LocalAssistState extends State<LocalAssist> {
           ),
         ),
         bottomNavigationBar: AnimatedContainer(
-          duration: Duration(milliseconds: 100),
+            duration: Duration(milliseconds: 100),
 
 
-          height:  70 ,
-          child: CustomFooter(addButtonAdd: 'add',)
+            height:  70 ,
+            child: CustomFooter(addButtonAdd: 'add',)
         ),
       ),
     );

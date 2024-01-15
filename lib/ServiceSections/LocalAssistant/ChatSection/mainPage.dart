@@ -9,7 +9,7 @@ import '../../../fetchDataFromMongodb.dart';
 import '../../../widgets/Constant.dart';
 import '../../../widgets/CustomDialogBox.dart';
 import '../../PingsSection/Pings.dart';
-import '../../../LocalAssistance/ChatsPage.dart';
+import '../../../LocalAssistance/ChatsPage2.dart';
 
 void main() {
   runApp(Maain());
@@ -52,11 +52,15 @@ class _MaainState extends State<Maain>  {
       print('Error $err');
     }
   }
+
+
   @override
   void initState() {
     super.initState();
     checkIsMeetOngoing();
   }
+
+
   Future<void> checkIsMeetOngoing()async {
     await PingsAssistanceChecker(userID);
   }
