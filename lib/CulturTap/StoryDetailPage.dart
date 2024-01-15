@@ -698,6 +698,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
               ],
             ),
           ),
+
+
           Container(
             color: Theme.of(context).backgroundColor,
             padding: EdgeInsets.all(16),
@@ -1227,7 +1229,10 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
               ],
             ),
-          ),  Column(
+          ),
+
+
+          Column(
 
             children: categoryData.asMap().entries.map((entry) {
               final int categoryIndex = entry.key;
@@ -1260,7 +1265,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
               );
             }).toList(),
-          ), // Show loader when video is loading
+          ),
         ],
       ),
     )

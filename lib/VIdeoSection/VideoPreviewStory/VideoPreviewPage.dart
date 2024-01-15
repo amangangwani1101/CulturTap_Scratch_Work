@@ -608,39 +608,6 @@ class _VideoItemState extends State<VideoItem> {
       });
   }
 
-  Future<void> _showAlertDialog() async {
-    return showDialog<void>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Continue Previous Story?'),
-          content: SingleChildScrollView(
-            child: ListBody(
-              children: <Widget>[
-                Text('Do you want to continue the previous story or start a new one?'),
-              ],
-            ),
-          ),
-          actions: <Widget>[
-            TextButton(
-              onPressed: () async {
-
-              },
-              child: Text('Continue'),
-            ),
-            TextButton(
-              onPressed: () async {
-                Navigator.of(context).pop();
-                // Start a new story
-                Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-              },
-              child: Text('New Story'),
-            ),
-          ],
-        );
-      },
-    );
-  }
 
 
 
