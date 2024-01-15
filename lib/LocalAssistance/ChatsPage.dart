@@ -17,7 +17,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:photo_view/photo_view.dart';
 
-import '../Notifications/NotificationManager.dart';
+// import '../Notifications/NotificationManager.dart';
 import '../UserProfile/CoverPage.dart';
 import '../UserProfile/ProfileHeader.dart';
 import '../fetchDataFromMongodb.dart';
@@ -1786,20 +1786,20 @@ class _ChatsPageState extends State<ChatsPage> {
                                                       GestureDetector(
                                                         //gafv
                                                         onTap: () async {
-                                                          // String mapsUrl =
-                                                          //     'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
-                                                          // if (await canLaunch(
-                                                          //     mapsUrl)) {
-                                                          //   await launch(mapsUrl);
-                                                          // } else {
-                                                          //   throw 'Could not launch $mapsUrl';
-                                                          // }
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) => MapNavigatorScreen(latitude:double.parse(helperLatitude),longitude:double.parse(helperLongitude)),
-                                                            ),
-                                                          );
+                                                          String mapsUrl =
+                                                              'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                                          if (await canLaunch(
+                                                              mapsUrl)) {
+                                                            await launch(mapsUrl);
+                                                          } else {
+                                                            throw 'Could not launch $mapsUrl';
+                                                          }
+                                                          // Navigator.push(
+                                                          //   context,
+                                                          //   MaterialPageRoute(
+                                                          //     builder: (context) => MapNavigatorScreen(latitude:double.parse(helperLatitude),longitude:double.parse(helperLongitude)),
+                                                          //   ),
+                                                          // );
                                                         },
                                                         child: Container(
                                                           width: 306,

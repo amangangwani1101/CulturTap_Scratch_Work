@@ -14,6 +14,7 @@ import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
 import '../BackendStore/BackendStore.dart';
+import '../CustomItems/CustomPopUp.dart';
 import 'AlertBox2Option.dart';
 import 'Constant.dart';
 import 'package:http/http.dart' as http;
@@ -174,8 +175,6 @@ class _ServicePageState extends State<ServicePage>{
         else if(widget.profileDataProvider==null){
           print(1);
           Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices()));
-
-
         }
         else{
           print(2);
@@ -973,10 +972,17 @@ class _PaymentSectionState extends State<PaymentSection> {
         return false; // Returning true will allow the user to pop the page
       },
       child: Scaffold(
-        appBar: AppBar(toolbarHeight: 90, shadowColor: Colors.transparent,title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,  onButtonPressed: (){
+        appBar: AppBar(toolbarHeight: 90, shadowColor: Colors.transparent,title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,  onButtonPressed: ()async{
           if(widget.text=='edit'){
             print('6th Page');
             saveCardsToDatabase();
+            await CustomPopUp(
+              imagePath: "assets/images/tripPlanningHelp.svg",
+              textField: "Accept trip planning calls for your expert regions to earn. connect with tourists and help them plan their future trips." ,
+              extraText:' You will earn dynamically in future, for now 800 INR for 20 min of professional trip planning call.' ,
+              what:'OK',
+              button: 'OK, Get it',
+            );
             Navigator.of(context).pop();
             // Navigator.of(context).pop();
             ScaffoldMessenger.of(context).showSnackBar(
@@ -1058,9 +1064,6 @@ class _PaymentCardState extends State<PaymentCard> {
   TextEditingController expMonthController = TextEditingController();
   TextEditingController expYearController = TextEditingController();
   TextEditingController cvvController = TextEditingController();
-
-
-
   bool isCreditCardNumberValid(String creditCardNumber) {
     // Remove any spaces or non-digit characters
     creditCardNumber = creditCardNumber.replaceAll(RegExp(r'\D'), '');
@@ -1088,7 +1091,7 @@ class _PaymentCardState extends State<PaymentCard> {
 
     return sum % 10 == 0;
   }
-
+  bool showCards=false;
   bool cardValidator(){
     if((nameController.text.length==0)){
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1149,11 +1152,14 @@ class _PaymentCardState extends State<PaymentCard> {
     // Join the chunks with spaces
     return chunks.join(' ');
   }
+
   CardDetails?editCard;
   List<CardDetails> cards=[];
   @override
   void initState(){
+    print('init');
     super.initState();
+    showCards = widget.cardForm;
     if(widget.paymentCards!=null  && widget.paymentCards.length>0){
       cards = widget.paymentCards;
       for(int i=0;i<widget.paymentCards.length;i++){
@@ -1252,7 +1258,7 @@ class _PaymentCardState extends State<PaymentCard> {
                                       expMonthController.text = cards[index].month;
                                       expYearController.text = cards[index].year;
                                       cvvController.text = cards[index].cvv;
-                                      widget.cardForm = !widget.cardForm;
+                                      showCards = !showCards;
                                     });
                                     if(widget.section=='edit'){
                                       globalCards!.removeAt(index);
@@ -1287,10 +1293,11 @@ class _PaymentCardState extends State<PaymentCard> {
             ),
           ),
 
-          widget.cardForm
+          showCards
               ? Container(
-            width: 357,
-            height: 683,
+            // width: 357,
+            // height: 683, 
+            padding: EdgeInsets.only(left:15,right:15),
             // decoration: BoxDecoration(
             //   border: Border.all(
             //     color: Colors.black,width: 1,
@@ -1512,7 +1519,7 @@ class _PaymentCardState extends State<PaymentCard> {
                                   expMonthController.text = '';
                                   expYearController.text = '';
                                   cvvController.text = '';
-                                  widget.cardForm = !widget.cardForm;
+                                  showCards = !showCards;
                                 });
                               },
                               child: Container(
@@ -1554,7 +1561,7 @@ class _PaymentCardState extends State<PaymentCard> {
                                     expMonthController.text = '';
                                     expYearController.text = '';
                                     cvvController.text = '';
-                                    widget.cardForm = !widget.cardForm;
+                                    showCards = !showCards;
                                   });
                                 }
                               },
@@ -1582,7 +1589,7 @@ class _PaymentCardState extends State<PaymentCard> {
               : GestureDetector(
             onTap: (){
               setState(() {
-                widget.cardForm = !widget.cardForm;
+                showCards = !showCards;
               });
             },
             child: Container(
