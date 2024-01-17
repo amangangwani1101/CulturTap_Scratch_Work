@@ -2,32 +2,12 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 Future<void> sendCustomNotificationToUsers(
-    List<String> userTokens,
-    String title,
-    String body,
-    String innerBody,
-    String? meetId,
-
-    String type,
-    String userId,
+    List<String>userIds,
+    Map<String,dynamic> payload
     ) async {
-  var data = {
-    'registration_ids': userTokens,
-    'priority': 'high',
-    'notification': {
-      'title': title,
-      'body': body,
-
-    },
-    'data': {
-      "type": "local_assistant_service",
-      "meetId": meetId,
-      "userId": userId,
-      "state": "helper",
-      'innerBody': body,
-    }
-  };
-
+  var data = payload;
+  data['priority'] = 'high';
+  // data['to']
   try {
     await http.post(
       Uri.parse('https://fcm.googleapis.com/fcm/send'),

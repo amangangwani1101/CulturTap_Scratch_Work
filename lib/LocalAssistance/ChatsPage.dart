@@ -18,6 +18,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:photo_view/photo_view.dart';
 
 // import '../Notifications/NotificationManager.dart';
+import '../Notifications/CustomNotificationMessages.dart';
 import '../UserProfile/CoverPage.dart';
 import '../UserProfile/ProfileHeader.dart';
 import '../fetchDataFromMongodb.dart';
@@ -2901,32 +2902,33 @@ class _ChatsPageState extends State<ChatsPage> {
                                     if(pageVisitor){
                                       if(widget.meetId==null){
                                         String meetingId = await createMeetRequest();
-                                        sendCustomNotificationToUsers(
-
-                                            userTokens,
-                                            'Need Local Assistance',
-                                            '${_controller.text}',
-                                            '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+                                        // sendCustomNotificationToUsers(
+                                        //
+                                        //     userTokens,
+                                        //     'Need Local Assistance',
+                                        //     '${_controller.text}',
+                                        //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+                                        sendCustomNotificationToUsers(userWith10km,localAssistantRequest(userName,'local_assistant_request',meetingId,userID,_controller.text));
 
                                         _controller.clear();
                                         // _refreshPage(meetingId);
                                       }else{
                                         _handleSend();
-                                        sendCustomNotificationToUsers(
-                                            userTokens,
-                                            'Need Local Assistance',
-                                            '${_controller.text}',
-                                            '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
-
+                                        // sendCustomNotificationToUsers(
+                                        //     userTokens,
+                                        //     'Need Local Assistance',
+                                        //     '${_controller.text}',
+                                        //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+                                        //
                                       }
                                       setState(() {});
                                     }else{
                                       _handleSend();
-                                      sendCustomNotificationToUsers(
-                                          userTokens,
-                                          'Need Local Assistance',
-                                          '${_controller.text}',
-                                          '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+                                      // sendCustomNotificationToUsers(
+                                      //     userTokens,
+                                      //     'Need Local Assistance',
+                                      //     '${_controller.text}',
+                                      //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
                                       setState(() {});
                                     }
                                     setState(() {
