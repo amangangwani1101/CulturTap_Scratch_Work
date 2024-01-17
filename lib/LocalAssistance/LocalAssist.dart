@@ -207,7 +207,7 @@ class _LocalAssistState extends State<LocalAssist> {
         return false;
       },
       child: Scaffold(
-        appBar: AppBar(title : ProfileHeader(reqPage: 0,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+        appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
         body: SingleChildScrollView(
           child: Container(
             color : Colors.white,
