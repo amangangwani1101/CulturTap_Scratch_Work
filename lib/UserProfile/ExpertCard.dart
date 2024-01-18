@@ -14,18 +14,18 @@ class ExpertCardDetails extends StatelessWidget{
       decoration: BoxDecoration(
         color: Theme.of(context).backgroundColor,
         boxShadow: [
-          BoxShadow(
-            color: Colors.black,
-            // offset: Offset(0.0,0.0),
-            blurRadius: 5.0,
-            spreadRadius: 7.9,
-          ),
-          BoxShadow(
-            color: Colors.white,
-            // offset: Offset(0.0,0.0),
-            blurRadius:5,
-            spreadRadius: 12.9,
-          ),
+          // BoxShadow(
+          //   color: Colors.black,
+          //   // offset: Offset(0.0,0.0),
+          //   blurRadius: 5.0,
+          //   spreadRadius: 7.9,
+          // ),
+          // BoxShadow(
+          //   color: Colors.white,
+          //   // offset: Offset(0.0,0.0),
+          //   blurRadius:5,
+          //   spreadRadius: 12.9,
+          // ),
         ],
       ),
       child: Column(
@@ -48,7 +48,7 @@ class ExpertCardDetails extends StatelessWidget{
                   Text('Expert in locations -',style: Theme.of(context).textTheme.subtitle1,),
 
                   Container(
-                    child: expertLocations.isEmpty ? Text('NA', style: Theme.of(context).textTheme.headline6,):
+                    child: expertLocations.isEmpty ? Text('NA', style: Theme.of(context).textTheme.subtitle2,):
                     Wrap(
                       runSpacing: 8.0, // Vertical spacing between lines of items
                       children: [
@@ -61,7 +61,7 @@ class ExpertCardDetails extends StatelessWidget{
                                   children: [
                                     Text(expertLocations[i]),
                                     if (i < expertLocations.length - 1)
-                                      Text(',', style: Theme.of(context).textTheme.headline6,),
+                                      Text(',', style: Theme.of(context).textTheme.subtitle2,),
                                   ],
                                 ),
                               ),
@@ -78,7 +78,7 @@ class ExpertCardDetails extends StatelessWidget{
                   Text('Visited Places - ', style: Theme.of(context).textTheme.subtitle1,),
 
                   Container(
-                      child: Text('${visitedplace}', style: Theme.of(context).textTheme.headline6,)),
+                      child: Text('${visitedplace}', style: Theme.of(context).textTheme.subtitle2,)),
                 ],
               ),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -86,7 +86,7 @@ class ExpertCardDetails extends StatelessWidget{
                   Text('Covered Locations - ', style: Theme.of(context).textTheme.subtitle1,),
 
                   Container(
-                      child: Text('${coveredLocation}', style: Theme.of(context).textTheme.headline6,)),
+                      child: Text('${coveredLocation}', style: Theme.of(context).textTheme.subtitle2,)),
                 ],
               ),
               Row(mainAxisAlignment: MainAxisAlignment.spaceBetween,

@@ -32,8 +32,8 @@ class CustomPopUp extends StatelessWidget {
     return Center(
       child: Container(
         padding : EdgeInsets.all(20),
-        margin:EdgeInsets.only(left : 20,right : 20),
-        color : Colors.white,
+        margin:EdgeInsets.only(left : 30,right : 30),
+        color : Theme.of(context).backgroundColor,
         child : Column(
           mainAxisSize: MainAxisSize.min, // Set the mainAxisSize to min
           children: [
@@ -41,10 +41,12 @@ class CustomPopUp extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 IconButton(
-                  icon: Icon(Icons.close),
+                  icon: Icon(Icons.close,),
+
                   onPressed: () {
                     Navigator.of(context).pop();
                   },
+                  color : Colors.white70,
                 ),
               ],
             ),
@@ -56,7 +58,7 @@ class CustomPopUp extends StatelessWidget {
             SizedBox(height: 26),
             Text(
               textField,
-              style: Theme.of(context).textTheme.subtitle2,
+              style: Theme.of(context).textTheme.subtitle1,
               textAlign: TextAlign.center,
             ),
             if (extraText != null) SizedBox(height: 15),
@@ -64,7 +66,7 @@ class CustomPopUp extends StatelessWidget {
               Container(
                 child: Text(
                   extraText!,
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.subtitle2,
                   textAlign: TextAlign.center,
                 ),
               ),

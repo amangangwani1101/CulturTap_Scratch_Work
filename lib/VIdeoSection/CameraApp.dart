@@ -676,8 +676,6 @@ class _CameraAppState extends State<CameraApp> {
                                         child: IconButton(
                                           icon: SvgPicture.asset('assets/images/camera_flip.svg'),
                                           onPressed: () {
-                                            // Your custom onPressed logic here
-                                            // ...
 
                                             toggleCamera();
                                             setState(() {

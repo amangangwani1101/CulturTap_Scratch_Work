@@ -184,7 +184,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   Navigator.of(context).pop();
                 }
               },
-              child: Center(child: Text('< Back ', style : TextStyle(fontSize: 16,fontWeight: FontWeight.w600),textAlign: TextAlign.center,)),
+              child: Center(child: Text('< Back ', style : Theme.of(context).textTheme.subtitle1)),
             ),
           )
               : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 0,): SizedBox(height: 0,),

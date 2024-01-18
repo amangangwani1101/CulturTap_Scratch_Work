@@ -207,10 +207,10 @@ class _LocalAssistState extends State<LocalAssist> {
         return false;
       },
       child: Scaffold(
-        appBar: AppBar(title : ProfileHeader(reqPage: 0,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+        appBar: AppBar(title : ProfileHeader(reqPage: 0,),backgroundColor : Theme.of(context).backgroundColor,  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
         body: SingleChildScrollView(
           child: Container(
-            color : Colors.white,
+            color : Theme.of(context).backgroundColor,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
               child: Column(
@@ -246,6 +246,7 @@ class _LocalAssistState extends State<LocalAssist> {
                   state!=null && state!='ongoing'
                       ? SizedBox(height : 20)
                       : SizedBox(height: 0,),
+                  SizedBox(height : 30),
                   InkWell(
                     onTap: ()async{
                       bool userConfirmed = true;
@@ -294,7 +295,7 @@ class _LocalAssistState extends State<LocalAssist> {
                       height : 150,
 
                       decoration: BoxDecoration(
-                        color : Colors.white,
+                        color : Theme.of(context).primaryColorLight,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.1),
@@ -304,7 +305,7 @@ class _LocalAssistState extends State<LocalAssist> {
                           ),
                         ],
                         borderRadius: BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: Colors.white70), // Optional: Add border for visual clarity
+                        border: Border.all(color: Colors.white30), // Optional: Add border for visual clarity
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(0.0),
@@ -367,17 +368,17 @@ class _LocalAssistState extends State<LocalAssist> {
                       height : 150,
 
                       decoration: BoxDecoration(
-                        color : Colors.white,
+                        color : Theme.of(context).primaryColorLight,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0.1),
+                            color: Colors.grey.withOpacity(0),
                             spreadRadius: 0.5,
                             blurRadius: 3,
                             offset: Offset(0, 3),
                           ),
                         ],
                         borderRadius: BorderRadius.all(Radius.circular(20)),
-                        border: Border.all(color: Colors.white70), // Optional: Add border for visual clarity
+                        // border: Border.all(color: Colors.white30), // Optional: Add border for visual clarity
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(0.0),

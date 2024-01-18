@@ -111,7 +111,7 @@ Future<void> onSelectNotification(String? payload) async {
   // Handle notification click here (optional)
 }
 
-String darkMode = 'ys';
+String darkMode = 'yes';
 
 
 class MyApp extends StatelessWidget {
@@ -155,8 +155,12 @@ class MyApp extends StatelessWidget {
         primaryColor: Colors.white,
         primaryColorLight : Color(0xFF1E2529),
 
-        backgroundColor:Color(0xFF1E2529) ,
-        scaffoldBackgroundColor: Color(0xFF1E2529),// Change the background color
+        // backgroundColor:Color(0xFF1E2529) ,
+        // backgroundColor:Color(0xFF1E2522) ,
+        // backgroundColor:Color(0xFF101619) ,
+        // backgroundColor:Color(0xFF151B1E) ,
+        backgroundColor:Color(0xFF151B1E) ,
+        scaffoldBackgroundColor: Color(0xFF151B1E),// Change the background color
 
 
         // Custom Text Styles
@@ -170,7 +174,7 @@ class MyApp extends StatelessWidget {
           subtitle2: TextStyle(fontSize: (14),color : Colors.white),
 
 
-          headline4: TextStyle(fontSize: (14),color :Colors.orange , fontWeight: FontWeight.w600),
+          headline4: TextStyle(fontSize: (14),color :Colors.white , ),
           headline6: TextStyle(fontSize: (14),color :Color(0xFF263238), fontWeight: FontWeight.bold),
 
           headline1: TextStyle(fontSize: (25),color : Colors.white, fontWeight: FontWeight.bold), // Adjust the font size and weight as needed
@@ -188,7 +192,7 @@ class MyApp extends StatelessWidget {
         // Optional: Define colors for specific components
         appBarTheme: AppBarTheme(
           backgroundColor: Color(0xFF1E2529) , // Change the AppBar background color
-          foregroundColor: Colors.white,
+          foregroundColor: Color(0xFF1E2529),
 
           // Change the AppBar text color
         ),
@@ -206,7 +210,7 @@ class MyApp extends StatelessWidget {
 
 
         primaryColor: Color(0xFF001B33), // Change the primary color
-        primaryColorLight : Color(0xFF1E2529),
+        primaryColorLight : Color(0xFFF2F2F2),
         // accentColor: Colors.orange, // Change the accent color
         backgroundColor: Colors.white,
 

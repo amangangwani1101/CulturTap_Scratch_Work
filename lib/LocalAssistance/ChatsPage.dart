@@ -17,7 +17,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:photo_view/photo_view.dart';
 
-import '../Notifications/NotificationManager.dart';
+
 import '../UserProfile/CoverPage.dart';
 import '../UserProfile/ProfileHeader.dart';
 import '../fetchDataFromMongodb.dart';
@@ -1018,16 +1018,16 @@ class _ChatsPageState extends State<ChatsPage> {
         return false; // Returning true will allow the user to pop the page
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent,toolbarHeight: 90,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 1,userId: widget.userId,),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
         body: Container(
-          color: Colors.white,
+          color: Theme.of(context).backgroundColor,
           height : MediaQuery.of(context).size.height,
           child: Stack(
 
               children : [
                 Container(
-                  margin: EdgeInsets.only(bottom: 70),
-                  // decoration: BoxDecoration(border:Border.all(color:Colors.green)),
+
+
                   child: SingleChildScrollView(
                     controller: widget.meetId!=null?_scrollController:null,
                     physics: BouncingScrollPhysics(),
@@ -1048,7 +1048,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                     Text('Immediate Local Assistance',
                                         style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
                                     Text('Get help at your fingertip from locals',
-                                        style: TextStyle(fontSize: 16)),
+                                        style: Theme.of(context).textTheme.subtitle2),
                                     SizedBox(height: 30),
                                   ],
                                 ),
@@ -1062,7 +1062,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   children: [
                                     InkWell(
                                       onTap: (){},
-                                      child: Icon(Icons.location_on, color: Colors.black,size: 35),
+                                      child: Icon(Icons.location_on, color: Theme.of(context).primaryColor,size: 35,),
                                     ),
                                     Container(
                                       width: 250,
@@ -1071,10 +1071,10 @@ class _ChatsPageState extends State<ChatsPage> {
                                         children: [
                                           Row(
                                             children: [
-                                              Text('Location '),
+                                              Text('Location ',style: Theme.of(context).textTheme.subtitle1),
                                             ],
                                           ),
-                                          Text(liveLocation), // Display user location here
+                                          Text(liveLocation,style: Theme.of(context).textTheme.subtitle2), // Display user location here
                                         ],
                                       ),
                                     )
@@ -1111,7 +1111,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                               child: Icon(Icons.refresh, color: Colors.orange, size: 25),
                                             ),
                                           ),
-                                          Text('Refresh',style:TextStyle(fontWeight : FontWeight.bold,fontSize:16,color :Colors.orange)),
+                                          SizedBox(width : 5),
+                                          Text('Refresh',style:TextStyle(fontSize:16,color :Colors.orange)),
                                         ],
                                       ),
                                     ),
@@ -1122,7 +1123,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                           icon: Icon(Icons.share, color: Colors.orange,size: 25,),
                                           onPressed: () {},
                                         ),
-                                        Text('Share Location',style:TextStyle(fontWeight : FontWeight.bold,fontSize:16,color :Colors.orange)),
+                                        Text('Share Location',style:TextStyle(fontSize:16,color :Colors.orange)),
                                       ],
                                     )
                                   ],
@@ -1153,7 +1154,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                         width : 286,
                                         height: 246,
                                         margin: EdgeInsets.only(left:16,right:16,),
-                                        color : Color(0xFFEBEBEB),
+                                        color : Theme.of(context).primaryColorLight,
                                         child: Column(
                                           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                           children: [
@@ -2042,71 +2043,76 @@ class _ChatsPageState extends State<ChatsPage> {
                                                   ),
                                                 )
                                                     : Align(
-                                                  alignment:
-                                                  Alignment.centerRight,
+                                                  alignment: Alignment.centerRight,
                                                   child: Container(
-                                                    width: 306,
-                                                    decoration: BoxDecoration(
-                                                      color: HexColor('#FAFAFA'),
-                                                      borderRadius: BorderRadius.circular(5),
-                                                    ),
-                                                    padding:
-                                                    EdgeInsets.all(5),
+                                                    width : 360,
+                                                    color: Theme.of(context).backgroundColor,
                                                     child: Row(
-                                                      crossAxisAlignment:
-                                                      CrossAxisAlignment
-                                                          .start,
+                                                      mainAxisAlignment : MainAxisAlignment.end,
+                                                      crossAxisAlignment : CrossAxisAlignment.start,
                                                       children: [
-                                                        Container(
-                                                          padding:EdgeInsets.all(4),
-                                                          child: CircleAvatar(
-                                                            radius: 20.0,
-                                                            backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                                          ),
+                                                        CircleAvatar(
+                                                          radius: 20.0,
+                                                          backgroundImage: FileImage(File(userPhoto)),
                                                         ),
+                                                        SizedBox(width : 10),
                                                         Container(
-                                                          padding: EdgeInsets.only(left: 4),
-                                                          width:230,
-                                                          // decoration: BoxDecoration(border:Border.all(color:Colors.orange)),
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            mainAxisAlignment: MainAxisAlignment.start,
+                                                          width: 250,
+                                                          decoration: BoxDecoration(
+                                                            color: Theme.of(context).primaryColorLight,
+                                                            borderRadius: BorderRadius.only(
+                                                              topLeft: Radius.circular(-10.0),
+                                                              topRight: Radius.circular(20.0),
+                                                              bottomLeft: Radius.circular(20.0),
+                                                              bottomRight: Radius.circular(20.0),
+                                                            ),
+                                                          ),
+                                                          padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
+                                                          child: Row(
+                                                            crossAxisAlignment: CrossAxisAlignment.start,
                                                             children: [
-                                                              Text(
-                                                                'You',
-                                                                style: Theme.of(context).textTheme.subtitle1,
-                                                              ),
-                                                              (message[0]).contains('.jpg') ||
-                                                                  (message[0]).contains(
-                                                                      '.jpeg') ||
-                                                                  (message[0]).contains(
-                                                                      '.png')
-                                                                  ? Image
-                                                                  .file(
-                                                                File(message[
-                                                                0]),
-                                                                fit: BoxFit
-                                                                    .cover,
-                                                              )
-                                                                  : message[0]
-                                                                  .contains('.pdf')
-                                                                  ? GestureDetector(
-                                                                onTap:
-                                                                    () {
-                                                                  _openFileWithDefaultApp(message[0]);
-                                                                },
-                                                                child: Container(
-                                                                    width: 200,
-                                                                    height: 200,
-                                                                    child: PDFView(
-                                                                      filePath: message[0],
-                                                                    )),
-                                                              )
-                                                                  : Text(
-                                                                message[0],
-                                                                style: Theme.of(context).textTheme.headline6,
+                                                              // Move the CircleAvatar outside of the Column
+
+                                                              SizedBox(width: 8), // Add some space between CircleAvatar and message
+                                                              Container(
+                                                                width: 200,
+                                                                // Adjust the padding as needed
+                                                                padding: EdgeInsets.only(left: 4),
+                                                                child: Column(
+                                                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                                  children: [
+                                                                    Text(
+                                                                      'You',
+                                                                      style: Theme.of(context).textTheme.subtitle1,
+                                                                    ),
+                                                                    // The rest of your message content here
+                                                                    (message[0]).contains('.jpg') ||
+                                                                        (message[0]).contains('.jpeg') ||
+                                                                        (message[0]).contains('.png')
+                                                                        ? Image.file(
+                                                                      File(message[0]),
+                                                                      fit: BoxFit.cover,
+                                                                    )
+                                                                        : message[0].contains('.pdf')
+                                                                        ? GestureDetector(
+                                                                      onTap: () {
+                                                                        _openFileWithDefaultApp(message[0]);
+                                                                      },
+                                                                      child: Container(
+                                                                        width: 200,
+                                                                        height: 200,
+                                                                        child: PDFView(
+                                                                          filePath: message[0],
+                                                                        ),
+                                                                      ),
+                                                                    )
+                                                                        : Text(
+                                                                      message[0],
+                                                                      style: Theme.of(context).textTheme.subtitle2,
+                                                                    ),
+                                                                  ],
+                                                                ),
                                                               ),
                                                             ],
                                                           ),
@@ -2115,6 +2121,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                     ),
                                                   ),
                                                 )
+
                                                     : widget.state == 'user' &&
                                                     message[1].contains(
                                                         'admin') ==
@@ -2595,7 +2602,7 @@ class _ChatsPageState extends State<ChatsPage> {
                       WidgetsBinding.instance?.addPostFrameCallback((_) {
                         _scrollController.animateTo(
                           _scrollController.position.maxScrollExtent,
-                          duration: Duration(milliseconds: 500),
+                          duration: Duration(milliseconds: 50),
                           curve: Curves.easeInOut,
                         );
                       });
@@ -2604,9 +2611,9 @@ class _ChatsPageState extends State<ChatsPage> {
                         padding: EdgeInsets.all(5),
                         decoration: BoxDecoration(
                           borderRadius: BorderRadius.circular(50),
-                          color:HexColor('#EBEBEB'),
+                          color: Colors.white30,
                         ),
-                        child: SvgPicture.asset('assets/images/scroll_down.svg',width:18,height: 22,)
+                        child: SvgPicture.asset('assets/images/scroll_down.svg',color :Theme.of(context).primaryColorLight, width:18,height: 22,)
                     ),
                   ),
                 ),
@@ -2615,7 +2622,7 @@ class _ChatsPageState extends State<ChatsPage> {
                   left : 0,
                   right : 0,
                   child: Container(
-                    color : Colors.white,
+                    color : Theme.of(context).backgroundColor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.end,
@@ -2759,21 +2766,23 @@ class _ChatsPageState extends State<ChatsPage> {
                               Flexible(
                                 child: Container(
 
+
                                   width: messageTyping?screenWidth:screenWidth*0.70,
                                   decoration: BoxDecoration(
+                                    color : Theme.of(context).primaryColorLight,
 
                                     boxShadow: [
                                       BoxShadow(
-                                        color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
+                                        color: Colors.black.withOpacity(0.04), // Set your desired shadow color
                                         spreadRadius: 0.5,
                                         blurRadius: 0.2,
                                         offset: Offset(0, 2), // Adjust the shadow offset
                                       ),
                                     ],
-                                    color : Colors.white,
-                                    borderRadius: BorderRadius.circular(20),
+
+                                    borderRadius: BorderRadius.circular(30),
                                   ),
-                                  padding: EdgeInsets.only(left: 10,right: 10),
+                                  padding: EdgeInsets.only(left: 25,right: 0),
                                   child: Row(
                                     mainAxisAlignment: MainAxisAlignment.start,
                                     children: <Widget>[
@@ -2784,11 +2793,14 @@ class _ChatsPageState extends State<ChatsPage> {
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
+
                                               // Set your desired background color
 
                                             ),
                                             child: TextField(
                                               focusNode: _textFieldFocusNode,
+                                              style : Theme.of(context).textTheme.subtitle2,
+                                              cursorColor : Colors.orange,
                                               onChanged: (text) {
                                                 setState(() {});
 
@@ -2806,7 +2818,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                               controller: _controller,
                                               decoration: InputDecoration(
                                                 hintText: 'Start Typing Here...',
-                                                hintStyle: TextStyle(fontWeight: FontWeight.w600),
+                                                hintStyle: Theme.of(context).textTheme.subtitle2,
                                                 border: InputBorder.none,
                                               ),
                                             ),
@@ -2832,7 +2844,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                               setState(() {});
                                             }
                                           },
-                                          child: SvgPicture.asset('assets/images/attachment_icon.svg')):SizedBox(width: 0,),
+                                          child: SvgPicture.asset('assets/images/attachment_icon.svg',color : Theme.of(context).primaryColor,)):SizedBox(width: 0,),
                                       SizedBox(width : 10),
                                       messageTyping==false?SizedBox(width: 10,):SizedBox(width: 5,),
                                       SizedBox(width : 10),
@@ -2845,13 +2857,13 @@ class _ChatsPageState extends State<ChatsPage> {
                               messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)? Container(
                                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
+                                    color: Colors.black.withOpacity(0.02), // Set your desired shadow color
                                     spreadRadius: 0.5,
                                     blurRadius: 0.2,
                                     offset: Offset(0, 2), // Adjust the shadow offset
                                   ),
                                 ],
-                                  color : Colors.white,
+                                  color : Theme.of(context).primaryColorLight,
                                 ),
                                 child: IconButton(
                                   icon: Icon(Icons.call),
@@ -2865,6 +2877,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                     );
                                   },
                                   // onPressed: !_isUiEnabled ? startCall : null,
+                                  color : Theme.of(context).primaryColor,
                                 ),
                               ):SizedBox(width: 0,),
                               SizedBox(width : 5),
@@ -2872,13 +2885,13 @@ class _ChatsPageState extends State<ChatsPage> {
                               if (messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)) Container(
                                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),boxShadow: [
                                   BoxShadow(
-                                    color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
+                                    color: Colors.black.withOpacity(0.02), // Set your desired shadow color
                                     spreadRadius: 0.5,
                                     blurRadius: 0.2,
                                     offset: Offset(0, 2), // Adjust the shadow offset
                                   ),
                                 ],
-                                  color : Colors.white,
+                                  color : Theme.of(context).primaryColorLight,
                                 ),
                                 child: IconButton(
                                   icon: Icon(Icons.videocam),
@@ -2891,7 +2904,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                       imageOwn:userPhoto,
                                       imageOther:helperPhoto,
                                     );
+
                                   },
+                                    color : Theme.of(context).primaryColor,
                                 ),
                               ) else if((meetStatus=='schedule' ||  sender.length<=1)) GestureDetector(
                                 onTap: ()async{
@@ -2938,19 +2953,21 @@ class _ChatsPageState extends State<ChatsPage> {
                                     padding: EdgeInsets.all(15),
 
                                     decoration: BoxDecoration(
+                                     color : Theme.of(context).primaryColorLight,
 
                                       boxShadow: [
+
                                         BoxShadow(
-                                          color: Colors.grey.withOpacity(0.2), // Set your desired shadow color
+                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
                                           spreadRadius: 0.5,
                                           blurRadius: 0.2,
                                           offset: Offset(0, 2), // Adjust the shadow offset
                                         ),
                                       ],
-                                      color : Colors.white,
+
                                       borderRadius: BorderRadius.circular(50),
                                     ),
-                                    child: SvgPicture.asset('assets/images/send_msg.svg')),
+                                    child: SvgPicture.asset('assets/images/send_msg.svg',color : Theme.of(context).primaryColor,)),
                               )
                               else SizedBox(width: 10,),
                               messageTyping==false?SizedBox(width: 10,):SizedBox(width: 10,),
@@ -2962,7 +2979,7 @@ class _ChatsPageState extends State<ChatsPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Waiting For Response',style: Theme.of(context).textTheme.headline4,),
+                                Text('Waiting For Response',style: TextStyle(color : Colors.white30, fontSize : 18, fontWeight : FontWeight.bold),),
                                 SizedBox(width:10),
                                 LoadingDotAnimation(),
                               ],
@@ -3063,7 +3080,7 @@ class _LoadingDotAnimationState extends State<LoadingDotAnimation> with TickerPr
           width: 10,
           height: 10,
           decoration: BoxDecoration(
-            color: ColorTween(begin: Colors.white, end: Colors.orange).animate(controller).value,
+            color: ColorTween(begin: Colors.white70, end: Colors.white30).animate(controller).value,
             shape: BoxShape.circle,
           ),
         );

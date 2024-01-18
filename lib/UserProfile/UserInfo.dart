@@ -71,7 +71,7 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
               widget.state=='final'
                 ?Container(
                 width: 300,
-                  child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: Theme.of(context).textTheme.headline6,textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
+                  child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: Theme.of(context).textTheme.subtitle2,textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
                 ),
                 )
                 :GestureDetector(
@@ -563,7 +563,7 @@ class UserDetailsTable extends StatelessWidget {
               Text('Place -',style: Theme.of(context).textTheme.subtitle1,),
               Container(
                 width : 170,
-                  child: Text(place==null?'NA':'${place}',style: Theme.of(context).textTheme.headline6,)),
+                  child: Text(place==null?'NA':'${place}',style: Theme.of(context).textTheme.subtitle2,)),
             ],
           ),
           Row(
@@ -572,7 +572,7 @@ class UserDetailsTable extends StatelessWidget {
               Text('Profession ',style: Theme.of(context).textTheme.subtitle1,),
               Container(
                 width : 170,
-                  child: Text(profession==null?'NA':'${profession}',style: Theme.of(context).textTheme.headline6,)),
+                  child: Text(profession==null?'NA':'${profession}',style: Theme.of(context).textTheme.subtitle2,)),
             ],
           ),
           Row(
@@ -581,7 +581,7 @@ class UserDetailsTable extends StatelessWidget {
               Text('Age/Gender -',style: Theme.of(context).textTheme.subtitle1,),
               Container(
                 width : 170,
-                  child: Text(age ==null?'NA':'${age} Yr / ${gender==null?'':gender}',style: Theme.of(context).textTheme.headline6,)),
+                  child: Text(age ==null?'NA':'${age} Yr / ${gender==null?'':gender}',style: Theme.of(context).textTheme.subtitle2,)),
             ],
           ),
           Row(
@@ -594,7 +594,7 @@ class UserDetailsTable extends StatelessWidget {
                 child: Text(
 
                   languageList!.join(', '), // Join the list elements with a comma and space
-                  style: Theme.of(context).textTheme.headline6,
+                  style: Theme.of(context).textTheme.subtitle2,
                   maxLines: 5,
                 ),
               ):Text('NA'),
