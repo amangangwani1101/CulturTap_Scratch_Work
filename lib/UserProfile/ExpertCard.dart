@@ -47,10 +47,10 @@ class ExpertCardDetails extends StatelessWidget{
       key: containerKey,
       child: Container(
         width: screenWidth*0.90,
-        padding: EdgeInsets.all(15),
+        padding: EdgeInsets.only(top : 25, left : 15, right : 15, bottom : 25),
         decoration: BoxDecoration(
-          color: Theme.of(context).backgroundColor,
-          border: Border.all(color: Colors.black),
+          color: Theme.of(context).primaryColorLight,
+          border: Border.all(color: Colors.white30),
           borderRadius: BorderRadius.circular(20),
           // boxShadow: [
           //   BoxShadow(
@@ -89,7 +89,7 @@ class ExpertCardDetails extends StatelessWidget{
                 children: [
                   Text('Expert in locations',style: Theme.of(context).textTheme.subtitle1,),
                   Container(
-                    child: expertLocations.isEmpty ? Text('iufbiqbgl lvhi3goh evhb3yobvhefhbl3rvhj ergyu4bvejligrbv eruig efj4vui efiubewvjkebgiuefjk vewuibgekj', style: Theme.of(context).textTheme.headline6,):
+                    child: expertLocations.isEmpty ? Text('iufbiqbgl lvhi3goh evhb3yobvhefhbl3rvhj ergyu4bvejligrbv eruig efj4vui efiubewvjkebgiuefjk vewuibgekj', style: Theme.of(context).textTheme.subtitle2,):
                     Wrap(
                       runSpacing: 8.0, // Vertical spacing between lines of items
                       children: [
@@ -102,7 +102,7 @@ class ExpertCardDetails extends StatelessWidget{
                                   children: [
                                     Text(expertLocations[i]),
                                     if (i < expertLocations.length - 1)
-                                      Text(',', style: Theme.of(context).textTheme.headline6,),
+                                      Text(',', style: Theme.of(context).textTheme.subtitle2,),
                                   ],
                                 ),
                               ),
@@ -131,29 +131,29 @@ class ExpertCardDetails extends StatelessWidget{
                   mainAxisAlignment: MainAxisAlignment.start,
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('${visitedplace}', style: Theme.of(context).textTheme.headline6,),
-                    Text('${coveredLocation}', style: Theme.of(context).textTheme.headline6,),
+                    Text('${visitedplace}', style: Theme.of(context).textTheme.subtitle2,),
+                    Text('${coveredLocation}', style: Theme.of(context).textTheme.subtitle2,),
                     Container(
-                      child: ratings == 0
-                          ? Container(
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Text('N/A'),
-                          ],
-                        ),
-                      )
-                          : Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: List.generate(ratings.toInt(), (index) {
-                          return Icon(Icons.star, color: HexColor('#FB8C00'));
-                        })
-                          ..add(
-                            (ratings % 1 != 0) // Check if there is a decimal part
-                                ? Icon(Icons.star_half, color: HexColor('#FB8C00'))
-                                : SizedBox(), // If no decimal part, add an empty SizedBox
+                        child: ratings == 0
+                            ? Container(
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Text('N/A'),
+                            ],
                           ),
-                      )
+                        )
+                            : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: List.generate(ratings.toInt(), (index) {
+                            return Icon(Icons.star, color: HexColor('#FB8C00'));
+                          })
+                            ..add(
+                              (ratings % 1 != 0) // Check if there is a decimal part
+                                  ? Icon(Icons.star_half, color: HexColor('#FB8C00'))
+                                  : SizedBox(), // If no decimal part, add an empty SizedBox
+                            ),
+                        )
                     ),
                   ],
                 ),

@@ -357,6 +357,7 @@ class _ChatsPageState extends State<ChatsPage> {
         'conversation':meetDetails,
       };
       print('Meeting Chats Request Sent : $data');
+
       final http.Response response = await http.patch(
         Uri.parse('$serverUrl/storeLocalMeetingConversation'), // Adjust the endpoint as needed
         headers: {
@@ -1795,12 +1796,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                                           // } else {
                                                           //   throw 'Could not launch $mapsUrl';
                                                           // }
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(
-                                                              builder: (context) => MapNavigatorScreen(latitude:double.parse(helperLatitude),longitude:double.parse(helperLongitude)),
-                                                            ),
-                                                          );
+                                                          // Navigator.push(
+                                                          //   context,
+                                                          //   MaterialPageRoute(
+                                                          //     builder: (context) => MapNavigatorScreen(latitude:double.parse(helperLatitude),longitude:double.parse(helperLongitude)),
+                                                          //   ),
+                                                          // );
                                                         },
                                                         child: Container(
                                                           width: 306,
@@ -2906,7 +2907,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                     );
 
                                   },
-                                    color : Theme.of(context).primaryColor,
+                                  color : Theme.of(context).primaryColor,
                                 ),
                               ) else if((meetStatus=='schedule' ||  sender.length<=1)) GestureDetector(
                                 onTap: ()async{
@@ -2953,7 +2954,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                     padding: EdgeInsets.all(15),
 
                                     decoration: BoxDecoration(
-                                     color : Theme.of(context).primaryColorLight,
+                                      color : Theme.of(context).primaryColorLight,
 
                                       boxShadow: [
 
@@ -3018,6 +3019,9 @@ class _ChatsPageState extends State<ChatsPage> {
     socket.disconnect();
     socket.dispose();
   }
+}
+
+class MapNavigatorScreen {
 }
 
 class LoadingDotAnimation extends StatefulWidget {
