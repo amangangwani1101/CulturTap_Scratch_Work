@@ -32,8 +32,8 @@ Future<void> fetchDataFromMongoDB() async {
       String uId = userData['userMongoId'];
       String uNumber = (userData['phoneNo'].toString());
       print(uNumber);
-      // userPhoneNumber = uNumber;
-      // userName = uName;
+      userPhoneNumber = uNumber;
+      userName = uName;
       print('userNamewa: $uName');
       userID = uId;
       print('userIDmmmmm: $userID');

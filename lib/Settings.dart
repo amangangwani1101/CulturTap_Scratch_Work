@@ -136,7 +136,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,backgroundColor : Colors.white),
+      appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,backgroundColor : Theme.of(context).backgroundColor),
       body: WillPopScope(
         onWillPop: ()async{
 
@@ -165,7 +165,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 // ),
                 // SizedBox(height: 20,),
                 Container(
-                  padding: const EdgeInsets.only(left : 46, right : 46,),
+                  padding: const EdgeInsets.only(left : 26, right : 26,),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -299,7 +299,8 @@ class _SettingsPageState extends State<SettingsPage> {
                                     Container(
                                       width:20,
                                       height: 20,
-                                      child: SvgPicture.asset('assets/images/calendar.svg'),
+                                      child: SvgPicture.asset('assets/images/calendar.svg',color:Theme.of(context).primaryColor),
+
                                     ),
                                     Container(
                                       width: 220,
@@ -859,15 +860,15 @@ class _EditServicesState extends State<EditServices>{
 
 
 class EditPayments extends StatefulWidget{
-  List<dynamic>?savedCards;
-  String?userId;
-  EditPayments({this.savedCards,this.userId});
+  // List<dynamic>?savedCards;
+  // String?userId;
+  // EditPayments({this.savedCards,this.userId});
   @override
   _EditPaymentsState createState()=> _EditPaymentsState();
 }
 
 class _EditPaymentsState extends State<EditPayments>{
-
+  List<CardDetails>?savedCards;
   void initState() {
     super.initState();
     fetchPaymentData();
@@ -877,13 +878,11 @@ class _EditPaymentsState extends State<EditPayments>{
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
     final url = Uri.parse('$serverUrl/userStoredData/${userID}'); // Replace with your backend URL
     final http.Response response = await http.get(url);
-
     if (response.statusCode == 200) {
       final dataset = json.decode(response.body);
       print('Data is $dataset');
       setState(() {
-        widget.userId = userID;
-        widget.savedCards =  dataset?['userPaymentData']!=null?(dataset?['userPaymentData']):[];
+        savedCards =  dataset?['userPaymentData']!=null?(convertToCardDetailsList(dataset?['userPaymentData'])):[];
       });
     } else {
       // Handle error
@@ -914,8 +913,8 @@ class _EditPaymentsState extends State<EditPayments>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.savedCards!=null
-      ? PaymentSection(savedCards: convertToCardDetailsList(widget.savedCards!),text: 'edit',userId: widget.userId,)
+      body: savedCards!=null
+      ? PaymentSection(savedCards: savedCards,text: 'edit',userId: userID,)
       :Container(
         height : MediaQuery.of(context).size.height,
         child: Column(
@@ -935,11 +934,11 @@ class AboutUs extends StatelessWidget{
   @override
   Widget build(BuildContext context){
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 2,),backgroundColor : Colors.white,automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
+      appBar: AppBar(title: ProfileHeader(reqPage: 2,),backgroundColor : Theme.of(context).backgroundColor,automaticallyImplyLeading: false,toolbarHeight: 90,shadowColor: Colors.transparent,),
       body:  SingleChildScrollView(
         child: Container(
-          padding : EdgeInsets.all(30),
-          color : Colors.white,
+          padding : EdgeInsets.only(left:30,right : 30,bottom : 30),
+          color : Theme.of(context).backgroundColor,
 
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -959,7 +958,7 @@ class AboutUs extends StatelessWidget{
                     SizedBox(height : 10),
                     Text('Culturtap is a travel app that aims to make your travel easier by providing real-time updates and connecting you with people to help whenever you need. It makes your travel easier,safer and more enjoyable. download CulturTap app: which helps you to explore the whole culture of your selected destinations! '
                         '\n\nExplore the whole culture with just a few taps! \nChoose your destination, CulturTap presents  you the whole culture of your destination with real-time updates, including popular visits, top-rated restaurants, trending locations, outskirts, traditional fashion, nearby pubs and cafes, street food, historical heritage, festivals, handy crafts, service shops and business shops.'
-                    ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                    ,style: Theme.of(context).textTheme.subtitle2,),
                     SizedBox(height : 10),
                   ],
                 ),
@@ -973,7 +972,7 @@ class AboutUs extends StatelessWidget{
                     Text('Trip planning calls:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height : 10),
                     Text('You can connect with people who have \nalready experienced the destination or the \nlocals to help you plan your next trip better.'
-                        ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                        ,style: Theme.of(context).textTheme.subtitle2,),
                   ],
                 ),
               ),
@@ -986,7 +985,7 @@ class AboutUs extends StatelessWidget{
                     Text('Immediate trip assistance:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height : 10),
                     Text('Immediate trip assistance allows you to send a message to nearby people who can assist you with your immediate needs or connect you with them. Person will be physically available for you if needed.'
-                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                      ,style: Theme.of(context).textTheme.subtitle2,),
                   ],
                 ),
               ),
@@ -999,7 +998,7 @@ class AboutUs extends StatelessWidget{
                     Text('Emergency Call Services:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height : 10),
                     Text("Culturtap, prioritizes your safety by connecting you with all the emergency helpline numbers anywhere in the world and encouraging you to explore with confidentiality. stay safe in any situation with CulturTap's emergency call services Connect with police, ambulance, or fire brigade worldwide with just a few taps of CulturTap."
-                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                      ,style: Theme.of(context).textTheme.subtitle2,),
                   ],
                 ),
               ),
@@ -1012,7 +1011,7 @@ class AboutUs extends StatelessWidget{
                     Text('How to earn?',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height : 10),
                     Text('Explore, Update, Guide and Earn !'
-                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                      ,style: Theme.of(context).textTheme.subtitle2,),
                   ],
                 ),
               ),
@@ -1025,7 +1024,7 @@ class AboutUs extends StatelessWidget{
                     Text('Trip planning calls:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height : 10),
                     Text('share your travel experiences to connect with travelers and help them to plan their trips.'
-                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                      ,style: Theme.of(context).textTheme.subtitle2,),
                   ],
                 ),
               ),
@@ -1037,7 +1036,7 @@ class AboutUs extends StatelessWidget{
                     Text('Immediate trip assistance:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height : 10),
                     Text('Immediate Call Assistance connects you with them who are nearby and need your immediate help while they are traveling.'
-                      ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),)
+                      ,style: Theme.of(context).textTheme.subtitle2,),
                   ],
                 ),
               ),
@@ -1104,15 +1103,17 @@ class _HelpState extends State<Help> {
           ),
           Container(
             padding: EdgeInsets.only(top: 10),
-            color: Color(0xFFD9D9D9),
+            color: Theme.of(context).primaryColorLight,
             child: TextField(
               controller: _bodyController,
-              style: TextStyle(fontSize: 16),
+              cursorColor : Colors.orange,
+              style: Theme.of(context).textTheme.subtitle2,
               onChanged: (value) {
                 // Do any additional handling if neededs
               },
               decoration: InputDecoration(
                 hintText: 'Type here........',
+                hintStyle : Theme.of(context).textTheme.subtitle1,
                 contentPadding: EdgeInsets.symmetric(vertical: 10,horizontal: 10),
                 border: InputBorder.none,
               ),
@@ -1222,7 +1223,7 @@ class _HelpState extends State<Help> {
     final Uri _emailLaunchUri = Uri(
       scheme: 'mailto',
       path: 'Info@culturtap.com',
-      query: 'subject=Want some help&body=Dear CulturTap team, \n\nI need help with...',
+      query: 'subject=Want some help&body=Dear CulturTap team,\n\n Name: $userName \n userID : $userID \n PhoneNumber : $userPhoneNumber, \n\nI need help with...',
     );
     if (await canLaunch(_emailLaunchUri.toString())) {
       await launch(_emailLaunchUri.toString());

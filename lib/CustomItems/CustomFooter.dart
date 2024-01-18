@@ -205,8 +205,8 @@ setState(() {
       height :  80,
 
       decoration: BoxDecoration(
-          color : mode == 'dark' ? Colors.black : Colors.white,
-          border: Border.all(color :mode == 'dark' ?  Colors.black : Colors.white,width : 0.00)),
+          color : mode == 'dark' ? Colors.black : Theme.of(context).backgroundColor,
+          border: Border.all(color :mode == 'dark' ?  Colors.black : Theme.of(context).backgroundColor,width : 0.00)),
 
 
 
@@ -472,7 +472,7 @@ setState(() {
                             child: Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white,
+                                color: Theme.of(context).backgroundColor,
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.2),
