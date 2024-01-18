@@ -1178,71 +1178,88 @@ class _ProfileFormState extends State<ProfileForm> {
                 ),
 
                 height : 60,
+                alignment: Alignment.center,
+                child: Expanded(
+                  child: DropDownMultiSelect(
+                    hint: Text('Select...'), // Hint text for the dropdown
+                    hintStyle: Theme.of(context).textTheme.subtitle1,
+                    isDense: true,
+                    // menuItembuilder: (item) {
+                    //   return Container(
+                    //     padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+                    //     child: Row(
+                    //       children: [
+                    //         Icon(Icons.check_circle, // You can change the icon based on selection
+                    //             color: selectedOptionsList.value.contains(item)
+                    //                 ? Colors.green // Change color if item is selected
+                    //                 : Colors.grey),
+                    //         SizedBox(width: 10),
+                    //         Text(
+                    //           item.toString(), // Display the item's text
+                    //           style: TextStyle(
+                    //             fontSize: 16,
+                    //             color: selectedOptionsList.value.contains(item)
+                    //                 ? Colors.black // Change text color if item is selected
+                    //                 : Colors.grey,
+                    //           ),
+                    //         ),
+                    //       ],
+                    //     ),
+                    //   );
+                    // },
+                    childBuilder: (selected) {
+                      return Row(
+                        children: [
+                          Container(
 
-                child: Row(
-                  children: [
-                    Expanded(
-                      child: DropDownMultiSelect(
-                        // hint: Widget(
-                        //   key: Key('Select...'),
-                        // ),
-                        isDense: true,
-                        childBuilder: (selected) {
-                          return Row(
-                            children: [
-                              Container(
-
-                                padding: EdgeInsets.all(10),
-                                width: 310, // Adjust as needed
-                                child: Text(
-                                  selected.join(', '),
-                                  style: TextStyle(
-                                    fontSize: 14,
-                                    overflow: TextOverflow.ellipsis,
-                                    fontWeight: FontWeight.w600,
-                                  ),
-                                ),
-                              ),
-                              SizedBox(width: 10),
-                            ],
-                          );
-                        },
-                        enabled: true,
-                        options: Constant().languageList,
-                        whenEmpty: 'Select', // Placeholder text when no option is chosen
-                        decoration: InputDecoration(
-                          border: InputBorder.none,
-                          contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-
-                          suffixIcon: widget.text == 'edit'
-                              ? Padding(
-                            padding: const EdgeInsets.only(right: 8.0, top: 10),
+                            padding: EdgeInsets.all(10),
+                            width: 300, // Adjust as needed
                             child: Text(
-                              'EDIT',
-                              style: Theme.of(context).textTheme.headline4,
+                              selected.join(', '),
+                              style: TextStyle(
+                                fontSize: 14,
+                                overflow: TextOverflow.ellipsis,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
-                          )
-                              : Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
+                          ),
+                          SizedBox(width: 10),
+                        ],
+                      );
+                    },
+                    enabled: true,
+                    options: Constant().languageList,
+                    decoration: InputDecoration(
+                      border: InputBorder.none,
+                      contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+
+                      suffixIcon: widget.text == 'edit'
+                          ? Padding(
+                        padding: const EdgeInsets.only(right: 8.0, top: 10),
+                        child: Text(
+                          'EDIT',
+                          style: Theme.of(context).textTheme.headline4,
                         ),
-                        icon: SizedBox.shrink(),
-                        onChanged: (value) {
-                          selectedOptionsList.value = value;
-                          selectedOptions.value = '';
-                          selectedOptionsList.value.forEach((item) {
-                            selectedOptions.value = selectedOptions.value + ',' + item;
-                          });
-                          if (widget.text == 'edit') {
-                            widget.languageCallback!(selectedOptionsList.value);
-                          } else {
-                            if(selectedOptionsList.value.length>0)
-                              widget.profileDataProvider?.updateFieldCnt(1);
-                            widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
-                          }
-                        },
-                        selectedValues: selectedOptionsList.value,
-                      ),
+                      )
+                          : Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
                     ),
-                  ],
+                    icon: SizedBox.shrink(),
+                    onChanged: (value) {
+                      selectedOptionsList.value = value;
+                      selectedOptions.value = '';
+                      selectedOptionsList.value.forEach((item) {
+                        selectedOptions.value = selectedOptions.value + ',' + item;
+                      });
+                      if (widget.text == 'edit') {
+                        widget.languageCallback!(selectedOptionsList.value);
+                      } else {
+                        if(selectedOptionsList.value.length>0)
+                          widget.profileDataProvider?.updateFieldCnt(1);
+                        widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
+                      }
+                    },
+                    selectedValues: selectedOptionsList.value,
+                  ),
                 ),
               ),
             ],

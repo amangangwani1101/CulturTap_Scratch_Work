@@ -17,6 +17,7 @@ import 'package:http/http.dart' as http;
 
 import '../ServiceSections/ServiceCards.dart';
 import '../StoriesSection/StoryCategories.dart';
+import '../fetchDataFromMongodb.dart';
 import '../widgets/CustomButton.dart';
 import '../widgets/hexColor.dart';
 import '../BackendStore/BackendStore.dart';
@@ -234,70 +235,61 @@ class UserInformationSection extends StatelessWidget {
       padding: EdgeInsets.only(left: 15.0,right: 15),
       child: Column(
         children: [
-          // SizedBox(height: 40,),
-          // reqPage==0?SizedBox(width: 0,):MotivationalQuote(profileDataProvider:profileDataProvider),
-          // // SizedBox(height: 20.0),
-          // // ReachAndLocation(profileDataProvider:profileDataProvider),
-          // SizedBox(height:15,),
-          // reqPage==0?SizedBox(height: 0):SignIn(profileDataProvider:profileDataProvider),
-          // SizedBox(height: 30.0),
+          reqPage==0?SizedBox(height: 0):SizedBox(height: 10),
           reqPage==0?SizedBox(height: 0):SizedBox(height: 10),
           reqPage==0?UserDetailsTable():ProfileForm(profileDataProvider:profileDataProvider),
-          SizedBox(height: 45.0),
+          SizedBox(height: 50.0),
           ExpertCardDetails(),
           SizedBox(height: 35.0),
           reqPage==0?SizedBox(height: 0,) :Container(
-                height: 860,
+                padding: EdgeInsets.only(left: 10,right: 10),
                 child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'Turn youself ON for Becoming \nTrip planner ',profileDataProvider:profileDataProvider),
-                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Assistant for \nother’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'Turn youself ON for Becoming \nSuperhero as a saviour ! ',profileDataProvider:profileDataProvider),
-                    ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'Turn youself ON for Becoming \na smart guide for tourists !',profileDataProvider:profileDataProvider),
+                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'for Becoming Trip planner ',profileDataProvider:profileDataProvider),
+                    SizedBox(height: 70,),
+                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Assistant for other’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming Superhero as a saviour ! ',profileDataProvider:profileDataProvider),
+                    SizedBox(height: 70,),
+                    ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'for Becoming a smart guide for tourists !',profileDataProvider:profileDataProvider),
                   ],
                 ),
               ),
-          // SizedBox(height: 30,),
+          SizedBox(height: 60,),
           reqPage==0?SizedBox(width: 0,): RatingSection(ratings: ratings,reviewCnt:currentReview,profileDataProvider:profileDataProvider),
           SizedBox(height: 20,),
           reqPage==0
               ?SizedBox(width: 0,)
               : !videoUploaded
                 ?Container(
-              width: 335,
-              height: 195,
-              child: Center(
-                child: SizedBox(
-                  width: 340,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  padding: EdgeInsets.only(left: 10,right: 10),
+                child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Other visits',
+                    style: Theme.of(context).textTheme.headline1,),
+                  SizedBox(height: 7,),
+                  Text('No visits till yet, You can start it now even, Just click on add “ + “ button at the bottom of your screen & '
+                      ' record your outside surroundings.',style: Theme.of(context).textTheme.subtitle2,),
+                  SizedBox(height: 13,),
+                  Text('You can make video post private & public as per your choice. ',
+                    style: Theme.of(context).textTheme.subtitle2,),
+                  SizedBox(height:7,),
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Other visits',
-                        style: TextStyle(fontSize: 24,
-                            fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                      Text('No visits till yet, You can start it now even, Just click on add “ + “ button at the bottom of your screen & '
-                          ' record your outside surroundings.',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
-                      SizedBox(height: 7,),
-                      Text('You can make video post private & public as per your choice. ',
-                        style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
-                      SizedBox(height:7,),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Profile Strength Now',style: TextStyle(fontSize: 12,fontWeight: FontWeight.bold,fontFamily:'Poppins',),),
-                          Text('Medium',style: TextStyle(fontSize: 12,fontFamily: 'Poppins',color: HexColor('#FB8C00'),fontWeight: FontWeight.bold),),
-                        ],
-                      ),
+                      Text('Profile Strength',style:Theme.of(context).textTheme.subtitle1,),
+                      Text('Medium',style: Theme.of(context).textTheme.headline4,),
                     ],
                   ),
-                ),
+                ],
               ),
             )
                 :VisitsSection(),
           SizedBox(height: 20,),
 
-          ProfielStatusAndButton(reqPages: reqPage,userId:userId,userName:userName),
+          ProfielStatusAndButton(reqPages: reqPage,userId:userId,userName:userName,profileDataProvider:profileDataProvider),
+          SizedBox(height: 20,),
         ],
       ),
     );
@@ -308,31 +300,30 @@ class UserInformationSection extends StatelessWidget {
 // saving all user data in databse and submit section
 class ProfielStatusAndButton  extends StatelessWidget{
   final int reqPages;
+  final ProfileDataProvider? profileDataProvider;
   String?userId,userName;
-  ProfielStatusAndButton({required this.reqPages,this.userName,this.userId});
+  ProfielStatusAndButton({required this.reqPages,this.userName,this.userId,this.profileDataProvider});
 
   @override
   Widget build(BuildContext context) {
-    final profileDataProvider = Provider.of<ProfileDataProvider>(context);
-
     void sendDataToBackend () async{
       print('Status');
       try {
 
-        if(profileDataProvider.retFieldsCnt()>53){
-          if(profileDataProvider.retServide1()==true || profileDataProvider.retServide2()==true)
-            profileDataProvider.setProfileStatus('high');
+        if(profileDataProvider!.retFieldsCnt() > 53){
+          if(profileDataProvider?.retServide1()==true || profileDataProvider?.retServide2()==true)
+            profileDataProvider?.setProfileStatus('high');
           else
-            profileDataProvider.setProfileStatus('medium');
+            profileDataProvider?.setProfileStatus('medium');
         }
         else{
-          if(profileDataProvider.retServide1()==true || profileDataProvider.retServide2()==true){
-            profileDataProvider.setProfileStatus('medium');
+          if(profileDataProvider?.retServide1()==true || profileDataProvider?.retServide2()==true){
+            profileDataProvider?.setProfileStatus('medium');
           }else{
-            profileDataProvider.setProfileStatus('low');
+            profileDataProvider?.setProfileStatus('low');
           }
         }
-        final profileData = profileDataProvider.profileData.toJson();
+        final profileData = profileDataProvider?.profileData.toJson();
         print('Path is $profileData');
         final String serverUrl = Constant().serverUrl; // Replace with your server's URL
         final http.Response response = await http.put(
@@ -355,32 +346,40 @@ class ProfielStatusAndButton  extends StatelessWidget{
       }
     }
 
-    return Padding(
-      padding: const EdgeInsets.only(left: 16.0),
-      child: Column(
-        children: [
-          Container(
-            width: 400,
-            height: 70,
-            child: FiledButton(
-                backgroundColor: HexColor('#FB8C00'),
-                onPressed: () {
-                  print('Reqpages is $reqPages');
-                  reqPages==1?sendDataToBackend():null;
-                  reqPages<1
-                    ?Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(userId:userId,userName:userName),))
-                    :Navigator.push(context, MaterialPageRoute(builder: (context) => FinalProfile(userId:profileDataProvider.retUserId()!,clickedId:profileDataProvider.retUserId()!,),));
-                },
-                child: Center(
-                    child: Text(reqPages<1?'COMPLETE PROFILE':'SET PROFILE',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 18)))),
-                ),
-              ],
-            ),
-        );
+    return Container(
+      padding: const EdgeInsets.only(left: 10.0,right: 10.0),
+      child: FiledButton(
+          backgroundColor: HexColor('#FB8C00'),
+          onPressed: () {
+            print('Reqpages is $reqPages');
+            reqPages==1?sendDataToBackend():null;
+            reqPages<1
+                ?Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(userId:userId,userName:userName),))
+                :Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                create:(context) => ProfileDataProvider(),
+                child: FinalProfile(userId: userID,clickedId: userID,),
+              ),),
+            );
+          },
+        // Navigator.push(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+        //     create:(context) => ProfileDataProvider(),
+        //     child: FinalProfile(userId: userID,clickedId: userID,),
+        //   ),),
+        // );
+          child: Container(
+            height: 53,
+            alignment: Alignment.center,
+            child: Text(reqPages<1?'COMPLETE PROFILE':'SET PROFILE',
+                style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    fontSize: 18)),
+          )),
+    );
   }
 
 }

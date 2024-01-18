@@ -165,7 +165,7 @@ class _SettingsPageState extends State<SettingsPage> {
                 // ),
                 // SizedBox(height: 20,),
                 Container(
-                  padding: const EdgeInsets.only(left : 46, right : 46,),
+                  padding: const EdgeInsets.only(left : 26, right : 26,),
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -860,15 +860,15 @@ class _EditServicesState extends State<EditServices>{
 
 
 class EditPayments extends StatefulWidget{
-  List<dynamic>?savedCards;
-  String?userId;
-  EditPayments({this.savedCards,this.userId});
+  // List<dynamic>?savedCards;
+  // String?userId;
+  // EditPayments({this.savedCards,this.userId});
   @override
   _EditPaymentsState createState()=> _EditPaymentsState();
 }
 
 class _EditPaymentsState extends State<EditPayments>{
-
+  List<CardDetails>?savedCards;
   void initState() {
     super.initState();
     fetchPaymentData();
@@ -878,13 +878,11 @@ class _EditPaymentsState extends State<EditPayments>{
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
     final url = Uri.parse('$serverUrl/userStoredData/${userID}'); // Replace with your backend URL
     final http.Response response = await http.get(url);
-
     if (response.statusCode == 200) {
       final dataset = json.decode(response.body);
       print('Data is $dataset');
       setState(() {
-        widget.userId = userID;
-        widget.savedCards =  dataset?['userPaymentData']!=null?(dataset?['userPaymentData']):[];
+        savedCards =  dataset?['userPaymentData']!=null?(convertToCardDetailsList(dataset?['userPaymentData'])):[];
       });
     } else {
       // Handle error
@@ -915,8 +913,8 @@ class _EditPaymentsState extends State<EditPayments>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: widget.savedCards!=null
-      ? PaymentSection(savedCards: convertToCardDetailsList(widget.savedCards!),text: 'edit',userId: widget.userId,)
+      body: savedCards!=null
+      ? PaymentSection(savedCards: savedCards,text: 'edit',userId: userID,)
       :Container(
         height : MediaQuery.of(context).size.height,
         child: Column(
