@@ -9,9 +9,12 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/Notifications/CustomNotificationMessages.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/Payments/RazorPay.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/Payments/UpiPayments.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 
+import '../../All_Notifications/customizeNotification.dart';
 import '../../UserProfile/FinalUserProfile.dart';
 import '../../UserProfile/ProfileHeader.dart';
 // import '../../rating.dart';
@@ -1410,7 +1413,7 @@ class _PingSectionState extends State<PingsSection>{
                                                 await updateMeetingChats(meetId!,['','admin-cancel']);
                                                 await updatePaymentStatus('close',meetId);
                                                 _refreshPage();
-
+                                                sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
                                               } else {
                                                 // User canceled, do something else
                                                 print('User canceled');
@@ -1424,10 +1427,9 @@ class _PingSectionState extends State<PingsSection>{
                                               bool res = await Navigator.push(
                                                 context,
                                                 MaterialPageRoute(
-                                                  builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:pingsDataStore.userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
+                                                  builder: (context) => RazorPayIntegration(),
                                                 ),
                                               );
-                                              // paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber())
                                               if(res){
                                                 await updateLocalUserPings(userId, meetId, 'schedule');
                                                 await updateLocalUserPings(helperId!, meetId, 'schedule');
@@ -1438,6 +1440,7 @@ class _PingSectionState extends State<PingsSection>{
                                                     meetId: meetId,
                                                   ),));
                                                 _refreshPage();
+                                                sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(pingsDataStore.userName, meetId));
                                               }else{
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   const SnackBar(
@@ -1463,6 +1466,7 @@ class _PingSectionState extends State<PingsSection>{
                                             meetId: meetId,
                                           ),));
                                           _refreshPage();
+                                          sendCustomNotificationToUsers([userId],localAssistantHelperAccepted(userName!, meetId));
                                           },
                                         child: Center(child: Container(child: Text('Accept & Reply',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)))
                                       :(meetStatus=='close' && userId!=widget.userId)

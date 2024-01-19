@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const SingleStoryModel = require('../db/model/singleStoryModel');
-const GenreModel = require('../db/model/genre'); // Import the GenreModel
+//const GenreModel = require('../db/model/genre'); // Import the GenreModel
 
 // Define a route to get nearby festivals
 router.get('/api/nearby-festivals-with-ratings', async (req, res) => {

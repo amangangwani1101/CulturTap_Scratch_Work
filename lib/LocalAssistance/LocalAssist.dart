@@ -24,17 +24,25 @@ class _LocalAssistState extends State<LocalAssist> {
 
   String ?meetId,state;
   bool? eligible;
+
+  bool loaded = false;
+  String liveLocation = 'Fetching location...';
+
   String liveLocation = '';
+
   @override
   void initState() {
     super.initState();
     // Your initialization code goes here
-    _getUserLocation();
-    checkIsMeetOngoing();
-    print('LocalAssist Page initialized');
+    localAssistOperation();
   }
-
-
+  Future<void> localAssistOperation() async{
+    await _getUserLocation();
+    await checkIsMeetOngoing();
+    setState(() {
+      loaded = true;
+    });
+  }
 
 
   Future<Map<String, double>> getUserIdsAndDistances(String providedLatitude, String providedLongitude) async {
@@ -207,7 +215,11 @@ class _LocalAssistState extends State<LocalAssist> {
         return false;
       },
       child: Scaffold(
+
+        appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+
         appBar: AppBar(title : ProfileHeader(reqPage: 0,),backgroundColor : Theme.of(context).backgroundColor,  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+
         body: SingleChildScrollView(
           child: Container(
             color : Theme.of(context).backgroundColor,

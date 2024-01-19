@@ -17,6 +17,11 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:photo_view/photo_view.dart';
 
+// import '../Notifications/NotificationManager.dart';
+import '../Notifications/CustomNotificationMessages.dart';
+import '../ServiceSections/TripCalling/Payments/RazorPay.dart';
+
+
 
 import '../UserProfile/CoverPage.dart';
 import '../UserProfile/ProfileHeader.dart';
@@ -2668,25 +2673,26 @@ class _ChatsPageState extends State<ChatsPage> {
                                 // Payment Gateway Open
                                 // payment success then true else false
 
-                                // bool res = await Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) => UpiPayments(name:userName,merchant:helperName,amount:500,phoneNo:helperNumber),
-                                //   ),
-                                // );
-                                // if(res){
+                                bool res = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RazorPayIntegration(),
+                                  ),
+                                );
+                                if(res){
                                 await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
                                 await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
                                 updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
                                 socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
+                                sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
                                 setState(() {});
-                                // }else{
-                                //   ScaffoldMessenger.of(context).showSnackBar(
-                                //     const SnackBar(
-                                //       content: Text('Payment UnSuccessful. Try Again!'),
-                                //     ),
-                                //   );
-                                // }
+                                }else{
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Payment UnSuccessful. Try Again!'),
+                                    ),
+                                  );
+                                }
                               },
                               child: Container(
                                 // width: 325,
@@ -2917,32 +2923,28 @@ class _ChatsPageState extends State<ChatsPage> {
                                     if(pageVisitor){
                                       if(widget.meetId==null){
                                         String meetingId = await createMeetRequest();
-                                        sendCustomNotificationToUsers(
-
-                                            userTokens,
-                                            'Need Local Assistance',
-                                            '${_controller.text}',
-                                            '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
-
+                                        List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
+                                        sendCustomNotificationToUsers(userWith10km,payloadData[0]);
+                                        sendCustomNotificationToUsers([userID],payloadData[1]);
                                         _controller.clear();
                                         // _refreshPage(meetingId);
                                       }else{
                                         _handleSend();
-                                        sendCustomNotificationToUsers(
-                                            userTokens,
-                                            'Need Local Assistance',
-                                            '${_controller.text}',
-                                            '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
-
+                                        // sendCustomNotificationToUsers(
+                                        //     userTokens,
+                                        //     'Need Local Assistance',
+                                        //     '${_controller.text}',
+                                        //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+                                        //
                                       }
                                       setState(() {});
                                     }else{
                                       _handleSend();
-                                      sendCustomNotificationToUsers(
-                                          userTokens,
-                                          'Need Local Assistance',
-                                          '${_controller.text}',
-                                          '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+                                      // sendCustomNotificationToUsers(
+                                      //     userTokens,
+                                      //     'Need Local Assistance',
+                                      //     '${_controller.text}',
+                                      //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
                                       setState(() {});
                                     }
                                     setState(() {

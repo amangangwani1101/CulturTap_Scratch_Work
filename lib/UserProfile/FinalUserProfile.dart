@@ -263,7 +263,7 @@ class _FinalProfileState extends State<FinalProfile> {
                         SizedBox(height: 40,),
                         ExpertCardDetails(),
                         SizedBox(height: 40,),
-                        dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : userID,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
+                        dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(actualUserId : widget.clickedId,currentUserId : userID):SizedBox(height: 0,),
                         SizedBox(height: 50,),
                         RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName']),
 
@@ -383,6 +383,34 @@ class TripCalling extends StatefulWidget{
 class _TripCallingState extends State<TripCalling>{
   final costCall = Constant().tripPlaningCost;
 
+  bool isDataLoading = true,editing=false;
+  String ? name;
+  ServiceTripCallingData? serviceData;
+  Map<String, dynamic>? plans;
+  int ?hour,min;
+  @override
+  void initState(){
+    fetchDataset();
+  }
+
+  Future<void> fetchDataset() async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/userStoredData/${widget.actualUserId}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Fetched Data ${userID}');
+      print(data);
+      setState(() {
+        name = data['userName'];
+        serviceData = parseServiceTripCallingData(data['userServiceTripCallingData']);
+        plans = data['userServiceTripCallingData']['dayPlans'];
+        isDataLoading = false;
+      });
+    } else {
+      print('Failed to fetch dataset: ${response.statusCode}');
+    }
+  }
 
 
   Duration calculateTimeDifference(String startTimeStr, String endTimeStr) {
@@ -433,6 +461,45 @@ class _TripCallingState extends State<TripCalling>{
 
   @override
   Widget build(BuildContext context) {
+
+    if(!isDataLoading){
+      Duration timing = isTimeDifferenceGreaterThan30Minutes((serviceData?.setStartTime)!,(serviceData?.setEndTime)!);
+      hour  = timing.inHours;
+      min  = timing.inMinutes;
+    }
+    return  isDataLoading
+          ? Center(
+      child: Container(
+        height: 250,
+        color : Theme.of(context).backgroundColor,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,)),
+          ],
+        ),
+      ),
+    )
+          : Center(
+      child: Container(
+        padding: EdgeInsets.only(left: 10,right: 20),
+        // height:250,
+        // decoration: BoxDecoration(
+        //   border:Border.all(
+        //     color: Colors.red,
+        //     width:1,
+        //   ),
+        // ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('${name}’s provided avilable time for trip planning interaction calls -',
+                    style: Theme.of(context).textTheme.subtitle1),
+                SizedBox(height: 29,),
+
     Duration timing = isTimeDifferenceGreaterThan30Minutes((widget.data?.setStartTime)!,(widget.data?.setEndTime)!);
     int hour  = timing.inHours;
     int min  = timing.inMinutes;
@@ -457,23 +524,46 @@ class _TripCallingState extends State<TripCalling>{
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
+
                 Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
                     Row(
                       children: [
+
+                        Image.asset('assets/images/time_icon.png',width: 22,height: 22,),
+                        SizedBox(width: 10,),
+                        Text('${serviceData?.setStartTime} - ${serviceData?.setEndTime} ${Constant().country} (${(hour!)>0?hour:min} ${hour!>0?'H':'M'})', style: Theme.of(context).textTheme.headline6),
+
                         Image.asset('assets/images/time_icon.png',width: 22,height: 22,color : Colors.white,),
                         SizedBox(width: 10,),
                         Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India (${hour>0?hour:min} ${hour>0?'H':'M'})', style: Theme.of(context).textTheme.subtitle2),
+
                       ],
                     ),
                     widget.currentUserId == widget.actualUserId
                         ? InkWell(
                       onTap: ()async{
+
+                        setState(() {
+                          editing= true;
+                        });
+                        await Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(userId: widget.actualUserId,data:serviceData)));
+                        setState(() {
+                          isDataLoading = true;
+                          fetchDataset();
+                          editing=false;
+                        });
+                      },
+                      child: editing
+                          ?   Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))
+                      : Row(
+
                         await Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(userId: widget.actualUserId,data:widget.data)));
                         setState(() {});
                       },
                       child: Row(
+
                         children:[
                           Image.asset('assets/images/edit_icon.png',width: 15,height: 15,),
                           SizedBox(width: 3,),
@@ -484,8 +574,60 @@ class _TripCallingState extends State<TripCalling>{
                         :SizedBox(width: 0,),
                   ],
                 ),
+
+                SizedBox(height: 8,),
                 Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
+                    SizedBox(width: 10,),
+                    Text('5 already pending requests for \ninteraction with ${name}',style: Theme.of(context).textTheme.headline6),
+                  ],
+                ),
+                SizedBox(height: 29,),
+              ],
+            ),
+            widget.currentUserId != widget.actualUserId
+            ? Container(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Text('Cost of trip planning interaction call',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
+                  Text('$costCall ${Constant().country=='India'?'INR':'USD'}',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w900,color: HexColor('#0A8100')),),
+                  SizedBox(height: 12,),
+                ],
+              ),
+            )
+            :SizedBox(height: 0,),
+            widget.currentUserId == widget.actualUserId
+                ? Center(
+                  child: Container(
+                  width: 163,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: HexColor('#FB8C00'),
+                    ),
+                  ),
+                  child: InkWell(
+                      onTap: (){
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => PingsSection(userId:widget.currentUserId!,state:'Pending',selectedService: 'Trip Planning',),
+                          ),
+                        );
+                      },
+                      child: Center(child: Text('Schedual Requests',style: TextStyle(fontSize: 13,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'),fontFamily: 'Poppins'),)))
+                  ),
+                )
+                : Row(
+
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+
                   children: [
                     Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
                     SizedBox(width: 10,),

@@ -8,8 +8,12 @@ const LabelModel = require('../db/model/labelModel');
 const SingleStoryModel = require('../db/model/singleStoryModel');
 const multer = require('multer');
 const path = require('path');
-
-
+const serviceAccount = require('../serviceAccountKey.json');
+const ProfileData = require("../db/model/profileData.js");
+const admin = require('firebase-admin');
+const firebaseAdmin = admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+});
 
 
 
@@ -152,6 +156,54 @@ router.get('/api/trending-nearby-places', async (req, res) => {
   }
 });
 
+router.post("/notificationHandler",	async(req,res)=>{
+	try{
+    	const dataset = req.body;
+    	const userIds = dataset['userIds'];
+    	const payload = dataset['payload'];
+//    	console.log(dataset);
+    	for(let userId of userIds){
+        	const user = await ProfileData.findById(userId).lean();
+        	if(!user || user['uniqueToken']===undefined)  continue;
+        	const userToken = user['uniqueToken'];
+        	payload['token'] = userToken;
+//        	console.log(payload);
+        	result = await sendNotificationToUser(payload);
+        	console.log(result);
+        }
+    	return res.status(200).json({ message:"notification sended successfully" });
+    }catch(err){
+    	 // Send a JSON response indicating an error
+      console.log(err);
+      res.status(501).json({ error: "Failed to send notification" });
+    }
+});
+
+async function sendNotificationToUser(payload) {
+
+//  const payload = {
+
+//     "notification": {
+//       "title": title,
+//       "body": body,
+//     },
+//     "data": {
+//       "type": 'local_assistant_service',
+//       "meetId": meetId,
+//       "state": state,
+//     },
+//  	"token":userToken,
+//   };
+
+  try {
+    const response = await firebaseAdmin.messaging().send(payload);
+  	console.log(response);
+    return "Notification Sended Successflly";
+  } catch (error) {
+    console.error('Failed to send notification handle:', error.message);
+  	return "Notification Not Sent";
+  }
+}
 
 
 module.exports = router;
