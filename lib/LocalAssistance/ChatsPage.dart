@@ -2902,14 +2902,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                     if(pageVisitor){
                                       if(widget.meetId==null){
                                         String meetingId = await createMeetRequest();
-                                        // sendCustomNotificationToUsers(
-                                        //
-                                        //     userTokens,
-                                        //     'Need Local Assistance',
-                                        //     '${_controller.text}',
-                                        //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
-                                        sendCustomNotificationToUsers(userWith10km,localAssistantRequest(userName,'local_assistant_request',meetingId,userID,_controller.text));
-
+                                        List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
+                                        sendCustomNotificationToUsers(userWith10km,payloadData[0]);
+                                        sendCustomNotificationToUsers([userID],payloadData[1]);
                                         _controller.clear();
                                         // _refreshPage(meetingId);
                                       }else{

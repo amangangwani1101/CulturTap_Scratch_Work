@@ -172,9 +172,12 @@ class _ServicePageState extends State<ServicePage>{
           Navigator.of(context).pop();
           Navigator.of(context).pop();
         }
-        else if(widget.profileDataProvider==null){
+        else if(widget.profileDataProvider==null && widget.text=='edit'){
           print(1);
           Navigator.push(context, MaterialPageRoute(builder: (context) => EditServices()));
+        }
+        else if(widget.profileDataProvider==null){
+          Navigator.of(context).pop();
         }
         else{
           print(2);

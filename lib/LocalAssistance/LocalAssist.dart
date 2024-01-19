@@ -24,17 +24,21 @@ class _LocalAssistState extends State<LocalAssist> {
 
   String ?meetId,state;
   bool? eligible;
+  bool loaded = false;
   String liveLocation = 'Fetching location...';
   @override
   void initState() {
     super.initState();
     // Your initialization code goes here
-    _getUserLocation();
-    checkIsMeetOngoing();
-    print('LocalAssist Page initialized');
+    localAssistOperation();
   }
-
-
+  Future<void> localAssistOperation() async{
+    await _getUserLocation();
+    await checkIsMeetOngoing();
+    setState(() {
+      loaded = true;
+    });
+  }
 
 
   Future<Map<String, double>> getUserIdsAndDistances(String providedLatitude, String providedLongitude) async {

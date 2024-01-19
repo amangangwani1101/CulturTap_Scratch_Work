@@ -9,9 +9,11 @@ import 'package:flutter_stripe/flutter_stripe.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:http/http.dart' as http;
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/Notifications/CustomNotificationMessages.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/Payments/UpiPayments.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 
+import '../../All_Notifications/customizeNotification.dart';
 import '../../UserProfile/FinalUserProfile.dart';
 import '../../UserProfile/ProfileHeader.dart';
 // import '../../rating.dart';
@@ -1438,6 +1440,7 @@ class _PingSectionState extends State<PingsSection>{
                                                     meetId: meetId,
                                                   ),));
                                                 _refreshPage();
+                                                sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName!, meetId));
                                               }else{
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   const SnackBar(
@@ -1463,6 +1466,7 @@ class _PingSectionState extends State<PingsSection>{
                                             meetId: meetId,
                                           ),));
                                           _refreshPage();
+                                          sendCustomNotificationToUsers([userId],localAssistantHelperAccepted(userName!, meetId));
                                           },
                                         child: Center(child: Container(child: Text('Accept & Reply',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)))
                                       :(meetStatus=='close' && userId!=widget.userId)
