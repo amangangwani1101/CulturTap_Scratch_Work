@@ -7,19 +7,8 @@ import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import 'package:learn_flutter/Settings.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
-import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
-import 'package:learn_flutter/Utils/location_utils.dart';
-import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
-import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
-import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/Calendar.dart';
-import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_database_helper.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
-import 'package:learn_flutter/widgets/Constant.dart';
-import 'package:learn_flutter/widgets/hexColor.dart';
-import 'package:provider/provider.dart';
-import 'package:flutter_svg/flutter_svg.dart';
-import 'package:learn_flutter/BackendStore/BackendStore.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/video_info2.dart';
 
 
@@ -109,75 +98,88 @@ setState(() {
     showDialog(
       context: context,
       builder: (BuildContext context) {
-        return Container(
-          width : double.infinity,
-          padding : EdgeInsets.all(10),
-          child: AlertDialog(
-
-            backgroundColor: Theme.of(context).primaryColorLight,
-
-            content: Column(
-
-              crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisSize: MainAxisSize.min,
+        return Center(
+          child: Container(
+            margin : EdgeInsets.only(left : 20, right : 20),
+            color :  Theme.of(context).primaryColorDark,
+            height : 380,
+            child: Column(
               children: [
-
-                Text(
-                  'Continue Previous Story ?',
-                    style : Theme.of(context).textTheme.caption,
-                ),
-                SizedBox(height: 20),
-                Icon(
-                  Icons.video_call,
-                  color: Colors.orange,
-                  size: 60,
-                ),
-
-
-                SizedBox(height: 20),
-                Center(
-                  child: Text(
-                    'If you want to start a new story, you can save the current videos as a draft.',
-                    style: TextStyle(color: Colors.white,fontSize: 16,),textAlign: TextAlign.center,
-                  ),
-                ),
-                SizedBox(height: 10),
-                Center(
-                  child: Text(
-                    'You can edit your drafts in the Settings section.',
-                    style: TextStyle(color: Colors.orange, fontSize : 16, fontWeight: FontWeight.bold),textAlign: TextAlign.center,
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Text(
+                            'Continue Previous Story ?',
+                            style: Theme.of(context).textTheme.caption,
+                          ),
+                          SizedBox(height: 20),
+                          Icon(
+                            Icons.video_call,
+                            color: Colors.orange,
+                            size: 60,
+                          ),
+                          SizedBox(height: 20),
+                          Center(
+                            child: Text(
+                              'If you want to start a new story, you can save the current videos as a draft.',
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 16,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                          SizedBox(height: 10),
+                          Center(
+                            child: Text(
+                              'You can edit your drafts in the \n Settings section.',
+                              style: TextStyle(
+                                color: Colors.orange,
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height : 20),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          TextButton(
+                            onPressed: () async {
+                              // Start a new story logic
+                              Navigator.pop(context);
+                            },
+                            child: Text(
+                              'Continue',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 20,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
               ],
             ),
-            actions: <Widget>[
-              Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-
-                  TextButton(
-                    onPressed: () async {
-                      // Start a new story logic
-                      Navigator.pop(context);
-
-                    },
-                    child: Text(
-                      'Continue',
-                      style: TextStyle(color: Colors.orange, fontWeight: FontWeight.bold,fontSize : 20),
-                    ),
-                  ),
-                ],
-              ),
-            ],
           ),
         );
+
       },
     );
-  }
-
-  void _saveDraft() {
-
-    print('Draft saved!');
   }
 
 
@@ -205,8 +207,8 @@ setState(() {
       height :  80,
 
       decoration: BoxDecoration(
-          color : mode == 'dark' ? Colors.black : Colors.white,
-          border: Border.all(color :mode == 'dark' ?  Colors.black : Colors.white,width : 0.00)),
+          color : mode == 'dark' ? Colors.black : Theme.of(context).backgroundColor,
+          border: Border.all(color :mode == 'dark' ?  Colors.black : Theme.of(context).backgroundColor,width : 0.00)),
 
 
 
@@ -472,7 +474,7 @@ setState(() {
                             child: Container(
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
-                                color: Colors.white,
+                                color: Theme.of(context).backgroundColor,
                                 boxShadow: [
                                   BoxShadow(
                                     color: Colors.black.withOpacity(0.2),
@@ -488,58 +490,60 @@ setState(() {
                                   width: 3.0, // Adjust the width of the border as needed
                                 ),
                               ),
-                              child: InkWell(
-                                onTap: ()async{
+                              child: Container(
+                                child: InkWell(
+                                  onTap: ()async{
 
 
 
-                                  bool hasVideos = await VideoDatabaseHelper().hasVideos();
+                                    bool hasVideos = await VideoDatabaseHelper().hasVideos();
 
-                                  if (hasVideos) {
+                                    if (hasVideos) {
 
-                                    // Navigate to VideoPreviewPage with data from the database
-                                    List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
-                                    List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
+                                      // Navigate to VideoPreviewPage with data from the database
+                                      List<VideoInfo2> videos = await _databaseHelper.getAllVideos();
+                                      List<VideoInfo2> allVideos = await VideoDatabaseHelper().getAllVideos();
 
-                                    // Extract the required data from the list of videos
-                                    List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
-                                    String userLocation = ''; // Replace with your logic to get user location
-                                    double latitude = allVideos[0].latitude;
-                                    double longitude = allVideos[0].longitude;
+                                      // Extract the required data from the list of videos
+                                      List<String> videoPaths = videos.map((video) => video.videoUrl).toList();
+                                      String userLocation = ''; // Replace with your logic to get user location
+                                      double latitude = allVideos[0].latitude;
+                                      double longitude = allVideos[0].longitude;
 
-                                    print('latitude : $latitude');
-                                    print('longitude : $longitude');
+                                      print('latitude : $latitude');
+                                      print('longitude : $longitude');
 
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => ComposePage(
-                                          videoPaths: videoPaths,
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => ComposePage(
+                                            videoPaths: videoPaths,
 
-                                          latitude: latitude,
-                                          longitude: longitude,
-                                          videoData: videoData,
+                                            latitude: latitude,
+                                            longitude: longitude,
+                                            videoData: videoData,
+                                          ),
                                         ),
-                                      ),
-                                    );
+                                      );
 
-                                    _showVideoDialog(context);
-                                  } else {
-                                    // Navigate to CameraApp
-                                    Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
-                                  }
-                                  // _changeIconColor('add');
+                                      _showVideoDialog(context);
+                                    } else {
+                                      // Navigate to CameraApp
+                                      Navigator.push(context, MaterialPageRoute(builder: (context) => CameraApp()));
+                                    }
+                                    // _changeIconColor('add');
 
 
-                                },
-                                child: Padding(
-                                  padding: const EdgeInsets.all(22.0), // Adjust the padding as needed
-                                  child: SvgPicture.asset(
-                                    'assets/images/addIcon.svg',
+                                  },
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(22.0), // Adjust the padding as needed
+                                    child: SvgPicture.asset(
+                                      'assets/images/addIcon.svg',
 
-                                    color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
-                                    height: 24,
-                                    width: 24,
+                                      color: orange == 'yes' ? Colors.orange : mode == 'dark' ? Colors.white : Theme.of(context).primaryColor,
+                                      height: 24,
+                                      width: 24,
+                                    ),
                                   ),
                                 ),
                               ),

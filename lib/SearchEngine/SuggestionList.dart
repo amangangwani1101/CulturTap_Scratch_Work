@@ -55,7 +55,7 @@ class SuggestionList extends StatelessWidget {
                       ),
                     ),
                     IconButton(
-                      icon: SvgPicture.asset('assets/images/search_arrow.svg', width: 16.0, height: 16.0),
+                      icon: SvgPicture.asset('assets/images/search_arrow.svg', width: 16.0, height: 16.0,color : Theme.of(context).primaryColor),
                       onPressed: () {
                         // Call the onSuggestionSelected callback when suggestion is tapped
                         onSuggestionSelected(suggestion);

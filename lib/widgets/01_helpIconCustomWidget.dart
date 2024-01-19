@@ -191,7 +191,7 @@ class _ServicePageState extends State<ServicePage>{
         body: SingleChildScrollView(
           child: Center(
             child: Container(
-              color : Colors.white,
+              color : Theme.of(context).backgroundColor,
               child: Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children:[
@@ -202,7 +202,7 @@ class _ServicePageState extends State<ServicePage>{
                           children: [
                             SizedBox(height : 40),
                             Text('Timing for interaction calls',style: Theme.of(context).textTheme.subtitle1,),
-                            Text('Select Your Time',style: Theme.of(context).textTheme.headline6,)
+                            Text('Select Your Time',style: Theme.of(context).textTheme.subtitle1,)
                           ],
                         ),
                       ),
@@ -402,12 +402,12 @@ class _TimePickerState extends State<TimePicker>{
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      child: Image.asset('assets/images/clock.png',width: 35,height: 35,),
+                      child: Image.asset('assets/images/clock.png',width: 35,height: 35,color : Theme.of(context).primaryColor),
                     ),
                     SizedBox(width: 6,),
                     Container(
 
-                      padding: EdgeInsets.all(2),
+                      padding: EdgeInsets.all(5),
                       height: 57,
                       decoration: BoxDecoration(
                         color: HexColor('#5EEBEB').withOpacity(0.2),
@@ -448,12 +448,12 @@ class _TimePickerState extends State<TimePicker>{
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
                     Container(
-                      child: Image.asset('assets/images/clock.png',width: 35,height: 35,),
+                      child: Image.asset('assets/images/clock.png',width: 35,height: 35,color : Theme.of(context).primaryColor),
                     ),
                     SizedBox(width: 6,),
                     Container(
 
-                      padding: EdgeInsets.all(2),
+                      padding: EdgeInsets.all(5),
                       height: 57,
                       decoration: BoxDecoration(
                         color: HexColor('#5EEBEB').withOpacity(0.2),

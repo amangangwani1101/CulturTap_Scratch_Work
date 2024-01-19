@@ -119,7 +119,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColorLight,
+                    color: Theme.of(context).primaryColorDark,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(
@@ -143,7 +143,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                 child: Container(
                   padding: EdgeInsets.symmetric(horizontal: 16, vertical: 6),
                   decoration: BoxDecoration(
-                    color: Theme.of(context).primaryColorLight,
+                    color: Theme.of(context).primaryColorDark,
                     borderRadius: BorderRadius.circular(10),
                   ),
                   child: Row(

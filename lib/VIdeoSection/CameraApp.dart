@@ -472,77 +472,85 @@ class _CameraAppState extends State<CameraApp> {
                 Expanded(
                   child: Container(
                     // Add your widgets for the row content here
-                    color: Theme.of(context).primaryColorLight, // Replace with your desired background color
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: <Widget>[
-                        Padding(
-                          padding: const EdgeInsets.only(top:14.0),
-                          child: Row(
+                    color: Colors.black, // Replace with your desired background color
+                    child: Column(
 
-                            children: [
-                              TextButton(onPressed: (){
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
-                              }, child: Text('< back',style:TextStyle(color : Colors.white,fontWeight: FontWeight.bold,fontSize: 20)))
-                            ],
-                          ),
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.only(top:19.0),
-                          child: IconButton(
-                            icon: Icon(
-                              _isFlashlightOn ? Icons.flash_on : Icons.flash_off,
-                              size: 25.0,
-                              color: Colors.white,
-                            ),
-                            onPressed: (){
+                      mainAxisAlignment : MainAxisAlignment.center,
 
+                      children: [
+                        SizedBox(height : 10),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
 
-                            },
-                          ),
-                        ),
+                          children: <Widget>[
+                            Padding(
+                              padding: const EdgeInsets.only(top:14.0,right : 0, left : 20),
+                              child: Row(
 
-                        if(hasRecordedVideos)
-                          Padding(
-                            padding: const EdgeInsets.only(top:14.0),
-                            child: IconButton(
-                              onPressed: () {
-
-                                navigateToPreviewPage(context);
-                                print('has videos ');
-
-
-
-                              },
-                              icon: Icon(
-                                Icons.close_rounded,
-                                size: 30,
-                                color: Colors.white,
+                                children: [
+                                  TextButton(onPressed: (){
+                                    Navigator.push(context, MaterialPageRoute(builder: (context) => HomePage()));
+                                  }, child: Text('< back',style:TextStyle(color : Colors.white,fontWeight: FontWeight.bold,fontSize: 20)))
+                                ],
                               ),
                             ),
-                          ),
-
-                        if(hasRecordedVideos == false)
-                          Padding(
-                            padding: const EdgeInsets.only(top:14.0),
-                            child: IconButton(
-                              onPressed: () {
-
-
-                                print('has videos ');
-
+                            Padding(
+                              padding: const EdgeInsets.only(top:19.0),
+                              child: IconButton(
+                                icon: Icon(
+                                  _isFlashlightOn ? Icons.flash_on : Icons.flash_off,
+                                  size: 25.0,
+                                  color: Colors.white,
+                                ),
+                                onPressed: (){
 
 
-                              },
-                              icon: Icon(
-                                Icons.close_rounded,
-                                size: 25.0,
-                                color: Theme.of(context).primaryColorLight,
+                                },
                               ),
                             ),
-                          ),
 
+                            if(hasRecordedVideos)
+                              Padding(
+                                padding: const EdgeInsets.only(top:14.0,right : 20, ),
+                                child: IconButton(
+                                  onPressed: () {
+                                    _isRecording ?
+                                    '' : navigateToPreviewPage(context);
+                                    print('has videos ');
+
+
+
+                                  },
+                                  icon: Icon(
+                                    Icons.close_rounded,
+                                    size: 30,
+                                    color: _isRecording ? Colors.white30 : Colors.white,
+                                  ),
+                                ),
+                              ),
+
+                            if(hasRecordedVideos == false)
+                              Padding(
+                                padding: const EdgeInsets.only(top:14.0,right : 20),
+                                child: IconButton(
+                                  onPressed: () {
+
+
+                                    print('has videos ');
+
+
+
+                                  },
+                                  icon: Icon(
+                                    Icons.close_rounded,
+                                    size: 25.0,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+
+                          ],
+                        ),
                       ],
                     ),
                   ),
@@ -674,10 +682,8 @@ class _CameraAppState extends State<CameraApp> {
                                       RotationTransition(
                                         turns: isFlipped ? AlwaysStoppedAnimation(0.3) : AlwaysStoppedAnimation(0),
                                         child: IconButton(
-                                          icon: SvgPicture.asset('assets/images/camera_flip.svg'),
+                                          icon: SvgPicture.asset('assets/images/flip_Camera.svg'),
                                           onPressed: () {
-                                            // Your custom onPressed logic here
-                                            // ...
 
                                             toggleCamera();
                                             setState(() {
@@ -706,6 +712,7 @@ class _CameraAppState extends State<CameraApp> {
                     ),
                   ],
                 ),
+                Container(color : Colors.black,height : 10),
               ],
             ),
           ),
