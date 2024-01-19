@@ -19,6 +19,7 @@ import 'package:photo_view/photo_view.dart';
 
 // import '../Notifications/NotificationManager.dart';
 import '../Notifications/CustomNotificationMessages.dart';
+import '../ServiceSections/TripCalling/Payments/RazorPay.dart';
 import '../UserProfile/CoverPage.dart';
 import '../UserProfile/ProfileHeader.dart';
 import '../fetchDataFromMongodb.dart';
@@ -2661,25 +2662,26 @@ class _ChatsPageState extends State<ChatsPage> {
                                 // Payment Gateway Open
                                 // payment success then true else false
 
-                                // bool res = await Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) => UpiPayments(name:userName,merchant:helperName,amount:500,phoneNo:helperNumber),
-                                //   ),
-                                // );
-                                // if(res){
+                                bool res = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RazorPayIntegration(),
+                                  ),
+                                );
+                                if(res){
                                 await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
                                 await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
                                 updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
                                 socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
+                                sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
                                 setState(() {});
-                                // }else{
-                                //   ScaffoldMessenger.of(context).showSnackBar(
-                                //     const SnackBar(
-                                //       content: Text('Payment UnSuccessful. Try Again!'),
-                                //     ),
-                                //   );
-                                // }
+                                }else{
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    const SnackBar(
+                                      content: Text('Payment UnSuccessful. Try Again!'),
+                                    ),
+                                  );
+                                }
                               },
                               child: Container(
                                 // width: 325,
