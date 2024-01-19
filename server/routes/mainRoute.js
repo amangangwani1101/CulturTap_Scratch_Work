@@ -10,10 +10,7 @@ const multer = require('multer');
 const path = require('path');
 const serviceAccount = require('../serviceAccountKey.json');
 const ProfileData = require("../db/model/profileData.js");
-const admin = require('firebase-admin');
-const firebaseAdmin = admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-});
+
 
 
 
