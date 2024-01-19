@@ -84,7 +84,7 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
 
   Future<AlertDialog> deleteStory(index) async{
     return AlertDialog(
-      backgroundColor: Color(0xFF263238),
+      backgroundColor: Theme.of(context).backgroundColor,
       content: Container(
         height: 269,
         width: 300,
@@ -192,11 +192,11 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
     child: Scaffold(
       appBar: VideoAppBar(
         title:'Your Drafts',
-        exit: '',
+        exit: 'settings',
       ),
-      backgroundColor: Color(0xFF263238),
+      backgroundColor: Theme.of(context).backgroundColor,
       body: RefreshIndicator(
-        backgroundColor: Color(0xFF263238),
+        backgroundColor: Theme.of(context).backgroundColor,
         color: Colors.orange,
         onRefresh: _refreshDrafts,
         child: drafts.isEmpty
@@ -208,7 +208,7 @@ class _SavedDraftsPageState extends State<SavedDraftsPage> {
               children: [
                 Container(
                   height: 360,
-                  color: Color(0xFF263238),
+                  color: Theme.of(context).backgroundColor,
                   padding: EdgeInsets.only(left: 36, right: 36, top: 25),
                   child: Row(
                     children: [

@@ -24,7 +24,7 @@ class _LocalAssistState extends State<LocalAssist> {
 
   String ?meetId,state;
   bool? eligible;
-  String liveLocation = 'Fetching location...';
+  String liveLocation = '';
   @override
   void initState() {
     super.initState();
@@ -93,7 +93,7 @@ class _LocalAssistState extends State<LocalAssist> {
   // Function to get user location
   Future<void> _getUserLocation() async {
     setState(() {
-      liveLocation = 'fetching location';
+      liveLocation = '';
     });
     try {
       Position position = await Geolocator.getCurrentPosition(
@@ -455,6 +455,7 @@ class _LocalAssistState extends State<LocalAssist> {
                                           'Cost of Trip Assistance ',
                                           style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold),
                                         ),
+                                        liveLocation == '' ? Text('...',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green)) :
                                         Text(
                                           liveLocation =='India' ? '500 INR/Event' : '\$10 Dollar/Event',
                                           style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green),

@@ -19,10 +19,10 @@ class VideoAppBar extends StatelessWidget implements PreferredSizeWidget {
   Widget build(BuildContext context) {
     return AppBar(
       automaticallyImplyLeading: false,
-      backgroundColor: Theme.of(context).primaryColorLight,
-      shadowColor: Colors.transparent,
+      backgroundColor:Theme.of(context).primaryColorDark,
+    shadowColor: Colors.transparent,
       titleSpacing: 0.0,
-      toolbarHeight: 70,
+      toolbarHeight: 80,
       title: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [

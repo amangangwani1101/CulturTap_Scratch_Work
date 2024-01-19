@@ -302,7 +302,7 @@ class InfoWidget extends StatelessWidget {
     return Column(
       children: [
         // IconButton(padding: EdgeInsets.zero,onPressed: (){},icon: Icon(icon),),
-        Icon(icon),
+        Icon(icon,color : Theme.of(context).primaryColor,),
         // SizedBox(height: 4.0),
         Text(text,style: TextStyle(fontSize: 12,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
       ],

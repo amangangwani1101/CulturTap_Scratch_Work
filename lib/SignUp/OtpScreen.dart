@@ -2,54 +2,64 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:learn_flutter/SignUp/FourthPage.dart';
+import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
+import 'package:sms_autofill/sms_autofill.dart';
 import '../CustomItems/CostumAppbar.dart';
 import '../HomePage.dart';
 
 
-
-
-
-
 class OtpScreen extends StatefulWidget {
   String? otp;
-  final String userName,phoneNumber;
+  final String phoneNumber;
+  final String? userName;
 
-  OtpScreen({this.otp,required this.userName,required this.phoneNumber});
+  OtpScreen({this.otp,this.userName,required this.phoneNumber});
 
   @override
   _OtpScreenState createState() => _OtpScreenState();
 }
 
 class _OtpScreenState extends State<OtpScreen>{
-  List<FocusNode> _focusNodes = List.generate(6, (index) => FocusNode());
-  List<TextEditingController> _controllers = List.generate(6, (index) => TextEditingController(),);
+  late TextEditingController _otpController;
+  String _code = '';
 
   @override
   void initState() {
     super.initState();
-    autofillOtp();
+
+
+    _otpController = TextEditingController();
+
+    _listenSmsCode();
   }
 
-  void autofillOtp() {
-    if (widget.otp != null && widget.otp!.length == 6) {
-      for (int i = 0; i < 6; i++) {
-        _controllers[i].text = widget.otp![i];
-      }
-    }
-  }
+
 
 
 
   @override
   void dispose() {
-    for (var focusNode in _focusNodes) {
-      focusNode.dispose();
-    }
-    for (var controller in _controllers) {
-      controller.dispose();
-    }
+
+    SmsAutoFill().unregisterListener();
+    _otpController.dispose();
+
+
     super.dispose();
   }
+
+  _listenSmsCode() async {
+    final String signature = await SmsAutoFill().getAppSignature;
+    print('App Signature: $signature');
+
+    SmsAutoFill().listenForCode();
+    // SmsAutoFill().codeUpdated((String code) {
+    //   setState(() {
+    //     _otpController.text = code;
+    //   });
+    // });
+  }
+
 
   FirebaseAuth auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -74,7 +84,7 @@ class _OtpScreenState extends State<OtpScreen>{
         print('${widget.userName} , ${widget.phoneNumber} , ${userCredId}');
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
+          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName!,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
         );
       }
 
@@ -87,7 +97,7 @@ class _OtpScreenState extends State<OtpScreen>{
   Widget build(BuildContext context){
 
     return Scaffold(
-      appBar: CustomAppBar(title:""),
+      appBar: AppBar(title : ProfileHeader(reqPage: 2, userId:userID),automaticallyImplyLeading:false,toolbarHeight: 90, ),
       body: Container(
           color : Colors.white,
           width: double.infinity,
@@ -129,68 +139,88 @@ class _OtpScreenState extends State<OtpScreen>{
                         margin: EdgeInsets.only(bottom: 31),
                         child: Text('it should be autofilled or type manually',
                             style: TextStyle(
-                                fontSize: 20, color: Colors.black))),
+                                fontSize: 16, color: Colors.black))),
 
-                    Container(
-                      margin: EdgeInsets.only(bottom: 19),
+                    Center(
+                      child: PinFieldAutoFill(
+                        codeLength: 6,
+                        autoFocus: true,
+                        controller: _otpController,
+                        currentCode : _code,
 
-                      width: 325,
-                      child :Row(
-
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: List.generate(6, (index) {
-                          return Container(
-                            width: 40,
-                            height: 50,
-                            margin: EdgeInsets.symmetric(horizontal: 5),
-                            child: TextField(
-                              controller: _controllers[index],
-                              focusNode: _focusNodes[index],
-                              keyboardType: TextInputType.number,
-                              maxLength: 1,
-                              textAlign: TextAlign.center,
-                              enabled: true,
-                              decoration: InputDecoration(
-                                counterText: '',
-                                border: OutlineInputBorder(
-                                  borderSide: BorderSide(width: 1),
-                                ),
-                              ),
-                              onChanged: (value) {
-                                if (value.isNotEmpty) {
-                                  if (index < 5) {
-                                    FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
-                                  } else {
-                                    _focusNodes[index].unfocus();
-                                  }
-                                } else {
-                                  // Check if the current digit is empty and handle backspace
-                                  if (index > 0) {
-                                    FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
-                                  }
-                                }
-                              },
-                              onEditingComplete: () {
-                                // Handle backspace action here
-                                if (_controllers[index].text.isEmpty && index > 0) {
-                                  FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
-                                }
-                              },
-                              onSubmitted: (value) {
-                                // Handle additional actions when the user submits the input
-                              },
-                              onTap: () {
-                                // Set a flag or use other logic to track if the text field was tapped
-                                // This is to distinguish between tapping the cross button and regular taps
-                              },
-
-                            ),
-                          );
-                        }),
+                        decoration: UnderlineDecoration(
+                          lineHeight: 1,
+                          lineStrokeCap: StrokeCap.square,
+                          bgColorBuilder: PinListenColorBuilder(
+                              Colors.orange.shade200, Colors.grey.shade200),
+                          colorBuilder: const FixedColorBuilder(Colors.transparent),
+                        ),
                       ),
-
-
                     ),
+                    const SizedBox(
+                      height: 10,
+                    ),
+
+                    // Container(
+                    //   margin: EdgeInsets.only(bottom: 19),
+                    //
+                    //   width: 325,
+                    //   child :Row(
+                    //
+                    //     mainAxisAlignment: MainAxisAlignment.start,
+                    //     children: List.generate(6, (index) {
+                    //       return Container(
+                    //         width: 40,
+                    //         height: 50,
+                    //         margin: EdgeInsets.symmetric(horizontal: 5),
+                    //         child: TextField(
+                    //           controller: _controllers[index],
+                    //           focusNode: _focusNodes[index],
+                    //           keyboardType: TextInputType.number,
+                    //           maxLength: 1,
+                    //           textAlign: TextAlign.center,
+                    //           enabled: true,
+                    //           decoration: InputDecoration(
+                    //             counterText: '',
+                    //             border: OutlineInputBorder(
+                    //               borderSide: BorderSide(width: 1),
+                    //             ),
+                    //           ),
+                    //           onChanged: (value) {
+                    //             if (value.isNotEmpty) {
+                    //               if (index < 5) {
+                    //                 FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
+                    //               } else {
+                    //                 _focusNodes[index].unfocus();
+                    //               }
+                    //             } else {
+                    //               // Check if the current digit is empty and handle backspace
+                    //               if (index > 0) {
+                    //                 FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+                    //               }
+                    //             }
+                    //           },
+                    //           onEditingComplete: () {
+                    //             // Handle backspace action here
+                    //             if (_controllers[index].text.isEmpty && index > 0) {
+                    //               FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
+                    //             }
+                    //           },
+                    //           onSubmitted: (value) {
+                    //             // Handle additional actions when the user submits the input
+                    //           },
+                    //           onTap: () {
+                    //             // Set a flag or use other logic to track if the text field was tapped
+                    //             // This is to distinguish between tapping the cross button and regular taps
+                    //           },
+                    //
+                    //         ),
+                    //       );
+                    //     }),
+                    //   ),
+                    //
+                    //
+                    // ),
 
                     Container(
                         margin: EdgeInsets.only(bottom: 21),
@@ -201,17 +231,12 @@ class _OtpScreenState extends State<OtpScreen>{
                                 style: TextStyle(
                                     fontSize: 20,
                                     fontWeight: FontWeight.w100)),
-                            TextButton(
-                              onPressed: () {
-                                // Resend login here
-                              },
-                              child: Text('RESEND !',
-                                  style: TextStyle(
-                                    color: Colors.orange,
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 20,
-                                  )),
-                            )
+                            Text('RESEND !',
+                                style: TextStyle(
+                                  color: Colors.orange,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 20,
+                                ))
                           ],
                         )),
 
@@ -247,11 +272,12 @@ class _OtpScreenState extends State<OtpScreen>{
 
 
   late final dynamic authCredential;
-  late String userCredId;  // Declare userCredId here
+  late String userCredId;
+
   Future<void> verifyCode() async {
 
     print('Received OTP: ${widget.otp}');
-    print('User-Entered OTP: ${_controllers.map((controller) => controller.text).join('')}');
+    print('User-Entered OTP:$_otpController');
     String OTPP = widget.otp!; // Access the OTP passed from the previous page
 
     // Now you can compare it with the OTP entered by the user
@@ -259,7 +285,7 @@ class _OtpScreenState extends State<OtpScreen>{
     try{
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: OTPP,
-        smsCode: _controllers.map((controller) => controller.text).join(''),
+        smsCode: '$_otpController',
       );
 
       authCredential = await auth.signInWithCredential(credential);

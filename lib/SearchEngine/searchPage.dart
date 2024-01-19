@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
@@ -58,12 +60,15 @@ class _SearchPageState extends State<SearchPage> {
   String userID = '';
   ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  List<String> suggestions = [];
+  List<String> suggestions = ['India','Street Food Near Me','Trending NearBy'];
   String selectedFilter = '';
   late FocusNode _searchFocusNode;
   late SearchDatabaseHelper _databaseHelper;
   bool isSearching = true;
   String location = 'Gwalior';
+
+  final List<String> searchPhrases = ['Mood', 'Food Near You', 'Places'];
+  int currentPhraseIndex = 0;
 
   Map<int, bool> categoryLoadingStates = {};
 
@@ -238,6 +243,7 @@ class _SearchPageState extends State<SearchPage> {
     setState(() {
       isLoading = false;
       categoryData.clear();
+      _searchFocusNode.unfocus();
     });
 
     categoryData = [
@@ -299,10 +305,23 @@ class _SearchPageState extends State<SearchPage> {
   final FirebaseAuth _auth = FirebaseAuth.instance;
   FirebaseFirestore firestore = FirebaseFirestore.instance;
 
+
+  void _updateSearchPhrase() {
+    setState(() {
+      currentPhraseIndex = (currentPhraseIndex + 1) % searchPhrases.length;
+    });
+  }
+
+
+
   @override
   void initState() {
     super.initState();
     print('suggestions fetched');
+
+    Timer.periodic(Duration(seconds: 1), (Timer timer) {
+      _updateSearchPhrase();
+    });
 
     print('here is iss');
     _searchFocusNode = FocusNode();
@@ -367,198 +386,208 @@ class _SearchPageState extends State<SearchPage> {
 
         return false; // Returning true will allow the user to pop the page
       },
-      child: Scaffold(
-        backgroundColor: Theme.of(context).backgroundColor,
-        body: RefreshIndicator(
-          backgroundColor: Color(0xFF263238),
-          color: Colors.orange,
-          onRefresh: _refreshSearchPage,
-          child: CustomScrollView(
-            controller: _scrollController,
-            slivers: [
-
-
-              SliverList(
-                delegate: SliverChildListDelegate(
-                  [
-                    // Your other widgets here
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SizedBox(height: 40),
-                        Container(
-                          margin: EdgeInsets.only(left: 15, right: 15, top: 15),
-                          child: Column(
-                            children: [
-                              TextFormField(
-                                focusNode: _searchFocusNode,
-                                controller: _searchController,
-                                onChanged: (query) {
-                                  fetchSuggestions(_searchController.text);
-                                  isLoading = true;
-                                },
-                                onEditingComplete: () {
-                                  requestLocationPermission();
-                                  FocusScope.of(context).unfocus();
-                                  fetchUserLocationAndData();
-
-                                  setState(() {
-                                    isSearchInitiated = true;
-
-                                  });
-                                },
-                                style: TextStyle(
-                                  color: Theme.of(context).primaryColor,
-                                  fontWeight: FontWeight.w600,
-                                  fontSize: 16,
-                                ),
-                                decoration: InputDecoration(
-                                  filled: true,
-                                  fillColor: Colors.white,
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(30.0),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey),
-                                    borderRadius: BorderRadius.circular(30.0),
-                                  ),
-                                  hintText:
-                                      'Search here your Mood, Food, Places...',
-                                  hintStyle: TextStyle(
-                                    color: Colors.grey,
+      child: GestureDetector(
+        onTap: () {
+          // Release focus when tapping outside of the TextFormField
+          _searchFocusNode.unfocus();
+        },
+        child: Scaffold(
+          backgroundColor: Theme.of(context).backgroundColor,
+          body: RefreshIndicator(
+            backgroundColor: Color(0xFF263238),
+            color: Colors.orange,
+            onRefresh: _refreshSearchPage,
+            child: CustomScrollView(
+              controller: _scrollController,
+              slivers: [
+        
+        
+                SliverList(
+                  delegate: SliverChildListDelegate(
+                    [
+                      // Your other widgets here
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: 40),
+                          Container(
+                            margin: EdgeInsets.only(left: 15, right: 15, top: 15),
+                            child: Column(
+                              children: [
+                                TextFormField(
+                                  cursorColor : Colors.orange,
+        
+        
+        
+                                  focusNode: _searchFocusNode,
+                                  controller: _searchController,
+                                  onChanged: (query) {
+                                    fetchSuggestions(_searchController.text);
+                                    isLoading = true;
+                                  },
+                                  onEditingComplete: () {
+                                    requestLocationPermission();
+                                    FocusScope.of(context).unfocus();
+                                    fetchUserLocationAndData();
+        
+                                    setState(() {
+                                      isSearchInitiated = true;
+        
+                                    });
+                                  },
+                                  style: TextStyle(
+                                    color: Theme.of(context).primaryColor,
                                     fontWeight: FontWeight.w600,
+                                    fontSize: 16,
                                   ),
-                                  prefixIcon: Icon(Icons.search,
-                                      color: Theme.of(context).primaryColor),
+                                  decoration: InputDecoration(
+                                    filled: true,
+                                    fillColor: Theme.of(context).primaryColorLight,
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.grey),
+                                      borderRadius: BorderRadius.circular(30.0),
+                                    ),
+                                    hintText:
+                                        'Search for ${searchPhrases[currentPhraseIndex]}',
+                                    hintStyle: TextStyle(
+                                      color: Colors.grey,
+                                      fontWeight: FontWeight.w600,
+                                    ),
+                                    prefixIcon: Icon(Icons.search,
+                                        color: Theme.of(context).primaryColor),
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(height: 30),
-                        FiltersWithHorizontalScroll(
-                          selectedFilter: selectedFilter,
-                          onFilterSelected: (filter) {
-                            setState(() {
-                              selectedFilter = filter;
-                              isLoading = true;
-                              // Set loading state when changing the filter
-                            });
-                            fetchUserLocationAndData(); // Fetch data based on the new filter
+                          SizedBox(height: 30),
+                          FiltersWithHorizontalScroll(
+                            selectedFilter: selectedFilter,
+                            onFilterSelected: (filter) {
+                              setState(() {
+                                selectedFilter = filter;
+                                isLoading = true;
+                                // Set loading state when changing the filter
+                              });
+                              fetchUserLocationAndData(); // Fetch data based on the new filter
+                            },
+                          ),
+                          SizedBox(height: 20),
+                        ],
+                      ),
+                      if (!_searchController.text.isEmpty)
+                        isLoading
+                            ? Container(
+                          height : 600,
+                              child: SingleChildScrollView(
+                                child: SuggestionList(
+                                                        suggestions: suggestions,
+                                                        searchController: _searchController,
+                                                        onSuggestionSelected: (selectedSuggestion) async {
+                                // Handle the selected suggestion
+                                print('Selected suggestion: $selectedSuggestion');
+        
+                                // Set the search input value
+                                _searchController.text = selectedSuggestion;
+        
+        
+                                await onSuggestionSearch(selectedSuggestion);
+        
+                                                        },
+                                                        onSuggestionSearch: (query) async {
+        
+                                print('Performing search for: $query');
+        
+                                setState(() {
+        
+                                  isLoading = true;
+        
+                                });
+                                fetchUserLocationAndData();
+        
+        
+                                // Add your search logic here
+                                                        },
+                                                      ),
+                              ),
+                            )
+                            : Column(
+                                children:
+                                    categoryData.asMap().entries.map((entry) {
+                                  final int categoryIndex = entry.key;
+                                  final Map<String, dynamic> category =
+                                      entry.value;
+        
+                                  final bool categoryLoading =
+                                      categoryLoadingStates[categoryIndex] ??
+                                          false;
+                                  final String specificCategoryName =
+                                      category['specificName'];
+        
+                                  final String categoryName = category['name'];
+                                  final String whereTo = 'search';
+                                  final List<String> storyUrls =
+                                      category['storyUrls'];
+                                  final List<String> videoCounts =
+                                      category['videoCounts'];
+                                  final List<String> storyDistance =
+                                      category['storyDistance'];
+                                  final List<String> storyLocation =
+                                      category['storyLocation'];
+                                  final List<String> storyCategory =
+                                      category['storyCategory'];
+                                  final List<String> storyTitle =
+                                      category['storyTitle'];
+                                  List<Map<String, dynamic>> storyDetailsList =
+                                      category['storyDetailsList'];
+        
+                                  return buildCategorySection(
+                                    specificCategoryName,
+                                    categoryName,
+                                    whereTo,
+                                    storyUrls,
+                                    videoCounts,
+                                    storyDistance,
+                                    storyLocation,
+                                    storyTitle,
+                                    storyCategory,
+                                    storyDetailsList,
+                                    categoryLoading,
+                                  );
+                                }).toList(),
+                              ),
+                      if (_searchController.text.isEmpty)
+                        SuggestionList(
+                          suggestions: suggestions,
+                          searchController: _searchController,
+                          onSuggestionSearch: (sugg){
+        
+                          },
+                          onSuggestionSelected: (selectedSuggestion) {
+                            // Handle the selected suggestion
+                            print('Selected suggestion: $selectedSuggestion');
+                            // Set the search input value
+                            _searchController.text = selectedSuggestion;
                           },
                         ),
-                        SizedBox(height: 20),
-                      ],
-                    ),
-                    if (!_searchController.text.isEmpty)
-                      isLoading
-                          ? Container(
-                        height : 600,
-                            child: SingleChildScrollView(
-                              child: SuggestionList(
-                                                      suggestions: suggestions,
-                                                      searchController: _searchController,
-                                                      onSuggestionSelected: (selectedSuggestion) async {
-                              // Handle the selected suggestion
-                              print('Selected suggestion: $selectedSuggestion');
-
-                              // Set the search input value
-                              _searchController.text = selectedSuggestion;
-
-
-                              await onSuggestionSearch(selectedSuggestion);
-
-                                                      },
-                                                      onSuggestionSearch: (query) async {
-
-                              print('Performing search for: $query');
-
-                              setState(() {
-
-                                isLoading = true;
-
-                              });
-                              fetchUserLocationAndData();
-
-
-                              // Add your search logic here
-                                                      },
-                                                    ),
-                            ),
-                          )
-                          : Column(
-                              children:
-                                  categoryData.asMap().entries.map((entry) {
-                                final int categoryIndex = entry.key;
-                                final Map<String, dynamic> category =
-                                    entry.value;
-
-                                final bool categoryLoading =
-                                    categoryLoadingStates[categoryIndex] ??
-                                        false;
-                                final String specificCategoryName =
-                                    category['specificName'];
-
-                                final String categoryName = category['name'];
-                                final String whereTo = 'search';
-                                final List<String> storyUrls =
-                                    category['storyUrls'];
-                                final List<String> videoCounts =
-                                    category['videoCounts'];
-                                final List<String> storyDistance =
-                                    category['storyDistance'];
-                                final List<String> storyLocation =
-                                    category['storyLocation'];
-                                final List<String> storyCategory =
-                                    category['storyCategory'];
-                                final List<String> storyTitle =
-                                    category['storyTitle'];
-                                List<Map<String, dynamic>> storyDetailsList =
-                                    category['storyDetailsList'];
-
-                                return buildCategorySection(
-                                  specificCategoryName,
-                                  categoryName,
-                                  whereTo,
-                                  storyUrls,
-                                  videoCounts,
-                                  storyDistance,
-                                  storyLocation,
-                                  storyTitle,
-                                  storyCategory,
-                                  storyDetailsList,
-                                  categoryLoading,
-                                );
-                              }).toList(),
-                            ),
-                    if (_searchController.text.isEmpty)
-                      SuggestionList(
-                        suggestions: suggestions,
-                        searchController: _searchController,
-                        onSuggestionSearch: (sugg){
-
-                        },
-                        onSuggestionSelected: (selectedSuggestion) {
-                          // Handle the selected suggestion
-                          print('Selected suggestion: $selectedSuggestion');
-                          // Set the search input value
-                          _searchController.text = selectedSuggestion;
-                        },
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-        ),
-        bottomNavigationBar: AnimatedContainer(
-          duration: Duration(milliseconds: 100),
-          height: _isVisible ? 70 : 0.0,
-          child: CustomFooter(
-            userName: userName,
-            userId: userID,
-            lode: 'home',
+          bottomNavigationBar: AnimatedContainer(
+            duration: Duration(milliseconds: 100),
+            height: _isVisible ? 70 : 0.0,
+            child: CustomFooter(
+              userName: userName,
+              userId: userID,
+              lode: 'home',
+            ),
           ),
         ),
       ),

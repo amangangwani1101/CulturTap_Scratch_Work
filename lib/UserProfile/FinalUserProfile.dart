@@ -450,8 +450,9 @@ class _TripCallingState extends State<TripCalling>{
         children: [
           Text('${widget.name}’s provided avilable time for trip planning interaction calls -',
             style: Theme.of(context).textTheme.subtitle1),
+          SizedBox(height : 10),
           Container(
-            width: 340,
+
             height: 76,
             child: Column(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -461,9 +462,9 @@ class _TripCallingState extends State<TripCalling>{
                   children: [
                     Row(
                       children: [
-                        Image.asset('assets/images/time_icon.png',width: 22,height: 22,),
-                        SizedBox(width: 20,),
-                        Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India (${hour>0?hour:min} ${hour>0?'H':'M'})', style: Theme.of(context).textTheme.headline6),
+                        Image.asset('assets/images/time_icon.png',width: 22,height: 22,color : Colors.white,),
+                        SizedBox(width: 10,),
+                        Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India (${hour>0?hour:min} ${hour>0?'H':'M'})', style: Theme.of(context).textTheme.subtitle2),
                       ],
                     ),
                     widget.currentUserId == widget.actualUserId
@@ -488,8 +489,8 @@ class _TripCallingState extends State<TripCalling>{
                   children: [
                     Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
                     SizedBox(width: 10,),
-                    Text('5 already pending requests for \ninteraction with Hemant',style: Theme.of(context).textTheme.headline6),
-                  ],
+                    Text('5 already pending requests for \ninteraction with Hemant',style: Theme.of(context).textTheme.subtitle2),
+                    SizedBox(height : 20,),                  ],
                 ),
               ],
             ),
@@ -507,7 +508,7 @@ class _TripCallingState extends State<TripCalling>{
               ],
             ),
           )
-          :SizedBox(height: 0,),
+          :SizedBox(height: 10,),
           widget.currentUserId == widget.actualUserId
               ? Container(
               width: 163,
@@ -518,6 +519,7 @@ class _TripCallingState extends State<TripCalling>{
                   color: HexColor('#FB8C00'),
                 ),
               ),
+
               child: InkWell(
                   onTap: (){
                     Navigator.push(

@@ -211,8 +211,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             children: [
               InkWell(
                 onTap: (){
-                  print('Us2e:${widget.userId}');
-                  if(widget.userId!=null){
+
+                  if(userID!=null){
                     Navigator.push(
                       context,
                       MaterialPageRoute(

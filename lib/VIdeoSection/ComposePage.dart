@@ -716,7 +716,7 @@ class _ComposePageState extends State<ComposePage> {
           exit : 'home',
         ),
         body: Container(
-          color:Theme.of(context).primaryColorLight,
+          color:Theme.of(context).primaryColorDark,
           width: double.infinity,
           child: SingleChildScrollView(
             child: Column(
@@ -2285,8 +2285,8 @@ class _ComposePageState extends State<ComposePage> {
 
         ),
         bottomNavigationBar: AnimatedContainer(
-          color: Theme.of(context).primaryColorLight,
-          duration: Duration(milliseconds: 100),
+          color:Theme.of(context).primaryColorDark,
+          duration: Duration(milliseconds: 10),
           height: _isVisible ? kBottomNavigationBarHeight + 25 : 0.0,
           padding : EdgeInsets.only(left : 18, right : 20),
           child:Column(

@@ -18,11 +18,11 @@ class FilterButton extends StatelessWidget {
           onPressed(filterName);
         },
         style: ElevatedButton.styleFrom(
-          primary: selected ? Colors.orange : Colors.white,
+          primary: selected ? Colors.orange : Theme.of(context).primaryColorLight,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(26.0),
             side: BorderSide(
-              color : selected ? Colors.transparent : Colors.black, // Set the border color
+              color : selected ? Colors.transparent :Theme.of(context).primaryColorLight, // Set the border color
               width: 0.5,          // Set the border width
             ),
             // Adjust the value as needed
@@ -35,12 +35,12 @@ class FilterButton extends StatelessWidget {
               'assets/images/$filterName.svg', // Update with your SVG file path
               width: 20.0,
               height: 20.0,
-              color: selected ? Colors.white : Colors.black, // Set the color of the SVG icon
+              color: selected ? Colors.white : Theme.of(context).primaryColor, // Set the color of the SVG icon
             ),
             SizedBox(width: 10), // Add some spacing between the icon and text
             Text(
               filterName,
-              style: TextStyle(color: selected ? Colors.white : Colors.black, fontWeight: FontWeight.w600, fontSize: 14),
+              style: TextStyle(color: selected ? Colors.white :Theme.of(context).primaryColor, fontWeight: FontWeight.w600, fontSize: 14),
             ),
           ],
         ),
