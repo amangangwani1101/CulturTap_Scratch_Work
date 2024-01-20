@@ -74,14 +74,15 @@
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE" />
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
-    <uses-permission android:name="android.permission.BLUETOOTH" android:maxSdkVersion="30" />
-    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN" android:maxSdkVersion="30" />
+    <uses-permission android:name="android.permission.BLUETOOTH"  />
+    <uses-permission android:name="android.permission.BLUETOOTH_ADMIN"  />
     <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT" />
-    <uses-feature android:name="android.hardware.camera" android:required="false" /> <!-- Add this line for camera hardware feature -->
+
+    <uses-feature android:name="android.hardware.camera" /> <!-- Add this line for camera hardware feature -->
 
     <uses-permission android:name="android.permission.CAMERA" /> <!-- Add CAMERA permission here -->
 
-    <uses-feature android:name="android.hardware.camera.autofocus" android:required="false" /> <!-- Add this line for autofocus feature if needed -->
+    <uses-feature android:name="android.hardware.camera.autofocus"  /> <!-- Add this line for autofocus feature if needed -->
 
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" /> <!-- Add WRITE_EXTERNAL_STORAGE permission here -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" /> <!-- Add READ_EXTERNAL_STORAGE permission here -->

@@ -1031,13 +1031,15 @@ class _ChatsPageState extends State<ChatsPage> {
           child: Stack(
 
               children : [
+
                 Container(
 
 
                   child: SingleChildScrollView(
                     controller: widget.meetId!=null?_scrollController:null,
-                    physics: BouncingScrollPhysics(),
+
                     child: Container(
+                      margin : EdgeInsets.only(bottom : 80),
                       child: Padding(
                         padding: const EdgeInsets.all(0.0),
                         child: Container(
@@ -2591,15 +2593,7 @@ class _ChatsPageState extends State<ChatsPage> {
                   ),
                 ),
 
-                // Positioned(
-                //   bottom : 60,
-                //   right : 10,
-                //   child : IconButton(
-                //     icon: Icon(Icons.expand_circle_down_outlined, color: Colors.black,size: 25,),
-                //     onPressed: () {},
-                //   ),
-                //
-                // ),
+
                 Positioned(
                   bottom: 70,
                   right:10,
@@ -2623,6 +2617,8 @@ class _ChatsPageState extends State<ChatsPage> {
                     ),
                   ),
                 ),
+
+
                 Positioned(
                   bottom : 0,
                   left : 0,
@@ -2636,6 +2632,7 @@ class _ChatsPageState extends State<ChatsPage> {
                         (widget.state=='user' && meetStatus=='accept')
                             ?Column(
                           children: [
+
                             GestureDetector(
                               onTap: ()async{
                                 bool userConfirmed = await showConfirmationDialog(context, userName!);
@@ -2653,8 +2650,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                 }
                               },
                               child: Container(
-                                // width: 325,
-                                // height: 63,
+
                                 margin: EdgeInsets.only(left:30,right:30,top:5,bottom:5),
                                 padding: EdgeInsets.all(10),
                                 decoration: BoxDecoration(
@@ -2709,6 +2705,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                     fontSize: 18))),
                               ),
                             ),
+
                           ],
                         )
                             :(meetStatus=='cancel' || meetStatus=='close')
@@ -2765,7 +2762,7 @@ class _ChatsPageState extends State<ChatsPage> {
                             ))
                             :(meetStatus=='schedule' || sender.length<=1)
                             ? Container(
-                          height: 70,
+                          height: 75,
                           child: Row(
                             mainAxisAlignment: MainAxisAlignment.start,
                             children: [
@@ -2774,20 +2771,21 @@ class _ChatsPageState extends State<ChatsPage> {
                                 child: Container(
 
 
-                                  width: messageTyping?screenWidth:screenWidth*0.70,
+
                                   decoration: BoxDecoration(
                                     color : Theme.of(context).primaryColorLight,
 
                                     boxShadow: [
+
                                       BoxShadow(
-                                        color: Colors.black.withOpacity(0.04), // Set your desired shadow color
+                                        color: Colors.black.withOpacity(0.2), // Set your desired shadow color
                                         spreadRadius: 0.5,
                                         blurRadius: 0.2,
                                         offset: Offset(0, 2), // Adjust the shadow offset
                                       ),
                                     ],
 
-                                    borderRadius: BorderRadius.circular(30),
+                                    borderRadius: BorderRadius.circular(50),
                                   ),
                                   padding: EdgeInsets.only(left: 25,right: 0),
                                   child: Row(
@@ -2800,6 +2798,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                           },
                                           child: Container(
                                             decoration: BoxDecoration(
+
+
 
                                               // Set your desired background color
 
@@ -2831,9 +2831,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      ), //chat box
 
-                                      SizedBox(width: 10,),
+                                      SizedBox(width: 20,),
                                       (meetStatus=='schedule' ||  sender.length<=1)?GestureDetector(
                                           onTap: ()async{
                                             String ?path = await showDialog(context: context, builder: (BuildContext context){
@@ -2860,16 +2860,22 @@ class _ChatsPageState extends State<ChatsPage> {
                                   ),
                                 ),
                               ),
+
                               SizedBox(width: 5,),
-                              messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)? Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.02), // Set your desired shadow color
-                                    spreadRadius: 0.5,
-                                    blurRadius: 0.2,
-                                    offset: Offset(0, 2), // Adjust the shadow offset
-                                  ),
-                                ],
+                              widget.meetId!=null ?
+                              messageTyping==false &&  (meetStatus=='schedule' ||  sender.length<=1)? Container(
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
+
+                                  boxShadow: [
+
+
+                                    BoxShadow(
+                                      color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                      spreadRadius: 0.5,
+                                      blurRadius: 0.2,
+                                      offset: Offset(0, 2), // Adjust the shadow offset
+                                    ),
+                                  ],
                                   color : Theme.of(context).primaryColorLight,
                                 ),
                                 child: IconButton(
@@ -2886,18 +2892,24 @@ class _ChatsPageState extends State<ChatsPage> {
                                   // onPressed: !_isUiEnabled ? startCall : null,
                                   color : Theme.of(context).primaryColor,
                                 ),
-                              ):SizedBox(width: 0,),
-                              SizedBox(width : 5),
-                              messageTyping==false? SizedBox(width: 0,):SizedBox(width: 0,),
-                              if (messageTyping==false && (meetStatus=='schedule' ||  sender.length<=1)) Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.black.withOpacity(0.02), // Set your desired shadow color
-                                    spreadRadius: 0.5,
-                                    blurRadius: 0.2,
-                                    offset: Offset(0, 2), // Adjust the shadow offset
-                                  ),
-                                ],
+                              ):SizedBox(width: 0,) : Container(),
+
+
+                              if (messageTyping==false && (meetStatus=='schedule') && (meetStatus=='schedule' ||  sender.length<=1))
+                                SizedBox(width : 5),
+                              if (messageTyping==false && (meetStatus=='schedule') && (meetStatus=='schedule' ||  sender.length<=1))
+                                Container(
+                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
+                                  boxShadow: [
+
+
+                                BoxShadow(
+                                color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                  spreadRadius: 0.5,
+                                  blurRadius: 0.2,
+                                  offset: Offset(0, 2), // Adjust the shadow offset
+                                ),
+                            ],
                                   color : Theme.of(context).primaryColorLight,
                                 ),
                                 child: IconButton(
@@ -2915,7 +2927,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                   },
                                   color : Theme.of(context).primaryColor,
                                 ),
-                              ) else if((meetStatus=='schedule' ||  sender.length<=1)) GestureDetector(
+                              )
+                              else if((meetStatus=='schedule' ||  sender.length<=1))
+                                GestureDetector(
                                 onTap: ()async{
                                   if(receiver.length==0 && sender.length>1){
 
@@ -2930,21 +2944,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                         // _refreshPage(meetingId);
                                       }else{
                                         _handleSend();
-                                        // sendCustomNotificationToUsers(
-                                        //     userTokens,
-                                        //     'Need Local Assistance',
-                                        //     '${_controller.text}',
-                                        //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
-                                        //
+
                                       }
                                       setState(() {});
                                     }else{
                                       _handleSend();
-                                      // sendCustomNotificationToUsers(
-                                      //     userTokens,
-                                      //     'Need Local Assistance',
-                                      //     '${_controller.text}',
-                                      //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
+
                                       setState(() {});
                                     }
                                     setState(() {
@@ -2970,19 +2975,23 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                       borderRadius: BorderRadius.circular(50),
                                     ),
-                                    child: SvgPicture.asset('assets/images/send_msg.svg',color : Theme.of(context).primaryColor,)),
+                                    child: SvgPicture.asset('assets/images/send_msg.svg',color : Theme.of(context).primaryColor,)), //send message container
                               )
                               else SizedBox(width: 10,),
                               messageTyping==false?SizedBox(width: 10,):SizedBox(width: 10,),
                             ],
                           ),
                         )
+
+
+
+
                             : Container(
                             padding: EdgeInsets.all((20)),
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Waiting For Response',style: TextStyle(color : Colors.white30, fontSize : 18, fontWeight : FontWeight.bold),),
+                                Text('Waiting For Response',style: TextStyle(color : Theme.of(context).primaryColorDark, fontSize : 18, fontWeight : FontWeight.bold),),
                                 SizedBox(width:10),
                                 LoadingDotAnimation(),
                               ],
@@ -3086,7 +3095,7 @@ class _LoadingDotAnimationState extends State<LoadingDotAnimation> with TickerPr
           width: 10,
           height: 10,
           decoration: BoxDecoration(
-            color: ColorTween(begin: Colors.white70, end: Colors.white30).animate(controller).value,
+            color: ColorTween(begin: Theme.of(context).primaryColorDark, end:Theme.of(context).primaryColorLight).animate(controller).value,
             shape: BoxShape.circle,
           ),
         );

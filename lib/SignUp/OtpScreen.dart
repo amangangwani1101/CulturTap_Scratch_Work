@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/SignUp/UserNamePage.dart';
 import 'package:learn_flutter/SignUp/FourthPage.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
@@ -82,9 +83,10 @@ class _OtpScreenState extends State<OtpScreen>{
       }
       else{
         print('${widget.userName} , ${widget.phoneNumber} , ${userCredId}');
+
         Navigator.push(
           context,
-          MaterialPageRoute(builder: (context) => FourthPage(userName:widget.userName!,phoneNumber:widget.phoneNumber,userCredId:userCredId)),
+          MaterialPageRoute(builder: (context) => UserNamePage(phoneNumber:widget.phoneNumber,userCredId:userCredId)),
         );
       }
 
@@ -98,174 +100,127 @@ class _OtpScreenState extends State<OtpScreen>{
 
     return Scaffold(
       appBar: AppBar(title : ProfileHeader(reqPage: 2, userId:userID),automaticallyImplyLeading:false,toolbarHeight: 90, ),
+
       body: Container(
           color : Colors.white,
+          height : MediaQuery.of(context).size.height,
           width: double.infinity,
-          height : double.infinity,
-          child: Center(
-            child: SingleChildScrollView(
-              child: Container(
-                width : 325,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
+          child: Stack(
+            children: [
+              Center(
+                child: Container(
+                  padding : EdgeInsets.only(left : 22, right : 22),
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.vertical,
+                    reverse: true,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
-                    Container(
-                        margin: const EdgeInsets.only(bottom: 35),
-                        height: 250,
-                        child : Image.asset('assets/images/thirdPage.png'),
-                        color: Colors.white54),
-                    Container(
-                      child : Image.asset('assets/images/SignUp3.png'),
-                    ),
-                    Container(
-                      height : 20,
-                    ),
-                    Text('Earn by assisting nearby turists !',style: TextStyle(fontWeight: FontWeight.w200,fontSize: 20,),),
-                    Container(
-                      width : double.infinity,
-                      height : 20,
-                    ),
-
-                    Text('ENTER OTP',
-                        style: TextStyle(
-                          fontSize: 24,
-                          color: Colors.black,
-                          fontFamily: 'Poppins',
-                          fontWeight: FontWeight.bold,
-                        )),
-                    Container(
-                        margin: EdgeInsets.only(bottom: 31),
-                        child: Text('it should be autofilled or type manually',
-                            style: TextStyle(
-                                fontSize: 16, color: Colors.black))),
-
-                    Center(
-                      child: PinFieldAutoFill(
-                        codeLength: 6,
-                        autoFocus: true,
-                        controller: _otpController,
-                        currentCode : _code,
-
-                        decoration: UnderlineDecoration(
-                          lineHeight: 1,
-                          lineStrokeCap: StrokeCap.square,
-                          bgColorBuilder: PinListenColorBuilder(
-                              Colors.orange.shade200, Colors.grey.shade200),
-                          colorBuilder: const FixedColorBuilder(Colors.transparent),
+                        Container(
+                            margin: const EdgeInsets.only(bottom: 35),
+                            height: 300,
+                            child : Image.asset('assets/images/thirdPage.png'),
+                            color: Colors.white54),
+                        Container(
+                          child : Image.asset('assets/images/SignUp3.png'),
                         ),
-                      ),
-                    ),
-                    const SizedBox(
-                      height: 10,
-                    ),
+                        Container(
+                          height : 20,
+                        ),
+                        Text('Earn by assisting nearby turists !',style: TextStyle(fontWeight: FontWeight.w200,fontSize: 20,color: Theme.of(context).primaryColorDark),),
+                        Container(
+                          width : double.infinity,
+                          height : 20,
+                        ),
 
-                    // Container(
-                    //   margin: EdgeInsets.only(bottom: 19),
-                    //
-                    //   width: 325,
-                    //   child :Row(
-                    //
-                    //     mainAxisAlignment: MainAxisAlignment.start,
-                    //     children: List.generate(6, (index) {
-                    //       return Container(
-                    //         width: 40,
-                    //         height: 50,
-                    //         margin: EdgeInsets.symmetric(horizontal: 5),
-                    //         child: TextField(
-                    //           controller: _controllers[index],
-                    //           focusNode: _focusNodes[index],
-                    //           keyboardType: TextInputType.number,
-                    //           maxLength: 1,
-                    //           textAlign: TextAlign.center,
-                    //           enabled: true,
-                    //           decoration: InputDecoration(
-                    //             counterText: '',
-                    //             border: OutlineInputBorder(
-                    //               borderSide: BorderSide(width: 1),
-                    //             ),
-                    //           ),
-                    //           onChanged: (value) {
-                    //             if (value.isNotEmpty) {
-                    //               if (index < 5) {
-                    //                 FocusScope.of(context).requestFocus(_focusNodes[index + 1]);
-                    //               } else {
-                    //                 _focusNodes[index].unfocus();
-                    //               }
-                    //             } else {
-                    //               // Check if the current digit is empty and handle backspace
-                    //               if (index > 0) {
-                    //                 FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
-                    //               }
-                    //             }
-                    //           },
-                    //           onEditingComplete: () {
-                    //             // Handle backspace action here
-                    //             if (_controllers[index].text.isEmpty && index > 0) {
-                    //               FocusScope.of(context).requestFocus(_focusNodes[index - 1]);
-                    //             }
-                    //           },
-                    //           onSubmitted: (value) {
-                    //             // Handle additional actions when the user submits the input
-                    //           },
-                    //           onTap: () {
-                    //             // Set a flag or use other logic to track if the text field was tapped
-                    //             // This is to distinguish between tapping the cross button and regular taps
-                    //           },
-                    //
-                    //         ),
-                    //       );
-                    //     }),
-                    //   ),
-                    //
-                    //
-                    // ),
-
-                    Container(
-                        margin: EdgeInsets.only(bottom: 21),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text("Didn't receive it?",
+                        Text('ENTER OTP',
+                            style: TextStyle(
+                              fontSize: 24,
+                              color:Theme.of(context).primaryColorDark,
+                              fontFamily: 'Poppins',
+                              fontWeight: FontWeight.bold,
+                            )
+                        ),
+                        Container(
+                            margin: EdgeInsets.only(bottom: 31),
+                            child: Text('it should be autofilled or type manually',
                                 style: TextStyle(
-                                    fontSize: 20,
-                                    fontWeight: FontWeight.w100)),
-                            Text('RESEND !',
-                                style: TextStyle(
-                                  color: Colors.orange,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 20,
-                                ))
-                          ],
-                        )),
+                                    fontSize: 16,color: Theme.of(context).primaryColorDark))),
 
-                    Container(
-                        width: 325,
-                        height: 63,
-                        child: FilledButton(
-                            backgroundColor: Colors.orange,
+                        Center(
+                          child: PinFieldAutoFill(
+                            codeLength: 6,
+                            autoFocus: true,
+                            controller: _otpController,
+                            currentCode : _code,
 
-                            onPressed: () {
+                            decoration: UnderlineDecoration(
+                              lineHeight: 1,
+                              lineStrokeCap: StrokeCap.square,
+                              bgColorBuilder: PinListenColorBuilder(
+                                  Colors.orange.shade200, Colors.grey.shade200),
+                              colorBuilder: const FixedColorBuilder(Colors.transparent),
+                            ),
+                          ),
+                        ),
+                        const SizedBox(
+                          height: 10,
+                        ),
 
-                              verifyCode();
 
 
-                              // String OTPP = otpCodeControlloer.text;
-                              // print('otp  : ${OTPP} ');
-                              // Navigator.push(context, MaterialPageRoute(builder: (context) => FourthPage(),));
-                            },
-                            child: Center(
-                                child: Text('Next',
+                        Container(
+                            margin: EdgeInsets.only(bottom: 21),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text("Didn't receive it?",
                                     style: TextStyle(
-                                        fontWeight: FontWeight.bold,
-                                        color: Colors.white,
-                                        fontSize: 25))))
+                                        fontSize: 20,
+                                        fontWeight: FontWeight.w100)),
+                                Text('RESEND !',
+                                    style: TextStyle(
+                                      color: Colors.orange,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                    ))
+
+                              ],
+                            )),
+
+SizedBox(height : 80),
+                      ],
                     ),
-                  ],
+                  ),
                 ),
               ),
-            ),
+              Positioned(
+                bottom : 0,right : 0, left : 0,
+                child :
+                Container(
+
+                    height: 63,
+                    child: FilledButton(
+                        backgroundColor: Colors.orange,
+
+                        onPressed: () {
+
+                          verifyCode();
+
+                        },
+                        child: Center(
+                            child: Text('Next',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 25)))
+                    )
+                ),
+              )
+
+            ],
           )),
     );
   }
@@ -277,15 +232,15 @@ class _OtpScreenState extends State<OtpScreen>{
   Future<void> verifyCode() async {
 
     print('Received OTP: ${widget.otp}');
-    print('User-Entered OTP:$_otpController');
-    String OTPP = widget.otp!; // Access the OTP passed from the previous page
+    print('User-Entered OTP:${_otpController.text}');
+    String OTPP = widget.otp!;
 
     // Now you can compare it with the OTP entered by the user
     // OTPs match, proceed with verification
     try{
       PhoneAuthCredential credential = PhoneAuthProvider.credential(
         verificationId: OTPP,
-        smsCode: '$_otpController',
+        smsCode: '${_otpController.text}',
       );
 
       authCredential = await auth.signInWithCredential(credential);
