@@ -2646,6 +2646,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   await updateLocalUserPings(helperId, widget.meetId!, 'cancel');
                                   updateMeetingChats(widget.meetId!,['','admin-cancel']);
                                   socket.emit('message', {'message':'','user1':'admin-cancel','user2':''});
+                                  sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(userName));
                                   setState(() {});
                                 } else {
                                   // User canceled, do something else
@@ -2929,22 +2930,13 @@ class _ChatsPageState extends State<ChatsPage> {
                                         _controller.clear();
                                         // _refreshPage(meetingId);
                                       }else{
+                                        sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,widget.state!));
                                         _handleSend();
-                                        // sendCustomNotificationToUsers(
-                                        //     userTokens,
-                                        //     'Need Local Assistance',
-                                        //     '${_controller.text}',
-                                        //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
-                                        //
                                       }
                                       setState(() {});
                                     }else{
+                                      sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,widget.state!));
                                       _handleSend();
-                                      // sendCustomNotificationToUsers(
-                                      //     userTokens,
-                                      //     'Need Local Assistance',
-                                      //     '${_controller.text}',
-                                      //     '<br> <b>8:00 PM - 8:20 PM India</b> <br> <b>Date : 15 Nov 2022 “Monday”</b>','1','2','23');
                                       setState(() {});
                                     }
                                     setState(() {

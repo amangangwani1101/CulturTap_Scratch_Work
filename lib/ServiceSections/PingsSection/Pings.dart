@@ -70,7 +70,7 @@ class _PingSectionState extends State<PingsSection>{
     print('Usss:${widget.userId}');
     fetchDatasets(widget.userId);
     _selectedService = widget.selectedService??'Trip Planning';
-    initialHandler();
+    // initialHandler();
   }
 
 
@@ -83,15 +83,15 @@ class _PingSectionState extends State<PingsSection>{
   }
 
 
-  Future<void> initialHandler() async{
-    WidgetsFlutterBinding.ensureInitialized();
-    Stripe.publishableKey = Constant().publishableKey;
-    Stripe.instance.applySettings();
-  }
+  // Future<void> initialHandler() async{
+  //   WidgetsFlutterBinding.ensureInitialized();
+  //   Stripe.publishableKey = Constant().publishableKey;
+  //   Stripe.instance.applySettings();
+  // }
 
   Future<void> fetchDatasets(userId) async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
-    final url = Uri.parse('$serverUrl/userStoredData/${userId}'); // Replace with your backend URL
+    final url = Uri.parse('$serverUrl/userStoredData/${userId}?section=pings'); // Replace with your backend URL
     print('URL : $url');
     final http.Response response = await http.get(url);
 
@@ -114,6 +114,9 @@ class _PingSectionState extends State<PingsSection>{
   Future<void> _refreshPage({int time = 2,String state = 'All'}) async {
     // Add your data fetching logic here
     // For example, you can fetch new data from an API
+    setState(() {
+      isLoading=true;
+    });
     await Future.delayed(Duration(seconds: time));
     // Update the UI with new data if needed
     setState(() {
@@ -1431,6 +1434,7 @@ class _PingSectionState extends State<PingsSection>{
                                                 ),
                                               );
                                               if(res){
+                                                sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(pingsDataStore.userName, meetId));
                                                 await updateLocalUserPings(userId, meetId, 'schedule');
                                                 await updateLocalUserPings(helperId!, meetId, 'schedule');
                                                 await updatePaymentStatus('pending',meetId);
@@ -1440,7 +1444,6 @@ class _PingSectionState extends State<PingsSection>{
                                                     meetId: meetId,
                                                   ),));
                                                 _refreshPage();
-                                                sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(pingsDataStore.userName, meetId));
                                               }else{
                                                 ScaffoldMessenger.of(context).showSnackBar(
                                                   const SnackBar(
