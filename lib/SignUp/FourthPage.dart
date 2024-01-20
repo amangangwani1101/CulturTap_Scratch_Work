@@ -16,6 +16,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import '../BackendStore/BackendStore.dart';
 import '../CustomItems/CostumAppbar.dart';
 import '../Notifications/notification.dart';
+import '../UserProfile/ProfileHeader.dart';
 
 class FourthPage extends StatefulWidget {
   final String userName,phoneNumber,userCredId;
@@ -63,12 +64,16 @@ class UserModel{
 
 class _FourthPageState extends State<FourthPage> {
   var _locationController = TextEditingController();
+  late FocusNode _inputFocusNode;
   NotificationServices notificationServices  = NotificationServices();
   bool _isLoading = false;
+  bool _isEnabled = false;
   String?latitude,longitude,token,userId;
   @override
   void initState() {
+
     super.initState();
+    _inputFocusNode = FocusNode();
     notificationServices.requestNotificationPermission();
     notificationServices.firebaseInit(context);
     notificationServices.setupInteractMessage(context);
@@ -263,96 +268,137 @@ class _FourthPageState extends State<FourthPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: CustomAppBar(title:""),
+      appBar: AppBar(title : ProfileHeader(reqPage: 2,),automaticallyImplyLeading:false,toolbarHeight: 90, ),
+
       body: Container(
-        height : double.infinity,
+        color : Colors.white,
+        height : MediaQuery.of(context).size.height,
         width: double.infinity,
-        child: Center(
-          child: SingleChildScrollView(
-            child: Container(
-              width : 325,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Container(
-                    margin: const EdgeInsets.only(bottom: 35),
-                    height: 248,
-                    width : 389,
-                    child : Image.asset('assets/images/fourthPage.png'),
-                    color: Colors.white,
-                  ),
-                  Container(
-                    child : Image.asset('assets/images/SignUp4.png'),
-                  ),
-                  Container(
-                    height : 20,
-                  ),
-                  Text(
-                    'CONFIRM YOUR LOCATION',
-                    style: TextStyle(
-                      fontSize: 24,
-                      color: Colors.black,
-                      fontWeight: FontWeight.w600,),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 31),
-                    child: Text(
-                      'Fetched Location',
-                      style: TextStyle(fontSize: 20, color: Colors.black),
+        child: Stack(
+          children: [
+            Container(
+              color : Colors.white,
+              padding : EdgeInsets.all(30),
+              child: SingleChildScrollView(
+                scrollDirection: Axis.vertical,
+                reverse: true,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      margin: const EdgeInsets.only(bottom: 25),
+                      height: 300,
+
+                      child : Image.asset('assets/images/fourthPage.png'),
+                      color: Colors.white,
                     ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.only(bottom: 19),
-                    width: 325,
-                    child: TextField(
-                      controller: _locationController,
-                      decoration: InputDecoration(
-                        hintText: 'Fetching location...',
-                      ),
-                      enabled: false,
+                    Container(
+                      child : Image.asset('assets/images/SignUp4.png'),
                     ),
-                  ),
-                  TextButton(
-                    onPressed: _isLoading ? null : _fetchLocation,
-                    child: Text(
-                      'Edit',
-                      style: TextStyle(
-                        color: Colors.orange,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20,
-                      ),
+                    Container(
+                      height : 20,
                     ),
-                  ),
-                  Container(
-                    width: 325,
-                    height: 63,
-                    child: FilledButton(
-                      backgroundColor: Colors.orange,
-                      onPressed: () {
-                        String fetchedLocation = _locationController.text;
-                        print('Location: $fetchedLocation');
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
-                        );
-                      },
-                      child: Center(
-                        child: Text(
-                          'DONE',
-                          style: TextStyle(
-                            fontWeight: FontWeight.w900,
-                            color: Colors.white,
-                            fontSize: 25,
-                          ),
+                    Text(
+                      'CONFIRM YOUR\nLOCATION',
+                        style: TextStyle(
+                          fontSize: 24,
+                          color:Theme.of(context).primaryColorDark,
+                          fontFamily: 'Poppins',
+                          fontWeight: FontWeight.bold,
+                        )
+                    ),
+                    SizedBox(height : 20),
+                    Container(
+
+                      child: Text(
+                        '  Fetched Location',
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: Theme.of(context).primaryColorDark,
+                          fontWeight: FontWeight.w300,
                         ),
                       ),
                     ),
-                  ),
-                ],
+                    SizedBox(height : 10),
+                    Container(
+                      margin: EdgeInsets.only(bottom: 19),
+
+                      child: TextField(
+                        focusNode: _inputFocusNode,
+                        cursorColor : Theme.of(context).primaryColorDark,
+                        style: TextStyle(fontSize: (18  ),color :Color(0xFF001B33) , fontWeight: FontWeight.w300,),textAlign : TextAlign.start,
+                        maxLines : 1,
+                        controller: _locationController,
+                        decoration: InputDecoration(
+                          hintText: 'Fetching location...',
+                          hintStyle : TextStyle(fontSize : 18,letterSpacing : 2.0,fontWeight : FontWeight.w600,color : Color(0xFFBABABA) ),
+                          filled: true,
+                          fillColor: Theme.of(context).primaryColorLight,
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(10.0), // Updated border radius
+                            borderSide: BorderSide.none, // No border
+                          ),
+                        ),
+
+                        enabled: _isEnabled,
+                      ),
+                    ),
+                    InkWell(
+                      onTap : (){
+                        _fetchLocation();
+                       
+
+                         setState((){
+                           _inputFocusNode = FocusNode();
+                           _isEnabled = true;
+                         });
+
+                      },
+                      child: Text(
+                        'EDIT',
+                        style: TextStyle(
+                          color: Colors.orange,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 20,
+                        ),
+                      ),
+                    ),
+
+                    SizedBox(height : 30),
+
+                  ],
+
+                ),
               ),
             ),
-          ),
+            Positioned(
+              bottom : 0, left : 0, right : 0,child : Container(
+              width: 325,
+              height: 63,
+              child: FilledButton(
+                backgroundColor: Colors.orange,
+                onPressed: () {
+                  String fetchedLocation = _locationController.text;
+                  print('Location: $fetchedLocation');
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => HomePage()),
+                  );
+                },
+                child: Center(
+                  child: Text(
+                    'DONE',
+                    style: TextStyle(
+                      fontWeight: FontWeight.w900,
+                      color: Colors.white,
+                      fontSize: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),)
+          ],
         ),
       ),
     );

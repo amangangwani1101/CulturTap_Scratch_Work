@@ -26,9 +26,9 @@ class _LocalAssistState extends State<LocalAssist> {
   bool? eligible;
 
   bool loaded = false;
-  String liveLocation = 'Fetching location...';
 
-  // String liveLocation = '';
+
+  String liveLocation = '';
 
   @override
   void initState() {
@@ -216,7 +216,8 @@ class _LocalAssistState extends State<LocalAssist> {
       },
       child: Scaffold(
 
-        appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),backgroundColor : Theme.of(context).backgroundColor,  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+        appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+
 
         body: SingleChildScrollView(
           child: Container(
@@ -305,7 +306,7 @@ class _LocalAssistState extends State<LocalAssist> {
                       height : 150,
 
                       decoration: BoxDecoration(
-                        color : Theme.of(context).primaryColorLight,
+                        color : Theme.of(context).backgroundColor,
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.1),
@@ -378,10 +379,10 @@ class _LocalAssistState extends State<LocalAssist> {
                       height : 150,
 
                       decoration: BoxDecoration(
-                        color : Theme.of(context).primaryColorLight,
+                        color : Theme.of(context).backgroundColor,
                         boxShadow: [
                           BoxShadow(
-                            color: Colors.grey.withOpacity(0),
+                            color: Colors.grey.withOpacity(0.2),
                             spreadRadius: 0.5,
                             blurRadius: 3,
                             offset: Offset(0, 3),

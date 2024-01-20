@@ -215,13 +215,13 @@ class _SecondPageState extends State<SecondPage> {
 
                                     decoration: InputDecoration(
                                       filled: true,
-                                      fillColor: Colors.grey[50],
+                                      fillColor: Theme.of(context).primaryColorLight,
                                       border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10.0),
                                         borderSide: BorderSide.none, // No border
                                       ),
                                       contentPadding: EdgeInsets.symmetric(
-                                          vertical: 16.0, horizontal: 10.0),
+                                          vertical: 16.0, horizontal: 20.0),
                                       hintText: ' Ex : 9026966203',
                                       hintStyle : TextStyle(fontSize : 18,letterSpacing : 2.0,fontWeight : FontWeight.w600,color : Color(0xFFBABABA) ),
                                       errorText: _isPhoneNumberValid ? null : 'Invalid Phone Number',
@@ -249,7 +249,9 @@ class _SecondPageState extends State<SecondPage> {
                 ),
               ),
               Positioned(
-                bottom : 0,right : 0, left : 0,child : Container(
+                bottom : 0,right : 0, left : 0,
+                child :
+              Container(
                 margin: EdgeInsets.only(top: 10),
 
                 height: 63,
@@ -279,7 +281,8 @@ class _SecondPageState extends State<SecondPage> {
                     ),
                   ),
                 ),
-              ),)
+              ),
+              )
             ]
           ),
         ),

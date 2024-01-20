@@ -414,12 +414,7 @@ class _CameraAppState extends State<CameraApp> {
     }
   }
 
-  void homepage(){
-    Navigator.push(
-      context,
-      MaterialPageRoute(builder: (context) => HomePage()),
-    );
-  }
+
 
   BackButtonHandler backButtonHandler = BackButtonHandler(
     imagePath: 'assets/images/exit.svg',
@@ -452,16 +447,13 @@ class _CameraAppState extends State<CameraApp> {
         onScaleUpdate: onScaleUpdate,
         child: WillPopScope(
           onWillPop: () async {
-            // If you want to prevent the user from going back, return false
-            // return false;
 
-            // If you want to navigate directly to the homepage
             Navigator.pushReplacement(
               context,
               MaterialPageRoute(builder: (context) => HomePage()),
             );
 
-            return false; // Returning true will allow the user to pop the page
+            return false;
           },
           child: Scaffold(
 
@@ -471,8 +463,8 @@ class _CameraAppState extends State<CameraApp> {
 
                 Expanded(
                   child: Container(
-                    // Add your widgets for the row content here
-                    color: Colors.black, // Replace with your desired background color
+
+                    color: Colors.black,
                     child: Column(
 
                       mainAxisAlignment : MainAxisAlignment.center,
