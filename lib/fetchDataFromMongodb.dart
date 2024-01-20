@@ -1,8 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-String userName = 'Utkarsh';
-String userID = '659ca8e042770823db2ef716';
+String userName = '';
+String userID = '';
 String userPhoneNumber = '';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;

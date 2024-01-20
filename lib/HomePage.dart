@@ -359,7 +359,7 @@ class _HomePageState extends State<HomePage> {
   void makePayment() async{
     var options = {
       'key' : 'rzp_live_GmFI5alUgs6ny1',
-      'amount' : '100',
+      'amount' : '10000',
       'name' : 'Culturtap',
       'description' : 'trip Planning Services',
       'prefill' : {'contact' : userPhoneNumber, 'email' : 'utkarsh@culturtap.com'},
