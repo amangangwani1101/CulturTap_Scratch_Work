@@ -13,6 +13,7 @@ import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 
+import '../ServiceSections/PingsSection/Pings.dart';
 import 'Chat.dart';
 // import 'package:learn_flutter/Notify/Chat.dart';
 // import 'package:learn_flutter/rating.dart';
@@ -279,14 +280,7 @@ class NotificationServices{
     // when app is in background
     FirebaseMessaging.onMessageOpenedApp.listen((payload) {
       print('Payload us $payload');
-      if(payload=='action_1'){
-        print('Pressed Accept');
-      }
-      else if(payload=='action_2'){
-        print('Pressed Camncel');
-      }else{
-        handleMessage(context, payload);
-      }
+      handleMessage(context, payload);
     });
   }
 
@@ -295,17 +289,15 @@ class NotificationServices{
 
 
   void handleMessage(BuildContext context,RemoteMessage message){
-      if(message.data['type']=='local_assistant_service'){
-        print('yha print kr rha hu');
-        print(message.data);
-        print('yha ki meet id');
-        print(message.data['meetId']);
-
-
+      // if(message.)
+      if(message.data['type']=='local_assistant_cancel'){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
+      }
+      else if(message.data['type'].contains('local_assistant')){
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatsPage(userId : userID,state: 'user',meetId:'65a245069be96d5665009a80',),
+            builder: (context) => ChatsPage(userId : userID,state: message.data['state'],meetId:message.data['meetId'],),
           ),
         );
       }

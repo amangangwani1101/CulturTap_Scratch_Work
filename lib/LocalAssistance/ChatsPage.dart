@@ -2952,7 +2952,6 @@ class _ChatsPageState extends State<ChatsPage> {
                                     }else{
                                       sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,widget.state!));
                                       _handleSend();
-
                                       setState(() {});
                                     }
                                     setState(() {
