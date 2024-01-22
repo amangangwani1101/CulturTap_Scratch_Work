@@ -1,42 +1,139 @@
-
-
 const express = require('express');
 const router = express.Router();
 const CategoryModel = require('../db/model/categoryModel');
 const GenreModel = require('../db/model/genreModel');
 const LabelModel = require('../db/model/labelModel');
 const SingleStoryModel = require('../db/model/singleStoryModel');
+const ProfileModel = require('../db/model/profileData');
 const multer = require('multer');
 const path = require('path');
-const serviceAccount = require('../serviceAccountKey.json');
-const ProfileData = require("../db/model/profileData.js");
+const ffmpeg = require('fluent-ffmpeg');
+const sharp = require('sharp');
+const fs = require('fs');
+//const ProfileModel = require('./ProfileRoutes');
+
+const imageStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, '/root/profile_images');
+  },
+  filename: (req, file, cb) => {
+    cb(null, file.originalname);
+  },
+});
+
+const uploadImage = multer({ storage: imageStorage });
+
+// Handle POST request for image upload
+router.post('/api/uploadImage', uploadImage.single('image'), (req, res) => {
+  res.send('Image uploaded successfully!');
+});
 
 
 
 
-router.post('/api/publish', async (req, res) => {
-
-// Configure multer for video uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     cb(null, '/root/videos');
   },
   filename: (req, file, cb) => {
-    cb(null, Date.now() + path.extname(file.originalname));
+   
+    const uniqueFilename = `${(file.originalname)}`;
+    cb(null, uniqueFilename);
   },
 });
 
 const upload = multer({ storage: storage });
-console.log(upload);
-console.log(storage);
+
+// Function to generate thumbnails
+const generateThumbnail = async (videoPath, thumbnailPath, quality = 30) => {
+  return new Promise((resolve, reject) => {
+    ffmpeg(videoPath)
+      .on('end', () => {
+        resolve();
+      })
+      .on('error', (err) => {
+        reject(err);
+      })
+      .screenshots({
+        count: 1,
+        folder: thumbnailPath,
+        filename: 'thumbnail-%b.webp',
+        quality : quality,
+      });
+  });
+};
+
+const compressVideo = async (videoPath, quality = 30) => {
+  return new Promise((resolve, reject) => {
+    const tempVideoPath = videoPath.replace('.mp4', '_temp.mp4'); // Temporary file
+
+    ffmpeg(videoPath)
+      .outputOptions([
+        '-c:v libx264',
+        '-c:a aac',
+        '-strict experimental',
+        `-b:a 192k`,
+        '-preset veryfast',
+        '-movflags +faststart'
+      ])
+      .save(tempVideoPath) // Save to a temporary file
+      .on('end', async () => {
+        // Remove the original file
+        fs.unlink(videoPath, (unlinkErr) => {
+          if (unlinkErr) {
+            reject(unlinkErr);
+          } else {
+            // Rename the temporary file to the original file
+            fs.rename(tempVideoPath, videoPath, (renameErr) => {
+              if (renameErr) {
+                reject(renameErr);
+              } else {
+                resolve();
+              }
+            });
+          }
+        });
+      })
+      .on('error', (err) => {
+        reject(err);
+      });
+  });
+};
 
 
+// POST endpoint for handling video uploads
+router.post('/api/uploadVideos', upload.array('videos', 10), async (req, res) => {
+  try {
+    if (!req.files || req.files.length === 0) {
+      return res.status(400).send('No video files uploaded');
+    }
 
+    const videoPaths = req.files.map((file) => path.join('/root/videos', file.filename));
+
+    // Compress videos
+    for (let i = 0; i < videoPaths.length; i++) {
+      const videoPath = videoPaths[i];
+      const thumbnailPath = path.join('/root/thumbnails');
+      await generateThumbnail(videoPath, thumbnailPath);
+      await compressVideo(videoPath);
+    }
+
+    res.status(201).send('Videos uploaded and compressed successfully');
+  } catch (err) {
+    console.error(err);
+    res.status(500).send('Server error');
+  }
+});
+
+
+router.post('/api/publish', async (req, res) => {
 
   try {
-    const { singleStoryData, label, category, genre } = req.body;
+    const { singleStoryData, label, category, genre, userID } = req.body;
+  
+    console.log(userID);
 
-
+    
     // Create a new single story with the received data
     const newStory = new SingleStoryModel(singleStoryData);
 
@@ -76,6 +173,20 @@ console.log(storage);
     await categoryDoc.save();
     await labelDoc.save();
     await newStory.save();
+  
+    let userProfile = await ProfileModel.findOne({_id : userID});
+
+     if (userProfile) {
+        userProfile.labels.push(labelDoc);
+        await userProfile.save();
+      }
+  
+   
+    if (userProfile) {
+      userProfile.stories.push(newStory._id);
+      await userProfile.save();
+    }
+
 
     res.status(201).send('Story published successfully');
   } catch (err) {
@@ -83,11 +194,6 @@ console.log(storage);
     res.status(500).send('Server error');
   }
 });
-
-
-
-
-
 
 
 
@@ -153,54 +259,9 @@ router.get('/api/trending-nearby-places', async (req, res) => {
   }
 });
 
-router.post("/notificationHandler",	async(req,res)=>{
-	try{
-    	const dataset = req.body;
-    	const userIds = dataset['userIds'];
-    	const payload = dataset['payload'];
-//    	console.log(dataset);
-    	for(let userId of userIds){
-        	const user = await ProfileData.findById(userId).lean();
-        	if(!user || user['uniqueToken']===undefined)  continue;
-        	const userToken = user['uniqueToken'];
-        	payload['token'] = userToken;
-//        	console.log(payload);
-        	result = await sendNotificationToUser(payload);
-        	console.log(result);
-        }
-    	return res.status(200).json({ message:"notification sended successfully" });
-    }catch(err){
-    	 // Send a JSON response indicating an error
-      console.log(err);
-      res.status(501).json({ error: "Failed to send notification" });
-    }
-});
 
-async function sendNotificationToUser(payload) {
 
-//  const payload = {
 
-//     "notification": {
-//       "title": title,
-//       "body": body,
-//     },
-//     "data": {
-//       "type": 'local_assistant_service',
-//       "meetId": meetId,
-//       "state": state,
-//     },
-//  	"token":userToken,
-//   };
-
-  try {
-    const response = await firebaseAdmin.messaging().send(payload);
-  	console.log(response);
-    return "Notification Sended Successflly";
-  } catch (error) {
-    console.error('Failed to send notification handle:', error.message);
-  	return "Notification Not Sent";
-  }
-}
 
 
 module.exports = router;
