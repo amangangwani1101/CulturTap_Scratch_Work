@@ -1535,6 +1535,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                                 ],
                                                                               ),
                                                                               Container(
+
                                                                                 width: 230,
                                                                                   child:
                                                                                   Text(
@@ -1544,6 +1545,17 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                                           fontFamily: 'Poppins',
                                                                                           fontWeight:
                                                                                           FontWeight.w600,color:  Color(0xFF001B33)), )),
+
+                                                                                  width: 230,
+                                                                                  child:
+                                                                                  Text(
+                                                                                    helperAddress,
+                                                                                    style:TextStyle(
+                                                                                        fontSize:(12 * MediaQuery.of(context).textScaleFactor),
+                                                                                        fontFamily: 'Poppins',
+                                                                                        fontWeight:
+                                                                                        FontWeight.w600,color:  Color(0xFF001B33)), )),
+
                                                                             ],
                                                                           ),
                                                                         ],
@@ -2037,6 +2049,62 @@ class _ChatsPageState extends State<ChatsPage> {
                                                               bottomLeft: Radius.circular(20.0),
                                                               bottomRight: Radius.circular(20.0),
                                                             ),
+
+                                                          ),
+                                                          padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
+                                                          child: Row(
+                                                            children: [
+                                                              SizedBox(width: 8,),
+                                                              Container(
+                                                                width: 200,
+                                                                // Adjust the padding as needed
+                                                                padding: EdgeInsets.only(left: 4),
+                                                                child: Column(
+                                                                  crossAxisAlignment:
+                                                                  CrossAxisAlignment
+                                                                      .start,
+                                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                                  children: [
+                                                                    Text(
+                                                                      helperName,
+                                                                      style: Theme.of(context).textTheme.subtitle1,
+                                                                    ),
+                                                                    (message[0]).contains('.jpg') ||
+                                                                        (message[0]).contains(
+                                                                            '.jpeg') ||
+                                                                        (message[0]).contains(
+                                                                            '.png')
+                                                                        ? Image
+                                                                        .file(
+                                                                      File(message[
+                                                                      0]),
+                                                                      fit: BoxFit
+                                                                          .cover,
+                                                                    )
+                                                                        : message[0]
+                                                                        .contains('.pdf')
+                                                                        ? GestureDetector(
+                                                                      onTap:
+                                                                          () {
+                                                                        _openFileWithDefaultApp(message[0]);
+                                                                      },
+                                                                      child: Container(
+                                                                          width: 200,
+                                                                          height: 200,
+                                                                          child: PDFView(
+                                                                            filePath: message[0],
+                                                                          )),
+                                                                    )
+                                                                        : Text(
+                                                                      message[0],
+                                                                      style:
+                                                                      Theme.of(context).textTheme.headline6,
+                                                                    ),
+                                                                  ],
+                                                                ),
+                                                              ),
+                                                            ],
+
                                                           ),
                                                           padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
                                                           child: Row(
@@ -2579,7 +2647,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                 ],
                                                               ),
                                                               Text(
+
                                                                   message[0],
+
+                                                                message[0],
+
                                                                 style: Theme.of(context).textTheme.headline6,
                                                               ),
                                                             ],
@@ -2601,6 +2673,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                         ),
                                         widget.userId==userID && meetStatus=='pending'
                                             ? Align(
+
                                               alignment: Alignment.centerRight,
                                               child: Row(
                                                 children: [
@@ -2612,6 +2685,19 @@ class _ChatsPageState extends State<ChatsPage> {
                                                 ],
                                               ),
                                             )
+
+                                          alignment: Alignment.centerRight,
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                child: Text('Searching For A Service Providers',style: Theme.of(context).textTheme.bodyText2,),
+                                              ),
+                                              SizedBox(width: 10,),
+                                              LoadingDotAnimation(),
+                                            ],
+                                          ),
+                                        )
+
                                             :SizedBox(height: 0,),
                                         // Expanded(child: SizedBox(height: 10,)),
                                         if (incomingSDPOffer != null)
@@ -2758,12 +2844,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                   ),
                                 );
                                 if(res){
-                                await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
-                                await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
-                                updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
-                                socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
-                                sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
-                                setState(() {});
+                                  await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
+                                  await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
+                                  updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
+                                  socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
+                                  sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
+                                  setState(() {});
                                 }else{
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -2983,37 +3069,38 @@ class _ChatsPageState extends State<ChatsPage> {
                                 SizedBox(width : 5),
                               if (messageTyping==false && (meetStatus=='schedule') && (meetStatus=='schedule' ||  sender.length<=1))
                                 Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
-                                  boxShadow: [
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
+                                    boxShadow: [
 
 
-                                BoxShadow(
-                                color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                  spreadRadius: 0.5,
-                                  blurRadius: 0.2,
-                                  offset: Offset(0, 2), // Adjust the shadow offset
-                                ),
-                            ],
-                                  color : Theme.of(context).primaryColorLight,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(Icons.videocam),
-                                  // onPressed:initiateVideoCall,
-                                  onPressed: (){
-                                    _joinCall(
-                                      callerId: widget.meetId!,
-                                      calleeId: widget.meetId!,
-                                      section: 'video',
-                                      imageOwn:userPhoto,
-                                      imageOther:helperPhoto,
-                                    );
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                        spreadRadius: 0.5,
+                                        blurRadius: 0.2,
+                                        offset: Offset(0, 2), // Adjust the shadow offset
+                                      ),
+                                    ],
+                                    color : Theme.of(context).primaryColorLight,
+                                  ),
+                                  child: IconButton(
+                                    icon: Icon(Icons.videocam),
+                                    // onPressed:initiateVideoCall,
+                                    onPressed: (){
+                                      _joinCall(
+                                        callerId: widget.meetId!,
+                                        calleeId: widget.meetId!,
+                                        section: 'video',
+                                        imageOwn:userPhoto,
+                                        imageOther:helperPhoto,
+                                      );
 
-                                  },
-                                  color : Theme.of(context).primaryColor,
-                                ),
-                              )
+                                    },
+                                    color : Theme.of(context).primaryColor,
+                                  ),
+                                )
                               else if((meetStatus=='schedule' ||  sender.length<=1))
                                 GestureDetector(
+
                                 onTap: ()async{
                                   if(receiver.length==0 && sender.length>1){
 
@@ -3030,9 +3117,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                         sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'helper'));
                                         _handleSend();
 
-                                      }
-                                      setState(() {});
+                                  onTap: ()async{
+                                    if(receiver.length==0 && sender.length>1){
+
+
                                     }else{
+
                                       if(helperMessage){
                                         print('Controller : ${_controller.text}');
                                         await updateLocalHelperPings(widget.meetId!, 'pending');
@@ -3052,32 +3142,68 @@ class _ChatsPageState extends State<ChatsPage> {
                                         _handleSend();
                                         setState(() {});
                                       }
+
+                                      if(pageVisitor){
+                                        if(widget.meetId==null){
+                                          String meetingId = await createMeetRequest();
+                                          List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
+                                          sendCustomNotificationToUsers(userWith10km,payloadData[0]);
+                                          sendCustomNotificationToUsers([userID],payloadData[1]);
+                                          _controller.clear();
+                                          // _refreshPage(meetingId);
+                                        }else{
+                                          sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'helper'));
+                                          _handleSend();
+
+                                        }
+                                        setState(() {});
+                                      }else{
+                                        if(helperMessage){
+                                          print('Controller : ${_controller.text}');
+                                          await updateLocalHelperPings(widget.meetId!, 'pending');
+                                          await createUpdateLocalUserPing(helperId ,widget.meetId!, 'accept',userName,userPhoto);
+                                          await updatePaymentStatus('pending',widget.meetId!);
+                                          // await updateLocalUserPings(widget.userId, widget.meetId!, 'pending');
+                                          // await updateLocalUserPings(helperId, widget.meetId!, 'accept');
+                                          await updateMeetingChats(widget.meetId!,[_controller.text,'admin-user-1']);
+                                          socket.emit('message', {'message':_controller.text,'user1':'admin-user-1','user2':''});
+                                          _refreshPage(widget.meetId!,state:'helper');
+                                          sendCustomNotificationToUsers([helperId!],localAssistantHelperAccepted(userName!, widget.meetId!));
+                                          setState(() {
+                                            helperMessage=false;
+                                          });
+                                        }else{
+                                          sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'user'));
+                                          _handleSend();
+                                          setState(() {});
+                                        }
+                                      }
+                                      setState(() {
+                                        messageTyping = false;
+                                      });
+
                                     }
-                                    setState(() {
-                                      messageTyping = false;
-                                    });
-                                  }
-                                },
-                                child: Container(
-                                    padding: EdgeInsets.all(15),
+                                  },
+                                  child: Container(
+                                      padding: EdgeInsets.all(15),
 
-                                    decoration: BoxDecoration(
-                                      color : Theme.of(context).primaryColorLight,
+                                      decoration: BoxDecoration(
+                                        color : Theme.of(context).primaryColorLight,
 
-                                      boxShadow: [
+                                        boxShadow: [
 
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.5,
-                                          blurRadius: 0.2,
-                                          offset: Offset(0, 2), // Adjust the shadow offset
-                                        ),
-                                      ],
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                            spreadRadius: 0.5,
+                                            blurRadius: 0.2,
+                                            offset: Offset(0, 2), // Adjust the shadow offset
+                                          ),
+                                        ],
 
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    child: SvgPicture.asset('assets/images/send_msg.svg',color : Theme.of(context).primaryColor,)), //send message container
-                              )
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
+                                      child: SvgPicture.asset('assets/images/send_msg.svg',color : Theme.of(context).primaryColor,)), //send message container
+                                )
                               else SizedBox(width: 10,),
                               messageTyping==false?SizedBox(width: 10,):SizedBox(width: 10,),
                             ],

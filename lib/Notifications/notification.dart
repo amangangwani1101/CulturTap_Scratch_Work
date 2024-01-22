@@ -48,15 +48,15 @@ class NotificationServices{
         final data = json.decode(response.body);
         print(data);
 
-          if(data['meetId']!=null){
-            meetId = data['meetId'];
-          }
-          if(data['state']!=null){
-            state = data['state'];
-          }
-          if(data['eligible']!=null){
-            eligible = data['eligible'];
-          }
+        if(data['meetId']!=null){
+          meetId = data['meetId'];
+        }
+        if(data['state']!=null){
+          state = data['state'];
+        }
+        if(data['eligible']!=null){
+          eligible = data['eligible'];
+        }
 
         print('Meeting Ongoing : $meetId');
 
@@ -116,18 +116,18 @@ class NotificationServices{
       iOS: iosInitializationSettings,
     );
     await _flutterLocalNotificationsPlugin.initialize(
-      initializationSetting,
-      onDidReceiveNotificationResponse:(payload){
-        print(payload);
-        if(payload=='action_1'){
-          print('Pressed Accept');
+        initializationSetting,
+        onDidReceiveNotificationResponse:(payload){
+          print(payload);
+          if(payload=='action_1'){
+            print('Pressed Accept');
+          }
+          else if(payload=='action_2'){
+            print('Pressed Cancel');
+          }else{
+            handleMessage(context, message);
+          }
         }
-        else if(payload=='action_2'){
-          print('Pressed Cancel');
-        }else{
-          handleMessage(context, message);
-        }
-      }
     );
   }
 
@@ -226,10 +226,10 @@ class NotificationServices{
 
     Future.delayed(Duration.zero,(){
       _flutterLocalNotificationsPlugin.show(
-        0,
-        message.notification!.title.toString(),
-        message.notification!.body.toString(),
-        notificationDetails
+          0,
+          message.notification!.title.toString(),
+          message.notification!.body.toString(),
+          notificationDetails
       );
     });
   }
@@ -289,6 +289,7 @@ class NotificationServices{
 
 
   void handleMessage(BuildContext context,RemoteMessage message){
+
       // if(message.)
       if(message.data['type']=='local_assistant_cancel'){
         Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
@@ -302,6 +303,21 @@ class NotificationServices{
           ),
         );
       }
+
+    // if(message.)
+    if(message.data['type']=='local_assistant_cancel'){
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
+    }
+    else if(message.data['type'].contains('local_assistant')){
+      print('yes its me');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],),
+        ),
+      );
+    }
+
     else if (message.data['type'] == 'chat') {
       String chatId = message.data['chatId'];
       Navigator.push(

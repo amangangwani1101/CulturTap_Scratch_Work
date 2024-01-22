@@ -215,7 +215,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: userID,),
+                        builder: (context) => PingsSection(userId: userID,), 
                       ),
                     );
                   }
