@@ -2751,13 +2751,13 @@ class _ChatsPageState extends State<ChatsPage> {
                                 // Payment Gateway Open
                                 // payment success then true else false
 
-                                // bool res = await Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) => RazorPayIntegration(),
-                                //   ),
-                                // );
-                                if(true){
+                                bool res = await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RazorPayIntegration(),
+                                  ),
+                                );
+                                if(res){
                                 await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
                                 await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
                                 updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
