@@ -9,13 +9,11 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
-import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
-import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
-import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 
+import '../ServiceSections/PingsSection/Pings.dart';
 import 'Chat.dart';
 // import 'package:learn_flutter/Notify/Chat.dart';
 // import 'package:learn_flutter/rating.dart';
@@ -51,17 +49,13 @@ class NotificationServices{
         print(data);
 
         if(data['meetId']!=null){
-
           meetId = data['meetId'];
-          print(meetId);
         }
         if(data['state']!=null){
           state = data['state'];
-          print(state);
         }
         if(data['eligible']!=null){
           eligible = data['eligible'];
-          print(eligible);
         }
 
         print('Meeting Ongoing : $meetId');
@@ -84,7 +78,6 @@ class NotificationServices{
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
-        print('we are printing data here ');
         print(data);
 
       } else {
@@ -157,16 +150,15 @@ class NotificationServices{
     AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
       channel.id.toString(),
       channel.name.toString(),
-      channelDescription: message.data['type'],
+      channelDescription: 'Local Assistance Services',
       // sound: RawResourceAndroidNotificationSound('assets/sounds/camera_sound.mp3'),
       // icon: 'Iconing',
       vibrationPattern: Int64List.fromList([0, 500, 1000, 500]),
       groupKey: 'Grouping',
       importance: Importance.high,
       priority: Priority.high,
-      ongoing: message.data['type'] == 'trip_assistance_required' ? true : false,
       ticker: 'ticker',
-      subText: message.data['type'],
+      subText: 'Local Assistance Services',
       ledColor: const Color.fromARGB(255, 255, 0, 0), // Replace with your LED color
       ledOnMs: 1000, // LED on duration in milliseconds
       ledOffMs: 500, // LED off duration in milliseconds
@@ -184,41 +176,41 @@ class NotificationServices{
         htmlFormatTitle: true,
       ),
       color: Color.fromARGB(255, 255, 255, 255),
-      timeoutAfter: null,
-      // actions: [
-      //   AndroidNotificationAction(
-      //     'action_button_1',
-      //     'Cancel',
-      //     titleColor: Colors.orange,
-      //     // inputs:[AndroidNotificationActionInput(
-      //     //   label: 'action_button_1',
-      //     // )],
-      //   ),
-      //   AndroidNotificationAction(
-      //     'action_button_2',
-      //     'Accept',
-      //     titleColor:Colors.orange,
-      //     icon: DrawableResourceAndroidBitmap(
-      //       '@drawable/culturtap_logo', // Replace with your icon
-      //     ),
-      //     // contextual: true,
-      //     // allowGeneratedReplies: true,
-      //     // showsUserInterface: true,
-      //     inputs: [
-      //       AndroidNotificationActionInput(
-      //         // label: 'true',
-      //         // choices: ['fck','mck'],
-      //         // allowedMimeTypes: {
-      //         //   'col','man'
-      //         // },
-      //         // allowFreeFormInput: false
-      //       )
-      //     ],
-      //     // inputs:[AndroidNotificationActionInput(
-      //     //   label: 'action_button_1',
-      //     // )],
-      //   ),
-      // ],
+      timeoutAfter: 300000,
+      actions: [
+        AndroidNotificationAction(
+          'action_button_1',
+          'Cancel',
+          titleColor: Colors.orange,
+          // inputs:[AndroidNotificationActionInput(
+          //   label: 'action_button_1',
+          // )],
+        ),
+        AndroidNotificationAction(
+          'action_button_2',
+          'Accept',
+          titleColor:Colors.orange,
+          icon: DrawableResourceAndroidBitmap(
+            '@drawable/culturtap_logo', // Replace with your icon
+          ),
+          // contextual: true,
+          // allowGeneratedReplies: true,
+          // showsUserInterface: true,
+          inputs: [
+            AndroidNotificationActionInput(
+              // label: 'true',
+              // choices: ['fck','mck'],
+              // allowedMimeTypes: {
+              //   'col','man'
+              // },
+              // allowFreeFormInput: false
+            )
+          ],
+          // inputs:[AndroidNotificationActionInput(
+          //   label: 'action_button_1',
+          // )],
+        ),
+      ],
     );
 
     const DarwinNotificationDetails darwinNotificationDetails = DarwinNotificationDetails(
@@ -288,14 +280,7 @@ class NotificationServices{
     // when app is in background
     FirebaseMessaging.onMessageOpenedApp.listen((payload) {
       print('Payload us $payload');
-      if(payload=='action_1'){
-        print('Pressed Accept');
-      }
-      else if(payload=='action_2'){
-        print('Pressed Camncel');
-      }else{
-        handleMessage(context, payload);
-      }
+      handleMessage(context, payload);
     });
   }
 
@@ -304,43 +289,16 @@ class NotificationServices{
 
 
   void handleMessage(BuildContext context,RemoteMessage message){
-    if(message.data['type']=='local_assistant_service'){
-      print('yha print kr rha hu');
-      print(message.data);
-      print('yha ki meet id');
-      print(message.data['meetId']);
-      print('yha ki state yeh h');
-      print(message.data['state']);
-
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',),
-        ),
-      );
-
-      // Navigator.push(
-      //   context,
-      //   MaterialPageRoute(
-      //     builder: (context) => CameraApp(),
-      //   ),
-      // );
-
-
+    // if(message.)
+    if(message.data['type']=='local_assistant_cancel'){
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
     }
-    else if (message.data['type'] == 'trip_assistance_required') {
-      String meetId = message.data['meetId'];
-      String status = message.data['state'];
+    else if(message.data['type'].contains('local_assistant')){
+      print('yes its me');
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ChatsPage(
-            state: status,
-            userId: userID,
-            meetId: meetId,
-            // navigationData: message.data['navigationData'],
-          ),
+          builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],),
         ),
       );
     }
@@ -355,27 +313,6 @@ class NotificationServices{
           ),
         ),
       );
-    }
-    else if (message.data['type'] == 'draft') {
-
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => SavedDraftsPage(
-
-            // navigationData: message.data['navigationData'],
-          ),
-        ),
-      );
-    }
-    else  if(message.data['type']=='Publishing Story') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => FinalProfile(userId: userID, clickedId: userID,),
-        ),
-      );
-
     }
   }
 }
