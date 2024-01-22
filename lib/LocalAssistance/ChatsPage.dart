@@ -40,7 +40,7 @@ import '../ServiceSections/VideoCalling/SignallingService.dart';
 import '../ServiceSections/LocalAssistant/ChatSection/Uploader.dart';
 
 void main(){
-  runApp(ChatsPage(userId:'652a31f77ff9b6023a14838a',state:'user',meetId: '65844f69318c03e09ec1c5e0',));
+  runApp(ChatsPage(userId:userID,state:'user',meetId: '65844f69318c03e09ec1c5e0',));
 }
 
 class ChatsPage extends StatefulWidget {
@@ -58,6 +58,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
   List<String> userTokens = [
+    'e3q1tnEMTLikhgx57o8wTT:APA91bHYqxNzCoKxmKKvgxpqEUp1hJdNYP5qTJTAR4t33aUO1SUeuI5aby3g7r93sOWQ-LRErcyiRH6zpWG1Q203FBXtiXa0lhV7iQi2r08XCF4f2gKUk5l0-QATCc_JKhqE1QI9kd4K'
 
   ];
 
@@ -2081,7 +2082,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                                             children: [
                                                               // Move the CircleAvatar outside of the Column
 
-                                                              SizedBox(width: 8), // Add some space between CircleAvatar and message
+
+                                                              SizedBox(width: 8),
+
                                                               Container(
                                                                 width: 200,
                                                                 // Adjust the padding as needed
@@ -2664,6 +2667,7 @@ class _ChatsPageState extends State<ChatsPage> {
                               ),
                             ),
 
+
                             GestureDetector(
                               onTap:()async{
                                 // Payment Gateway Open
@@ -2681,6 +2685,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                 updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
                                 socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
                                 sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
+
+
                                 setState(() {});
                                 }else{
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -2730,6 +2736,7 @@ class _ChatsPageState extends State<ChatsPage> {
                             onTap: ()async{
                               // User confirmed, do something
                               print('User confirmed');
+
                               await updateLocalHelperPings(widget.meetId!, 'pending');
                               await createUpdateLocalUserPing(helperId ,widget.meetId!, 'accept',userName,userPhoto);
                               // await updateLocalUserPings(widget.userId, widget.meetId!, 'pending');
@@ -2755,6 +2762,7 @@ class _ChatsPageState extends State<ChatsPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+
                                 Text('Waiting For Customers Payment',style: Theme.of(context).textTheme.headline4,),
                                 SizedBox(width:10),
                                 LoadingDotAnimation(),
@@ -2937,18 +2945,46 @@ class _ChatsPageState extends State<ChatsPage> {
                                     if(pageVisitor){
                                       if(widget.meetId==null){
                                         String meetingId = await createMeetRequest();
-                                        List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
-                                        sendCustomNotificationToUsers(userWith10km,payloadData[0]);
-                                        sendCustomNotificationToUsers([userID],payloadData[1]);
+                                        // List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
+                                        // sendCustomNotificationToUsers(userWith10km,payloadData[0]);
+                                        // sendCustomNotificationToUsers([userID],payloadData[1]);
+
+                                        sendCustomNotificationToOneUser(
+                                            userToken,
+                                            'Request Sent',
+                                            'Request Raised Successfully','Finding NearyBy Helping Hands For You 🔎',
+                                            '$meetingId','trip_assistance_required',userID,'user',
+                                        );
+
+
+                                        sendCustomNotificationToUserss(
+                                            userTokens,
+                                            'Local Assistance Request By \n${userName}',
+                                            '${_controller.text}','Local Assistance Request By \n${userName}',
+                                            '$meetingId',widget.state!,userID
+                                        );
                                         _controller.clear();
                                         // _refreshPage(meetingId);
                                       }else{
                                         _handleSend();
+                                        sendCustomNotificationToUserss(
+                                            userTokens,
+                                            'Local Assistance Request By \n${userName}',
+                                            '${_controller.text}','Local Assistance Request By \n${userName}',
+                                            '','',userID
+
+                                        );
 
                                       }
                                       setState(() {});
                                     }else{
                                       _handleSend();
+                                      sendCustomNotificationToUserss(
+                                          userTokens,
+                                          'Local Assistance Request By \n${userName}',
+                                          '${_controller.text}','Local Assistance Request By \n${userName}',
+                                          '65ac1f13e537ff7f5defddba','',userID
+                                      );
 
                                       setState(() {});
                                     }

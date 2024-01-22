@@ -738,7 +738,7 @@ class _EditDraftPageState extends State<EditDraftPage> {
 
         ),
         body: Container(
-          color:Theme.of(context).primaryColorLight,
+          color:Theme.of(context).primaryColorDark,
           width: double.infinity,
           child: SingleChildScrollView(
             child: Column(

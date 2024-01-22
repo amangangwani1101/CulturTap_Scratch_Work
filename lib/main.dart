@@ -213,7 +213,7 @@ class MyApp extends StatelessWidget {
 
         primaryColor: Color(0xFF001B33), // Change the primary color
         primaryColorLight : Color(0xFFF2F2F2),
-        primaryColorDark : Color(0xFF001B33),
+        primaryColorDark : Color(0xFF1E2529),
         // accentColor: Colors.orange, // Change the accent color
         backgroundColor: Colors.white,
 

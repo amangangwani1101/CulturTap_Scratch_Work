@@ -76,6 +76,7 @@ class _EmergenceAssistState extends State<EmergenceAssist> {
 
 
                         children: [
+
                           Row(
                             mainAxisAlignment: MainAxisAlignment.end,
                             children: [
@@ -87,6 +88,7 @@ class _EmergenceAssistState extends State<EmergenceAssist> {
                               ),
                             ],
                           ),
+
                           Row(
                             children: [
                               SizedBox(width : 10),
@@ -97,6 +99,7 @@ class _EmergenceAssistState extends State<EmergenceAssist> {
                                 },
                               ),
                               SizedBox(width : 20),
+
                               Column(
                                 crossAxisAlignment : CrossAxisAlignment.start,
                                 children: [

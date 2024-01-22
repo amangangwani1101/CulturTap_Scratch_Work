@@ -227,7 +227,7 @@ class _UserImageState extends State<UserImage>{
                             decoration: BoxDecoration(color: Colors.orange,borderRadius: BorderRadius.circular(50),),
                             child: widget.text!='edit'
                                 ? Center(
-                              child: Icon(Icons.camera_alt_outlined,color: Colors.white,),
+                              child: Icon(Icons.camera_alt_outlined,color: Colors.white ,),
                             )
                                 : Center(
                               child: Icon(Icons.edit_outlined,color: Colors.white,),
@@ -277,31 +277,47 @@ class UploadMethods extends StatefulWidget{
 class _UploadMethodsState extends State<UploadMethods> {
 
   File? _userProfileImage;
+
   Future<void> _takePicture() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
-    print('Camera Is :${pickedFile?.path}');
     if (pickedFile != null) {
-      setState(() {
-        _userProfileImage = File(pickedFile.path);
-        widget.onImageUpdated(_userProfileImage!);
-      });
-       // Call the callback to update the parameter in the parent class
+      // Call the callback to update the parameter in the parent class
+      widget.onImageUpdated(File(pickedFile.path));
+      await uploadImage(pickedFile.path);
     }
-  }
-  // upload from gallery
-  Future<void> _updateProfileImage() async{
-    final croppedImage = await ImageUtil.pickAndCropImage();
-    print('Picture is: $croppedImage');
-    if(croppedImage!=null){
-      setState(() {
-        _userProfileImage = croppedImage;
-        widget.onImageUpdated(_userProfileImage!);
-      });
-       // Call the callback to update the parameter in the parent class
-    }
-    return;
   }
 
+  Future<void> _updateProfileImage() async {
+    final croppedImage = await ImageUtil.pickAndCropImage();
+    if (croppedImage != null) {
+      // Call the callback to update the parameter in the parent class
+      widget.onImageUpdated(croppedImage);
+      await uploadImage(croppedImage.path);
+    }
+  }
+
+  Future<void> uploadImage(String imagePath) async {
+    try {
+      // Read the image file as bytes
+      List<int> imageBytes = File(imagePath).readAsBytesSync();
+
+      String backendUrl = 'http://173.212.193.109:8080/main/api/uploadImage';
+
+      // Convert the bytes to base64
+      String base64Image = base64Encode(imageBytes);
+
+      // Send a POST request to the backend with the base64-encoded image
+      final response = await http.post(
+        Uri.parse(backendUrl),
+        body: {'image': base64Image},
+      );
+
+      print('Response status: ${response.statusCode}');
+      print('Response body: ${response.body}');
+    } catch (e) {
+      print('Error uploading image: $e');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

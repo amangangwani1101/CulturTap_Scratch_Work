@@ -22,6 +22,7 @@ import 'package:learn_flutter/widgets/CustomButton.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:http/http.dart' as http;
 import 'ServiceSections/ServiceCards.dart';
+import 'ServiceSections/TripCalling/Payments/RazorPay.dart';
 import 'SignUp/FirstPage.dart';
 import 'UserProfile/CoverPage.dart';
 import 'UserProfile/UserInfo.dart';
@@ -244,12 +245,24 @@ class _SettingsPageState extends State<SettingsPage> {
                       Builder(
                           builder: (context) {
                             return GestureDetector(
-                              onTap: ()async {
-                                await Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments()));
-                                setState(() {
-                                  fetchDataset();
-                                });
-                              },
+
+                              onTap: (){
+
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => RazorPayIntegration(),
+                                  ),
+                                );
+
+                            },
+
+                              // onTap: ()async {
+                              //   await Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments()));
+                              //   setState(() {
+                              //     fetchDataset();
+                              //   });
+                              // },
                               child: Container(
                                 
                                 // decoration: BoxDecoration(border: Border.all(color: Colors.black)),
