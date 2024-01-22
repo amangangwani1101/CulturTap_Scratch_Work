@@ -1461,9 +1461,9 @@ class _PingSectionState extends State<PingsSection>{
                                       ?InkWell(
                                         onTap: ()  async{
                                           //   Accept ka funda
-                                          await updateLocalHelperPings(meetId, 'pending');
-                                          await createUpdateLocalUserPings(userId ,meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
-                                          await updateMeetingChats(meetId,[userID,'admin-user-1']);
+                                          // await updateLocalHelperPings(meetId, 'pending');
+                                          // await createUpdateLocalUserPings(userId ,meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
+                                          // await updateMeetingChats(meetId,[userID,'admin-user-1']);
                                           await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                                             state: 'helper',
                                             meetId: meetId,
@@ -1503,7 +1503,42 @@ class _PingSectionState extends State<PingsSection>{
                                     ),
                                   )
                                       :(meetStatus=='schedule')
-                                      ? InkWell(
+                                      ? userId==userID?
+                                    Container(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        children: [
+                                          InkWell(
+                                              onTap: ()async{
+                                                bool userConfirmed = await showConfirmationDialog(context, userName!);
+                                                if (userConfirmed) {
+                                                  // User confirmed, do something
+                                                  print('User confirmed');
+                                                  await updateLocalUserPings(userId, meetId, 'close');
+                                                  await updateLocalUserPings(helperId!, meetId, 'close');
+                                                  await updatePaymentStatus('close',meetId);
+                                                  _refreshPage(time: 0,state: 'Closed');
+                                                  sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
+                                                } else {
+                                                  // User canceled, do something else
+                                                  print('User Closed');
+                                                }
+                                              },
+                                              child: Container(child: Text('Close',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)),
+                                          InkWell(
+                                              onTap: ()async{
+                                                await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                                  state: widget.userId==userId?'user':'helper',
+                                                  meetId: meetId,
+                                                ),));
+                                                _refreshPage();
+                                              },
+                                              child: Center(child: Container(child: Text('Continue',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)))
+                                        ],
+                                      ),
+                                    )
+                                        :
+                                      InkWell(
                                         onTap: ()async{
                                           await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                                             state: widget.userId==userId?'user':'helper',

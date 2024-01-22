@@ -121,7 +121,7 @@ class _SettingsPageState extends State<SettingsPage> {
             await _auth.signOut();
             // Redirect to the login or splash screen after logout
             // For example:
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FirstPage()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SecondPage()));
           } catch (e) {
             print('Error while logging out: $e');
             // Handle the error as needed

@@ -294,10 +294,11 @@ class NotificationServices{
         Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
       }
       else if(message.data['type'].contains('local_assistant')){
+        print('yes its me');
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ChatsPage(userId : userID,state: message.data['state'],meetId:message.data['meetId'],),
+            builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],),
           ),
         );
       }

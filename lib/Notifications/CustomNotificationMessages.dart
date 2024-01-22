@@ -86,3 +86,18 @@ Map<String, dynamic> localAssistantMeetCancel(String userName) {
     },
   };
 }
+
+Map<String, dynamic> localAssistantMeetClose(String userName) {
+  return {
+    "notification": {
+      "title": 'CulturTap',
+      "body": 'Call requested by | ${userName}',
+    },
+    "data": {
+      "type": 'local_assistant_cancel',
+      "state": 'Closed',
+      'service' : 'Local Assistant',
+      "innerBody": '<b> Meeting is Closed</b> <br/> Thank You For Your Service',
+    },
+  };
+}
