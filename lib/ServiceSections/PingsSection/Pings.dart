@@ -599,12 +599,14 @@ class _PingSectionState extends State<PingsSection>{
                 children: [
                   // ProfileHeader(reqPage: 0),
                   SizedBox(height: 40,),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceAround,
-                    children: [
-                      Expanded(
-                        child: Container(
-                          child: InkWell(
+                  Center(
+                    child: Container(
+                      // width:screenWidth*0.95,
+                      // height: 35,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          InkWell(
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: (){
@@ -614,12 +616,12 @@ class _PingSectionState extends State<PingsSection>{
                             },
                             child: Container(
 
-
+                              width: 139,
                               decoration:BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
                                     color: toggle?HexColor('#FB8C00'):Colors.white, // Choose the color you want for the bottom border
-                                    width: 2.0, // Adjust the width of the border
+                                    width: 5.0, // Adjust the width of the border
                                   ),
                                 ),
                               ),
@@ -628,12 +630,7 @@ class _PingSectionState extends State<PingsSection>{
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Container(
-                                    child: Column(
-                                      children: [
-                                        Text('Requests',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold,color:toggle?HexColor('#FB8C00'):Colors.black),),
-                                        SizedBox(height : 5),
-                                      ],
-                                    ),
+                                    child: Text('Requests',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold,color:toggle?HexColor('#FB8C00'):Colors.black),),
                                   ),
                                   SizedBox(width: 5,),
                                   Container(
@@ -657,11 +654,7 @@ class _PingSectionState extends State<PingsSection>{
                               ),
                             ),
                           ),
-                        ),
-                      ),
-                      Expanded(
-                        child: Container(
-                          child: InkWell(
+                          InkWell(
                             splashColor: Colors.transparent,
                             highlightColor: Colors.transparent,
                             onTap: (){
@@ -670,12 +663,12 @@ class _PingSectionState extends State<PingsSection>{
                               });
                             },
                             child: Container(
-
+                              width: 139,
                               decoration:BoxDecoration(
                                 border: Border(
                                   bottom: BorderSide(
                                     color: !toggle?HexColor('#FB8C00'):Colors.white, // Choose the color you want for the bottom border
-                                    width: 2.0, // Adjust the width of the border
+                                    width: 5.0, // Adjust the width of the border
                                   ),
                                 ),
                               ),
@@ -684,14 +677,9 @@ class _PingSectionState extends State<PingsSection>{
                                 mainAxisAlignment: MainAxisAlignment.center,
                                 children: [
                                   Container(
-                                    child: Column(
-                                      children: [
-                                        Text('Notification',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold,color: !toggle?HexColor('#FB8C00'):Colors.black),),
-                                        SizedBox(height : 5),
-                                      ],
-                                    ),
+                                    child: Text('Notification',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold,color: !toggle?HexColor('#FB8C00'):Colors.black),),
                                   ),
-                                  SizedBox(width: 2,),
+                                  SizedBox(width: 5,),
                                   Container(
                                     width: 22,
                                     height: 22,
@@ -713,9 +701,9 @@ class _PingSectionState extends State<PingsSection>{
                               ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                   SizedBox(height: 30,),
                   toggle
@@ -838,14 +826,13 @@ class _PingSectionState extends State<PingsSection>{
                                   color: Colors.white, // Container background color
                                   borderRadius: BorderRadius.circular(10),
                                   boxShadow: [
-
-                                            BoxShadow(
-                                              color: Colors.grey.withOpacity(0.4), // Shadow color
-                                              spreadRadius: 0.5, // Spread radius
-                                              blurRadius: 0.3, // Blur radius
-                                              offset: Offset(0, 1),  // Changes the position of the shadow
-                                            ),
-                                          ],
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.5), // Shadow color
+                                      spreadRadius: 4, // Spread radius
+                                      blurRadius: 7, // Blur radius
+                                      offset: Offset(0, 3), // Changes the position of the shadow
+                                    ),
+                                  ],
                                 ),
                                 child: Column(
                                   children: [
@@ -1191,14 +1178,14 @@ class _PingSectionState extends State<PingsSection>{
                             decoration: BoxDecoration(
                               color: Colors.white, // Container background color
                               borderRadius: BorderRadius.circular(3),
-                                boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.grey.withOpacity(0.4), // Shadow color
-                                              spreadRadius: 0.5, // Spread radius
-                                              blurRadius: 0.3, // Blur radius
-                                              offset: Offset(0, 1),  // Changes the position of the shadow
-                                            ),
-                                          ],
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5), // Shadow color
+                                  spreadRadius: 4, // Spread radius
+                                  blurRadius: 7, // Blur radius
+                                  offset: Offset(0, 3), // Changes the position of the shadow
+                                ),
+                              ],
                             ),
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -1474,9 +1461,9 @@ class _PingSectionState extends State<PingsSection>{
                                     ?InkWell(
                                     onTap: ()  async{
                                       //   Accept ka funda
-                                      await updateLocalHelperPings(meetId, 'pending');
-                                      await createUpdateLocalUserPings(userId ,meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
-                                      await updateMeetingChats(meetId,[userID,'admin-user-1']);
+                                      // await updateLocalHelperPings(meetId, 'pending');
+                                      // await createUpdateLocalUserPings(userId ,meetId, 'accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
+                                      // await updateMeetingChats(meetId,[userID,'admin-user-1']);
                                       await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                                         state: 'helper',
                                         meetId: meetId,
@@ -1516,7 +1503,42 @@ class _PingSectionState extends State<PingsSection>{
                                   ),
                                 )
                                     :(meetStatus=='schedule')
-                                    ? InkWell(
+                                    ? userId==userID?
+                                Container(
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                    children: [
+                                      InkWell(
+                                          onTap: ()async{
+                                            bool userConfirmed = await showConfirmationDialog(context, userName!);
+                                            if (userConfirmed) {
+                                              // User confirmed, do something
+                                              print('User confirmed');
+                                              await updateLocalUserPings(userId, meetId, 'close');
+                                              await updateLocalUserPings(helperId!, meetId, 'close');
+                                              await updatePaymentStatus('close',meetId);
+                                              _refreshPage(time: 0,state: 'Closed');
+                                              sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
+                                            } else {
+                                              // User canceled, do something else
+                                              print('User Closed');
+                                            }
+                                          },
+                                          child: Container(child: Text('Close',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)),
+                                      InkWell(
+                                          onTap: ()async{
+                                            await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                              state: widget.userId==userId?'user':'helper',
+                                              meetId: meetId,
+                                            ),));
+                                            _refreshPage();
+                                          },
+                                          child: Center(child: Container(child: Text('Continue',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)))
+                                    ],
+                                  ),
+                                )
+                                    :
+                                InkWell(
                                     onTap: ()async{
                                       await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                                         state: widget.userId==userId?'user':'helper',
@@ -1672,16 +1694,15 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
                             children:[Container(
                               height: 100,
                               decoration: BoxDecoration(
-                                color: Colors.white, // Container background
-                                // color
+                                color: Colors.white, // Container background color
                                 boxShadow: [
-                                            BoxShadow(
-                                              color: Colors.grey.withOpacity(0.4), // Shadow color
-                                              spreadRadius: 0.5, // Spread radius
-                                              blurRadius: 0.3, // Blur radius
-                                              offset: Offset(0, 1),  // Changes the position of the shadow
-                                            ),
-                                          ],
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.5), // Shadow color
+                                    spreadRadius: 5, // Spread radius
+                                    blurRadius: 7, // Blur radius
+                                    offset: Offset(0, 3), // Changes the position of the shadow
+                                  ),
+                                ],
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: InkWell(
