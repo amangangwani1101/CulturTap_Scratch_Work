@@ -6,6 +6,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/All_Notifications/customizeNotification.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
+import 'package:learn_flutter/ServiceSections/LocalAssistant/ChatSection/mainPage.dart';
 import 'package:learn_flutter/ServiceSections/LocalAssistant/MapNavigator.dart';
 import 'package:open_file/open_file.dart';
 import 'package:clipboard/clipboard.dart';
@@ -1634,7 +1635,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                         children: [
                                                                           Text(
                                                                             helperName,
-                                                                            style: Theme.of(context).textTheme.subtitle2,
+                                                                            style: Theme.of(context).textTheme.subtitle1,
                                                                           ),
                                                                           Text(
                                                                             helperNumber,
@@ -1711,7 +1712,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                           });
                                                         },
                                                         child: Container(
-                                                          width : 360,
+                                                          width : 350,
                                                           color: Theme.of(context).backgroundColor,
                                                           child: Row(
                                                             mainAxisAlignment: MainAxisAlignment.start,
@@ -1725,7 +1726,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                               ),
                                                               SizedBox(width : 10),
                                                               Container(
-                                                                width:250,
+                                                                width:300,
                                                                 decoration: BoxDecoration(
                                                                   color: Theme.of(context).primaryColorLight,
                                                                   borderRadius: BorderRadius.only(
@@ -1737,9 +1738,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                 ),
                                                                 padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
                                                                 child: Container(
-                                                                  width: 200,
+                                                                  width: 230,
                                                                   // Adjust the padding as needed
-                                                                  padding: EdgeInsets.only(left: 4),
+                                                                  padding: EdgeInsets.only(right: 4,left:4),
                                                                   child: Column(
                                                                     crossAxisAlignment:
                                                                     CrossAxisAlignment
@@ -1750,11 +1751,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                         style: Theme.of(context).textTheme.subtitle2,
                                                                       ),
                                                                       SizedBox(
-                                                                        height: 21,
+                                                                        height: 20,
                                                                       ),
                                                                       Text(
                                                                         capitalizeWords('first, get connect with user and understand his issue , Plan accordingly to rescue or help them.'),
-                                                                        style: Theme.of(context).textTheme.headline6,
+                                                                        style: Theme.of(context).textTheme.subtitle2,
                                                                       ),
                                                                       SizedBox(
                                                                         height: 21,
@@ -1766,7 +1767,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                         children: [
                                                                           Text(
                                                                             helperName,
-                                                                            style:Theme.of(context).textTheme.headline6,
+                                                                            style:Theme.of(context).textTheme.subtitle2,
                                                                           ),
                                                                           Text(
                                                                             helperNumber,
@@ -1784,7 +1785,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                         ],
                                                                       ),
                                                                       SizedBox(
-                                                                        height: 21,
+                                                                        height: 20,
                                                                       ),
                                                                       Row(
                                                                         mainAxisAlignment: MainAxisAlignment.start,
@@ -1798,7 +1799,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                                 16,
                                                                                 fontWeight:
                                                                                 FontWeight
-                                                                                    .bold,
+                                                                                    .w600,
                                                                                 color: Colors
                                                                                     .orange,
                                                                                 fontFamily:
@@ -1820,14 +1821,14 @@ class _ChatsPageState extends State<ChatsPage> {
                                                       GestureDetector(
                                                         //gafv
                                                         onTap: () async {
-                                                          // String mapsUrl =
-                                                          //     'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
-                                                          // if (await canLaunch(
-                                                          //     mapsUrl)) {
-                                                          //   await launch(mapsUrl);
-                                                          // } else {
-                                                          //   throw 'Could not launch $mapsUrl';
-                                                          // }
+                                                          String mapsUrl =
+                                                              'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                                          if (await canLaunch(
+                                                              mapsUrl)) {
+                                                            await launch(mapsUrl);
+                                                          } else {
+                                                            throw 'Could not launch $mapsUrl';
+                                                          }
                                                           // Navigator.push(
                                                           //   context,
                                                           //   MaterialPageRoute(
@@ -1836,10 +1837,10 @@ class _ChatsPageState extends State<ChatsPage> {
                                                           // );
                                                         },
                                                         child: Container(
-                                                          width: 360,
+                                                          width: 350,
                                                           color: Theme.of(context).backgroundColor,
                                                           child: Row(
-                                                            mainAxisAlignment : MainAxisAlignment.end,
+                                                            mainAxisAlignment : MainAxisAlignment.start,
                                                             crossAxisAlignment:
                                                             CrossAxisAlignment
                                                                 .start,
@@ -1850,7 +1851,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                               ),
                                                               SizedBox(width:10),
                                                               Container(
-                                                                width:250,
+                                                                width:300,
                                                                 decoration: BoxDecoration(
                                                                   color: Theme.of(context).primaryColorLight,
                                                                   borderRadius: BorderRadius.only(
@@ -1861,105 +1862,102 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                   ),
                                                                 ),
                                                                 padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
-                                                                child: Row(
-                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                  children: [
-                                                                    SizedBox(width: 8),
-                                                                    Container(
-                                                                      width: 200,
-                                                                      // Adjust the padding as needed
-                                                                      padding: EdgeInsets.only(left: 4),
-                                                                      child: Column(
+                                                                child: Container(
+                                                                  width:230,
+                                                                  padding: EdgeInsets.only(right: 4,left:4),
+                                                                  child: Column(
+                                                                    crossAxisAlignment:
+                                                                    CrossAxisAlignment
+                                                                        .start,
+                                                                    children: [
+                                                                      SizedBox(
+                                                                        height: 5,
+                                                                      ),
+                                                                      Text(
+                                                                        'Tourist Location',
+                                                                        style: Theme.of(context).textTheme.subtitle2,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 11,
+                                                                      ),
+                                                                      Text(
+                                                                        "Hurry up, it may be the concern of someone's life. ",
+                                                                        style:Theme.of(context).textTheme.subtitle2,
+                                                                      ),
+                                                                      SizedBox(
+                                                                        height: 20,
+                                                                      ),
+                                                                      Row(
                                                                         crossAxisAlignment:
                                                                         CrossAxisAlignment
                                                                             .start,
                                                                         children: [
+                                                                          SvgPicture.asset('assets/images/location_logo.svg',width:21,height: 24,),
                                                                           SizedBox(
-                                                                            height: 5,
+                                                                            width: 10,
                                                                           ),
-                                                                          Text(
-                                                                            'Tourist Location',
-                                                                            style: Theme.of(context).textTheme.subtitle2,
-                                                                          ),
-                                                                          SizedBox(
-                                                                            height: 11,
-                                                                          ),
-                                                                          Text(
-                                                                            "Hurry up, it may be the concern of someone's life. ",
-                                                                            style:Theme.of(context).textTheme.headline6,
-                                                                          ),
-                                                                          SizedBox(
-                                                                            height: 21,
-                                                                          ),
-                                                                          Row(
+                                                                          Column(
                                                                             crossAxisAlignment:
                                                                             CrossAxisAlignment
                                                                                 .start,
                                                                             children: [
-                                                                              SvgPicture.asset('assets/images/location_logo.svg',width:21,height: 24,),
-                                                                              SizedBox(
-                                                                                width: 10,
-                                                                              ),
-                                                                              Column(
-                                                                                crossAxisAlignment:
-                                                                                CrossAxisAlignment
-                                                                                    .start,
+                                                                              Row(
+                                                                                mainAxisAlignment: MainAxisAlignment.start,
                                                                                 children: [
-                                                                                  Row(
-                                                                                    mainAxisAlignment: MainAxisAlignment.start,
-                                                                                    children: [
-                                                                                      Text(
-                                                                                        'Location',
-                                                                                        style: TextStyle(
-                                                                                            fontSize:(12 * MediaQuery.of(context).textScaleFactor),
-                                                                                            fontFamily: 'Poppins',
-                                                                                            fontWeight:
-                                                                                            FontWeight.w600,color:  Color(0xFF001B33)),
-                                                                                      ),
-                                                                                      SizedBox(width: 2,),
-                                                                                      Icon(Icons.keyboard_arrow_down,size: 14,color: Color(0xFF001B33),),
-                                                                                    ],
+                                                                                  Text(
+                                                                                    'Location',
+                                                                                    style: TextStyle(
+                                                                                        fontSize:(12 * MediaQuery.of(context).textScaleFactor),
+                                                                                        fontFamily: 'Poppins',
+                                                                                        fontWeight:
+                                                                                        FontWeight.w600,color:  Color(0xFF001B33)),
                                                                                   ),
-                                                                                  Container(
-                                                                                      width: 190,
-                                                                                      child:
-                                                                                      Text(
-                                                                                          helperAddress,
-                                                                                          style:Theme.of(context).textTheme.bodyText2 )),
+                                                                                  SizedBox(width: 2,),
+                                                                                  Icon(Icons.keyboard_arrow_down,size: 14,color: Color(0xFF001B33),),
                                                                                 ],
                                                                               ),
-                                                                            ],
-                                                                          ),
-                                                                          SizedBox(
-                                                                            height: 21,
-                                                                          ),
-                                                                          Row(
-                                                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                                                            children: [
-                                                                              Text(
-                                                                                'Go to The Map',
-                                                                                style: TextStyle(
-                                                                                    fontSize:
-                                                                                    16,
-                                                                                    fontWeight:
-                                                                                    FontWeight
-                                                                                        .bold,
-                                                                                    color: Colors
-                                                                                        .orange,
-                                                                                    fontFamily:
-                                                                                    'Poppins'),
-                                                                              ),
-                                                                              Image.asset(
-                                                                                'assets/images/arrow_fwd.png',
-                                                                                width: 16,
-                                                                                height: 16,
-                                                                              )
+                                                                              Container(
+                                                                                  width: 230,
+                                                                                  child:
+                                                                                  Text(
+                                                                                      helperAddress,
+                                                                                      style:TextStyle(
+                                                                                          fontSize:(12 * MediaQuery.of(context).textScaleFactor),
+                                                                                          fontFamily: 'Poppins',
+                                                                                          fontWeight:
+                                                                                          FontWeight.w600,color:  Color(0xFF001B33)), )),
                                                                             ],
                                                                           ),
                                                                         ],
                                                                       ),
-                                                                    ),
-                                                                  ],
+                                                                      SizedBox(
+                                                                        height: 20,
+                                                                      ),
+                                                                      Row(
+                                                                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                                                        children: [
+                                                                          Text(
+                                                                            'Go to The Map',
+                                                                            style: TextStyle(
+                                                                                fontSize:
+                                                                                16,
+                                                                                fontWeight:
+                                                                                FontWeight
+                                                                                    .w600,
+                                                                                color: Colors
+                                                                                    .orange,
+                                                                                fontFamily:
+                                                                                'Poppins'),
+                                                                          ),
+                                                                          Image.asset(
+                                                                            'assets/images/arrow_fwd.png',
+                                                                            width: 16,
+                                                                            height: 16,
+                                                                          )
+                                                                        ],
+                                                                      ),
+                                                                    ],
+                                                                  ),
                                                                 ),
                                                               ),
                                                             ],
@@ -2039,58 +2037,53 @@ class _ChatsPageState extends State<ChatsPage> {
                                                             ),
                                                           ),
                                                           padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
-                                                          child: Row(
-                                                            children: [
-                                                              SizedBox(width: 8,),
-                                                              Container(
-                                                                width: 200,
-                                                                // Adjust the padding as needed
-                                                                padding: EdgeInsets.only(left: 4),
-                                                                child: Column(
-                                                                  crossAxisAlignment:
-                                                                  CrossAxisAlignment
-                                                                      .start,
-                                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                                  children: [
-                                                                    Text(
-                                                                      helperName,
-                                                                      style: Theme.of(context).textTheme.subtitle1,
-                                                                    ),
-                                                                    (message[0]).contains('.jpg') ||
-                                                                        (message[0]).contains(
-                                                                            '.jpeg') ||
-                                                                        (message[0]).contains(
-                                                                            '.png')
-                                                                        ? Image
-                                                                        .file(
-                                                                      File(message[
-                                                                      0]),
-                                                                      fit: BoxFit
-                                                                          .cover,
-                                                                    )
-                                                                        : message[0]
-                                                                        .contains('.pdf')
-                                                                        ? GestureDetector(
-                                                                      onTap:
-                                                                          () {
-                                                                        _openFileWithDefaultApp(message[0]);
-                                                                      },
-                                                                      child: Container(
-                                                                          width: 200,
-                                                                          height: 200,
-                                                                          child: PDFView(
-                                                                            filePath: message[0],
-                                                                          )),
-                                                                    )
-                                                                        : Text(
-                                                                      message[0],
-                                                                      style:
-                                                                      Theme.of(context).textTheme.headline6,
-                                                                    ),
-                                                                  ],
+                                                          child: Container(
+                                                            width: 200,
+                                                            // Adjust the padding as needed
+                                                            padding: EdgeInsets.only(left: 4),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  helperName,
+                                                                  style: Theme.of(context).textTheme.subtitle1,
                                                                 ),
-                                                              ),
-                                                            ],
+                                                                (message[0]).contains('.jpg') ||
+                                                                    (message[0]).contains(
+                                                                        '.jpeg') ||
+                                                                    (message[0]).contains(
+                                                                        '.png')
+                                                                    ? Image
+                                                                    .file(
+                                                                  File(message[
+                                                                  0]),
+                                                                  fit: BoxFit
+                                                                      .cover,
+                                                                )
+                                                                    : message[0]
+                                                                    .contains('.pdf')
+                                                                    ? GestureDetector(
+                                                                  onTap:
+                                                                      () {
+                                                                    _openFileWithDefaultApp(message[0]);
+                                                                  },
+                                                                  child: Container(
+                                                                      width: 200,
+                                                                      height: 200,
+                                                                      child: PDFView(
+                                                                        filePath: message[0],
+                                                                      )),
+                                                                )
+                                                                    : Text(
+                                                                  message[0],
+                                                                  style:
+                                                                  Theme.of(context).textTheme.subtitle2,
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
@@ -2123,53 +2116,45 @@ class _ChatsPageState extends State<ChatsPage> {
                                                             ),
                                                           ),
                                                           padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
-                                                          child: Row(
-                                                            crossAxisAlignment: CrossAxisAlignment.start,
-                                                            children: [
-                                                              // Move the CircleAvatar outside of the Column
-
-                                                              SizedBox(width: 8), // Add some space between CircleAvatar and message
-                                                              Container(
-                                                                width: 200,
-                                                                // Adjust the padding as needed
-                                                                padding: EdgeInsets.only(left: 4),
-                                                                child: Column(
-                                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                                  children: [
-                                                                    Text(
-                                                                      'You',
-                                                                      style: Theme.of(context).textTheme.subtitle1,
-                                                                    ),
-                                                                    // The rest of your message content here
-                                                                    (message[0]).contains('.jpg') ||
-                                                                        (message[0]).contains('.jpeg') ||
-                                                                        (message[0]).contains('.png')
-                                                                        ? Image.file(
-                                                                      File(message[0]),
-                                                                      fit: BoxFit.cover,
-                                                                    )
-                                                                        : message[0].contains('.pdf')
-                                                                        ? GestureDetector(
-                                                                      onTap: () {
-                                                                        _openFileWithDefaultApp(message[0]);
-                                                                      },
-                                                                      child: Container(
-                                                                        width: 200,
-                                                                        height: 200,
-                                                                        child: PDFView(
-                                                                          filePath: message[0],
-                                                                        ),
-                                                                      ),
-                                                                    )
-                                                                        : Text(
-                                                                      message[0],
-                                                                      style: Theme.of(context).textTheme.subtitle2,
-                                                                    ),
-                                                                  ],
+                                                          child: Container(
+                                                            width: 200,
+                                                            // Adjust the padding as needed
+                                                            padding: EdgeInsets.only(left: 4),
+                                                            child: Column(
+                                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  'You',
+                                                                  style: Theme.of(context).textTheme.subtitle1,
                                                                 ),
-                                                              ),
-                                                            ],
+                                                                // The rest of your message content here
+                                                                (message[0]).contains('.jpg') ||
+                                                                    (message[0]).contains('.jpeg') ||
+                                                                    (message[0]).contains('.png')
+                                                                    ? Image.file(
+                                                                  File(message[0]),
+                                                                  fit: BoxFit.cover,
+                                                                )
+                                                                    : message[0].contains('.pdf')
+                                                                    ? GestureDetector(
+                                                                  onTap: () {
+                                                                    _openFileWithDefaultApp(message[0]);
+                                                                  },
+                                                                  child: Container(
+                                                                    width: 200,
+                                                                    height: 200,
+                                                                    child: PDFView(
+                                                                      filePath: message[0],
+                                                                    ),
+                                                                  ),
+                                                                )
+                                                                    : Text(
+                                                                  message[0],
+                                                                  style: Theme.of(context).textTheme.subtitle2,
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
@@ -2268,82 +2253,78 @@ class _ChatsPageState extends State<ChatsPage> {
                                                   alignment: Alignment
                                                       .centerRight,
                                                   child: Container(
-                                                    width: screenWidth *
-                                                        0.80,
-                                                    decoration:
-                                                    BoxDecoration(
-                                                      color: HexColor(
-                                                          '#FAFAFA')
-                                                          .withOpacity(1),
-                                                    ),
-                                                    padding:
-                                                    EdgeInsets.all(
-                                                        10),
+                                                    width: 360,
+                                                    color: Theme.of(context).backgroundColor,
                                                     child: Row(
+                                                      mainAxisAlignment : MainAxisAlignment.end,
                                                       crossAxisAlignment:
                                                       CrossAxisAlignment
                                                           .start,
                                                       children: [
-                                                        Container(
-                                                          child:
-                                                          CircleAvatar(
-                                                            radius: 20.0,
-                                                            backgroundImage:
-                                                            AssetImage(
-                                                                'assets/images/profile_image.jpg'), // Use a default asset image
-                                                          ),
+                                                        CircleAvatar(
+                                                          radius: 20.0,
+                                                          backgroundImage:
+                                                          AssetImage(
+                                                              'assets/images/profile_image.jpg'), // Use a default asset image
                                                         ),
                                                         SizedBox(
                                                           width: 10,
                                                         ),
-                                                        Expanded(
-                                                          child: Column(
-                                                            crossAxisAlignment:
-                                                            CrossAxisAlignment
-                                                                .start,
-                                                            children: [
-                                                              Text(
-                                                                'You',
-                                                                style: TextStyle(
-                                                                    fontSize:
-                                                                    14,
-                                                                    fontWeight: FontWeight
-                                                                        .bold,
-                                                                    fontFamily:
-                                                                    'Poppins'),
-                                                              ),
-                                                              (message[0]).contains('.jpg') ||
-                                                                  (message[0]).contains(
-                                                                      '.jpeg') ||
-                                                                  (message[0]).contains(
-                                                                      '.png')
-                                                                  ? Image
-                                                                  .file(
-                                                                File(message[0]),
-                                                                fit:
-                                                                BoxFit.cover,
-                                                              )
-                                                                  : message[0].contains('.pdf')
-                                                                  ? GestureDetector(
-                                                                onTap: () {
-                                                                  _openFileWithDefaultApp(message[0]);
-                                                                },
-                                                                child: Container(
-                                                                    width: 200,
-                                                                    height: 200,
-                                                                    child: PDFView(
-                                                                      filePath: message[0],
-                                                                    )),
-                                                              )
-                                                                  : Text(
-                                                                message[0],
-                                                                style: TextStyle(
-                                                                  fontFamily: 'Poppins',
-                                                                  fontSize: 14,
-                                                                  color: Colors.black,
+                                                        Container(
+                                                          width: 250,
+                                                          decoration: BoxDecoration(
+                                                            color: Theme.of(context).primaryColorLight,
+                                                            borderRadius: BorderRadius.only(
+                                                              topLeft: Radius.circular(-10.0),
+                                                              topRight: Radius.circular(20.0),
+                                                              bottomLeft: Radius.circular(20.0),
+                                                              bottomRight: Radius.circular(20.0),
+                                                            ),
+                                                          ),
+                                                          padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
+                                                          child: Container(
+                                                            width: 200,
+                                                            // Adjust the padding as needed
+                                                            padding: EdgeInsets.only(left: 4),
+                                                            child: Column(
+                                                              crossAxisAlignment:
+                                                              CrossAxisAlignment
+                                                                  .start,
+                                                              mainAxisAlignment: MainAxisAlignment.start,
+                                                              children: [
+                                                                Text(
+                                                                  'You',
+                                                                  style: Theme.of(context).textTheme.subtitle1,
                                                                 ),
-                                                              ),
-                                                            ],
+                                                                (message[0]).contains('.jpg') ||
+                                                                    (message[0]).contains(
+                                                                        '.jpeg') ||
+                                                                    (message[0]).contains(
+                                                                        '.png')
+                                                                    ? Image
+                                                                    .file(
+                                                                  File(message[0]),
+                                                                  fit:
+                                                                  BoxFit.cover,
+                                                                )
+                                                                    : message[0].contains('.pdf')
+                                                                    ? GestureDetector(
+                                                                  onTap: () {
+                                                                    _openFileWithDefaultApp(message[0]);
+                                                                  },
+                                                                  child: Container(
+                                                                      width: 200,
+                                                                      height: 200,
+                                                                      child: PDFView(
+                                                                        filePath: message[0],
+                                                                      )),
+                                                                )
+                                                                    : Text(
+                                                                  message[0],
+                                                                  style: Theme.of(context).textTheme.subtitle2,
+                                                                ),
+                                                              ],
+                                                            ),
                                                           ),
                                                         ),
                                                       ],
@@ -2599,10 +2580,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                             : SizedBox(
                                           height: 10,
                                         ),
-                                        widget.userId==userID && meetStatus=='pending'
+                                        pageVisitor && meetStatus=='pending'
                                             ? Align(
                                               alignment: Alignment.centerRight,
                                               child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.end,
                                                 children: [
                                                   Container(
                                                     child: Text('Searching For A Service Providers',style: Theme.of(context).textTheme.bodyText2,),
@@ -2751,13 +2733,13 @@ class _ChatsPageState extends State<ChatsPage> {
                                 // Payment Gateway Open
                                 // payment success then true else false
 
-                                bool res = await Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => RazorPayIntegration(),
-                                  ),
-                                );
-                                if(res){
+                                // bool res = await Navigator.push(
+                                //   context,
+                                //   MaterialPageRoute(
+                                //     builder: (context) => RazorPayIntegration(),
+                                //   ),
+                                // );
+                                if(true){
                                 await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
                                 await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
                                 updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
