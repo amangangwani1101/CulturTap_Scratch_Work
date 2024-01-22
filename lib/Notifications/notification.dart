@@ -289,6 +289,21 @@ class NotificationServices{
 
 
   void handleMessage(BuildContext context,RemoteMessage message){
+
+      // if(message.)
+      if(message.data['type']=='local_assistant_cancel'){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
+      }
+      else if(message.data['type'].contains('local_assistant')){
+        print('yes its me');
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],),
+          ),
+        );
+      }
+
     // if(message.)
     if(message.data['type']=='local_assistant_cancel'){
       Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
@@ -302,6 +317,7 @@ class NotificationServices{
         ),
       );
     }
+
     else if (message.data['type'] == 'chat') {
       String chatId = message.data['chatId'];
       Navigator.push(

@@ -9,32 +9,30 @@ Future<void> sendCustomNotificationToUsers(
     ) async {
   final url = Uri.parse('${Constant().serverUrl}/notificationHandler');
   // Replace with your data
-  for(var helper in userIds){
-    Map<String, dynamic> requestData =  {
-      "userIds" : userIds,
-      "payload":payload,
-    };
-    print('Notification Details :  ${requestData}');
-    try {
-      final response = await http.post(
-        url,
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode(requestData),
-      );
+  Map<String, dynamic> requestData =  {
+    "userIds" : userIds,
+    "payload":payload,
+  };
+  print('Notification Details :  ${requestData}');
+  try {
+    final response = await http.post(
+      url,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: jsonEncode(requestData),
+    );
 
-      if (response.statusCode == 200) {
-        print("Notification Sent To all users");
+    if (response.statusCode == 200) {
+      print("Notification Sent To all users");
 
-      } else {
-        print("Failed to send notifcatipn ${helper}: ${response.statusCode}");
-        throw Exception("Failed to save meet");
-      }
-    } catch (e) {
-      print("Error: $e");
-      throw Exception("Error during API call");
+    } else {
+      print("Failed to send notifcation ${response.statusCode}");
+      throw Exception("Failed to save meet");
     }
+  } catch (e) {
+    print("Error: $e");
+    throw Exception("Error during API call");
   }
 
   // try {
