@@ -61,6 +61,7 @@ Future<void> sendCustomNotificationToOneUser(
     String type,
     String userId,
     String state,
+
     ) async {
   var data = {
     'to': userToken, // 'to' is used for sending to a specific device
@@ -71,6 +72,8 @@ Future<void> sendCustomNotificationToOneUser(
       'body': body,
       'innerBody': innerBody,
       'ongoing' : true,
+
+
     },
     'data': {
       "type": type,

@@ -112,7 +112,7 @@ Future<void> onSelectNotification(String? payload) async {
   // Handle notification click here (optional)
 }
 
-String darkMode = 'ys';
+String darkMode = 'yes';
 
 
 class MyApp extends StatelessWidget {
@@ -140,7 +140,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      theme: darkMode == 'yes' ?
+      theme: darkMode == 'ys' ?
 
 
       ThemeData(
@@ -221,11 +221,11 @@ class MyApp extends StatelessWidget {
 
         textTheme: TextTheme(
 
-          bodyText1: TextStyle(fontSize: (10 ),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
+          bodyText1: TextStyle(fontSize: (10 ),color : Color(0xFF001B33), fontWeight: FontWeight.w800),
           bodyText2: TextStyle(fontSize: (12 ),color : Color(0xFF001B33) ,),
           button: TextStyle(fontSize: (10 ),color : Colors.white ,fontWeight: FontWeight.bold),
-          subtitle1: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
-          subtitle2: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight : FontWeight.w600),
+          subtitle1: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight: FontWeight.w600),
+          subtitle2: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight : FontWeight.w400),
 
           headline4: TextStyle(fontSize: (14 ),color :Colors.white , ),
           headline1: TextStyle(fontSize: (25  ),color : Color(0xFF001B33), fontWeight: FontWeight.bold), // Adjust the font size and weight as needed

@@ -1,8 +1,16 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/Notifications/CustomNotificationMessages.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:learn_flutter/widgets/Constant.dart';
+import 'package:http/http.dart' as http;
+
+import '../All_Notifications/customizeNotification.dart';
+import '../fetchDataFromMongodb.dart';
 
 
 
@@ -15,6 +23,9 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
   final String textField;
   final String what;
   final String? extraText;
+  final String? meetId;
+  final String? helperId;
+  final String? meetStatus;
 
 
 
@@ -23,67 +34,156 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
     required this.textField,
     required this.what,
     this.extraText,
+    this.meetId,
+    this.helperId,
+    this.meetStatus,
 
   });
+
+  Future<void> updateLocalUserPings(String userId,String meetId,String meetStatus) async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/updateLocalUserPings');
+    // Replace with your data
+    Map<String, dynamic> requestData = {
+      "userId": userId,
+      'meetId':meetId,
+      'meetStatus':meetStatus,
+    };
+    print('Messa::$requestData');
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        final responseData = jsonDecode(response.body);
+        print("Response: $responseData");
+      } else {
+        print("Failed to update pings. Status code: ${response.statusCode}");
+        throw Exception("Failed to update pings");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Error during API call");
+    }
+  }
+
+
+
+  Future<void> updateMeetingChats(String meetId,List<String>meetDetails)async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'meetId':meetId,
+        'conversation':meetDetails,
+      };
+      print('Meeting Chats Request Sent : $data');
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/storeLocalMeetingConversation'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+      } else {
+        print('Failed to update meeting chats : ${response.statusCode}');
+      }
+    }catch(err){
+      print("failed to update meeting chats : $err");
+    }
+  }
+
+
+  Future<void> updatePaymentStatus(String paymentStatus,String meetId) async {
+    try {
+      final http.Response response = await http.patch(
+        Uri.parse('${Constant().serverUrl}/updateLocalMeetingHelperIds/$meetId'),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body:jsonEncode({"paymentStatus":paymentStatus,"time":DateTime.now().toIso8601String()}),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Meeting Conversation Restored');
+        print(responseData);
+      } else {
+        print('Failed to save meeting data : ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error in updating meeting status: $err");
+    }
+  }
+
+
+
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Container(
-        width: 377,
-        child: AlertDialog(
-          backgroundColor: Colors.white,
-          content: Container(
-            width: 300,
-            child: Column(
+        margin: EdgeInsets.symmetric(horizontal: 32),
+        color: Theme.of(context).backgroundColor,
+        padding: EdgeInsets.symmetric(horizontal: 32),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
 
-              children: [
-                SizedBox(height: 30),
-                Padding(
-                  padding: EdgeInsets.all(20),
-                  child: Center(
-                    child: Image.asset(imagePath),
-                  ),
-                ),
-                SizedBox(height: 30),
-                Center(
-                  child: Text(
-                    textField,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                      fontSize: 25,
+              color: Colors.white, // Set the background color to white
+              child: Column(
+                children: [
+                  SizedBox(height: 30),
+                  Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Center(
+                      child: Container(width: 150,child: Image.asset(imagePath)),
                     ),
-                    textAlign: TextAlign.center, // Align the text to center
                   ),
-                ),
-
-                if (extraText != null)
+                  SizedBox(height: 30),
                   Center(
-                  child: Padding(
-                    padding: const EdgeInsets.only(),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 20),
-                         // Check if extraText is not null
-                          Text(
-                            extraText!,
-                            style: TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.bold,
-                              color: Colors.red,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        SizedBox(height: 26),
-                      ],
+                    child: Container(
+                      child: Text(
+                        textField,
+                        style: Theme.of(context).textTheme.subtitle1,
+                        textAlign: TextAlign.center,
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  if (extraText != null)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.only(top: 20),
+                        child: Column(
+                          children: [
+                            // Check if extraText is not null
+                            Container(
+                              child: Text(
+                                extraText!,
+                                style: Theme.of(context).textTheme.subtitle2,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+
+                          ],
+                        ),
+                      ),
+                    ),
+                ],
+              ),
             ),
-          ),
-          actions: [
+            SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -92,21 +192,30 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    'Cancel',
+                    'No',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.orange,
+                      color: Colors.orange[100],
                       fontSize: 20,
                     ),
                   ),
                 ),
+
                 TextButton(
-                  onPressed: () {
+                  onPressed: () async {
+
+                    // User confirmed, do something
+                    print('User confirmed');
+                    await updateLocalUserPings(userID, meetId!, 'close');
+                    await updateLocalUserPings(helperId!, meetId!, 'close');
+                    await updatePaymentStatus('close',meetId!);
+
+
                     // Remove video logic here
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    'Remove',
+                    meetStatus == 'accept' ? ' Close ' : 'Cancel',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.orange,
@@ -120,8 +229,8 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
           ],
         ),
       ),
-
     );
+
   }
 
 }

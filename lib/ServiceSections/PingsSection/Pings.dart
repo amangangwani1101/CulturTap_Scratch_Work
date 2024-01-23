@@ -63,8 +63,15 @@ class PingsSection extends StatefulWidget{
 class _PingSectionState extends State<PingsSection>{
   late PingsDataStore pingsDataStore;
   VoidCallback? callbacker;
-  bool isLoading = true; // Add a boolean flag to indicate loading state
+  bool isLoading = true;
+
+
+
+
+  // Add a boolean flag to indicate loading state
   @override
+
+
   void initState() {
     super.initState();
     print('Usss:${widget.userId}');
@@ -585,7 +592,7 @@ class _PingSectionState extends State<PingsSection>{
       },
       child: Scaffold(
 
-        appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent, toolbarHeight: 90,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName,),automaticallyImplyLeading: false,backgroundColor: Colors.white, shadowColor: Colors.transparent, toolbarHeight: 90,),
         body: !isLoading
             ? RefreshIndicator(
           onRefresh: ()=>_refreshPage(),
@@ -1145,6 +1152,7 @@ class _PingSectionState extends State<PingsSection>{
                     List.generate(pingsDataStore.localHelpMeetData.length, (index) {
                       dynamic meetDetails = pingsDataStore.localHelpMeetData[index];
                       print(meetDetails);
+
                       String startTime= meetDetails['time'];
                       String meetId = meetDetails['meetId'];
                       String meetStatus = meetDetails['meetStatus'];
@@ -1168,6 +1176,8 @@ class _PingSectionState extends State<PingsSection>{
                             await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
                               state: widget.userId==userId?'user':'helper',
                               meetId: meetId,
+                              helperId : helperId,
+                              meetStatus: meetStatus,
                             ),));
                             _refreshPage();
                           },

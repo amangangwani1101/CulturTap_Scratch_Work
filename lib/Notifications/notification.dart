@@ -10,10 +10,12 @@ import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
+import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 
 import '../ServiceSections/PingsSection/Pings.dart';
+import '../UserProfile/FinalUserProfile.dart';
 import 'Chat.dart';
 // import 'package:learn_flutter/Notify/Chat.dart';
 // import 'package:learn_flutter/rating.dart';
@@ -150,13 +152,14 @@ class NotificationServices{
     AndroidNotificationDetails androidNotificationDetails = AndroidNotificationDetails(
       channel.id.toString(),
       channel.name.toString(),
-      channelDescription: 'Local Assistance Services',
+      channelDescription: message.data['type'],
       // sound: RawResourceAndroidNotificationSound('assets/sounds/camera_sound.mp3'),
       // icon: 'Iconing',
       vibrationPattern: Int64List.fromList([0, 500, 1000, 500]),
       groupKey: 'Grouping',
       importance: Importance.high,
       priority: Priority.high,
+      ongoing: message.data['type'] == 'trip_assistance_required' ? true : false,
       ticker: 'ticker',
       subText: 'Local Assistance Services',
       ledColor: const Color.fromARGB(255, 255, 0, 0), // Replace with your LED color
@@ -176,41 +179,41 @@ class NotificationServices{
         htmlFormatTitle: true,
       ),
       color: Color.fromARGB(255, 255, 255, 255),
-      timeoutAfter: 300000,
-      actions: [
-        AndroidNotificationAction(
-          'action_button_1',
-          'Cancel',
-          titleColor: Colors.orange,
-          // inputs:[AndroidNotificationActionInput(
-          //   label: 'action_button_1',
-          // )],
-        ),
-        AndroidNotificationAction(
-          'action_button_2',
-          'Accept',
-          titleColor:Colors.orange,
-          icon: DrawableResourceAndroidBitmap(
-            '@drawable/culturtap_logo', // Replace with your icon
-          ),
-          // contextual: true,
-          // allowGeneratedReplies: true,
-          // showsUserInterface: true,
-          inputs: [
-            AndroidNotificationActionInput(
-              // label: 'true',
-              // choices: ['fck','mck'],
-              // allowedMimeTypes: {
-              //   'col','man'
-              // },
-              // allowFreeFormInput: false
-            )
-          ],
-          // inputs:[AndroidNotificationActionInput(
-          //   label: 'action_button_1',
-          // )],
-        ),
-      ],
+      timeoutAfter: null,
+      // actions: [
+      //   AndroidNotificationAction(
+      //     'action_button_1',
+      //     'Cancel',
+      //     titleColor: Colors.orange,
+      //     // inputs:[AndroidNotificationActionInput(
+      //     //   label: 'action_button_1',
+      //     // )],
+      //   ),
+      //   AndroidNotificationAction(
+      //     'action_button_2',
+      //     'Accept',
+      //     titleColor:Colors.orange,
+      //     icon: DrawableResourceAndroidBitmap(
+      //       '@drawable/culturtap_logo', // Replace with your icon
+      //     ),
+      //     // contextual: true,
+      //     // allowGeneratedReplies: true,
+      //     // showsUserInterface: true,
+      //     inputs: [
+      //       AndroidNotificationActionInput(
+      //         // label: 'true',
+      //         // choices: ['fck','mck'],
+      //         // allowedMimeTypes: {
+      //         //   'col','man'
+      //         // },
+      //         // allowFreeFormInput: false
+      //       )
+      //     ],
+      //     // inputs:[AndroidNotificationActionInput(
+      //     //   label: 'action_button_1',
+      //     // )],
+      //   ),
+      // ],
     );
 
     const DarwinNotificationDetails darwinNotificationDetails = DarwinNotificationDetails(
@@ -313,6 +316,54 @@ class NotificationServices{
           ),
         ),
       );
+    }
+    else if (message.data['type'] == 'trip_assistance_required') {
+      String meetId = message.data['meetId'];
+      String status = message.data['state'];
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatsPage(
+            state: status,
+            userId: userID,
+            meetId: meetId,
+            // navigationData: message.data['navigationData'],
+          ),
+        ),
+      );
+    }
+    else if (message.data['type'] == 'chat') {
+      String chatId = message.data['chatId'];
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatsPage(
+            userId: userID,
+            // navigationData: message.data['navigationData'],
+          ),
+        ),
+      );
+    }
+    else if (message.data['type'] == 'draft') {
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => SavedDraftsPage(
+
+            // navigationData: message.data['navigationData'],
+          ),
+        ),
+      );
+    }
+    else  if(message.data['type']=='Publishing Story') {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => FinalProfile(userId: userID, clickedId: userID,),
+        ),
+      );
+
     }
   }
 }

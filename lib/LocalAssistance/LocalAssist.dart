@@ -9,6 +9,7 @@ import 'package:learn_flutter/LocalAssistance/EmergenceAssist.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist2.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
+import 'package:learn_flutter/userLocation.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -22,13 +23,12 @@ class LocalAssist extends StatefulWidget {
 
 class _LocalAssistState extends State<LocalAssist> {
 
-  String ?meetId,state;
+  String ?meetId,state,meetStatus;
   bool? eligible;
 
   bool loaded = false;
 
 
-  String liveLocation = '';
 
   @override
   void initState() {
@@ -36,8 +36,10 @@ class _LocalAssistState extends State<LocalAssist> {
     // Your initialization code goes here
     localAssistOperation();
   }
+
+
   Future<void> localAssistOperation() async{
-    await _getUserLocation();
+
     await checkIsMeetOngoing();
     setState(() {
       loaded = true;
@@ -73,55 +75,7 @@ class _LocalAssistState extends State<LocalAssist> {
   }
 
 
-  Future<void> getAndPrintLocationName(double latitude, double longitude) async {
-    try {
-      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
-      if (placemarks.isNotEmpty) {
-        Placemark first = placemarks.first;
-        String locationName = "${first.country}";
-        setState(() {
-          liveLocation = locationName;
-        });
-      } else {
-        // Return latitude and longitude if location not found
-        setState(() {
-          liveLocation = '$latitude, $longitude';
-        });
-      }
-    } catch (e) {
-      print("Error: $e");
-      // Return latitude and longitude in case of an error fetching location
-      setState(() {
-        liveLocation = '$latitude, $longitude';
-      });
-    }
-  }
 
-
-  // Function to get user location
-  Future<void> _getUserLocation() async {
-    setState(() {
-      liveLocation = '';
-    });
-    try {
-      Position position = await Geolocator.getCurrentPosition(
-          desiredAccuracy: LocationAccuracy.high);
-      // Convert latitude and longitude to a string
-      String providedLatitude = '${position.latitude}';
-      String providedLongiude = '${position.longitude}';
-
-
-      getAndPrintLocationName(position.latitude, position.longitude);
-      getUserIdsAndDistances(providedLatitude, providedLongiude);
-      // Update the state with the user location
-
-    } catch (e) {
-      print("Error getting location: $e");
-      setState(() {
-
-      });
-    }
-  }
 
   // check is meeting ongoing
   Future<void> checkIsMeetOngoing()async {
@@ -140,6 +94,7 @@ class _LocalAssistState extends State<LocalAssist> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('this is the daa');
         print(data);
         setState(() {
           if(data['meetId']!=null){
@@ -151,6 +106,17 @@ class _LocalAssistState extends State<LocalAssist> {
           if(data['eligible']!=null){
             eligible = data['eligible'];
           }
+          print('what is this');
+          final  rare = (data['data']);
+          final meetStatus1 = rare['meetStatus'];
+          print(meetStatus1);
+
+
+          if(meetStatus1!=null){
+            meetStatus = meetStatus1;
+          }
+
+
         });
         print('Meeting Ongoing : $meetId');
 
@@ -274,6 +240,8 @@ class _LocalAssistState extends State<LocalAssist> {
                             await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
                               state: 'user',
                               meetId: meetId,
+                              meetStatus: meetStatus,
+
                             ),));
                             await checkIsMeetOngoing();
                           }
@@ -466,9 +434,9 @@ class _LocalAssistState extends State<LocalAssist> {
                                           'Cost of Trip Assistance ',
                                           style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold),
                                         ),
-                                        liveLocation == '' ? Text('...',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green)) :
+
                                         Text(
-                                          liveLocation =='India' ? '500 INR/Event' : '\$10 Dollar/Event',
+                                          CountryName =='India' ? '500 INR/Event' : '\$10 Dollar/Event',
                                           style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color : Colors.green),
                                         ),
                                       ],

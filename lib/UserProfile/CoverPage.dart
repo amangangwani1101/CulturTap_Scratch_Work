@@ -281,8 +281,11 @@ class _UploadMethodsState extends State<UploadMethods> {
   Future<void> _takePicture() async {
     final pickedFile = await ImagePicker().pickImage(source: ImageSource.camera);
     if (pickedFile != null) {
+      print('we have picked the file');
       // Call the callback to update the parameter in the parent class
       widget.onImageUpdated(File(pickedFile.path));
+      print('here is profile image data');
+      print(pickedFile.path);
       await uploadImage(pickedFile.path);
     }
   }
@@ -290,30 +293,39 @@ class _UploadMethodsState extends State<UploadMethods> {
   Future<void> _updateProfileImage() async {
     final croppedImage = await ImageUtil.pickAndCropImage();
     if (croppedImage != null) {
+      print('cropped image here');
       // Call the callback to update the parameter in the parent class
       widget.onImageUpdated(croppedImage);
+      print('here is profile image data');
+      print(croppedImage.path);
       await uploadImage(croppedImage.path);
     }
   }
 
   Future<void> uploadImage(String imagePath) async {
     try {
-      // Read the image file as bytes
-      List<int> imageBytes = File(imagePath).readAsBytesSync();
+      final imageFile = File(imagePath);
 
-      String backendUrl = 'http://173.212.193.109:8080/main/api/uploadImage';
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse('http://173.212.193.109:8080/main/api/uploadImage'),
+      )
 
-      // Convert the bytes to base64
-      String base64Image = base64Encode(imageBytes);
+        ..files.add(
+          await http.MultipartFile.fromPath(
+            'image',
+            imageFile.path,
+            filename: 'image.webp', // Adjust the filename as needed
+          ),
+        );
 
-      // Send a POST request to the backend with the base64-encoded image
-      final response = await http.post(
-        Uri.parse(backendUrl),
-        body: {'image': base64Image},
-      );
+
+
+      final response = await request.send();
+      final responseBody = await response.stream.bytesToString();
 
       print('Response status: ${response.statusCode}');
-      print('Response body: ${response.body}');
+      print('Response body: $responseBody');
     } catch (e) {
       print('Error uploading image: $e');
     }
