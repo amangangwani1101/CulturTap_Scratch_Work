@@ -103,6 +103,7 @@ class CustomHelpOverlay extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => PingsSection(
+                          selectedService:'',
                           userId: helper!,
                           userName: helper2!,
                           text: 'meetingPings',

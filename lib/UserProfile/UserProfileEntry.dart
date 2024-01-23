@@ -232,6 +232,7 @@ class UserInformationSection extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
       color : Theme.of(context).backgroundColor,
+
       padding: EdgeInsets.only(left: 15.0,right: 15),
       child: Column(
         children: [
