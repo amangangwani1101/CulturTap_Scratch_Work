@@ -248,9 +248,9 @@ class UserInformationSection extends StatelessWidget {
                   children: [
                     ServiceCard(isToggle:false,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'for Becoming Trip planner ',profileDataProvider:profileDataProvider),
                     SizedBox(height: 70,),
-                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Assistant for other’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming Superhero as a saviour ! ',profileDataProvider:profileDataProvider),
-                    SizedBox(height: 70,),
-                    ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'for Becoming a smart guide for tourists !',profileDataProvider:profileDataProvider),
+                    ServiceCard(text:'service2',isToggle:false,titleLabel: 'Become a Trip Assistant for other’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming Superhero as a saviour ! ',profileDataProvider:profileDataProvider),
+                    // SizedBox(height: 70,),
+                    // ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'for Becoming a smart guide for tourists !',profileDataProvider:profileDataProvider),
                   ],
                 ),
               ),

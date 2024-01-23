@@ -296,11 +296,6 @@ class _ChatsPageState extends State<ChatsPage> {
 
         final List<dynamic> conversationJson = responseData['conversation'];
         setState(() {
-          if(widget.state=='helper'  && responseData['paymentStatus']=='initiated'){
-            print('Helper Message');
-            helperMessage=true;
-            _controller.text = 'Hey ${helperName},I get your problem, let’s connect first on call. be calm down.';
-          }
           messages = conversationJson.map<List<String>>((list) {
             return (list as List<dynamic>).map<String>((e) => e.toString()).toList();
           }).toList();
@@ -323,6 +318,13 @@ class _ChatsPageState extends State<ChatsPage> {
           else if(widget.state=='helper')
             await fetchHelperDataset(responseData['userId']);
         }
+        setState(() {
+          if(widget.state=='helper'  && responseData['paymentStatus']=='initiated'){
+            print('Helper Message');
+            helperMessage=true;
+            _controller.text = 'Hey ${helperName},I get your problem, let’s connect first on call. be calm down.';
+          }
+        });
         seperateList(messages);
       } else {
         print('Failed to retrive meet date : ${response.statusCode}');
@@ -412,14 +414,17 @@ class _ChatsPageState extends State<ChatsPage> {
       else if(data['user']=='helper')
         receiver.add(data['message']);
     });
-    if(data['user'].contains('admin')){
-      await fetchHelperDataset(data['message']);
+    if(data['user'].contains('admin') && data['user']!='admin-user-1'){
+      await fetchHelperDataset(helperId);
       await getMeetStatus();
     }
-    if(widget.meetId!=null && pageVisitor && helperId!=''){
+    else if(data['user']=='admin-user-1'){
+      _refreshPage(widget.meetId!,state: pageVisitor?'user':'helper');
+    }
+    else if(widget.meetId!=null  && helperId!='' && (pageVisitor && meetStatus!='pending')){
       await updatePaymentStatus('pending',widget.meetId!);
     }
-    if(widget.meetId!=null && helperId==''){
+    else if(widget.meetId!=null && helperId==''){
       await updatePaymentStatus('initiated',widget.meetId!);
     }
     scrollToBottom();
@@ -451,7 +456,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
   Future<void> fetchDataset() async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
-    final url = Uri.parse('$serverUrl/userStoredData/${widget.userId}'); // Replace with your backend URL
+    final url = Uri.parse('$serverUrl/userStoredData/${userID}'); // Replace with your backend URL
     final http.Response response = await http.get(url);
 
     if (response.statusCode == 200) {
@@ -963,7 +968,7 @@ class _ChatsPageState extends State<ChatsPage> {
       "userPhoto":userPhoto,
       "helperId":userID,
     };
-
+    print('Rsssss::${requestData}');
     try {
       final response = await http.put(
         url,
@@ -2742,7 +2747,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                 if(true){
                                 await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
                                 await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
-                                updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
+                                await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
                                 socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
                                 sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
                                 setState(() {});
@@ -2776,8 +2781,7 @@ class _ChatsPageState extends State<ChatsPage> {
                             ?Center(
                           child: Container(
 
-                            width: 325,
-                            height: 63,
+                            padding:EdgeInsets.only(left:10,right:10),
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                               border: Border.all(color: Colors.orange),
@@ -2805,8 +2809,7 @@ class _ChatsPageState extends State<ChatsPage> {
                               // sendCustomNotificationToUsers([helperId!],localAssistantHelperAccepted(userName!, widget.meetId!));
                             },
                             child: Container(
-                              margin: EdgeInsets.only(left:30,right:30,top:5,bottom:5),
-                              padding: EdgeInsets.all(10),
+                              padding: EdgeInsets.only(left:10,right:10),
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(5),
                                 color: Colors.orange,
@@ -3024,11 +3027,13 @@ class _ChatsPageState extends State<ChatsPage> {
                                         // await updateLocalUserPings(helperId, widget.meetId!, 'accept');
                                         await updateMeetingChats(widget.meetId!,[_controller.text,'admin-user-1']);
                                         socket.emit('message', {'message':_controller.text,'user1':'admin-user-1','user2':''});
-                                        _refreshPage(widget.meetId!,state:'helper');
                                         sendCustomNotificationToUsers([helperId!],localAssistantHelperAccepted(userName!, widget.meetId!));
-                                        setState(() {
-                                          helperMessage=false;
-                                        });
+                                        // setState(() {
+                                        //   helperMessage=false;
+                                        // });
+                                        // _refreshPage(widget.meetId!,state:'helper');
+                                        // startConnectionCards();
+                                        setState(() {});
                                       }else{
                                         sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'user'));
                                         _handleSend();
@@ -3065,10 +3070,6 @@ class _ChatsPageState extends State<ChatsPage> {
                             ],
                           ),
                         )
-
-
-
-
                             : Container(
                             padding: EdgeInsets.all((20)),
                             child: Row(

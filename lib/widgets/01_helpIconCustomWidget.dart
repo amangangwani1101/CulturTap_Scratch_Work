@@ -823,13 +823,14 @@ class PaymentSection extends StatefulWidget{
 
 class _PaymentSectionState extends State<PaymentSection> {
   List<CardDetails> cards = [];
+  bool buttonPressed = false;
 
   bool cardform=false;
 
   @override
   void initState(){
     super.initState();
-    if(widget.profileDataProvider!=null)
+    if(widget.profileDataProvider!=null && widget.text==null)
       widget.profileDataProvider?.setServide1();
     if(widget.savedCards!=null){
       cards = widget.savedCards!;
@@ -837,7 +838,7 @@ class _PaymentSectionState extends State<PaymentSection> {
     globalCards = [];
   }
 
-  void saveCardsToDatabase() async{
+  Future<void> saveCardsToDatabase() async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
@@ -967,12 +968,68 @@ class _PaymentSectionState extends State<PaymentSection> {
         // },);
 
         // If you want to navigate directly to the homepage
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
-        );
+        if(widget.text=='edit'){
+          await saveCardsToDatabase();
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
+          );
+          return false;
+        }
+        else{
+          await showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              Future.delayed(Duration(seconds: 2), () {
+                if (!buttonPressed) {
+                  // If the button was not pressed within 2 seconds, navigate to the home page
+                  if(widget.text==null){
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  }
+                  Navigator.of(context).pop();
+                  Navigator.of(context).pop();
+                }
+              });
 
-        return false; // Returning true will allow the user to pop the page
+              return Container(
+                child: CustomHelpOverlay(
+                  button: 'You Are All Set',
+                  text: 'Set your clock',
+                  extraText: 'Thank you for choosing to help other tourists on call to plan their trips.',
+                  navigate: 'pop',
+                  imagePath: 'assets/images/you_are_all_set.svg',
+                  serviceSettings: false,
+                  onButtonPressed: () {
+                    // Set the flag to indicate that the button was pressed
+                    buttonPressed = true;
+
+                    // Your button pressed action
+                    if(widget.text==null){
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    }
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                  onBackPressed: () {
+                    // Set the flag to indicate that the button was pressed
+                    buttonPressed = true;
+
+                    // Your back pressed action
+                    if(widget.text==null){
+                      Navigator.of(context).pop();
+                      Navigator.of(context).pop();
+                    }
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },
+                ),
+              );
+            },
+          );
+          return true;
+        }
       },
       child: Scaffold(
         appBar: AppBar(toolbarHeight: 90, shadowColor: Colors.transparent,title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,  onButtonPressed: ()async{

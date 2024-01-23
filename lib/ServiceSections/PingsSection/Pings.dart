@@ -91,7 +91,7 @@ class _PingSectionState extends State<PingsSection>{
 
   Future<void> fetchDatasets(userId) async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
-    final url = Uri.parse('$serverUrl/userStoredData/${userId}?section=pings'); // Replace with your backend URL
+    final url = Uri.parse('$serverUrl/userStoredData/${userId}'); // Replace with your backend URL
     print('URL : $url');
     final http.Response response = await http.get(url);
 

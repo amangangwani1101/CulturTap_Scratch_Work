@@ -210,12 +210,12 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             children: [
               InkWell(
                 onTap: (){
-                  print('Us2e:${widget.userId}');
+                  print('Us2e:${userID}');
                   if(widget.userId!=null){
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: userID,),
+                        builder: (context) => PingsSection(userId: userID,selectedService: 'Trip Planning',state: 'All',),
                       ),
                     );
                   }
