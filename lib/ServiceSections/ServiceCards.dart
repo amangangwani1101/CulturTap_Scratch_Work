@@ -78,7 +78,9 @@ class _ServiceCardState extends State<ServiceCard>{
                     extraText:' You will earn dynamically in future, for now 800 INR for 20 min of professional trip planning call.' ,
                     what:'OK',
                     button: 'OK, Get it',
-                  ) : CustomPopUp(
+                  ) :
+
+                  CustomPopUp(
                     imagePath: "assets/images/turnOff.svg",
                     textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
                     extraText:'You will earn dynamically in future, for now Ypo will earn 400 INR for your presence. ' ,

@@ -4,6 +4,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/LocalAssistance/EmergenceAssist.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist2.dart';
@@ -27,6 +28,7 @@ class _LocalAssistState extends State<LocalAssist> {
   bool? eligible;
 
   bool loaded = false;
+  bool _meetingsChecked = false;
 
 
 
@@ -93,6 +95,9 @@ class _LocalAssistState extends State<LocalAssist> {
       final http.Response response = await http.get(url);
 
       if (response.statusCode == 200) {
+
+        _meetingsChecked = true;
+
         final data = json.decode(response.body);
         print('this is the daa');
         print(data);
@@ -116,6 +121,8 @@ class _LocalAssistState extends State<LocalAssist> {
             meetStatus = meetStatus1;
           }
 
+          _meetingsChecked = true;
+
 
         });
         print('Meeting Ongoing : $meetId');
@@ -138,6 +145,7 @@ class _LocalAssistState extends State<LocalAssist> {
 
       if (response.statusCode == 200) {
         final data = json.decode(response.body);
+        print('checking for eligibility');
         print(data);
 
       } else {
@@ -186,7 +194,9 @@ class _LocalAssistState extends State<LocalAssist> {
 
 
         body: SingleChildScrollView(
-          child: Container(
+
+          child:   _meetingsChecked ?
+          Container(
             color : Theme.of(context).backgroundColor,
             child: Padding(
               padding: const EdgeInsets.all(16.0),
@@ -198,22 +208,47 @@ class _LocalAssistState extends State<LocalAssist> {
                       builder: (context) {
                         return GestureDetector(
                           onTap: (){
-                            Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',)));
+                            Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',state: 'Scheduled')));
                           },
                           child: Container(
-                            width: 328,
-                            height: 40,
+
+                            height: 100,
                             decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30),
+                              borderRadius: BorderRadius.circular(20),
                               border: Border.all(color: Colors.orange),
                             ),
-                            padding: EdgeInsets.only(left: 20,right: 20,top: 2),
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Text('Ongoing Services',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Colors.orange),),
-                                Icon(Icons.arrow_forward_ios,size: 14,color: Colors.orange,),
-                              ],
+                            padding: EdgeInsets.only(left: 5,right: 20),
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 24.0,right : 22),
+                              child: Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+
+                                children: [
+                                  Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+
+                                          Text('Check Ongoing Services ',style: TextStyle(fontSize: 15,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.orange),),
+                                          Text('(4)',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Colors.orange),),
+
+
+                                        ],
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text('You can also create multiple requests !',style: TextStyle(fontSize: 10,fontWeight: FontWeight.w300,fontFamily: 'Poppins',color: Colors.orange),),
+                                        ],
+                                      ),
+                                    ],
+                                  ),
+                                  Icon(Icons.arrow_forward_ios,size: 14,color: Colors.orange,),
+                                ],
+                              ),
                             ),
                           ),
                         );
@@ -223,7 +258,9 @@ class _LocalAssistState extends State<LocalAssist> {
                   state!=null && state!='ongoing'
                       ? SizedBox(height : 20)
                       : SizedBox(height: 0,),
-                  SizedBox(height : 30),
+                  SizedBox(height : 10),
+
+
                   InkWell(
                     onTap: ()async{
                       bool userConfirmed = true;
@@ -240,7 +277,7 @@ class _LocalAssistState extends State<LocalAssist> {
                             await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
                               state: 'user',
                               meetId: meetId,
-                              meetStatus: meetStatus,
+                              where: 'local_assist',
 
                             ),));
                             await checkIsMeetOngoing();
@@ -255,6 +292,7 @@ class _LocalAssistState extends State<LocalAssist> {
                             await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: userID,
                               state: 'helper',
                               meetId: meetId,
+                              where: 'local_assist',
                             ),));
                             await checkIsMeetOngoing();
                           }
@@ -287,7 +325,7 @@ class _LocalAssistState extends State<LocalAssist> {
                         border: Border.all(color: Colors.white30), // Optional: Add border for visual clarity
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(0.0),
+                        padding: const EdgeInsets.only(left: 24.0,right : 22),
                         child: Column(
                           children: [
                             Column(
@@ -302,17 +340,40 @@ class _LocalAssistState extends State<LocalAssist> {
                                       icon: Icon(Icons.help_outline,color : Colors.orange),
                                       onPressed: () {
 
+                                        showDialog(context: context, builder: (BuildContext context){
+                                          return Container(child : CustomPopUp(
+                                            imagePath: "assets/images/turnOff.svg",
+                                            textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
+                                            extraText:'You will earn dynamically in future, for now You will earn 400 INR for your presence. ' ,
+                                            what:'OK',
+                                            button: 'OK, Get it',));
+
+
+                                        });
+
+
+
                                       },
                                     ),
                                   ],
                                 ),
-                                Text(
-                                  'Immediate Local Assistance',
-                                  style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Immediate Local Assistance',
+                                      style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  'Get help at your fingertip by locals',
-                                  style: TextStyle(fontSize: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Easy help by locals !',
+                                      style: TextStyle(fontSize: 15,fontWeight: FontWeight.w300),
+                                    ),
+                                  ],
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
@@ -331,7 +392,7 @@ class _LocalAssistState extends State<LocalAssist> {
                         ),
                       ),
                     ),
-                  ),
+                  ) ,
 
                   SizedBox(height : 30),
 
@@ -360,7 +421,7 @@ class _LocalAssistState extends State<LocalAssist> {
                         // border: Border.all(color: Colors.white30), // Optional: Add border for visual clarity
                       ),
                       child: Padding(
-                        padding: const EdgeInsets.all(0.0),
+                        padding: const EdgeInsets.only(left : 24.0,right : 22),
                         child: Column(
                           children: [
                             Column(
@@ -375,17 +436,39 @@ class _LocalAssistState extends State<LocalAssist> {
                                       icon: Icon(Icons.help_outline,color : Colors.orange),
                                       onPressed: () {
 
+                                        showDialog(context: context, builder: (BuildContext context){
+                                          return Container(child : CustomPopUp(
+                                            imagePath: "assets/images/emergenceAssistance.svg",
+                                            textField: "You can create a SOS call from here, you can connect with the Police, Ambulance & Fire Rescue etc." ,
+                                            extraText:'This service is free of cost. ' ,
+                                            what:'OK',
+                                            button: 'OK, Get it',));
+
+
+                                        });
+
+
                                       },
                                     ),
                                   ],
                                 ),
-                                Text(
-                                  'Emergency trip assistance',
-                                  style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Emergency trip assistance',
+                                      style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
+                                    ),
+                                  ],
                                 ),
-                                Text(
-                                  'Police & Ambulence',
-                                  style: TextStyle(fontSize: 16),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      'Police & Ambulence !',
+                                      style: TextStyle(fontSize: 15),
+                                    ),
+                                  ],
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.end,
@@ -441,12 +524,7 @@ class _LocalAssistState extends State<LocalAssist> {
                                         ),
                                       ],
                                     ),
-                                    IconButton(
-                                      icon: Icon(Icons.help_outline,color : Colors.orange),
-                                      onPressed: () {
 
-                                      },
-                                    ),
                                   ],
                                 ),
                               ),
@@ -459,12 +537,17 @@ class _LocalAssistState extends State<LocalAssist> {
                                     children: [
                                       SizedBox(height : 20),
                                       Text(
-                                        'Emergency trip assistance is free for public reasons & safety purpose.',
+                                        'This cost is for only for physical presence of Saviour.',
                                         style: TextStyle(fontSize: 14),
                                       ),
                                       SizedBox(height : 10),
                                       Text(
-                                        'You have to pay other cost of items directly to the person , who will helps you there.',
+                                          'You have to pay other cost of Services directly to the saviour, who will help you there. \n\nSaviour can create the payment link with extra services bill.',
+                                        style: TextStyle(fontSize: 14),
+                                      ),
+                                      SizedBox(height : 10),
+                                      Text(
+                                        'Emergency trip assistance is free for public reasons & safety purpose.',
                                         style: TextStyle(fontSize: 14),
                                       ),
 
@@ -484,7 +567,14 @@ class _LocalAssistState extends State<LocalAssist> {
                 ],
               ),
             ),
-          ),
+          ) :
+          Container(
+            color : Theme.of(context).backgroundColor,
+            height : 800,
+            child: Center(
+              child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColorDark,)),
+            ),
+          )
         ),
         bottomNavigationBar: AnimatedContainer(
             duration: Duration(milliseconds: 100),

@@ -296,14 +296,39 @@ class NotificationServices{
     if(message.data['type']=='local_assistant_cancel'){
       Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
     }
-    else if(message.data['type'].contains('local_assistant')){
-      print('yes its me');
+    // else if(message.data['type'].contains('local_assistant')){
+    //   print('yes its me');
+    //   Navigator.push(
+    //     context,
+    //     MaterialPageRoute(
+    //       builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],),
+    //     ),
+    //   );
+    // }
+    else if(message.data['type']=='local_assistant_service'){
+      print('yha print kr rha hu');
+      print(message.data);
+      print('yha ki meet id');
+      print(message.data['meetId']);
+      print('yha ki state yeh h');
+      print(message.data['state']);
+
+
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],),
+          builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',),
         ),
       );
+
+      // Navigator.push(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (context) => CameraApp(),
+      //   ),
+      // );
+
+
     }
     else if (message.data['type'] == 'chat') {
       String chatId = message.data['chatId'];
