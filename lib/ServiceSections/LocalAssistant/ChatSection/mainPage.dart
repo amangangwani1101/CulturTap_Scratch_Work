@@ -10,7 +10,7 @@ import '../../../fetchDataFromMongodb.dart';
 import '../../../widgets/Constant.dart';
 import '../../../widgets/CustomDialogBox.dart';
 import '../../PingsSection/Pings.dart';
-import '../../../LocalAssistance/ChatsPage2.dart';
+import '../../../LocalAssistance/ChatsPage.dart';
 
 void main() {
   runApp(Maain());

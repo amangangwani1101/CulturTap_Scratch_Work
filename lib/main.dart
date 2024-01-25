@@ -25,6 +25,8 @@ Future<void> main() async{
 
 
 
+
+
   // Initialise the plugin.
   const AndroidInitializationSettings initializationSettingsAndroid =
   AndroidInitializationSettings('culturtap_logo');

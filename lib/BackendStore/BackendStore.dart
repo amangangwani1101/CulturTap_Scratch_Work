@@ -321,7 +321,10 @@ class ProfileDataProvider extends ChangeNotifier {
   void updatePlace(String userPlace) {
     _profileData.place = userPlace;
     print('Path is $userPlace');
-    
+  }
+
+  String retUpdatePlace(){
+    return _profileData.place!=null ? _profileData.place!:'';
   }
 
   void updateProfession(String userProfession) {

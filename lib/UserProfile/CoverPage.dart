@@ -459,7 +459,7 @@ class _EditNameFormState extends State<EditNameForm> {
           ),
             SizedBox(width: 10,),
             InkWell(
-              child: Icon(isEditing ? Icons.edit_outlined : Icons.edit_outlined,color: Colors.black),
+              child: Icon(isEditing ? Icons.save_as_outlined : Icons.edit_outlined,color: Colors.black),
           ),
         ],
       ),

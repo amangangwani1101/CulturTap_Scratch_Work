@@ -39,7 +39,7 @@ class CustomDropdown {
                           color: HexColor('#FB8C00'),
                         ),
                       ),
-                      suffixIcon: text!='edit'?Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')):null,
+                      suffixIcon: text!='edit'?selectedValue!=null?Icon(Icons.check_circle, color: Colors.green) : Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')):null,
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey),
                       ),
@@ -47,6 +47,7 @@ class CustomDropdown {
                     onChanged: (String? newValue) {
                       setSelectedValue(newValue);
                       selectedValue = newValue;
+                      onChanged(newValue);
                     },
                     items: items.map((String item) {
                       return DropdownMenuItem<String>(
@@ -127,7 +128,7 @@ class CustomDOBDropDown extends StatelessWidget{
                    style: Theme.of(context).textTheme.subtitle2,),
                     text=='edit'
                     ? Text('EDIT',  style: Theme.of(context).textTheme.headline4,)
-                    :Icon(Icons.calendar_today_rounded,color: Colors.orange,),
+                    :selectedDate!=null?Icon(Icons.check_circle, color: Colors.green) : Icon(Icons.calendar_today_rounded,color: Colors.orange,),
                   // Calendar icon
                 ],
               ),

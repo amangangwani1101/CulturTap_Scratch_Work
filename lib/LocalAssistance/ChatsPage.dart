@@ -143,8 +143,8 @@ class _ChatsPageState extends State<ChatsPage> {
         final responseData = jsonDecode(response.body);
         final String meetId = responseData['id'];
         print("Meet saved successfully with ID: $meetId");
-        updateMeetingChats(meetId,[_controller.text,'user']);
-        createUpdateLocalUserPings(meetId,'pending');
+        await updateMeetingChats(meetId,[_controller.text,'user']);
+        await createUpdateLocalUserPings(meetId,'pending');
         return meetId; // Return the ID
       } else {
         print("Failed to save meet. Status code: ${response.statusCode}");
@@ -215,7 +215,7 @@ class _ChatsPageState extends State<ChatsPage> {
         // Parse the response JSON
         final responseData = jsonDecode(response.body);
         print("Response: $responseData");
-        createUpdateLocalHelperPings(meetId,'choose');
+        await createUpdateLocalHelperPings(meetId,'choose');
       } else {
         print("Failed to create/update meet. Status code: ${response.statusCode}");
         throw Exception("Failed to save meet");
@@ -259,6 +259,7 @@ class _ChatsPageState extends State<ChatsPage> {
         final responseData = jsonDecode(response.body);
         print("Response: $responseData");
         _refreshPage(meetId);
+        // setState(() {});
       } else {
         print("Failed to send request message to helpers. Status code: ${response.statusCode}");
         throw Exception("Failed to send request message to helpers.");
@@ -482,8 +483,10 @@ class _ChatsPageState extends State<ChatsPage> {
       print('Users Profile Data : $data');
       setState(() {
         helperId = userId;
-        helperLatitude=data['latitude']==null?'25.4622095':data['latitude'];
-        helperLongitude=data['longitude']==null?'78.6419707':data['longitude'];
+        // helperLatitude=data['latitude']==null?'25.4622095':data['latitude'];
+        // helperLongitude=data['longitude']==null?'78.6419707':data['longitude'];
+        helperLatitude ='26.453736';
+        helperLongitude = '80.312796';
         helperName = data['userName'];
         helperPhoto = data['userPhoto']!=null?data['userPhoto']:'';
         helperNumber = data['phoneNumber'].toString();
@@ -816,7 +819,8 @@ class _ChatsPageState extends State<ChatsPage> {
       String providedLatitude = '${position.latitude}';
       String providedLongiude = '${position.longitude}';
 
-      getAndPrintLocationName(position.latitude, position.longitude);
+      // getAndPrintLocationName(position.latitude, position.longitude)
+      getAndPrintLocationName(26.453736, 80.312796);
       // Update the state with the user location
 
       if(widget.meetId==null){
@@ -1541,15 +1545,15 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                                 ],
                                                                               ),
                                                                               Container(
-                                                                                width: 230,
+                                                                                  width: 230,
                                                                                   child:
                                                                                   Text(
-                                                                                      helperAddress,
-                                                                                      style:TextStyle(
-                                                                                          fontSize:(12 * MediaQuery.of(context).textScaleFactor),
-                                                                                          fontFamily: 'Poppins',
-                                                                                          fontWeight:
-                                                                                          FontWeight.w600,color:  Color(0xFF001B33)), )),
+                                                                                    helperAddress,
+                                                                                    style:TextStyle(
+                                                                                        fontSize:(12 * MediaQuery.of(context).textScaleFactor),
+                                                                                        fontFamily: 'Poppins',
+                                                                                        fontWeight:
+                                                                                        FontWeight.w600,color:  Color(0xFF001B33)), )),
                                                                             ],
                                                                           ),
                                                                         ],
@@ -1925,12 +1929,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                                   width: 230,
                                                                                   child:
                                                                                   Text(
-                                                                                      helperAddress,
-                                                                                      style:TextStyle(
-                                                                                          fontSize:(12 * MediaQuery.of(context).textScaleFactor),
-                                                                                          fontFamily: 'Poppins',
-                                                                                          fontWeight:
-                                                                                          FontWeight.w600,color:  Color(0xFF001B33)), )),
+                                                                                    helperAddress,
+                                                                                    style:TextStyle(
+                                                                                        fontSize:(12 * MediaQuery.of(context).textScaleFactor),
+                                                                                        fontFamily: 'Poppins',
+                                                                                        fontWeight:
+                                                                                        FontWeight.w600,color:  Color(0xFF001B33)), )),
                                                                             ],
                                                                           ),
                                                                         ],
@@ -2565,7 +2569,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                 ],
                                                               ),
                                                               Text(
-                                                                  message[0],
+                                                                message[0],
                                                                 style: Theme.of(context).textTheme.headline6,
                                                               ),
                                                             ],
@@ -2587,18 +2591,18 @@ class _ChatsPageState extends State<ChatsPage> {
                                         ),
                                         pageVisitor && meetStatus=='pending'
                                             ? Align(
-                                              alignment: Alignment.centerRight,
-                                              child: Row(
-                                                mainAxisAlignment: MainAxisAlignment.end,
-                                                children: [
-                                                  Container(
-                                                    child: Text('Searching For A Service Providers',style: Theme.of(context).textTheme.bodyText2,),
-                                                  ),
-                                                  SizedBox(width: 10,),
-                                                  LoadingDotAnimation(),
-                                                ],
+                                          alignment: Alignment.centerRight,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.end,
+                                            children: [
+                                              Container(
+                                                child: Text('Searching For A Service Providers',style: Theme.of(context).textTheme.bodyText2,),
                                               ),
-                                            )
+                                              SizedBox(width: 10,),
+                                              LoadingDotAnimation(),
+                                            ],
+                                          ),
+                                        )
                                             :SizedBox(height: 0,),
                                         // Expanded(child: SizedBox(height: 10,)),
                                         if (incomingSDPOffer != null)
@@ -2745,12 +2749,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                 //   ),
                                 // );
                                 if(true){
-                                await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
-                                await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
-                                await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
-                                socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
-                                sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
-                                setState(() {});
+                                  await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
+                                  await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
+                                  await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
+                                  socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
+                                  sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
+                                  setState(() {});
                                 }else{
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
@@ -2824,7 +2828,7 @@ class _ChatsPageState extends State<ChatsPage> {
                             child: Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Text('Waiting For Customers Payment',style: Theme.of(context).textTheme.headline4,),
+                                Text('Waiting For Customers Payment',style: TextStyle(color : Theme.of(context).primaryColorDark, fontSize : 18, fontWeight : FontWeight.bold),),
                                 SizedBox(width:10),
                                 LoadingDotAnimation(),
                               ],
@@ -2968,103 +2972,103 @@ class _ChatsPageState extends State<ChatsPage> {
                                 SizedBox(width : 5),
                               if (messageTyping==false && (meetStatus=='schedule') && (meetStatus=='schedule' ||  sender.length<=1))
                                 Container(
-                                decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
-                                  boxShadow: [
+                                  decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
+                                    boxShadow: [
 
 
-                                BoxShadow(
-                                color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                  spreadRadius: 0.5,
-                                  blurRadius: 0.2,
-                                  offset: Offset(0, 2), // Adjust the shadow offset
-                                ),
-                            ],
-                                  color : Theme.of(context).primaryColorLight,
-                                ),
-                                child: IconButton(
-                                  icon: Icon(Icons.videocam),
-                                  // onPressed:initiateVideoCall,
-                                  onPressed: (){
-                                    _joinCall(
-                                      callerId: widget.meetId!,
-                                      calleeId: widget.meetId!,
-                                      section: 'video',
-                                      imageOwn:userPhoto,
-                                      imageOther:helperPhoto,
-                                    );
+                                      BoxShadow(
+                                        color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                        spreadRadius: 0.5,
+                                        blurRadius: 0.2,
+                                        offset: Offset(0, 2), // Adjust the shadow offset
+                                      ),
+                                    ],
+                                    color : Theme.of(context).primaryColorLight,
+                                  ),
+                                  child: IconButton(
+                                    icon: Icon(Icons.videocam),
+                                    // onPressed:initiateVideoCall,
+                                    onPressed: (){
+                                      _joinCall(
+                                        callerId: widget.meetId!,
+                                        calleeId: widget.meetId!,
+                                        section: 'video',
+                                        imageOwn:userPhoto,
+                                        imageOther:helperPhoto,
+                                      );
 
-                                  },
-                                  color : Theme.of(context).primaryColor,
-                                ),
-                              )
+                                    },
+                                    color : Theme.of(context).primaryColor,
+                                  ),
+                                )
                               else if((meetStatus=='schedule' ||  sender.length<=1))
                                 GestureDetector(
-                                onTap: ()async{
-                                  if(receiver.length==0 && sender.length>1){
+                                  onTap: ()async{
+                                    if(receiver.length==0 && sender.length>1){
 
-                                  }else{
-                                    if(pageVisitor){
-                                      if(widget.meetId==null){
-                                        String meetingId = await createMeetRequest();
-                                        List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
-                                        sendCustomNotificationToUsers(userWith10km,payloadData[0]);
-                                        sendCustomNotificationToUsers([userID],payloadData[1]);
-                                        _controller.clear();
-                                        // _refreshPage(meetingId);
-                                      }else{
-                                        sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'helper'));
-                                        _handleSend();
-
-                                      }
-                                      setState(() {});
                                     }else{
-                                      if(helperMessage){
-                                        print('Controller : ${_controller.text}');
-                                        await updateLocalHelperPings(widget.meetId!, 'pending');
-                                        await createUpdateLocalUserPing(helperId ,widget.meetId!, 'accept',userName,userPhoto);
-                                        await updatePaymentStatus('pending',widget.meetId!);
-                                        // await updateLocalUserPings(widget.userId, widget.meetId!, 'pending');
-                                        // await updateLocalUserPings(helperId, widget.meetId!, 'accept');
-                                        await updateMeetingChats(widget.meetId!,[_controller.text,'admin-user-1']);
-                                        socket.emit('message', {'message':_controller.text,'user1':'admin-user-1','user2':''});
-                                        sendCustomNotificationToUsers([helperId!],localAssistantHelperAccepted(userName!, widget.meetId!));
-                                        // setState(() {
-                                        //   helperMessage=false;
-                                        // });
-                                        // _refreshPage(widget.meetId!,state:'helper');
-                                        // startConnectionCards();
+                                      if(pageVisitor){
+                                        if(widget.meetId==null){
+                                          String meetingId = await createMeetRequest();
+                                          List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
+                                          sendCustomNotificationToUsers(userWith10km,payloadData[0]);
+                                          sendCustomNotificationToUsers([userID],payloadData[1]);
+                                          _controller.clear();
+                                          // _refreshPage(meetingId);
+                                        }else{
+                                          sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'helper'));
+                                          _handleSend();
+
+                                        }
                                         setState(() {});
                                       }else{
-                                        sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'user'));
-                                        _handleSend();
-                                        setState(() {});
+                                        if(helperMessage){
+                                          print('Controller : ${_controller.text}');
+                                          await updateLocalHelperPings(widget.meetId!, 'pending');
+                                          await createUpdateLocalUserPing(helperId ,widget.meetId!, 'accept',userName,userPhoto);
+                                          await updatePaymentStatus('pending',widget.meetId!);
+                                          // await updateLocalUserPings(widget.userId, widget.meetId!, 'pending');
+                                          // await updateLocalUserPings(helperId, widget.meetId!, 'accept');
+                                          await updateMeetingChats(widget.meetId!,[_controller.text,'admin-user-1']);
+                                          socket.emit('message', {'message':_controller.text,'user1':'admin-user-1','user2':''});
+                                          sendCustomNotificationToUsers([helperId!],localAssistantHelperAccepted(userName!, widget.meetId!));
+                                          // setState(() {
+                                          //   helperMessage=false;
+                                          // });
+                                          // _refreshPage(widget.meetId!,state:'helper');
+                                          // startConnectionCards();
+                                          setState(() {});
+                                        }else{
+                                          sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'user'));
+                                          _handleSend();
+                                          setState(() {});
+                                        }
                                       }
+                                      setState(() {
+                                        messageTyping = false;
+                                      });
                                     }
-                                    setState(() {
-                                      messageTyping = false;
-                                    });
-                                  }
-                                },
-                                child: Container(
-                                    padding: EdgeInsets.all(15),
+                                  },
+                                  child: Container(
+                                      padding: EdgeInsets.all(15),
 
-                                    decoration: BoxDecoration(
-                                      color : Theme.of(context).primaryColorLight,
+                                      decoration: BoxDecoration(
+                                        color : Theme.of(context).primaryColorLight,
 
-                                      boxShadow: [
+                                        boxShadow: [
 
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.5,
-                                          blurRadius: 0.2,
-                                          offset: Offset(0, 2), // Adjust the shadow offset
-                                        ),
-                                      ],
+                                          BoxShadow(
+                                            color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                            spreadRadius: 0.5,
+                                            blurRadius: 0.2,
+                                            offset: Offset(0, 2), // Adjust the shadow offset
+                                          ),
+                                        ],
 
-                                      borderRadius: BorderRadius.circular(50),
-                                    ),
-                                    child: SvgPicture.asset('assets/images/send_msg.svg',color : Theme.of(context).primaryColor,)), //send message container
-                              )
+                                        borderRadius: BorderRadius.circular(50),
+                                      ),
+                                      child: SvgPicture.asset('assets/images/send_msg.svg',color : Theme.of(context).primaryColor,)), //send message container
+                                )
                               else SizedBox(width: 10,),
                               messageTyping==false?SizedBox(width: 10,):SizedBox(width: 10,),
                             ],

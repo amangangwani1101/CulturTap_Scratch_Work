@@ -209,7 +209,8 @@ class _ServicePageState extends State<ServicePage>{
                       TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
                       SizedBox(height : 50),
                       BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
-
+                      // SizedBox(height : 50),
+                      // AvailabilitySelect(),
                     ],
                   ),
             ),
@@ -494,7 +495,6 @@ class BandWidthSelect extends StatefulWidget{
   @override
   _BandWidthSelectState createState() => _BandWidthSelectState();
 }
-
 class _BandWidthSelectState extends State<BandWidthSelect>{
   String _radioValue='choice_1';
 
@@ -810,7 +810,6 @@ class CardItem {
     // required this.videoUrl,
   });
 }
-
 class PaymentSection extends StatefulWidget{
   ProfileDataProvider?profileDataProvider;
   List<CardDetails>?savedCards;
@@ -820,7 +819,6 @@ class PaymentSection extends StatefulWidget{
   @override
   State<PaymentSection> createState() => _PaymentSectionState();
 }
-
 class _PaymentSectionState extends State<PaymentSection> {
   List<CardDetails> cards = [];
   bool buttonPressed = false;
@@ -1084,6 +1082,8 @@ class _PaymentSectionState extends State<PaymentSection> {
   }
 }
 
+
+
 class CardDetails{
   final String name;
   final String cardNo;
@@ -1101,9 +1101,6 @@ class CardDetails{
     this.options
   });
 }
-
-
-
 class PaymentCard extends StatefulWidget{
   final List<CardDetails> paymentCards;
   List<PaymentDetails>? paymentCard;
@@ -1116,8 +1113,6 @@ class PaymentCard extends StatefulWidget{
   @override
   _PaymentCardState createState() => _PaymentCardState();
 }
-
-
 class _PaymentCardState extends State<PaymentCard> {
   TextEditingController nameController = TextEditingController();
   TextEditingController cardNoController = TextEditingController();
@@ -1715,7 +1710,6 @@ class _PaymentCardState extends State<PaymentCard> {
   }
 }
 
-
 class CreditCardFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
@@ -1754,6 +1748,75 @@ class FilledButton extends StatelessWidget {
         primary: backgroundColor,
       ),
       child: child,
+    );
+  }
+}
+
+class AvailabilitySelect extends StatefulWidget {
+
+  @override
+  _AvailabilitySelectState createState() => _AvailabilitySelectState();
+}
+class _AvailabilitySelectState extends State<AvailabilitySelect> {
+  List<bool> availabilityStatus = List.generate(7, (index) => true);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Column(
+        children: List.generate(7, (index) {
+          return DayCheckbox(
+            dayName: _getDayName(index),
+            isSelected: availabilityStatus[index],
+            onToggle: (value) {
+              setState(() {
+                availabilityStatus[index] = value;
+              });
+            },
+          );
+        }),
+      ),
+    );
+  }
+
+  String _getDayName(int index) {
+    final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    return days[index];
+  }
+}
+class DayCheckbox extends StatelessWidget {
+  final String dayName;
+  final bool isSelected;
+  final ValueChanged<bool> onToggle;
+
+  DayCheckbox({
+    required this.dayName,
+    required this.isSelected,
+    required this.onToggle,
+  });
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      onTap: () {
+        onToggle(!isSelected);
+      },
+      child: Container(
+        padding: EdgeInsets.all(8.0),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.orange : null,
+          border: Border.all(color: Colors.black),
+        ),
+        child: Center(
+          child: Text(
+            dayName,
+            style: TextStyle(
+              color: isSelected ? Colors.white : Colors.black,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+        ),
+      ),
     );
   }
 }
