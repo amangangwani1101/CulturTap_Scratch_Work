@@ -69,6 +69,8 @@ class _ChatsPageState extends State<ChatsPage> {
   String _isAccepted = 'no';
   bool _isMeetStatusFound = false;
 
+  bool _userRefreshingPageOnFirstMessage = false;
+
   bool _chatBoxVisibility = false;
 
   String paymentStatus = '';
@@ -98,7 +100,7 @@ class _ChatsPageState extends State<ChatsPage> {
   bool pageVisitor = true; // true means saviour coming to this page is user while in else condition its helper
   bool messageTyping = false;// Default text
   bool isScrollingUp = false;
-  int? helpingHands;
+  String helpingHands = '';
 
 
 
@@ -503,7 +505,14 @@ class _ChatsPageState extends State<ChatsPage> {
         receiver.add(data['message']);
     });
     if(data['user'].contains('admin')){
-      await fetchHelperDataset(data['message']);
+
+      if(data['user']=='admin-user-1')
+        {
+          _refreshPage(widget.meetId!,state: pageVisitor?'user':'helper');
+          await fetchHelperDataset(helperId);
+        }
+      else
+        await fetchHelperDataset(helperId);
       await getMeetStatus();
     }
     if(widget.meetId!=null && pageVisitor && helperId!=''){
@@ -733,8 +742,9 @@ class _ChatsPageState extends State<ChatsPage> {
           print('printing users tokens here $userTokens');
 
           if(vardis==10){
-            helpingHands = userIdsAndDistances.length;
+            helpingHands = '${userIdsAndDistances.length}';
           }
+
           // if(vardis==10){
           //   userWith10km = users;
           //   userWith10kmDist = dist;
@@ -911,7 +921,7 @@ class _ChatsPageState extends State<ChatsPage> {
       String providedLatitude = '${position.latitude}';
       String providedLongiude = '${position.longitude}';
 
-      getAndPrintLocationName(position.latitude, position.longitude);
+      await getAndPrintLocationName(position.latitude, position.longitude);
       // Update the state with the user location
 
       if(widget.meetId==null){
@@ -1056,7 +1066,7 @@ class _ChatsPageState extends State<ChatsPage> {
   Future<void> createUpdateLocalUserPing(String userId,String meetId,String meetStatus,String userName,String userPhoto) async {
     final url = Uri.parse('${Constant().serverUrl}/setUpdateUserPings');
     Map<String, dynamic> requestData = {
-      "userId": userID,
+      "userId": userId,
       'meetId':meetId,
       'meetStatus':meetStatus,
       "userName":userName,
@@ -1106,7 +1116,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : 'Scheduled')),
+          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (pageVisitor && meetStatus=='pending')?'Pending':'All')),
         );
 
         return false;
@@ -1118,7 +1128,8 @@ class _ChatsPageState extends State<ChatsPage> {
           color: Theme.of(context).backgroundColor,
           height : MediaQuery.of(context).size.height,
           width : double.infinity,
-          child: Stack(
+          child:
+          Stack(
 
               children : [
 
@@ -1238,7 +1249,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   ? SizedBox(height: 20)
                                   : SizedBox(height: 0),
 
-                              helpingHands==null && pageVisitor && messages.length==0
+                              (helpingHands=='' && pageVisitor && messages.length==0) || _userRefreshingPageOnFirstMessage
                                   ? Container(
                                 height : 300,
                                 child: Center(
@@ -2991,7 +3002,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                 ///----------------------------------------------------------------------------------------------------------------------------
 
-
+                _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' ? Container() :
                 Positioned(
                   bottom : 0,
                   left : 0,
@@ -3023,7 +3034,7 @@ class _ChatsPageState extends State<ChatsPage> {
                           ),
 
 
-                        if(widget.state=='user' && meetStatus == 'hold_accept' )
+                        if(widget.state=='user' && (meetStatus == 'hold_accept' || meetStatus == 'accept') )
                           Column(
                             children: [
 
@@ -3045,11 +3056,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                     print(helperId);print('here we are ');
                                     print(widget.meetId!);
                                     await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
-                                    await updateLocalUserPings("65b3ca287cb24c2106f4d735", widget.meetId!, 'schedule');
+                                    await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
                                     await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
                                     await updatePaymentStatus('pending',widget.meetId!);
                                     socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
-                                    getMeetStatus();
+                                    await getMeetStatus();
                                     // await updateLocalUserPings('65ad32bc43e1dc64172f3ef7', widget.meetId!, 'schedule');
                                     // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
 
@@ -3328,6 +3339,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                     }else{
                                       if(pageVisitor){
                                         if(widget.meetId==null){
+                                          setState(() {
+                                            _userRefreshingPageOnFirstMessage = true;
+                                          });
                                           String meetingId = await createMeetRequest();
 
                                           List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
@@ -3358,8 +3372,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                           //
                                           //   print("Function called!"); // Replace this with your function call
                                           // });
+                                          // _refreshPage(meetingId,state:'user');
+                                          setState(() {
+                                            _userRefreshingPageOnFirstMessage = false;
+                                          });
+                                          // startConnectionCards();
 
-                                          _refreshPage(meetingId,state:'user');
                                         }else{
                                           // sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'helper'));
                                           //
@@ -3374,7 +3392,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                           print('kese ho');
 
-                                          print('Controller : ${_controller.text}');
+                                          print('Controller : ${_controller.text},$helperId');
                                           await updateLocalHelperPings(widget.meetId!, 'accept');
                                           await createUpdateLocalUserPing(helperId ,widget.meetId!, 'accept',userName,userPhoto);
                                           await updatePaymentStatus('pending',widget.meetId!);
