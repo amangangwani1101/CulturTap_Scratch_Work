@@ -483,10 +483,8 @@ class _ChatsPageState extends State<ChatsPage> {
       print('Users Profile Data : $data');
       setState(() {
         helperId = userId;
-        // helperLatitude=data['latitude']==null?'25.4622095':data['latitude'];
-        // helperLongitude=data['longitude']==null?'78.6419707':data['longitude'];
-        helperLatitude ='26.453736';
-        helperLongitude = '80.312796';
+        helperLatitude=data['latitude']==null?'25.4622095':data['latitude'];
+        helperLongitude=data['longitude']==null?'78.6419707':data['longitude'];
         helperName = data['userName'];
         helperPhoto = data['userPhoto']!=null?data['userPhoto']:'';
         helperNumber = data['phoneNumber'].toString();
@@ -819,8 +817,8 @@ class _ChatsPageState extends State<ChatsPage> {
       String providedLatitude = '${position.latitude}';
       String providedLongiude = '${position.longitude}';
 
-      // getAndPrintLocationName(position.latitude, position.longitude)
-      getAndPrintLocationName(26.453736, 80.312796);
+      getAndPrintLocationName(position.latitude, position.longitude);
+      // getAndPrintLocationName(26.453736, 80.312796);
       // Update the state with the user location
 
       if(widget.meetId==null){
@@ -2715,7 +2713,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   await updateLocalUserPings(helperId, widget.meetId!, 'cancel');
                                   updateMeetingChats(widget.meetId!,['','admin-cancel']);
                                   socket.emit('message', {'message':'','user1':'admin-cancel','user2':''});
-                                  sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(userName));
+                                  // sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(userName));
                                   setState(() {});
                                 } else {
                                   // User canceled, do something else
@@ -2753,7 +2751,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
                                   await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
                                   socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
-                                  sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
+                                  // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
                                   setState(() {});
                                 }else{
                                   ScaffoldMessenger.of(context).showSnackBar(
@@ -3011,12 +3009,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                         if(widget.meetId==null){
                                           String meetingId = await createMeetRequest();
                                           List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
-                                          sendCustomNotificationToUsers(userWith10km,payloadData[0]);
-                                          sendCustomNotificationToUsers([userID],payloadData[1]);
+                                          // sendCustomNotificationToUsers(userWith10km,payloadData[0]);
+                                          // sendCustomNotificationToUsers([userID],payloadData[1]);
                                           _controller.clear();
                                           // _refreshPage(meetingId);
                                         }else{
-                                          sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'helper'));
+                                          // sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'helper'));
                                           _handleSend();
 
                                         }
@@ -3031,7 +3029,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                           // await updateLocalUserPings(helperId, widget.meetId!, 'accept');
                                           await updateMeetingChats(widget.meetId!,[_controller.text,'admin-user-1']);
                                           socket.emit('message', {'message':_controller.text,'user1':'admin-user-1','user2':''});
-                                          sendCustomNotificationToUsers([helperId!],localAssistantHelperAccepted(userName!, widget.meetId!));
+                                          // sendCustomNotificationToUsers([helperId!],localAssistantHelperAccepted(userName!, widget.meetId!));
                                           // setState(() {
                                           //   helperMessage=false;
                                           // });
@@ -3039,7 +3037,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                           // startConnectionCards();
                                           setState(() {});
                                         }else{
-                                          sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'user'));
+                                          // sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'user'));
                                           _handleSend();
                                           setState(() {});
                                         }
