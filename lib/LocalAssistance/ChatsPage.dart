@@ -181,8 +181,8 @@ class _ChatsPageState extends State<ChatsPage> {
         final responseData = jsonDecode(response.body);
         final String meetId = responseData['id'];
         print("Meet saved successfully with ID: $meetId");
-        updateMeetingChats(meetId,[_controller.text,'user']);
-        createUpdateLocalUserPings(meetId,'pending');
+        await updateMeetingChats(meetId,[_controller.text,'user']);
+        await createUpdateLocalUserPings(meetId,'pending');
         return meetId; // Return the ID
       } else {
         print("Failed to save meet. Status code: ${response.statusCode}");
@@ -255,7 +255,7 @@ class _ChatsPageState extends State<ChatsPage> {
         // Parse the response JSON
         final responseData = jsonDecode(response.body);
         print("Response: $responseData");
-        createUpdateLocalHelperPings(meetId,'choose');
+        await createUpdateLocalHelperPings(meetId,'choose');
       } else {
         print("Failed to create/update meet. Status code: ${response.statusCode}");
         throw Exception("Failed to save meet");
@@ -3045,7 +3045,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                     print(helperId);print('here we are ');
                                     print(widget.meetId!);
                                     await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
-                                    await updateLocalUserPings("65ad32bc43e1dc64172f3ef7", widget.meetId!, 'schedule');
+                                    await updateLocalUserPings("65b3ca287cb24c2106f4d735", widget.meetId!, 'schedule');
                                     await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
                                     await updatePaymentStatus('pending',widget.meetId!);
                                     socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
