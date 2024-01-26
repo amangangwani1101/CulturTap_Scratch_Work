@@ -37,7 +37,7 @@ Future<void> fetchDataFromMongoDB() async {
       userToken = uToken;
 
       print(uNumber);
-      userPhoneNumber = '9026966203';
+      userPhoneNumber = uNumber;
       userName = uName;
       print('userNamewa: $uName');
       userID = uId;

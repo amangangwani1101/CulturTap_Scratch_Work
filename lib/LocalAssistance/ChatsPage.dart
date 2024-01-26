@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/All_Notifications/customizeNotification.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/CustomItems/RotatingSvgWidget.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 import 'package:learn_flutter/ServiceSections/LocalAssistant/MapNavigator.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
@@ -466,11 +467,11 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
         if(data['meetStatus'] == 'hold_accept'){
-            print('kosis kr rha hai');
+          print('kosis kr rha hai');
 
 
 
-           // _refreshPage(thisMeetId,state:'user');
+          // _refreshPage(thisMeetId,state:'user');
 
         }
 
@@ -1239,9 +1240,11 @@ class _ChatsPageState extends State<ChatsPage> {
 
                               helpingHands==null && pageVisitor && messages.length==0
                                   ? Container(
-                                height : 600,
+                                height : 300,
                                 child: Center(
-                                    child: Text('Finding Helping Hands ...',style : TextStyle(fontSize:16))
+                                    child: Center(
+                                      child: RotatingSvgWidget(imagePath: 'assets/images/tripassit.svg'),
+                                    ),
                                 ),
                               )
                                   : pageVisitor ?
@@ -1340,7 +1343,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-      ///----------------------------------------------------------------------------------------------------------
+                              ///----------------------------------------------------------------------------------------------------------
 
 
 
@@ -2068,7 +2071,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                   height: 11,
                                                                 ),
                                                                 Text(
-                                                                      'You need to connect with the tourist and ask for the actual problem. You can connect with them through multiple channels as like message , call or video call, '
+                                                                  'You need to connect with the tourist and ask for the actual problem. You can connect with them through multiple channels as like message , call or video call, '
                                                                       '\n\nMotivate tell them for not to fear. Plan your rescue with the help of them'
                                                                       '\n\nArrange person whom you needed to rescue the tourist !As like, if tourist need to find a mechanic so arrange a relevant mechanic for them.'
                                                                       '\n\nat least be physically available for them and be their saviour. Saving other’s life is a work of God! ',
@@ -2092,7 +2095,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                 Text(
                                                                   'You will recieve 400 Rs for your physical availability.'
                                                                       '\n\nCustomer will pay extra for further cost of goods or any other required service. '
-                                                                      ,
+                                                                  ,
                                                                   style: TextStyle(fontFamily: 'Poppins', fontSize: 13,color:Colors.red, fontWeight: FontWeight.w300,),
                                                                 ),
                                                                 SizedBox(
@@ -2118,7 +2121,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                         ,
                                                                         style: Theme.of(context).textTheme.subtitle2,
                                                                       ),
-                                                                     SvgPicture.asset('assets/images/attachment_icon.svg',color : Colors.grey[400],),
+                                                                      SvgPicture.asset('assets/images/attachment_icon.svg',color : Colors.grey[400],),
                                                                     ],
                                                                   ),
                                                                 ),
@@ -2155,7 +2158,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                             ),
                                             padding: EdgeInsets.all(10),
                                             child: Text(
-                                             '',
+                                              '',
                                               style: TextStyle(
                                                   fontSize: 14,
                                                   fontFamily: 'Poppins'),
@@ -2639,7 +2642,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                                             children: [
                                                               Text(
-                                                               'Saviour',
+                                                                'Saviour',
                                                                 style: Theme.of(context).textTheme.subtitle1,
                                                               ),
                                                               SizedBox(width : 10),
@@ -2902,8 +2905,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                       crossAxisAlignment: CrossAxisAlignment.center,
                                       children: [
                                         Text(
-                                          meetStatus == 'hold_accept' ? 'Accepted' : 'Waiting for response',
-                                          style : TextStyle(fontStyle: FontStyle.italic,fontSize : 14)),
+                                            meetStatus == 'hold_accept' ? 'Accepted' : 'Waiting for response',
+                                            style : TextStyle(fontStyle: FontStyle.italic,fontSize : 14)),
                                         SizedBox(width : 9),
                                         LoadingDotAnimation(),
                                       ],
@@ -2916,7 +2919,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-       ///-------------------------------------------------------------------------------------
+                                  ///-------------------------------------------------------------------------------------
 
 
 
@@ -2986,7 +2989,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-      ///----------------------------------------------------------------------------------------------------------------------------
+                ///----------------------------------------------------------------------------------------------------------------------------
 
 
                 Positioned(
@@ -3003,131 +3006,133 @@ class _ChatsPageState extends State<ChatsPage> {
 
                         if(meetStatus=='cancel' || meetStatus=='close')
                           Center(
-                          child: Container(
-                            height : 63,
+                            child: Container(
+                              height : 63,
 
-                            padding:EdgeInsets.only(left:10,right:10),
-                            decoration: BoxDecoration(
-                              color : Colors.grey[200],
-                              borderRadius: BorderRadius.circular(0),
-                              border: Border.all(color: Colors.orange),
+                              padding:EdgeInsets.only(left:10,right:10),
+                              decoration: BoxDecoration(
+                                color : Colors.grey[200],
+                                borderRadius: BorderRadius.circular(0),
+                                border: Border.all(color: Colors.orange),
+                              ),
+                              child: Center(child:Text(meetStatus=='cancel'?'Cancelled':'Closed',style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.orange,
+                                  fontSize: 18))),
                             ),
-                            child: Center(child:Text(meetStatus=='cancel'?'Cancelled':'Closed',style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.orange,
-                                fontSize: 18))),
                           ),
-                        ),
 
 
                         if(widget.state=='user' && meetStatus == 'hold_accept' )
                           Column(
-                          children: [
+                            children: [
 
-                            GestureDetector(
-                              onTap:()async{
-                                // Payment Gateway Open
-                                // payment success then true else false
+                              GestureDetector(
+                                onTap:()async{
+                                  // Payment Gateway Open
+                                  // payment success then true else false
 
-                                // bool res = await Navigator.push(
-                                //   context,
-                                //   MaterialPageRoute(
-                                //     builder: (context) => RazorPayIntegration(),
-                                //   ),
-                                // );
-                                if(true){
-
-                                  setState(() {
-
-                                    _chatBoxVisibility == true;
-
-                                  });
-
-                                  setState(() {
-                                    paymentStatus = 'complete';
-                                  });
+                                  // bool res = await Navigator.push(
+                                  //   context,
+                                  //   MaterialPageRoute(
+                                  //     builder: (context) => RazorPayIntegration(),
+                                  //   ),
+                                  // );
+                                  if(true){
 
 
 
+                                    print(helperId);print('here we are ');
+                                    print(widget.meetId!);
+                                    await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
+                                    await updateLocalUserPings("65ad32bc43e1dc64172f3ef7", widget.meetId!, 'schedule');
+                                    await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
+                                    await updatePaymentStatus('pending',widget.meetId!);
+                                    socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
+                                    getMeetStatus();
+                                    // await updateLocalUserPings('65ad32bc43e1dc64172f3ef7', widget.meetId!, 'schedule');
+                                    // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
+
+                                    // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
+                                    //
+
+                                    sendCustomNotificationToOneUser(
+                                      userToken,
+                                      '',
+                                      'payment Successful','Connect With Your Saviour Via Text, Voice Call, Video Call',
+                                      '${widget.meetId}','trip_assistance_required',userID,'user',
+                                    );
 
 
-                                  print(helperId);print('here we are ');
-                                  print(widget.meetId!);
-                                  await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
-                                  await updateLocalUserPings("65ad32bc43e1dc64172f3ef7", widget.meetId!, 'schedule');
-                                  await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
-                                  socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
-                                  getMeetStatus();
-                                  // await updateLocalUserPings('65ad32bc43e1dc64172f3ef7', widget.meetId!, 'schedule');
-                                  // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
-                                  setState(() {
-
-                                    _chatBoxVisibility == false;
-
-                                  });
-                                  // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
-                                  //
-
-                                  sendCustomNotificationToOneUser(
-                                    userToken,
-                                    '',
-                                    'payment Successful','Connect With Your Saviour Via Text, Voice Call, Video Call',
-                                    '${widget.meetId}','trip_assistance_required',userID,'user',
-                                  );
-
-
-                                  sendCustomNotificationToOneUser(
-                                    helperToken,
-                                    'Payment Successful',
-                                    'payment Successful','Connect With Tourist Via Text, Voice Call, Video Call',
-                                    '${widget.meetId}','trip_assistance_required',userID,'user',
-                                  );
+                                    sendCustomNotificationToOneUser(
+                                      helperToken,
+                                      'Payment Successful',
+                                      'payment Successful','Connect With Tourist Via Text, Voice Call, Video Call',
+                                      '${widget.meetId}','trip_assistance_required',userID,'user',
+                                    );
 
 
 
-                                  setState(() {});
-                                }else{
-                                  ScaffoldMessenger.of(context).showSnackBar(
-                                    const SnackBar(
-                                      content: Text('Payment UnSuccessful. Try Again!'),
-                                    ),
-                                  );
-                                }
-                              },
-                              child: Container(
+                                    setState(() {});
+                                  }else{
+                                    ScaffoldMessenger.of(context).showSnackBar(
+                                      const SnackBar(
+                                        content: Text('Payment UnSuccessful. Try Again!'),
+                                      ),
+                                    );
+                                  }
+                                },
+                                child: Container(
 
-                                height: 63,
+                                  height: 63,
 
-                                padding: EdgeInsets.all(10),
-                                decoration: BoxDecoration(
+                                  padding: EdgeInsets.all(10),
+                                  decoration: BoxDecoration(
 
-                                  color: Colors.orange,
+                                    color: Colors.orange,
+                                  ),
+                                  child: Center(child:Text('Continue To Pay',style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 18))),
                                 ),
-                                child: Center(child:Text('Continue To Pay',style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    color: Colors.white,
-                                    fontSize: 18))),
                               ),
-                            ),
 
-                          ],
-                        ) ,
+                            ],
+                          ) ,
 
                         if( widget.state=='helper' && meetStatus == 'accept' &&  meetStatus != 'scheduled' )
                           Center(
-                          child: Container(
-                            height : 63,
+                            child: Container(
+                              height : 63,
 
 
 
-                            child: Center(
-                              child: Text('Waiting For Payment ...',style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange,
-                                  fontSize: 18)),
+                              child:  Center(
+                                child: Container(
+                                  height : 63,
+
+
+
+                                  child: Center(
+                                    child: Row(
+                                      mainAxisAlignment: MainAxisAlignment.center,
+                                      children: [
+                                        Text('Waiting For Payment ',style: TextStyle(
+                                            fontWeight: FontWeight.w300,
+                                            color: Colors.orange,
+                                            fontSize: 16)),
+                                        SizedBox(width : 4),
+
+                                        LoadingDotAnimation(),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ) ,
+
                             ),
-                          ),
-                        ) ,
+                          ) ,
 
 
 
@@ -3140,7 +3145,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-                         ( widget.state=='user' && meetStatus == 'hold_accept' ||  meetStatus == 'cancel' || (meetStatus=='accept' && widget.state=='helper') || meetStatus =='close' || widget.state=='user' && meetStatus=='accept' || widget.state=='user' && meetStatus=='pending' || meetStatus == 'accept' && widget.state=='helper'
+                        ( widget.state=='user' && meetStatus == 'hold_accept' ||  meetStatus == 'cancel' || (meetStatus=='accept' && widget.state=='helper') || meetStatus =='close' || widget.state=='user' && meetStatus=='accept' || widget.state=='user' && meetStatus=='pending' || meetStatus == 'accept' && widget.state=='helper'
                             || meetStatus=='accept' && widget.state=='user' || meetStatus=='accept' && widget.state=='helper'  || meetStatus == 'pending' && widget.state=='user' || meetStatus == 'accept' && widget.state=='user'  )
                             ? Container() :
                         Container(
@@ -3221,7 +3226,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                         ),
                                       ), //chat box
 
-                                      SizedBox(width: 20,),
+                                      SizedBox(width: 25,),
                                       (meetStatus=='schedule' ||  sender.length<=1)?GestureDetector(
                                           onTap: ()async{
                                             String ?path = await showDialog(context: context, builder: (BuildContext context){
@@ -3320,7 +3325,6 @@ class _ChatsPageState extends State<ChatsPage> {
                                 GestureDetector(
                                   onTap: ()async{
                                     if(receiver.length==0 && sender.length>1){
-
                                     }else{
                                       if(pageVisitor){
                                         if(widget.meetId==null){
@@ -3365,6 +3369,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                         setState(() {});
                                       }else{
                                         if(helperMessage){
+
+
+
+                                          print('kese ho');
+
                                           print('Controller : ${_controller.text}');
                                           await updateLocalHelperPings(widget.meetId!, 'accept');
                                           await createUpdateLocalUserPing(helperId ,widget.meetId!, 'accept',userName,userPhoto);
@@ -3385,7 +3394,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                         }else{
                                           // sendCustomNotificationToUsers([helperId],localAssistantMessage(helperName,widget.meetId!,_controller.text,'user'));
-
+                                          print('kya baat hai yee');
                                           _handleSend();
                                           setState(() {});
                                         }
@@ -3429,7 +3438,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-       ////---------------------------------------------------------------------------------------------------------------------------------------------
+                ////---------------------------------------------------------------------------------------------------------------------------------------------
 
 
               ]
@@ -3559,6 +3568,3 @@ class _LoadingDotAnimationState extends State<LoadingDotAnimation> with TickerPr
     super.dispose();
   }
 }
-
-
-

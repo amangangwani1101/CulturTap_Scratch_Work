@@ -159,9 +159,14 @@ class NotificationServices{
       groupKey: 'Grouping',
       importance: Importance.high,
       priority: Priority.high,
-      ongoing: message.data['type'] == 'trip_assistance_required' ? true : false,
+      ongoing: (
+          message.data['type'] == 'trip_assistance_required' ||
+          message.data['type'] == 'publishing story' ||
+          message.data['type'] == 'yet_another_type'
+      ) ? true : false,
+
       ticker: 'ticker',
-      subText: 'Local Assistance Services',
+      subText: message.data['type'],
       ledColor: const Color.fromARGB(255, 255, 0, 0), // Replace with your LED color
       ledOnMs: 1000, // LED on duration in milliseconds
       ledOffMs: 500, // LED off duration in milliseconds

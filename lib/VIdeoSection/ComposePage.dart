@@ -482,9 +482,9 @@ class _ComposePageState extends State<ComposePage> {
 
         sendCustomNotificationToOneUser(
             userToken,
-            'Story Uploaded Successfully',
-            'Story Uploaded Successfully ✅✅✅✅','$userName',
-            '','',userID,''
+            'Story Published Successfully ✔️',
+            'Story Published Successfully ✔️','$userName',
+            '','story published',userID,''
         );
 
 
@@ -2359,7 +2359,7 @@ class _ComposePageState extends State<ComposePage> {
                                 userToken,
                                 'Uploading Your Story 📽️',
                                 '$userName','uploading',
-                                '','',userID,''
+                                '','publishing story',userID,''
                             );
 
 
