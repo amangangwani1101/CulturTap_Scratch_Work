@@ -1476,6 +1476,12 @@ class _PingSectionState extends State<PingsSection>{
                                         ?InkWell(
                                         onTap: ()  async{
                                           //   Accept ka funda
+                                          sendCustomNotificationToOneUser(
+                                            userToken,
+                                            'Request Accepted ',
+                                            'Request Accepted By Saviour','Kindly Wait For Saviour Response !!',
+                                            meetId,'trip_assistance_required',userID,'user',
+                                          );
                                           await updateLocalHelperPings(meetId, 'hold_accept');
                                           await createUpdateLocalUserPings(userId ,meetId, 'hold_accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
                                           // await updateMeetingChats(meetId,[userID,'admin-user-1']);
@@ -1484,12 +1490,7 @@ class _PingSectionState extends State<PingsSection>{
                                             meetId: meetId,
                                           ),));
 
-                                          sendCustomNotificationToOneUser(
-                                            userToken,
-                                            'Request Accepted ',
-                                            'Request Accepted By Saviour','Kindly Wait For Saviour Response !!',
-                                            meetId,'trip_assistance_required',userID,'user',
-                                          );
+
 
                                           _refreshPage();
                                           // sendCustomNotificationToUsers([userId],localAssistantHelperAccepted(userName!, meetId));
