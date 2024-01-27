@@ -1476,12 +1476,7 @@ class _PingSectionState extends State<PingsSection>{
                                         ?InkWell(
                                         onTap: ()  async{
                                           //   Accept ka funda
-                                          sendCustomNotificationToOneUser(
-                                            userToken,
-                                            'Request Accepted ',
-                                            'Request Accepted By Saviour','Kindly Wait For Saviour Response !!',
-                                            meetId,'trip_assistance_required',userID,'user',
-                                          );
+
                                           await updateLocalHelperPings(meetId, 'hold_accept');
                                           await createUpdateLocalUserPings(userId ,meetId, 'hold_accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
                                           // await updateMeetingChats(meetId,[userID,'admin-user-1']);
@@ -1542,7 +1537,10 @@ class _PingSectionState extends State<PingsSection>{
                                                   await updateLocalUserPings(helperId!, meetId, 'close');
                                                   await updatePaymentStatus('close',meetId);
                                                   _refreshPage(time: 0,state: 'Closed');
-                                                  sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
+                                                  // sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
+
+
+
                                                 } else {
                                                   // User canceled, do something else
                                                   print('User Closed');

@@ -530,12 +530,14 @@ class _HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
-          height : _isVisible ? 70 : 0,
-
-
-
-          child: CustomFooter(userName: userName, userId: userID, lode: 'home',),
+          height: _isVisible ? 70 : 0,
+          child: SingleChildScrollView(
+            child: Container(
+                height : 70,
+                child: CustomFooter(userName: userName, userId: userID, lode: 'home')),
+          ),
         ),
+
       ),
     );
   }
