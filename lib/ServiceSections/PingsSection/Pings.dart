@@ -1280,7 +1280,7 @@ class _PingSectionState extends State<PingsSection>{
                                               style: TextStyle(color: Colors.white,fontSize: 10), // Text color white
                                             ),
                                           )
-                                              : meetStatus=='accept'
+                                              : meetStatus=='accept' || meetStatus=='hold_accept'
                                               ? Container(
                                             color: HexColor('FB8C00'), // Background color red
                                             height: 16  , // Height set to 16
@@ -1407,6 +1407,12 @@ class _PingSectionState extends State<PingsSection>{
                                             else{
                                               await removePingsHelper(meetId);
                                             }
+                                            // sendCustomNotificationToOneUser(
+                                            //     helperToken,
+                                            //     'Messages From ${userName}',
+                                            //     'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
+                                            //     '${widget.meetId}','trip_assistance_required',helperId,'helper'
+                                            // );
                                             await updateMeetingChats(meetId!,['','admin-cancel']);
                                             await updatePaymentStatus('close',meetId);
                                             _refreshPage();
@@ -1419,7 +1425,7 @@ class _PingSectionState extends State<PingsSection>{
                                         child: Center(child: Container(child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)))
                                         :(meetStatus=='pending' && userId!=widget.userId)
                                         ?Center(child: Container(child: Text('*Payment Pending. Please wait for event. ',style: TextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontFamily: 'Poppins',color: HexColor('#FF0000')),),))
-                                        :(meetStatus=='accept')
+                                        :(meetStatus=='accept' || meetStatus=='hold_accpet')
                                         ?Container(
                                       child: Row(
                                         mainAxisAlignment: MainAxisAlignment.center,
@@ -1486,7 +1492,12 @@ class _PingSectionState extends State<PingsSection>{
                                           ),));
 
 
-
+                                          // sendCustomNotificationToOneUser(
+                                          //     helperToken,
+                                          //     'Messages From ${userName}',
+                                          //     'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
+                                          //     '${widget.meetId}','trip_assistance_required',helperId,'helper'
+                                          // );
                                           _refreshPage();
                                           // sendCustomNotificationToUsers([userId],localAssistantHelperAccepted(userName!, meetId));
                                         },
@@ -1536,6 +1547,12 @@ class _PingSectionState extends State<PingsSection>{
                                                   await updateLocalUserPings(userId, meetId, 'close');
                                                   await updateLocalUserPings(helperId!, meetId, 'close');
                                                   await updatePaymentStatus('close',meetId);
+                                                  // sendCustomNotificationToOneUser(
+                                                  //     helperToken,
+                                                  //     'Messages From ${userName}',
+                                                  //     'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
+                                                  //     '${meetId}','trip_assistance_required',helperId,'helper'
+                                                  // );
                                                   _refreshPage(time: 0,state: 'Closed');
                                                   // sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
 

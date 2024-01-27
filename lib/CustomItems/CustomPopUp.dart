@@ -40,14 +40,11 @@ class CustomPopUp extends StatelessWidget {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                IconButton(
-                  icon: Icon(Icons.close,),
-
-                  onPressed: () {
-                    Navigator.of(context).pop();
-                  },
-                  color : Colors.white70,
-                ),
+                GestureDetector(
+                    onTap: (){
+                      Navigator.of(context).pop();
+                    },
+                    child: Icon(Icons.close,color : Theme.of(context).primaryColorDark)),
               ],
             ),
             SvgPicture.asset(

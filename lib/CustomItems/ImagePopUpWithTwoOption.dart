@@ -22,6 +22,7 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
   final String imagePath;
   final String textField;
   final String what;
+  VoidCallback? option1CallBack,option2Callback;
   final String? extraText;
   final String? meetId;
   final String? helperId;
@@ -35,6 +36,8 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
     required this.what,
     this.extraText,
     this.meetId,
+    this.option1CallBack,
+    this.option2Callback,
     this.helperId,
     this.meetStatus,
 
@@ -202,20 +205,22 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
                 ),
 
                 TextButton(
-                  onPressed: () async {
+                  onPressed: () {
 
                     // User confirmed, do something
-                    print('User confirmed');
-                    await updateLocalUserPings(userID, meetId!, 'close');
-                    await updateLocalUserPings(helperId!, meetId!, 'close');
-                    await updatePaymentStatus('close',meetId!);
-
-
-                    // Remove video logic here
+                    // print('User confirmed');
+                    // await updateLocalUserPings(userID, meetId!, 'close');
+                    // await updateLocalUserPings(helperId!, meetId!, 'close');
+                    // await updatePaymentStatus('close',meetId!);
+                    //
+                    //
+                    // // Remove video logic here
+                    // Navigator.of(context).pop();
+                    option2Callback!();
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    meetStatus == 'accept' ? ' Close ' : 'Cancel',
+                    meetStatus == 'schedule' ? ' Close ' : 'Cancel',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.orange,

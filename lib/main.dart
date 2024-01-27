@@ -195,6 +195,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           backgroundColor : Color(0xFF151B1E), // Change the AppBar background color
           foregroundColor: Color(0xFF1E2529),
+          toolbarHeight: 90,
 
           // Change the AppBar text color
         ),
@@ -241,10 +242,12 @@ class MyApp extends StatelessWidget {
 
         // Optional: Define colors for specific components
         appBarTheme: AppBarTheme(
-          color : Colors.white,
+          // color : Colors.white,
           elevation : 0,
 
           foregroundColor: Colors.black,
+          toolbarHeight: 90,
+          backgroundColor: Colors.white,
 
           // Change the AppBar text color
         ),
