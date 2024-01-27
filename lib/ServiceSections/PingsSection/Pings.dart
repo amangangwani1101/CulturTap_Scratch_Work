@@ -1664,7 +1664,7 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 1,),automaticallyImplyLeading: false,backgroundColor: Colors.white,shadowColor: Colors.transparent,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 1),automaticallyImplyLeading: false,backgroundColor: Colors.white,shadowColor: Colors.transparent,),
         body: SingleChildScrollView(
           child: Row(
             children: [
