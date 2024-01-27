@@ -22,6 +22,7 @@ import 'package:geocoding/geocoding.dart';
 import 'package:photo_view/photo_view.dart';
 
 // import '../Notifications/NotificationManager.dart';
+import '../CustomItems/CustomPopUp.dart';
 import '../Notifications/CustomNotificationMessages.dart';
 import '../ServiceSections/TripCalling/Payments/RazorPay.dart';
 
@@ -507,7 +508,7 @@ class _ChatsPageState extends State<ChatsPage> {
     });
     if(data['user'].contains('admin')){
 
-      if(data['user']=='admin-user-1')
+      if(data['user']=='admin-user-1'|| data['user']=='admin-cancel')
         {
           _refreshPage(widget.meetId!,state: pageVisitor?'user':'helper');
           await fetchHelperDataset(helperId);
@@ -740,11 +741,13 @@ class _ChatsPageState extends State<ChatsPage> {
         print('helping hands');
 
         setState(() {
-          userTokens = data.map((user) => user["uniqueToken"].toString()).toList();
+          userTokens = data
+              .where((user) => user['id'] != userID)
+              .map((user) => user["uniqueToken"].toString()).toList();
           print('printing users tokens here $userTokens');
 
           if(vardis==10 || vardis==15 && userIdsAndDistances.length!=0 ){
-            helpingHands = '${userIdsAndDistances.length}';
+            helpingHands = '${userIdsAndDistances.length}-1';
           }
 
           // if(vardis==10){
@@ -805,6 +808,7 @@ class _ChatsPageState extends State<ChatsPage> {
     //     socket.emit('message', {'message':widget.userId,'user1':'admin-user-1','user2':''});
     //     _refreshPage(widget.meetId!,state:'helper');
     //   }else{}
+    // }
     // }
   }
 
@@ -930,12 +934,16 @@ class _ChatsPageState extends State<ChatsPage> {
       if(widget.meetId==null){
         Map<String,double> tenKm = await getUserIdsAndDistances(providedLatitude, providedLongiude, userID,10);
 
-        Map<String,double> fifteenKm = await getUserIdsAndDistances(providedLatitude, providedLongiude, userID,15);
+
+        Map<String,double> fifteenKm = {};
+
+        if(userWith10km.length==0){
+          tenKm = await getUserIdsAndDistances(providedLatitude, providedLongiude, userID,15);
+        }
 
 
 
-
-        fifteenKm = findUnique(tenKm, fifteenKm);
+        // fifteenKm = findUnique(tenKm, fifteenKm);
 
         // Check if the userIdToRemove exists and remove it
         if (tenKm.containsKey(userID)) {
@@ -976,13 +984,26 @@ class _ChatsPageState extends State<ChatsPage> {
 
   void _handleSend()async {
     String message = _controller.text;
-    if (message.isNotEmpty) {
+    await getMeetStatus();
+    if (message.isNotEmpty && meetStatus!='close') {
       try {
         // Send the message to the server
         if(pageVisitor) {
           updateMeetingChats(widget.meetId!,[message,'user']);
+          sendCustomNotificationToOneUser(
+            helperToken,
+            'Messages From ${helperName}',
+            _controller.text,_controller.text,
+            '${widget.meetId}','trip_assistance_required',helperId,'helper'
+          );
           socket.emit('message', {'message':message,'user1':'user','user2':''});
         } else{
+          sendCustomNotificationToOneUser(
+            helperToken,
+            'Messages From ${helperName}',
+            _controller.text,_controller.text,
+            '${widget.meetId}','trip_assistance_required',helperId,'helper'
+          );
           updateMeetingChats(widget.meetId!,[message,'helper']);
           socket.emit('message', {'message':message,'user1':'','user2':'helper'});
         }
@@ -994,7 +1015,18 @@ class _ChatsPageState extends State<ChatsPage> {
         print('Error sending messagesss: $e');
         // Handle the error, e.g., display an error message to the user
       }
-    } else {
+    }else if(meetStatus=='close'){
+
+      await showDialog(context: context, builder: (BuildContext context){
+        return CustomPopUp(
+          imagePath: "assets/images/turnOff.svg",
+          textField: "Meeting With ${helperName}" ,
+          extraText:'Chat is already Closed by ${helperName}' ,
+          what:'OK',
+          button: 'OK, GET IT',
+        );
+      },);
+    }  else {
       // Handle empty message, e.g., display a validation error to the user
       print('message is not valid');
     }
@@ -1107,6 +1139,38 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
+
+  Future<void> removePingsHelper(String meetId) async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/removeHelperPings');
+    // Replace with your data
+    Map<String, dynamic> requestData = {
+      'meetId':meetId,
+    };
+    print('Messa::$requestData');
+    try {
+      final response = await http.patch(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        final responseData = jsonDecode(response.body);
+        print("Response: $responseData");
+      } else {
+        print("Failed to update pings. Status code: ${response.statusCode}");
+        throw Exception("Failed to update pings");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Error during API call");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     if(_isUiEnabled){
@@ -1133,7 +1197,56 @@ class _ChatsPageState extends State<ChatsPage> {
       },
 
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus,requestSend : requestSend),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus,requestSend : requestSend,cancelCloseClick:()async{
+          String updatedStatus = meetStatus == 'pending' || meetStatus=='hold_accept' || meetStatus=='accept'?'cancel':'close';
+          if(updatedStatus=='cancel'){
+            await updateLocalUserPings(widget.userId, widget.meetId!, updatedStatus);
+            if(helperId!=''){
+              await updateLocalUserPings(helperId, widget.meetId!, updatedStatus);
+            }
+            else{
+              await removePingsHelper(widget.meetId!);
+            }
+            await updateMeetingChats(widget.meetId!,['','admin-cancel']);
+            await updatePaymentStatus('close',widget.meetId!);
+            socket.emit('message', {'message':'','user1':'admin-cancel','user2':''});
+            await showDialog(context: context, builder: (BuildContext context){
+              return CustomPopUp(
+                imagePath: "assets/images/turnOff.svg",
+                textField: "Local Assistant Service" ,
+                extraText:'Meeting is Cancelled Successfully' ,
+                what:'OK',
+                button: '< Go Back',
+              );
+            },);
+            sendCustomNotificationToOneUser(
+                helperToken,
+                'Messages From ${userName}',
+                'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
+                '${widget.meetId}','trip_assistance_required',helperId,'helper'
+            );
+          }else {
+            await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
+            await updateLocalUserPings(helperId, widget.meetId!, 'close');
+            await updatePaymentStatus('close',widget.meetId!);
+            await showDialog(context: context, builder: (BuildContext context){
+              return CustomPopUp(
+                imagePath: "assets/images/turnOff.svg",
+                textField: "Local Assistant Service" ,
+                extraText:'Meeting is Closed Successfully' ,
+                what:'OK',
+                button: '< Go Back',
+              );
+            },);
+            sendCustomNotificationToOneUser(
+                helperToken,
+                'Messages From ${userName}',
+                'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
+                '${widget.meetId}','trip_assistance_required',helperId,'helper'
+            );
+          }
+          _refreshPage(widget.meetId!,state:pageVisitor?'user':'helper');
+        },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
         body: Container(
           color: Theme.of(context).backgroundColor,
           height : MediaQuery.of(context).size.height,
@@ -1321,7 +1434,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                         ),
                                       )
                                           :SizedBox(height: 0,),
-                                      messages.length!=0
+                                      messages.length!=0 || widget.meetId!=null
                                           ?SizedBox(height:0)
                                           : Column(
                                         children:List.generate(suggestedTexts.length, (index) {
@@ -1371,7 +1484,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-                              _userRefreshingPageOnFirstMessage ? Container():
+                              _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' ? Container():
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -2916,7 +3029,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                       : SizedBox(
                                     height: 10,
                                   ),
-                                  widget.userId==userID && meetStatus=='pending' && pageVisitor
+                                  widget.userId==userID && meetStatus=='pending' && pageVisitor && _userRefreshingPageOnFirstMessage ==false &&  messages.length>0 && liveLocation!='fetching location'
                                       ? Container(
 
                                     padding : EdgeInsets.only(top : 20,left : 16),
@@ -3075,14 +3188,14 @@ class _ChatsPageState extends State<ChatsPage> {
                                     // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
 
                                     // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
-                                    //
+
 
 
                                     sendCustomNotificationToOneUser(
                                       helperToken,
                                       'Payment Successful',
                                       'payment Successful','Connect With Tourist Via Text, Voice Call, Video Call',
-                                      '${widget.meetId}','trip_assistance_required','','helper',
+                                      '${widget.meetId}','trip_assistance_required',helperId,'helper',
                                     );
 
 
@@ -3395,12 +3508,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                       }else{
                                         if(helperMessage){
 
-                                          // sendCustomNotificationToOneUser(
-                                          //   userToken,
-                                          //   'Request Accepted by Saviour',
-                                          //   'Complete Your Payment',_controller.text,
-                                          //   '${widget.meetId}','trip_assistance_required',userID,'user',
-                                          // );
+                                          sendCustomNotificationToOneUser(
+                                              helperToken,
+                                            'Request Accepted by Saviour',
+                                            'Complete Your Payment',_controller.text,
+                                            '${widget.meetId}','trip_assistance_required',helperId,'user',
+                                          );
 
 
 

@@ -72,8 +72,6 @@ Future<void> sendCustomNotificationToOneUser(
       'body': body,
       'innerBody': innerBody,
       'ongoing' : true,
-
-
     },
     'data': {
       "type": type,

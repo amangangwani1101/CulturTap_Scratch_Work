@@ -24,7 +24,7 @@ class ProfileHeader extends StatefulWidget {
   int reqPage;
   String? imagePath;
   String? userId,text,userName;
-  VoidCallback? onButtonPressed;
+  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick;
   ProfileDataProvider?profileDataProvider;
   String? profileStatus;
   String? assistMeetId;
@@ -32,7 +32,7 @@ class ProfileHeader extends StatefulWidget {
   String? meetStatus;
   String? requestSend;
 
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend});
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -312,7 +312,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus);
+                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
+                          meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
                     },
                   );
                 } else if (value == 'downloadRecording') {
@@ -329,7 +330,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                         Icon(Icons.close, color: Colors.black),
                         SizedBox(width: 8),
                         Text(
-                          widget.meetStatus == 'accept' ? 'Close Request' :  'Cancel Request',
+                          widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Close Request' :  'Cancel Request',
                           style: Theme.of(context).textTheme.subtitle1,
                         ),
                       ],
