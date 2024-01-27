@@ -533,7 +533,7 @@ class _HomePageState extends State<HomePage> {
           height: _isVisible ? 70 : 0,
           child: SingleChildScrollView(
             child: Container(
-              height : 70,
+                height : 70,
                 child: CustomFooter(userName: userName, userId: userID, lode: 'home')),
           ),
         ),

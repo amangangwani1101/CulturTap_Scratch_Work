@@ -1476,6 +1476,7 @@ class _PingSectionState extends State<PingsSection>{
                                         ?InkWell(
                                         onTap: ()  async{
                                           //   Accept ka funda
+
                                           await updateLocalHelperPings(meetId, 'hold_accept');
                                           await createUpdateLocalUserPings(userId ,meetId, 'hold_accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
                                           // await updateMeetingChats(meetId,[userID,'admin-user-1']);
@@ -1484,12 +1485,7 @@ class _PingSectionState extends State<PingsSection>{
                                             meetId: meetId,
                                           ),));
 
-                                          sendCustomNotificationToOneUser(
-                                            userToken,
-                                            'Request Accepted ',
-                                            'Request Accepted By Saviour','Kindly Wait For Saviour Response !!',
-                                            meetId,'trip_assistance_required',userID,'user',
-                                          );
+
 
                                           _refreshPage();
                                           // sendCustomNotificationToUsers([userId],localAssistantHelperAccepted(userName!, meetId));
@@ -1541,7 +1537,10 @@ class _PingSectionState extends State<PingsSection>{
                                                   await updateLocalUserPings(helperId!, meetId, 'close');
                                                   await updatePaymentStatus('close',meetId);
                                                   _refreshPage(time: 0,state: 'Closed');
-                                                  sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
+                                                  // sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
+
+
+
                                                 } else {
                                                   // User canceled, do something else
                                                   print('User Closed');
@@ -1665,7 +1664,7 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       home: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 1,),automaticallyImplyLeading: false,backgroundColor: Colors.white,shadowColor: Colors.transparent,),
+        appBar: AppBar(title: ProfileHeader(reqPage: 1),automaticallyImplyLeading: false,backgroundColor: Colors.white,shadowColor: Colors.transparent,),
         body: SingleChildScrollView(
           child: Row(
             children: [

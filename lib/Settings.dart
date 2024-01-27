@@ -172,7 +172,7 @@ class _SettingsPageState extends State<SettingsPage> {
                   // ),
                   // SizedBox(height: 20,),
                   Container(
-                    padding: const EdgeInsets.only(left : 26, right : 26,),
+                    padding: const EdgeInsets.only(left : 16, right : 2,),
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
@@ -261,7 +261,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                     ),
                                   );
 
-                              },
+                                },
 
                                 // onTap: ()async {
                                 //   await Navigator.push(context, MaterialPageRoute(builder: (context) => EditPayments()));
@@ -642,122 +642,122 @@ class _EditProfileState extends State<EditProfile>{
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
-        body: name!=null
-            ?SingleChildScrollView(
-          child: Container(
+          appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
+          body: name!=null
+              ?SingleChildScrollView(
+            child: Container(
 
-            padding: EdgeInsets.all(22),
-            color : Theme.of(context).backgroundColor,
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                Center(
-                  child: Container(
-                    width: 360,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
+              padding: EdgeInsets.all(22),
+              color : Theme.of(context).backgroundColor,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  Center(
+                    child: Container(
+                      width: 360,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: [
 
 
-                        SizedBox(height: 20,),
-                        UserImage(
-                          reqPages:1,
-                          text:'edit',
-                          imagePathCallback: (value){imagePath=value;print(value);},
-                          nameCallback: (value){name = value;print('Name:::$value');},
-                          imagePath:imagePath,
-                          name:name,
-                        ),
-                        SizedBox(height: 30,),
-                        MotivationalQuote(text:'edit',quote:quote,quoteCallback: (value){quote = value;print(value);},),
-                      ],
+                          SizedBox(height: 20,),
+                          UserImage(
+                            reqPages:1,
+                            text:'edit',
+                            imagePathCallback: (value){imagePath=value;print(value);},
+                            nameCallback: (value){name = value;print('Name:::$value');},
+                            imagePath:imagePath,
+                            name:name,
+                          ),
+                          SizedBox(height: 30,),
+                          MotivationalQuote(text:'edit',quote:quote,quoteCallback: (value){quote = value;print(value);},),
+                        ],
+                      ),
                     ),
                   ),
-                ),
-                Container(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      ProfileForm(text:'edit',homeCityCallback: (value){
-                        homeCity = value;
-                      },professionCallback:(value){
-                        profession = value;
-                      },dobCallback:(value){
-                        dateOfBirth = value;
-                      },genderCallback:(value){
-                        gender = value;
-                      },languageCallback:(values){
-                        language = values;
-                      },ageCallBack:(value){
-                        dob = value;
-                      }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
-                      ),
+                  Container(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ProfileForm(text:'edit',homeCityCallback: (value){
+                          homeCity = value;
+                        },professionCallback:(value){
+                          profession = value;
+                        },dobCallback:(value){
+                          dateOfBirth = value;
+                        },genderCallback:(value){
+                          gender = value;
+                        },languageCallback:(values){
+                          language = values;
+                        },ageCallBack:(value){
+                          dob = value;
+                        }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
+                        ),
 
-                      SizedBox(height : 0),
-
-
-
-                      SizedBox(height : 20),
-
-                      Center(
-                        child: Container(
-
-                          padding: EdgeInsets.only(left : 10, right : 10),
+                        SizedBox(height : 0),
 
 
 
-                          child: Column(
-                            children: [
-                              InkWell(
-                                onTap: (){
-                                  sendDataToBackend();
-                                },
-                                child: Container(height : 53,width : double.infinity,
+                        SizedBox(height : 20),
 
-                                  decoration: BoxDecoration(
-                                    color: Colors.orange,
-                                    borderRadius: BorderRadius.circular(10),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.5), // Shadow color
-                                        spreadRadius: 0.5,  // Spread radius
-                                        blurRadius: 0.3,    // Blur radius
-                                        offset: Offset(1, 1 ), // Offset (elevation of the shadow)
-                                      ),
-                                    ],
-                                     // Adjust the value for the desired border radius
+                        Center(
+                          child: Container(
+
+                            padding: EdgeInsets.only(left : 10, right : 10),
+
+
+
+                            child: Column(
+                              children: [
+                                InkWell(
+                                  onTap: (){
+                                    sendDataToBackend();
+                                  },
+                                  child: Container(height : 53,width : double.infinity,
+
+                                    decoration: BoxDecoration(
+                                      color: Colors.orange,
+                                      borderRadius: BorderRadius.circular(10),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.5), // Shadow color
+                                          spreadRadius: 0.5,  // Spread radius
+                                          blurRadius: 0.3,    // Blur radius
+                                          offset: Offset(1, 1 ), // Offset (elevation of the shadow)
+                                        ),
+                                      ],
+                                      // Adjust the value for the desired border radius
+                                    ),
+                                    child : Center(child: Text('SUBMIT',style:TextStyle(fontSize: 18,color : Colors.white,fontWeight: FontWeight.bold))),
                                   ),
-                                  child : Center(child: Text('SUBMIT',style:TextStyle(fontSize: 18,color : Colors.white,fontWeight: FontWeight.bold))),
                                 ),
-                              ),
-                              SizedBox(height : 35),
+                                SizedBox(height : 35),
 
-                            ],
+                              ],
+                            ),
                           ),
                         ),
-                      ),
 
-                    ],
+                      ],
 
+                    ),
                   ),
-                ),
+                ],
+              ),
+            ),
+          )
+              :Container(
+            height : MediaQuery.of(context).size.height,
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
               ],
             ),
           ),
-        )
-            :Container(
-          height : MediaQuery.of(context).size.height,
-          child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
-          ],
-        ),
-      ),
           bottomNavigationBar: AnimatedContainer(
 
             duration: Duration(milliseconds: 100),
@@ -766,7 +766,7 @@ class _EditProfileState extends State<EditProfile>{
 
 
 
-           child :  CustomFooter(userName: userName, userId: userID, lode: 'home',addButtonAdd: 'add'),
+            child :  CustomFooter(userName: userName, userId: userID, lode: 'home',addButtonAdd: 'add'),
           )
 
       ),
@@ -844,7 +844,7 @@ class _EditServicesState extends State<EditServices>{
           child: SingleChildScrollView(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
-            
+
               children: [
                 SizedBox(height: 0,),
                 ServiceCard(text:'edit',haveCards:widget.haveCards,userId:userID,isToggle:widget.service1,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: ' for Becoming \nTrip planner '),
@@ -858,12 +858,12 @@ class _EditServicesState extends State<EditServices>{
             :Container(
           height : MediaQuery.of(context).size.height,
           child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
-          ],
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
+            ],
+          ),
         ),
-      ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
 
@@ -935,17 +935,17 @@ class _EditPaymentsState extends State<EditPayments>{
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: savedCards!=null
-      ? PaymentSection(savedCards: savedCards,text: 'edit',userId: userID,)
-      :Container(
-        height : MediaQuery.of(context).size.height,
-        child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
-        ],
-      ),
-    )
+        body: savedCards!=null
+            ? PaymentSection(savedCards: savedCards,text: 'edit',userId: userID,)
+            :Container(
+          height : MediaQuery.of(context).size.height,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Center(child: Container(child: CircularProgressIndicator(color : Theme.of(context).primaryColor,))),
+            ],
+          ),
+        )
     );
 
   }
@@ -980,7 +980,7 @@ class AboutUs extends StatelessWidget{
                     SizedBox(height : 10),
                     Text('Culturtap is a travel app that aims to make your travel easier by providing real-time updates and connecting you with people to help whenever you need. It makes your travel easier,safer and more enjoyable. download CulturTap app: which helps you to explore the whole culture of your selected destinations! '
                         '\n\nExplore the whole culture with just a few taps! \nChoose your destination, CulturTap presents  you the whole culture of your destination with real-time updates, including popular visits, top-rated restaurants, trending locations, outskirts, traditional fashion, nearby pubs and cafes, street food, historical heritage, festivals, handy crafts, service shops and business shops.'
-                    ,style: Theme.of(context).textTheme.subtitle2,),
+                      ,style: Theme.of(context).textTheme.subtitle2,),
                     SizedBox(height : 10),
                   ],
                 ),
@@ -994,7 +994,7 @@ class AboutUs extends StatelessWidget{
                     Text('Trip planning calls:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
                     SizedBox(height : 10),
                     Text('You can connect with people who have \nalready experienced the destination or the \nlocals to help you plan your next trip better.'
-                        ,style: Theme.of(context).textTheme.subtitle2,),
+                      ,style: Theme.of(context).textTheme.subtitle2,),
                   ],
                 ),
               ),
@@ -1052,7 +1052,7 @@ class AboutUs extends StatelessWidget{
               ),
               SizedBox(height : 20),
               Container(
-                 child: Column(
+                child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('Immediate trip assistance:',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
@@ -1149,41 +1149,41 @@ class _HelpState extends State<Help> {
                 ),
                 SizedBox(height: 30),
 
-                  Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text(
-                        'Or',
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Text(
+                      'Or',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      'Submit your concern with us at',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontFamily: 'Poppins',
+                        fontSize: 16,
+                      ),
+                    ),
+                    TextButton(
+                      onPressed: () {
+                        launchEmail();
+                      },
+                      child: Text(
+                        'Info@culturtap.com',
                         style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontFamily: 'Poppins',
                           fontSize: 16,
-                        ),
-                      ),
-                      Text(
-                        'Submit your concern with us at',
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
                           fontFamily: 'Poppins',
-                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.orange,
                         ),
                       ),
-                      TextButton(
-                        onPressed: () {
-                          launchEmail();
-                        },
-                        child: Text(
-                          'Info@culturtap.com',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontFamily: 'Poppins',
-                            fontWeight: FontWeight.bold,
-                            color: Colors.orange,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
+                    ),
+                  ],
+                ),
                 SizedBox(height: 30),
                 Positioned(
                   bottom : 0,right : 0, left : 0,
