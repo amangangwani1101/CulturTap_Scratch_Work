@@ -305,6 +305,10 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
 
+    page = 'home';
+
+
+
     super.initState();
 
     _razorpay = Razorpay();

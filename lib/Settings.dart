@@ -63,6 +63,7 @@ class _SettingsPageState extends State<SettingsPage> {
   @override
   void initState() {
     super.initState();
+    whichPage == 'settings';
     fetchDataset();
   }
   Future<void> fetchDataset() async {
@@ -529,6 +530,8 @@ class _EditProfileState extends State<EditProfile>{
   @override
   void initState(){
     super.initState();
+
+    whichPage == 'settings';
     fetchProfileData();
   }
 
@@ -790,6 +793,7 @@ class _EditServicesState extends State<EditServices>{
   @override
   void initState() {
     super.initState();
+    whichPage == 'settings';
     fetchServiceData();
   }
 
@@ -893,6 +897,7 @@ class _EditPaymentsState extends State<EditPayments>{
   List<CardDetails>?savedCards;
   void initState() {
     super.initState();
+    whichPage == 'settings';
     fetchPaymentData();
   }
 
@@ -1277,6 +1282,7 @@ class _ThankYouState extends State<ThankYou> {
   @override
   void initState() {
     super.initState();
+    whichPage == 'settings';
     // Set a delay of 2 seconds before navigating to HomePage
     Timer(Duration(seconds: 2), () {
       Navigator.pushReplacement(
