@@ -37,6 +37,7 @@ class _LocalAssistState extends State<LocalAssist> {
 
     super.initState();
     whichPage == 'local_assist';
+
     // Your initialization code goes here
     localAssistOperation();
   }
@@ -192,7 +193,7 @@ class _LocalAssistState extends State<LocalAssist> {
       },
       child: Scaffold(
 
-        appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+        appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,fromWhichPage: 'local_assist',),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
 
 
         body: SingleChildScrollView(
