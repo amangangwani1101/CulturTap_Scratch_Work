@@ -1497,8 +1497,7 @@ class _PingSectionState extends State<PingsSection>{
                                           //     'Messages From ${userName}',
                                           //     'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
                                           //     '${widget.meetId}','trip_assistance_required',helperId,'helper'
-                                          // );
-                                          _refreshPage();
+                                          // );                                     _refreshPage();
                                           // sendCustomNotificationToUsers([userId],localAssistantHelperAccepted(userName!, meetId));
                                         },
                                         child: Center(child: Container(child: Text('Accept & Reply',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)))

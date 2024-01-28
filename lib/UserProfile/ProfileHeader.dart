@@ -24,7 +24,7 @@ class ProfileHeader extends StatefulWidget {
   int reqPage;
   String? imagePath;
   String? userId,text,userName;
-  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick;
+  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick,onBackPressed;
   ProfileDataProvider?profileDataProvider;
   String? profileStatus;
   String? assistMeetId;
@@ -32,7 +32,7 @@ class ProfileHeader extends StatefulWidget {
   String? meetStatus;
   String? requestSend;
 
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick});
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.onBackPressed});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -182,6 +182,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 else if(widget.text=='You are all set'){
                   widget.onButtonPressed!();
                 }
+                else if(widget.meetStatus!=null) {
+                  widget.onBackPressed!();
+                }
                 else{
                   Navigator.of(context).pop();
                 }
@@ -301,7 +304,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             ),
           ):
 
-          ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule') ?
+          ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule' || widget.meetStatus == 'hold_accept') ?
           Container(  width : 70, height: 80,
             child : PopupMenuButton<String>(
               color: Colors.white,
@@ -330,7 +333,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                         Icon(Icons.close, color: Colors.black),
                         SizedBox(width: 8),
                         Text(
-                          widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Close Request' :  'Cancel Request',
+                          widget.meetStatus == 'schedule' ? 'Close Request':'Cancel Request',
                           style: Theme.of(context).textTheme.subtitle1,
                         ),
                       ],

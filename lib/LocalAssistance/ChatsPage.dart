@@ -20,6 +20,7 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:share_plus/share_plus.dart';
 
 // import '../Notifications/NotificationManager.dart';
 import '../CustomItems/CustomPopUp.dart';
@@ -128,7 +129,7 @@ class _ChatsPageState extends State<ChatsPage> {
   late RTCPeerConnection _peerConnection;
 
 
-  String userName = '',userPhoto = '',helperId='',helperAddress='',helperName='',helperPhoto='',helperLongitude='',helperNumber='',meetStatus='',helperLatitude='', helperToken='';
+  String userName = '',userPhoto = '',helperId='',helperAddress='',helperName='',helperPhoto='',helperLongitude='',helperNumber='',meetStatus='',helperLatitude='', helperToken='',providedLatitude='',providedLongiude='';
   bool helperMessage=false;
   final String serverUrl = Constant().serverUrl;  // Replace with your server's URL
 
@@ -747,7 +748,7 @@ class _ChatsPageState extends State<ChatsPage> {
           print('printing users tokens here $userTokens');
 
           if(vardis==10 || vardis==15 && userIdsAndDistances.length!=0 ){
-            helpingHands = '${userIdsAndDistances.length}-1';
+            helpingHands = '${userIdsAndDistances.length-1}';
           }
 
           // if(vardis==10){
@@ -925,18 +926,15 @@ class _ChatsPageState extends State<ChatsPage> {
           desiredAccuracy: LocationAccuracy.high);
       // Convert latitude and longitude to a string
 
-      String providedLatitude = '${position.latitude}';
-      String providedLongiude = '${position.longitude}';
+      providedLatitude = '${position.latitude}';
+      providedLongiude = '${position.longitude}';
 
       await getAndPrintLocationName(position.latitude, position.longitude);
       // Update the state with the user location
 
       if(widget.meetId==null){
         Map<String,double> tenKm = await getUserIdsAndDistances(providedLatitude, providedLongiude, userID,10);
-
-
         Map<String,double> fifteenKm = {};
-
         if(userWith10km.length==0){
           tenKm = await getUserIdsAndDistances(providedLatitude, providedLongiude, userID,15);
         }
@@ -981,6 +979,27 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
+
+  Future<void> PingsAssistanceEligible(userId) async {
+    try{
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final url = Uri.parse('$serverUrl/checkLocalUserEligible/${userId}'); // Replace with your backend URL
+      final http.Response response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('checking for eligibility');
+        print(data);
+
+      } else {
+        // Handle error
+        print('Failed to fetch dataset: ${response.statusCode}');
+      }
+    }
+    catch(err){
+      print('Error $err');
+    }
+  }
 
   void _handleSend()async {
     String message = _controller.text;
@@ -1188,11 +1207,17 @@ class _ChatsPageState extends State<ChatsPage> {
 
       onWillPop: () async {
 
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (meetStatus=='pending')?'Pending':(meetStatus=='schedule')?'Scheduled':'All')),
-        );
-
+        if(meetStatus=='start'){
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => LocalAssist()),
+          );
+        }else{
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (meetStatus=='pending')?'Pending':(meetStatus=='schedule')?'Scheduled':(meetStatus=='accept'||meetStatus=='hold_accept')?'Accepted': meetStatus=='cancel'?'Cancelled':(meetStatus=='close')?'Closed':'All')),
+          );
+        }
         return false;
       },
 
@@ -1246,7 +1271,19 @@ class _ChatsPageState extends State<ChatsPage> {
             );
           }
           _refreshPage(widget.meetId!,state:pageVisitor?'user':'helper');
-        },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
+        },onBackPressed:(){
+          if(meetStatus=='start'){
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LocalAssist()),
+            );
+          }else{
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (meetStatus=='pending')?'Pending':(meetStatus=='schedule')?'Scheduled':(meetStatus=='accept'||meetStatus=='hold_accept')?'Accepted': meetStatus=='cancel'?'Cancelled':(meetStatus=='close')?'Closed':'All')),
+            );
+          }
+        }),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
         body: Container(
           color: Theme.of(context).backgroundColor,
           height : MediaQuery.of(context).size.height,
@@ -1322,7 +1359,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   ? SizedBox(height: 10)
                                   : SizedBox(height: 0),
 
-                              pageVisitor
+                              pageVisitor && liveLocation != 'fetching location'
                                   ? Container(
                                 padding: EdgeInsets.only(left:16,right:16,),
 
@@ -1354,14 +1391,20 @@ class _ChatsPageState extends State<ChatsPage> {
                                       ),
                                     ),
                                     SizedBox(width : 20),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(Icons.share, color: Colors.orange,size: 25,),
-                                          onPressed: () {},
-                                        ),
-                                        Text('Share Location',style:TextStyle(fontSize:16,color :Colors.orange)),
-                                      ],
+                                    InkWell(
+                                      onTap: ()async{
+                                        String googleMapsUrl = 'https://www.google.com/maps?q=${providedLatitude},${providedLongiude}';
+                                        await Share.share('Hey I am Stuck here -> \n${liveLocation}.\n\nPlease Help me out!!! \n\n Track My Live Location : $googleMapsUrl',subject: '!!!Emergency!!!');
+                                      },
+                                      child: Row(
+                                        children: [
+                                          IconButton(
+                                            icon: Icon(Icons.share, color: Colors.orange,size: 25,),
+                                            onPressed: () {},
+                                          ),
+                                          Text('Share Location',style:TextStyle(fontSize:16,color :Colors.orange)),
+                                        ],
+                                      ),
                                     )
                                   ],
                                 ),
@@ -1389,7 +1432,8 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                     children: [
                                       widget.meetId==null
-                                          ? Container(
+                                          ? (helpingHands.length>0 && int.parse(helpingHands)>0)
+                                          ?Container(
                                         width : 286,
                                         height: 246,
                                         margin: EdgeInsets.only(left:16,right:16,),
@@ -1433,8 +1477,23 @@ class _ChatsPageState extends State<ChatsPage> {
                                           ],
                                         ),
                                       )
+                                          :Container(
+                                          height : 150,
+                                          decoration: BoxDecoration(
+                                        color : Theme.of(context).backgroundColor,
+                                        boxShadow: [
+                                          BoxShadow(
+                                            color: Colors.grey.withOpacity(0.1),
+                                            spreadRadius: 0.5,
+                                            blurRadius: 3,
+                                            offset: Offset(0, 3),
+                                          ),
+                                        ],
+                                        borderRadius: BorderRadius.all(Radius.circular(20)),
+                                        border: Border.all(color: Colors.white30), // Optional: Add border for visual clarity
+                                      ),  padding: EdgeInsets.all(10), margin: EdgeInsets.all(10), child:Center(child: Text('Sorry We are Unable To fetch saviours for you . \nTry To refresh Page Again Or Share Your Live Location',style: Theme.of(context).textTheme.subtitle1,)))
                                           :SizedBox(height: 0,),
-                                      messages.length!=0 || widget.meetId!=null
+                                      messages.length!=0 || widget.meetId!=null || ( helpingHands.length>0 && int.parse(helpingHands)<1)
                                           ?SizedBox(height:0)
                                           : Column(
                                         children:List.generate(suggestedTexts.length, (index) {
@@ -1484,7 +1543,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-                              _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' ? Container():
+                              _userRefreshingPageOnFirstMessage || liveLocation=='fetching location'  ? Container():
                               Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
@@ -3125,7 +3184,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                 ///----------------------------------------------------------------------------------------------------------------------------
 
-                _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' || findingHelpingHands=='start'  ? Container() :
+                _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' || findingHelpingHands=='start' ? Container() :
                 Positioned(
                   bottom : 0,
                   left : 0,
@@ -3347,7 +3406,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                               maxLines: null,
                                               controller: _controller,
                                               decoration: InputDecoration(
-                                                hintText: 'Start Typing Here...',
+                                                hintText: widget.meetId==null ?'Explain Your Problem...' :'Start Typing Here...',
                                                 hintStyle: Theme.of(context).textTheme.subtitle2,
                                                 border: InputBorder.none,
                                               ),
@@ -3462,6 +3521,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                           setState(() {
                                             _userRefreshingPageOnFirstMessage = true;
                                           });
+                                          await PingsAssistanceEligible(widget.userId);
                                           String meetingId = await createMeetRequest();
 
                                           List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);

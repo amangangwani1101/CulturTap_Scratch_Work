@@ -203,7 +203,7 @@ class _LocalAssistState extends State<LocalAssist> {
               child: Column(
                 children: [
                   // SizedBox(height: 20,),
-                  state!=null && state!='ongoing'
+                  state=='user'
                       ?Builder(
                       builder: (context) {
                         return GestureDetector(
@@ -294,7 +294,7 @@ class _LocalAssistState extends State<LocalAssist> {
                               meetId: meetId,
                               where: 'local_assist',
                             ),));
-                            await checkIsMeetOngoing();
+                            // await checkIsMeetOngoing();
                           }
                         }
                         else {
@@ -303,7 +303,7 @@ class _LocalAssistState extends State<LocalAssist> {
                                 ChatsPage(userId: userID,
                                   state: 'user',
                                 ),));
-                          await checkIsMeetOngoing();
+                          // await checkIsMeetOngoing();
                         }
                       }
                     },
