@@ -555,6 +555,8 @@ setState(() {
                       Expanded(
                         child: InkWell(
                           onTap: (){
+
+                            _changeIcon('trip');
                   
                             Navigator.of(context).push(
                               MaterialPageRoute(
@@ -605,6 +607,7 @@ setState(() {
                         child: InkWell(
                   
                           onTap: (){
+                            _changeIcon('settings');
                             Navigator.of(context).push(
                               MaterialPageRoute(
                                 builder: (context) => SettingsPage(userId: userID),

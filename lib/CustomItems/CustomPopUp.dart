@@ -41,12 +41,10 @@ class CustomPopUp extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
                 GestureDetector(
-                  onTap: (){
-                    Navigator.of(context).pop();
-                  },
-                    child: Icon(Icons.close,color : Theme.of(context).primaryColorDark,)
-                ),
-
+                    onTap: (){
+                      Navigator.of(context).pop();
+                    },
+                    child: Icon(Icons.close,color : Theme.of(context).primaryColorDark)),
               ],
             ),
             SvgPicture.asset(
@@ -57,7 +55,7 @@ class CustomPopUp extends StatelessWidget {
             SizedBox(height: 26),
             Text(
               textField,
-              style: Theme.of(context).textTheme.subtitle1,
+              style: Theme.of(context).textTheme.subtitle2,
               textAlign: TextAlign.center,
             ),
             if (extraText != null) SizedBox(height: 15),
@@ -91,3 +89,7 @@ class CustomPopUp extends StatelessWidget {
     );
   }
 }
+
+
+
+

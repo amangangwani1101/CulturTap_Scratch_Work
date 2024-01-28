@@ -114,7 +114,7 @@ Future<void> onSelectNotification(String? payload) async {
   // Handle notification click here (optional)
 }
 
-String darkMode = 'ys';
+String darkMode = 'yes';
 
 
 class MyApp extends StatelessWidget {
@@ -142,7 +142,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      theme: darkMode == 'yes' ?
+      theme: darkMode == 'ys' ?
 
 
       ThemeData(
@@ -197,6 +197,7 @@ class MyApp extends StatelessWidget {
         appBarTheme: AppBarTheme(
           backgroundColor : Color(0xFF151B1E), // Change the AppBar background color
           foregroundColor: Color(0xFF1E2529),
+          toolbarHeight: 90,
 
           // Change the AppBar text color
         ),
@@ -215,7 +216,7 @@ class MyApp extends StatelessWidget {
 
         primaryColor: Color(0xFF001B33), // Change the primary color
         primaryColorLight : Color(0xFFF2F2F2),
-        primaryColorDark : Color(0xFF001B33),
+        primaryColorDark : Color(0xFF1E2529),
         // accentColor: Colors.orange, // Change the accent color
         backgroundColor: Colors.white,
 
@@ -223,11 +224,11 @@ class MyApp extends StatelessWidget {
 
         textTheme: TextTheme(
 
-          bodyText1: TextStyle(fontSize: (10 ),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
+          bodyText1: TextStyle(fontSize: (10 ),color : Color(0xFF001B33), fontWeight: FontWeight.w800),
           bodyText2: TextStyle(fontSize: (12 ),color : Color(0xFF001B33) ,),
           button: TextStyle(fontSize: (10 ),color : Colors.white ,fontWeight: FontWeight.bold),
-          subtitle1: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight: FontWeight.bold),
-          subtitle2: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight : FontWeight.w600),
+          subtitle1: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight: FontWeight.w600),
+          subtitle2: TextStyle(fontSize: (14  ),color : Color(0xFF001B33), fontWeight : FontWeight.w400),
 
           headline4: TextStyle(fontSize: (14 ),color :Colors.white , ),
           headline1: TextStyle(fontSize: (25  ),color : Color(0xFF001B33), fontWeight: FontWeight.bold), // Adjust the font size and weight as needed
@@ -243,10 +244,12 @@ class MyApp extends StatelessWidget {
 
         // Optional: Define colors for specific components
         appBarTheme: AppBarTheme(
-          color : Colors.white,
+          // color : Colors.white,
           elevation : 0,
 
           foregroundColor: Colors.black,
+          toolbarHeight: 90,
+          backgroundColor: Colors.white,
 
           // Change the AppBar text color
         ),

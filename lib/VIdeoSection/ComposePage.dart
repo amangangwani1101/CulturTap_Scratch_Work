@@ -8,6 +8,7 @@ import 'package:learn_flutter/CustomItems/pulseUpload.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/VideoPreviewStory/VideoPreviewPage.dart';
+import 'package:learn_flutter/fetchDataFromMongodb.dart';
 
 import 'package:video_player/video_player.dart';
 import 'package:learn_flutter/CustomItems/VideoAppBar.dart';
@@ -27,6 +28,8 @@ import 'package:path/path.dart' as path;
 import 'package:http_parser/http_parser.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+
+import '../All_Notifications/customizeNotification.dart';
 
 Map<String, List<VideoInfo>> videoData = {};
 
@@ -421,6 +424,7 @@ class _ComposePageState extends State<ComposePage> {
 
     print('final video paths $finalVideoPaths');
     print('publish button clicked');
+
     try{
       VideoDatabaseHelper myDatabaseHelper = VideoDatabaseHelper();
 
@@ -475,6 +479,13 @@ class _ComposePageState extends State<ComposePage> {
       if (response.statusCode == 201) {
         print('Data sent successfully yes yes');
         print('Response Data: ${response.body}');
+
+        sendCustomNotificationToOneUser(
+            userToken,
+            'Story Published Successfully ✔️',
+            'Story Published Successfully ✔️','$userName',
+            '','story published',userID,''
+        );
 
 
 
@@ -558,6 +569,14 @@ class _ComposePageState extends State<ComposePage> {
       for (final videoPath in widget.videoPaths) {
         await _saveVideoToLocalStorage(videoPath);
       }
+
+      sendCustomNotificationToOneUser(
+        userToken,
+        'Saved Draft',
+        'Video Saved To Draft','View Story In Draft',
+        '','draft',userID,'',
+      );
+
 
       showDialog(
         context: context,
@@ -2335,7 +2354,16 @@ class _ComposePageState extends State<ComposePage> {
                           onPressed: () {
                       
                             sendDataToBackend();
-                      
+
+                            sendCustomNotificationToOneUser(
+                                userToken,
+                                'Uploading Your Story 📽️',
+                                '$userName','uploading',
+                                '','publishing story',userID,''
+                            );
+
+
+
                             // Implement the functionality for publishing here
                             setState(() {
                               isPublishClicked = !isPublishClicked;

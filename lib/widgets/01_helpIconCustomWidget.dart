@@ -6,6 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/Payments/RazorPay.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/Settings.dart';
@@ -13,6 +14,7 @@ import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
+import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../BackendStore/BackendStore.dart';
 import '../CustomItems/CustomPopUp.dart';
 import 'AlertBox2Option.dart';
@@ -103,6 +105,7 @@ class CustomHelpOverlay extends StatelessWidget {
                       context,
                       MaterialPageRoute(
                         builder: (context) => PingsSection(
+                          selectedService:'',
                           userId: helper!,
                           userName: helper2!,
                           text: 'meetingPings',
@@ -530,9 +533,12 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
             content: Text('Your Time Is Set :) '),
           ),
         );
+
+        Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId:userID)));
+
         if(widget.haveCards==false){
-          Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(text:widget.text,userId:userID)));
-          widget.onButtonPressed!();
+          //
+          // widget.onButtonPressed!();
         }
         else if(widget.text=='edit'){
           showDialog(context: context, builder: (BuildContext context){
@@ -751,6 +757,12 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
             child: FilledButton(
                 backgroundColor: HexColor('#FB8C00'),
                 onPressed: () {
+
+
+                  updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
+
+
+
                   // if(isGone){
                   //   ScaffoldMessenger.of(context).showSnackBar(
                   //     SnackBar(
@@ -768,9 +780,10 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                     //   if(widget.profileDataProvider!=null){
                     //     widget.profileDataProvider?.setServide1();
                     //   }
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>PaymentSection(profileDataProvider:widget.profileDataProvider)));
+
                     }else{
                       updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
+                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId: userID)));
                       // Navigator.of(context).pop();
                     }
                   }else{}
@@ -1062,9 +1075,12 @@ class _PaymentSectionState extends State<PaymentSection> {
           }
         },),automaticallyImplyLeading: false,),
         body: SingleChildScrollView(
-          child: Center(
+          child: Container(
+            color : Theme.of(context).backgroundColor,
+            height : MediaQuery.of(context).size.height,
+            padding : EdgeInsets.only(left: 22, right : 22,),
             child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+
               children: [
                 SizedBox(height: 30,),
                 Container(
@@ -1214,497 +1230,30 @@ class _PaymentCardState extends State<PaymentCard> {
   void initState(){
     print('init');
     super.initState();
-    showCards = widget.cardForm;
-    if(widget.paymentCards!=null  && widget.paymentCards.length>0){
-      cards = widget.paymentCards;
-      for(int i=0;i<widget.paymentCards.length;i++){
-        CardDetails card = widget.paymentCards[i];
-        globalCards!.add(PaymentDetails(
-          name: card.name, // Get this from user input
-          month: card.month, // Get this from user input
-          year: card.year, // Get this from user input
-          cardNo: card.cardNo, // Get this from user input
-          cvv: card.cvv, // Get this from user input
-        ));
-      }
-    }
+
   }
   @override
   Widget build (BuildContext context){
     cards = widget.paymentCards;
     print('8th Page');
-    double screenHeight = MediaQuery.of(context).size.height;
-    return SingleChildScrollView(
-      child: Column(
-        children: [
-          SingleChildScrollView(
-            child: Column(
-                children:List.generate(cards.length, (index) {
-                  return GestureDetector(
-                    onTap: (){
-                      print('1');
-                      if(cards[index].options!=null){
-                        setState(() {
-                          cards[index].options = !(cards[index].options!);
-                        });
-                      }
-                    },
-                    child: Container(
-                      width: 357,
-                      height: cards[index].options!=null && cards[index].options==true?192:102,
-                      margin: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(10),
-                        border:Border.all(
-                          color: HexColor('#F5F5F5'),width: 2,
-                        ),
-                      ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              Container(
-                                width:215,
-                                height: 50,
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(formatNumber(cards[index].cardNo),style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                                    Text(cards[index].name,style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
-                                  ],
-                                ),
-                              ),
-                              Container(
-                                width: 48,
-                                height: 59,
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children:[
-                                    cards[index].cardChoosen==1?
-                                    Image.asset('assets/images/mastercard.png',width: 40,height: 30,)
-                                        :cards[index].cardChoosen==2?
-                                    Image.asset('assets/images/visa.png',width: 40,height: 30,)
-                                        :Image.asset('assets/images/visa.png',width: 40,height: 30,),
-                                    index==0?
-                                    Text('Primary',style: TextStyle(fontSize: 12,fontFamily: 'Poppnis'),)
-                                        :Icon(Icons.arrow_forward_ios,color:HexColor('#00559B'),size: 12,),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                          cards[index].options!=null && cards[index].options==true
-                              ?Container(
-                                  height: 27,
-                                width: 357,
-                                child: Row(
-                                  mainAxisAlignment:MainAxisAlignment.spaceEvenly ,
-                            children: [
-                                GestureDetector(
-                                  child: Text('Edit',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
-                                  onTap: (){
-                                    setState(() {
-                                      nameController.text = cards[index].name;
-                                      cardNoController.text = cards[index].cardNo;
-                                      expMonthController.text = cards[index].month;
-                                      expYearController.text = cards[index].year;
-                                      cvvController.text = cards[index].cvv;
-                                      showCards = !showCards;
-                                    });
-                                    if(widget.section=='edit'){
-                                      globalCards!.removeAt(index);
-                                    }
-                                    else widget.profileDataProvider!.removeCard(index);
-                                    editCard = CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text,month:expMonthController.text,year: expYearController.text,cvv:cvvController.text,options: false);
-                                    widget.paymentCards.removeAt(index);
-                                  },
-                                ),
-                                Text('|',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'))),
-                                GestureDetector(
-                                    onTap: (){
-                                      if(widget.section=='edit'){
-                                        print('removed');
-                                        globalCards!.removeAt(index);
-                                      }
-                                      else widget.profileDataProvider!.removeCard(index);
-                                      setState(() {
-                                        widget.paymentCards.removeAt(index);
-                                      });
-                                    },
-                                    child: Text('Remove',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color: HexColor('#FB8C00')))),
-                            ],
-                          ),
-                              )
-                              :SizedBox(width: 0,),
-                        ],
-                      ),
-                    ),
-                  );
-                })
-            ),
-          ),
 
-          showCards
-              ? Container(
-            // width: 357,
-            // height: 683, 
-            padding: EdgeInsets.only(left:15,right:15),
-            // decoration: BoxDecoration(
-            //   border: Border.all(
-            //     color: Colors.black,width: 1,
-            //   ),
-            // ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height:20,),
-                Container(
-                  width: 218,
-                  height: 58,
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Add Debit/Credit/ATM Card',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                      Container(
-                        width: 126,
-                        height: 22,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Image.asset('assets/images/mastercard.png',width: 40,height: 30,),
-                            Image.asset('assets/images/visa.png',width: 40,height: 30,),
-                            Image.asset('assets/images/american_express.jpg',width: 40,height: 30,),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height:20,),
-                Container(
-                  width: 324,
-                  height: 497,
-                  // decoration: BoxDecoration(
-                  //     border: Border.all(
-                  //       color: Colors.black,
-                  //       width: 1,
-                  //     )
-                  // ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        width:323,
-                        height:90,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Cardholder Name'),
-                            TextFormField(
-                              controller: nameController,
-                              decoration: InputDecoration(
-                                hintText: 'Name On Card',
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.grey), // Change the border color here
-                                ), // Add an outline border
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 323,
-                        height: 90,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Card Number'),
-                            TextFormField(
-                              controller: cardNoController,
-                              inputFormatters: [
-                                CreditCardFormatter(),
-                              ],
-                              keyboardType: TextInputType.number,
-                              decoration: InputDecoration(
-                                hintText: '0000 0000 0000 0000',
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderSide: BorderSide(color: Colors.grey), // Change the border color here
-                                ), // Add an outline border
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 323,
-                        height: 80,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('Expiration date'),
-                            Container(
-                              width: 189,
-                              height: 53,
-                              child: Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Container(
-                                    width:72,
-                                    height: 53,
-                                    child: TextFormField(
-                                      keyboardType: TextInputType.number,
-                                      controller: expMonthController,
-                                      decoration: InputDecoration(
-                                        hintText: 'MM',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(color: Colors.grey), // Change the border color here
-                                        ), // Add an outline border
-                                      ),
-                                    ),
-                                  ),
-                                  Column(
-                                    children: [
-                                      SizedBox(height: 15,),
-                                      Text('/',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                                    ],
-                                  ),
-                                  Container(
-                                    width: 72,
-                                    height: 53,
-                                    child: TextFormField(
-                                      keyboardType: TextInputType.number,
-                                      controller: expYearController,
-                                      decoration: InputDecoration(
-                                        hintText: 'YY',
-                                        focusedBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
-                                        ),
-                                        enabledBorder: OutlineInputBorder(
-                                          borderSide: BorderSide(color: Colors.grey), // Change the border color here
-                                        ), // Add an outline border
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 323,
-                        height: 80,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            Text('CVV'),
-                            Container(
-                              width:143,
-                              height:53,
-                              child: TextFormField(
-                                controller: cvvController,
-                                keyboardType: TextInputType.number,
-                                decoration: InputDecoration(
-                                  hintText: '000   or   0000',
-                                  focusedBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: HexColor('#FB8C00'),), // Change the border color here
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderSide: BorderSide(color: Colors.grey), // Change the border color here
-                                  ), // Add an outline border
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Container(
-                        width: 322,
-                        height: 63,
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                          children: [
-                            GestureDetector(
-                              onTap: (){
-                                if(editCard!=null){
-                                  widget.paymentCards.add(editCard!);
-                                  if(widget.profileDataProvider!=null){
-                                    PaymentDetails newPayment = PaymentDetails(
-                                      name: nameController.text, // Get this from user input
-                                      month: expMonthController.text, // Get this from user input
-                                      year: expYearController.text, // Get this from user input
-                                      cardNo: cardNoController.text, // Get this from user input
-                                      cvv: cvvController.text, // Get this from user input
-                                    );
-                                    widget.profileDataProvider!.addCardDetails(newPayment);
-                                  }
-                                  else{
-                                    globalCards!.add(PaymentDetails(
-                                      name: nameController.text, // Get this from user input
-                                      month: expMonthController.text, // Get this from user input
-                                      year: expYearController.text, // Get this from user input
-                                      cardNo: cardNoController.text, // Get this from user input
-                                      cvv: cvvController.text, // Get this from user input
-                                    ));
-                                  }
-                                  editCard = null;
-                                }
-                                setState(() {
-                                  nameController.text = '';
-                                  cardNoController.text = '';
-                                  expMonthController.text = '';
-                                  expYearController.text = '';
-                                  cvvController.text = '';
-                                  showCards = !showCards;
-                                });
-                              },
-                              child: Container(
-                                  width: 156,
-                                  height: 63,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: HexColor('#FB8C00'),
-                                    ),
-                                  ),
-                                  child: Center(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'),fontFamily: 'Poppins'),))
-                              ),
-                            ),
-                            GestureDetector(
-                              onTap: (){
-                                if(cardValidator()){
-                                  PaymentDetails newPayment = PaymentDetails(
-                                    name: nameController.text, // Get this from user input
-                                    month: expMonthController.text, // Get this from user input
-                                    year: expYearController.text, // Get this from user input
-                                    cardNo: cardNoController.text, // Get this from user input
-                                    cvv: cvvController.text, // Get this from user input
-                                  );
-                                  print(widget.section);
-                                  if(widget.section=='edit') {
-                                    globalCards!.add(newPayment);
-                                  }
-                                  else {
-                                    widget.profileDataProvider!.addCardDetails(newPayment);
-                                  }
-                                  if(editCard!=null){
-                                    editCard = null;
-                                  }
-                                  setState(() {
-                                    widget.paymentCards.add(CardDetails(name: nameController.text, cardChoosen: 1, cardNo: cardNoController.text,month:expMonthController.text,year: expYearController.text,cvv:cvvController.text,options: false));
-                                    nameController.text = '';
-                                    cardNoController.text = '';
-                                    expMonthController.text = '';
-                                    expYearController.text = '';
-                                    cvvController.text = '';
-                                    showCards = !showCards;
-                                  });
-                                }
-                              },
-                              child: Container(
-                                  width: 156,
-                                  height: 63,
-                                  decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(10),
-                                    color: HexColor('#FB8C00'),
-                                  ),
-                                  child: Center(child: Text('SAVE',style: TextStyle(fontSize: 16,fontFamily: 'Popppins',fontWeight: FontWeight.bold,color: Colors.white),))
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
+    return Container(
 
 
-                    ],
-                  ),
-                ),
-              ],
+      child: InkWell(
+        onTap : (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => RazorPayIntegration(),
             ),
-          )
-              : GestureDetector(
-            onTap: (){
-              setState(() {
-                showCards = !showCards;
-              });
-            },
-            child: Container(
-              width: 357,
-              height: 140,
-              decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(20),
-                  border: Border.all(
-                    color: Colors.black,
-                    width: 1,
-                  )
-              ),
-              child: Row(
-                children: [
-                  SizedBox(width: 30,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      Text('Add Debit/Credit/ATM Card',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                      Text('You can save your cards as per new RBI \nguidelines.',style: TextStyle(fontFamily: 'Poppins',fontSize: 14,),),
-                      Row(
-                        children: [
-                          Text('Learn More',style: TextStyle(fontSize: 12,fontWeight:FontWeight.bold,color:HexColor('#00559B')),),
-                          Icon(Icons.arrow_forward_ios_outlined,size:14,color: HexColor('#00559B'),),
-                        ],
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-          ),
-          // widget.paymentCards.length>0
-          // ? Container(
-          // ? Container(
-          //     width: 326,
-          //     height: 53,
-          //     margin: EdgeInsets.only(top: screenHeight * 0.2 ),
-          //     child: FiledButton(
-          //     backgroundColor: HexColor('#FB8C00'),
-          //     onPressed: () {
-          //         showDialog(context: context, builder: (BuildContext context){
-          //           return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-          //             Navigator.of(context).pop();
-          //             // Navigator.of(context).pop();
-          //             // Navigator.of(context).pop();
-          //             Navigator.of(context).pop();
-          //             if(widget.profileDataProvider!=null){
-          //               widget.profileDataProvider?.setServide1();
-          //             }
-          //           },),);
-          //         },
-          //       );
-          //     },
-          //     child: Center(
-          //       child: Text('Set Cards',style: TextStyle(fontWeight: FontWeight.bold,color: Colors.white,fontSize: 18)))),
-          //   )
-          // :SizedBox(height: 0,),
-        ],
+          );
+          },
+        child: Container(
+
+          child : Text('add Cards'),
+
+        ),
       ),
     );
   }

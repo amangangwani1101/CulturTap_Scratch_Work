@@ -25,6 +25,7 @@ import 'package:geolocator/geolocator.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/rendering.dart';
+import 'package:learn_flutter/userLocation.dart';
 import 'package:learn_flutter/widgets/Constant.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -250,6 +251,8 @@ class _HomePageState extends State<HomePage> {
       double longitude = position.longitude;
       String query = _searchController.text;
 
+      getAndPrintLocationNameFast(latitude,longitude);
+
       updateLiveLocation(userID, position.latitude, position.longitude);
 
       print('Latitude is: $latitude');
@@ -320,6 +323,7 @@ class _HomePageState extends State<HomePage> {
     f();
 
     fetchDataFromMongoDB();
+
     requestLocationPermission();
     fetchUserLocationAndData();
     _scrollController.addListener(() {
@@ -526,12 +530,14 @@ class _HomePageState extends State<HomePage> {
         ),
         bottomNavigationBar: AnimatedContainer(
           duration: Duration(milliseconds: 100),
-          height : _isVisible ? 70 : 0,
-
-
-
-          child: CustomFooter(userName: userName, userId: userID, lode: 'home',),
+          height: _isVisible ? 70 : 0,
+          child: SingleChildScrollView(
+            child: Container(
+                height : 70,
+                child: CustomFooter(userName: userName, userId: userID, lode: 'home')),
+          ),
         ),
+
       ),
     );
   }
