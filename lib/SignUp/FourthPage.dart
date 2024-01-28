@@ -73,12 +73,14 @@ class _FourthPageState extends State<FourthPage> {
   void initState() {
 
     super.initState();
+
+    _fetchLocation();
     _inputFocusNode = FocusNode();
     notificationServices.requestNotificationPermission();
     notificationServices.firebaseInit(context);
     notificationServices.setupInteractMessage(context);
     tokenGenerator();
-    _fetchLocation();
+
   }
 
   void tokenGenerator()async{
@@ -288,7 +290,7 @@ class _FourthPageState extends State<FourthPage> {
                   children: [
                     Container(
                       margin: const EdgeInsets.only(bottom: 25),
-                      height: 300,
+                      height: 270,
 
                       child : Image.asset('assets/images/fourthPage.png'),
                       color: Colors.white,
@@ -358,7 +360,7 @@ class _FourthPageState extends State<FourthPage> {
                       child: Text(
                         'EDIT',
                         style: TextStyle(
-                          color: Colors.orange,
+                          color: Colors.orange[300],
                           fontWeight: FontWeight.bold,
                           fontSize: 20,
                         ),

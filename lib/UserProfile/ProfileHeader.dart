@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
 import 'package:learn_flutter/CustomItems/ImagePopUpWithTwoOption.dart';
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 // import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
@@ -31,8 +33,11 @@ class ProfileHeader extends StatefulWidget {
   String? tripHelperId;
   String? meetStatus;
   String? requestSend;
+  String? state;
+  String? fromChatsPage;
+  String? chatsToWhere;
 
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick});
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromChatsPage,this.chatsToWhere});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -163,6 +168,28 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
             child: GestureDetector(
               onTap: (){
+
+
+                if(widget.fromChatsPage == 'yes' ){
+
+                  widget.chatsToWhere == 'local_assist' ?
+
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LocalAssist(),
+                      )) :
+
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (widget.meetStatus=='pending')?'Pending':(widget.meetStatus=='schedule')?'Scheduled':'All')),
+                  );
+
+                }
+
+
+
+
                 if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -320,18 +347,38 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   // Handle the "Download Recording" option
                   // ...
                 }
+                else if (value == 'raiseRequest') {
+
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context)
+                  {
+                    return CustomPopUp(imagePath: '',
+                        textField: 'Request Raised Successfully',
+                        extraText: 'Thankyou for your Service',
+                        what: '',
+                        button: 'OK');
+                  });
+
+    }
+
               },
               itemBuilder: (BuildContext context) => [
                 PopupMenuItem<String>(
-                  value: 'closeRequest',
+                  value: widget.state == 'helper' ? 'raiseRequest' : 'closeRequest',
                   child: Container(
                     child: Row(
                       children: [
-                        Icon(Icons.close, color: Colors.black),
+                        widget.state == 'helper' && widget.meetStatus == 'schedule'  ?
+                        Icon(Icons.cancel_schedule_send_rounded, color: Colors.grey) : Icon(Icons.close, color: Colors.black),
                         SizedBox(width: 8),
+                        widget.state == 'helper' ? Text(
+     widget.meetStatus == 'schedule' ? 'Raise Close Request' :  '',
+    style: Theme.of(context).textTheme.subtitle2,
+    ) :
                         Text(
                           widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Close Request' :  'Cancel Request',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),
@@ -342,11 +389,11 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   child: Container(
                     child: Row(
                       children: [
-                        Icon(Icons.download, color: Colors.black),
+                        Icon(Icons.download, color:  widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
                         SizedBox(width: 8),
                         Text(
                           'Download Recording',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: TextStyle( fontSize : 14, fontWeight:FontWeight.w300,color : widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
                         ),
                       ],
                     ),

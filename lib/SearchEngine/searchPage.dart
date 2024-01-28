@@ -319,6 +319,8 @@ class _SearchPageState extends State<SearchPage> {
     super.initState();
     print('suggestions fetched');
 
+    page = 'search_page';
+    whichPage = 'search_page';
     Timer.periodic(Duration(seconds: 1), (Timer timer) {
       _updateSearchPhrase();
     });

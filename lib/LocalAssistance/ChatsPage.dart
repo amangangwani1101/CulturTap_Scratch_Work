@@ -6,6 +6,7 @@ import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/All_Notifications/customizeNotification.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
+import 'package:learn_flutter/CustomItems/CustomImagePopup.dart';
 import 'package:learn_flutter/CustomItems/RotatingSvgWidget.dart';
 import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 import 'package:learn_flutter/ServiceSections/LocalAssistant/MapNavigator.dart';
@@ -747,7 +748,11 @@ class _ChatsPageState extends State<ChatsPage> {
           print('printing users tokens here $userTokens');
 
           if(vardis==10 || vardis==15 && userIdsAndDistances.length!=0 ){
-            helpingHands = '${userIdsAndDistances.length}-1';
+            helpingHands = '${userIdsAndDistances.length}';
+          }
+          if(userIdsAndDistances.length==0 ){
+            helpingHands = '-1';
+
           }
 
           // if(vardis==10){
@@ -1188,6 +1193,14 @@ class _ChatsPageState extends State<ChatsPage> {
 
       onWillPop: () async {
 
+        widget.where == 'local_assist' ?
+
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => LocalAssist(),
+        )) :
+
+
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (meetStatus=='pending')?'Pending':(meetStatus=='schedule')?'Scheduled':'All')),
@@ -1197,7 +1210,7 @@ class _ChatsPageState extends State<ChatsPage> {
       },
 
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus,requestSend : requestSend,cancelCloseClick:()async{
+        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus,requestSend : requestSend,fromChatsPage : 'yes',chatsToWhere : widget.where,state : widget.state,cancelCloseClick:()async{
           String updatedStatus = meetStatus == 'pending' || meetStatus=='hold_accept' || meetStatus=='accept'?'cancel':'close';
           if(updatedStatus=='cancel'){
             await updateLocalUserPings(widget.userId, widget.meetId!, updatedStatus);
@@ -1216,7 +1229,7 @@ class _ChatsPageState extends State<ChatsPage> {
                 textField: "Local Assistant Service" ,
                 extraText:'Meeting is Cancelled Successfully' ,
                 what:'OK',
-                button: '< Go Back',
+                button: 'Go Back',
               );
             },);
             sendCustomNotificationToOneUser(
@@ -1373,7 +1386,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   : SizedBox(height: 0),
 
                               (helpingHands=='' && pageVisitor && messages.length==0) || _userRefreshingPageOnFirstMessage || liveLocation  == 'fetching location' || findingHelpingHands=='start' || widget.meetStatus == "accept"
-                                  ? Container(
+                                  ?  Container(
                                 height : widget.state=='helper' ? 700 :  300,
                                 child: Center(
                                     child: Center(
@@ -1381,10 +1394,45 @@ class _ChatsPageState extends State<ChatsPage> {
                                     ),
                                 ),
                               )
-                                  : pageVisitor ?
+                                  : pageVisitor  ?
                               Column(
                                 children: [
                                   SizedBox(height : 10),
+                                  helpingHands == '-1' ? Container(
+
+
+                                    child : Center(
+                                      child: Column(
+                                        children : [
+                                          SvgPicture.asset(
+                                            "assets/images/tripPlanningHelp.svg",
+                                            height : 200,
+                                            width: 316, // Adjust the width as needed
+                                          ),
+                                          Container(
+                                            width : 260,
+                                              child : Column(
+                                            children: [
+                                              SizedBox(height : 10),
+                                              Text('No helping hands found !!', style:Theme.of(context).textTheme.subtitle2, textAlign: TextAlign.center),
+                                              SizedBox(height : 10),
+                                              Text('You can refresh this page again to check for the nearby assistant', style:Theme.of(context).textTheme.subtitle2, textAlign: TextAlign.center,)
+
+                                            ],
+                                          ))
+
+
+
+                                          ]
+
+
+                                      ),
+                                    ),
+
+                                    // child : CustomPopUp(imagePath: 'assets/images/tripPlanningHelp.svg',textField:'No Helping Hands Found',extraText: 'You can refresh this page to check for the nearby assistant',what : '',button : 'Ok Get it')
+                                    //
+
+                                  ) :
                                   Column(
 
                                     children: [
@@ -3125,7 +3173,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                 ///----------------------------------------------------------------------------------------------------------------------------
 
-                _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' || findingHelpingHands=='start'  ? Container() :
+                _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' || findingHelpingHands=='start' || helpingHands == '-1'  ? Container() :
                 Positioned(
                   bottom : 0,
                   left : 0,
@@ -3506,7 +3554,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                         }
                                         setState(() {});
                                       }else{
-                                        if(helperMessage){
+                                        if(helperMessage && meetStatus != 'schedule'){
 
                                           sendCustomNotificationToOneUser(
                                               helperToken,

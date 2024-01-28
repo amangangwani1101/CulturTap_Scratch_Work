@@ -114,9 +114,9 @@ class _SecondPageState extends State<SecondPage> {
                         Container(
                           child: Image.asset('assets/images/secondPage.png'),
                           margin: const EdgeInsets.only(bottom: 25),
-                          height: 300,
+                          height: 250,
                           color: Colors.white,
-                        ),
+                        ), 
 
 
                         Container(

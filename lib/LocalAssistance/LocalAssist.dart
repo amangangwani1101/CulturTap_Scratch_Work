@@ -34,7 +34,9 @@ class _LocalAssistState extends State<LocalAssist> {
 
   @override
   void initState() {
+
     super.initState();
+    whichPage == 'local_assist';
     // Your initialization code goes here
     localAssistOperation();
   }
@@ -203,7 +205,7 @@ class _LocalAssistState extends State<LocalAssist> {
               child: Column(
                 children: [
                   // SizedBox(height: 20,),
-                  state!=null && state!='ongoing'
+                  state!=null && state!='ongoing' && state!='helper'
                       ?Builder(
                       builder: (context) {
                         return GestureDetector(
@@ -302,6 +304,7 @@ class _LocalAssistState extends State<LocalAssist> {
                             builder: (context) =>
                                 ChatsPage(userId: userID,
                                   state: 'user',
+                                  where: 'local_assist',
                                 ),));
                           await checkIsMeetOngoing();
                         }

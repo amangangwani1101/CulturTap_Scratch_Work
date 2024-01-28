@@ -61,7 +61,7 @@ class _UserNamePageState extends State<UserNamePage> {
                     Container(
                       margin: const EdgeInsets.only(bottom: 25),
                       child: Image.asset('assets/images/firstPage.png'),
-                      height: 300,
+                      height: 250,
 
                       color: Colors.white,
                     ),
@@ -76,7 +76,7 @@ class _UserNamePageState extends State<UserNamePage> {
                     Container(
                         margin: EdgeInsets.only(bottom: 31),
                         child: Text('Explore, Update, Guide & Earn !',
-                            style: TextStyle(fontSize: 20,  color: Theme.of(context).primaryColorDark))),
+                            style: TextStyle(fontSize: 18,  color: Theme.of(context).primaryColorDark))),
                     Text('Please Enter Your',
                       style: TextStyle(
                         fontSize: 18,
