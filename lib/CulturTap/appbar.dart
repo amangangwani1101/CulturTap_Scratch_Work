@@ -3,7 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
+import 'package:learn_flutter/CustomItems/ImagePopUpWithTwoOption.dart';
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 // import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
@@ -17,20 +20,27 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/Constant.dart';
 
+
+String profileHeaderOfPage = '';
 // AppBar Section
 class ProfileHeader extends StatefulWidget {
 
   int reqPage;
   String? imagePath;
   String? userId,text,userName;
-  VoidCallback? onButtonPressed;
+  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick;
   ProfileDataProvider?profileDataProvider;
   String? profileStatus;
+  String? assistMeetId;
+  String? tripHelperId;
+  String? meetStatus;
+  String? requestSend;
+  String? state;
+  String? fromWhichPage;
+  String? chatsToWhere;
+  final String? profileHeaderOfPage;
 
-
-
-
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed});
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -66,7 +76,6 @@ class _ProfileHeaderState extends State<ProfileHeader> {
   Widget build(BuildContext context) {
     print('Use:${widget.userId}');
     return Container(
-
 
 
       child: Row(
@@ -162,6 +171,28 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
             child: GestureDetector(
               onTap: (){
+
+
+                if(widget.fromWhichPage == 'yes' ){
+
+                  widget.chatsToWhere == 'local_assist' ?
+
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LocalAssist(),
+                      )) :
+
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (widget.meetStatus=='pending')?'Pending':(widget.meetStatus=='schedule')?'Scheduled':'All')),
+                  );
+
+                }
+
+
+
+
                 if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
@@ -185,7 +216,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   Navigator.of(context).pop();
                 }
               },
-              child: Center(child: Text('< Back ', style : TextStyle(fontSize: 16,fontWeight: FontWeight.w600),textAlign: TextAlign.center,)),
+              child: Center(child: Text('< Back ', style : TextStyle(fontSize: 16,fontWeight: FontWeight.w600))),
             ),
           )
               : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 0,): SizedBox(height: 0,),
@@ -211,12 +242,12 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             children: [
               InkWell(
                 onTap: (){
-
-                  if(userID!=null){
+                  print('Us2e:${widget.userId}');
+                  if(widget.userId!=null){
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: userID,),
+                        builder: (context) => PingsSection(userId: userID,selectedService: widget.fromWhichPage=='local_assist' ? 'Local Assistant' : 'Trip Planning',),
                       ),
                     );
                   }
@@ -244,8 +275,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                           ),),
                           if(notificationCount>0)
                             Positioned(
-                              top: -4,
-                              right: 18,
+                              top: -3,
+                              right: 21,
                               // height: 20,
                               child: Container(
                                 padding: EdgeInsets.all(3),
@@ -298,7 +329,95 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
                   : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
             ),
-          ):SizedBox(width: 70,),
+          ):
+
+          ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule') ?
+          Container(  width : 70, height: 80,
+            child : PopupMenuButton<String>(
+              color: Colors.white,
+              onSelected: (value) {
+                // Handle the selected option
+                if (value == 'closeRequest') {
+                  // Display the custom popup when "Close Request" is selected
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
+                        meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
+                    },
+                  );
+                } else if (value == 'downloadRecording') {
+                  // Handle the "Download Recording" option
+                  // ...
+                }
+                else if (value == 'raiseRequest') {
+
+                  showDialog(
+                      context: context,
+                      builder: (BuildContext context)
+                      {
+                        return CustomPopUp(imagePath: '',
+                            textField: 'Request Raised Successfully',
+                            extraText: 'Thankyou for your Service',
+                            what: '',
+                            button: 'OK');
+                      });
+
+                }
+
+              },
+              itemBuilder: (BuildContext context) => [
+                PopupMenuItem<String>(
+                  value: widget.state == 'helper' ? 'raiseRequest' : 'closeRequest',
+                  child: Container(
+                    child: Row(
+                      children: [
+                        widget.state == 'helper' && widget.meetStatus == 'schedule'  ?
+                        Icon(Icons.cancel_schedule_send_rounded, color: Colors.grey) : Icon(Icons.close, color: Colors.black),
+                        SizedBox(width: 8),
+                        widget.state == 'helper' ? Text(
+                          widget.meetStatus == 'schedule' ? 'Raise Close Request' :  '',
+                          style: Theme.of(context).textTheme.subtitle2,
+                        ) :
+                        Text(
+                          widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Close Request' :  'Cancel Request',
+                          style: Theme.of(context).textTheme.subtitle2,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'downloadRecording',
+                  child: Container(
+                    child: Row(
+                      children: [
+                        Icon(Icons.download, color:  widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
+                        SizedBox(width: 8),
+                        Text(
+                          'Download Recording',
+                          style: TextStyle( fontSize : 14, fontWeight:FontWeight.w300,color : widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              child: Container(
+                width: 70,
+                height: 80,
+                child: Icon(
+                  Icons.more_vert,
+                  color: Theme.of(context).primaryColorDark,
+                  size: 24,
+                ),
+              ),
+            ),
+
+
+
+          ):
+          Container(height: 70,width: 70,) ,
         ],
       ),
     );

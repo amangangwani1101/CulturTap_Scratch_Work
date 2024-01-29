@@ -631,6 +631,7 @@ class _ChatsPageState extends State<ChatsPage> {
   @override
   void initState() {
     super.initState();
+    profileHeaderOfPage = 'local_assist';
     checkMeetStatus('');
 
     getMeetStatus();
@@ -1210,7 +1211,7 @@ class _ChatsPageState extends State<ChatsPage> {
       },
 
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus,requestSend : requestSend,fromChatsPage : 'yes',chatsToWhere : widget.where,state : widget.state,cancelCloseClick:()async{
+        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus,requestSend : requestSend,fromWhichPage : 'yes',chatsToWhere : widget.where,state : widget.state,cancelCloseClick:()async{
           String updatedStatus = meetStatus == 'pending' || meetStatus=='hold_accept' || meetStatus=='accept'?'cancel':'close';
           if(updatedStatus=='cancel'){
             await updateLocalUserPings(widget.userId, widget.meetId!, updatedStatus);
@@ -2324,6 +2325,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                                   ],
                                                 ),
                                               ),
+
+
+
+
+
                                             ],
                                           ),
                                         )
@@ -2771,6 +2777,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                           CrossAxisAlignment
                                               .start,
                                           children: [
+
+
                                             Container(
 
                                               color: Theme.of(context).backgroundColor,
@@ -2888,10 +2896,14 @@ class _ChatsPageState extends State<ChatsPage> {
                                                 ],
                                               ),
                                             ),
+
+
                                             SizedBox(
                                               height:
                                               15,
                                             ),
+
+
                                             Container(
                                               width:360,
                                               color: Theme.of(context).backgroundColor,
