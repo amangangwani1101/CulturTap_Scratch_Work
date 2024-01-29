@@ -26,7 +26,7 @@ class ProfileHeader extends StatefulWidget {
   int reqPage;
   String? imagePath;
   String? userId,text,userName;
-  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick;
+  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick,raiseCloseRequest;
   ProfileDataProvider?profileDataProvider;
   String? profileStatus;
   String? assistMeetId;
@@ -37,7 +37,7 @@ class ProfileHeader extends StatefulWidget {
   String? fromChatsPage;
   String? chatsToWhere;
 
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromChatsPage,this.chatsToWhere});
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromChatsPage,this.chatsToWhere,this.raiseCloseRequest});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -190,7 +190,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
 
 
-                if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
+                else if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
                 }
@@ -349,19 +349,20 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 }
                 else if (value == 'raiseRequest') {
 
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context)
-                  {
-                    return CustomPopUp(imagePath: '',
-                        textField: 'Request Raised Successfully',
-                        extraText: 'Thankyou for your Service',
-                        what: '',
-                        button: 'OK');
-                  });
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (BuildContext context)
+                  // {
+                  //   return CustomPopUp(imagePath: '',
+                  //       textField: 'Request Raised Successfully',
+                  //       extraText: 'Thankyou for your Service',
+                  //       what: '',
+                  //       button: 'OK');
+                  // });
 
-    }
+                  widget.raiseCloseRequest!();
 
+                }
               },
               itemBuilder: (BuildContext context) => [
                 PopupMenuItem<String>(
