@@ -20,6 +20,8 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/Constant.dart';
 
+
+String profileHeaderOfPage = '';
 // AppBar Section
 class ProfileHeader extends StatefulWidget {
 
@@ -34,10 +36,11 @@ class ProfileHeader extends StatefulWidget {
   String? meetStatus;
   String? requestSend;
   String? state;
-  String? fromChatsPage;
+  String? fromWhichPage;
   String? chatsToWhere;
+  final String? profileHeaderOfPage;
 
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromChatsPage,this.chatsToWhere,this.raiseCloseRequest});
+  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage,this.raiseCloseRequest});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -170,7 +173,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               onTap: (){
 
 
-                if(widget.fromChatsPage == 'yes' ){
+                if(widget.fromWhichPage == 'yes' ){
 
                   widget.chatsToWhere == 'local_assist' ?
 
@@ -244,7 +247,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: userID,),
+                        builder: (context) => PingsSection(userId: userID,selectedService: widget.fromWhichPage=='local_assist' ? 'Local Assistant' : 'Trip Planning',),
                       ),
                     );
                   }
