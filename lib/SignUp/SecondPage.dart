@@ -222,7 +222,7 @@ class _SecondPageState extends State<SecondPage> {
                                       ),
                                       contentPadding: EdgeInsets.symmetric(
                                           vertical: 16.0, horizontal: 20.0),
-                                      hintText: ' Ex : 9026966203',
+                                      hintText: ' Ex : 9876543210',
                                       hintStyle : TextStyle(fontSize : 18,letterSpacing : 2.0,fontWeight : FontWeight.w600,color : Color(0xFFBABABA) ),
                                       errorText: _isPhoneNumberValid ? null : 'Invalid Phone Number',
                                       errorStyle : TextStyle(fontSize : 16),

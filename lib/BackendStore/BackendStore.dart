@@ -103,14 +103,16 @@ class ServiceTripCallingData{
   String? setStartTime=null;
   String? setEndTime=null;
   String? slots=null;
+  List<bool> ?availabilityChoosen=List.generate(7, (index) => true);
 
-  ServiceTripCallingData({this.setStartTime,this.setEndTime,this.slots});
+  ServiceTripCallingData({this.setStartTime,this.setEndTime,this.slots,this.availabilityChoosen});
 
   Map<String,dynamic> toJson(){
     return {
       'startTimeFrom' : setStartTime,
       'endTimeTo' : setEndTime,
       'slotsChossen' : slots,
+      'daysChoosen' : availabilityChoosen,
     };
   }
 }
@@ -201,7 +203,6 @@ class ProfileData{
   bool? tripAssistantData=false;
   List<RatingEntry>? reviewSection;
   List<PaymentDetails>? paymentDetail;
-
   ProfileData({this.userId,this.name,this.imagePath,this.quote,this.followerCnt,this.locations,this.followingCnt,
     this.place,this.profession,this.age,this.languages,this.gender,
     this.tripCallingData,this.reviewSection,this.tripAssistantData,this.paymentDetail,this.emailId,this.dob});
@@ -223,8 +224,8 @@ class ProfileData{
       'userAge':age,
       'userGender':gender,
       'userLanguages':languages,
-      'userServiceTripCallingData':tripCallingData?.toJson(),
-      'userServiceTripAssistantData':tripAssistantData,
+      'userServiceTripCallingData':service1 ?tripCallingData?.toJson():null,
+      'userServiceTripAssistantStatus':service2,
       'userReviewsData' : reviewSection?.map((entry)=>entry.toJson()).toList(),
       'userPaymentData' : paymentDetail?.map((entry)=>entry.toJson()).toList(),
     };
@@ -238,7 +239,7 @@ class ProfileDataProvider extends ChangeNotifier {
   void setUserId(String id) {
     _profileData.userSetId = id;
     print('Path is $id');
-    notifyListeners();
+    // notifyListeners();
   }
   String? retUserId(){
     return _profileData.userSetId;
@@ -248,7 +249,7 @@ class ProfileDataProvider extends ChangeNotifier {
   void updateImagePath(String path) {
     _profileData.imagePath = path;
     print('Path is $path');
-    notifyListeners();
+    // notifyListeners();
   }
 
   String? retImagePath(){
@@ -258,7 +259,7 @@ class ProfileDataProvider extends ChangeNotifier {
   void updateName(String userName) {
     _profileData.name = userName;
     print('Path is $userName');
-    notifyListeners();
+    // notifyListeners();
   }
 
   String? retUserName(){
@@ -268,13 +269,13 @@ class ProfileDataProvider extends ChangeNotifier {
   void updateEmail(String emailId){
     _profileData.emailId = emailId;
     print('Path is $emailId');
-    notifyListeners();
+    // notifyListeners();
   }
 
 
   void updateFieldCnt(int score){
     _profileData.statusCnt+=score;
-    notifyListeners();
+    // notifyListeners();
     return;
   }
 
@@ -284,73 +285,89 @@ class ProfileDataProvider extends ChangeNotifier {
 
   void updateDOb(DateTime dob){
     _profileData.dob = dob;
-    notifyListeners();
+    // notifyListeners();
     return;
   }
 
   void setProfileStatus(String status){
     _profileData.profileStatus = status;
-    notifyListeners();
+    // notifyListeners();
     return;
   }
 
   void updateQuote(String userQuote) {
     _profileData.quote = userQuote;
     print('Path is $userQuote');
-    notifyListeners();
+    // notifyListeners();
   }
 
   void updateFollowersCnt(int userFollowers){
     _profileData.followerCnt = userFollowers==null?0:userFollowers;
     print('Path1 is $userFollowers');
-    notifyListeners();
+    // notifyListeners();
   }
 
   void updateFollowingCnt(int userFollowering){
     _profileData.followingCnt = userFollowering==null?0:userFollowering;
     print('Path2 is $userFollowering');
-    notifyListeners();
+    // notifyListeners();
   }
 
   void updateLocationsCnt(int userExploredLocations){
     _profileData.locations = userExploredLocations==null?0:userExploredLocations;
     print('Path3 is $userExploredLocations');
-    notifyListeners();
+    // notifyListeners();
   }
 
   void updatePlace(String userPlace) {
     _profileData.place = userPlace;
     print('Path is $userPlace');
-    notifyListeners();
+    // notifyListeners();
   }
+
+  String retUpdatePlace(){
+    return _profileData.place!=null ? _profileData.place!:'';
+  }
+
 
   void updateProfession(String userProfession) {
     _profileData.profession = userProfession!;
     print('Path is $userProfession');
-    notifyListeners();
+    // notifyListeners();
+  }
+
+  String retUpdateProfession(){
+    return _profileData.profession!=null ? _profileData.profession!:'';
   }
 
   void updateAge(String userAge) {
     _profileData.age = userAge!;
     print('Path is ${ _profileData.age}');
-    notifyListeners();
+    // notifyListeners();
   }
 
   void updateGender(String userGender) {
     _profileData.gender = userGender!;
-    notifyListeners();
+    // notifyListeners();
   }
 
   void updateLanguages(List<String> languages) {
     _profileData.languages = languages!;
     print('Path is ${_profileData.languages}');
-    notifyListeners();
+    // notifyListeners();
+  }
+
+  List<String> retUpdatedLanguage(){
+    if(_profileData.languages==null){
+      return [];
+    }
+    return _profileData.languages!;
   }
 
   void unsetTripCalling(){
     _profileData.tripCallingData = null;
     print('done it');
-    notifyListeners();
+    // notifyListeners();
     return;
   }
   void setStartTime(String?startTime) {
@@ -359,7 +376,7 @@ class ProfileDataProvider extends ChangeNotifier {
     }
     _profileData.tripCallingData!.setStartTime = startTime!;
     print('Path is $startTime');
-    notifyListeners();
+    // notifyListeners();
   }
 
   // bool isStartTimeSet(){
@@ -378,7 +395,7 @@ class ProfileDataProvider extends ChangeNotifier {
     }
     _profileData.tripCallingData!.setEndTime = endTime!;
     print('Path is $endTime');
-    notifyListeners();
+    // notifyListeners();
   }
 
   String? retEndTime(){
@@ -391,12 +408,25 @@ class ProfileDataProvider extends ChangeNotifier {
     }
     _profileData.tripCallingData!.slots = slot!;
     print('Path is $slot');
-    notifyListeners();
+    // notifyListeners();
+  }
+
+  void setAvailableSlots(List<bool>available){
+    if (_profileData.tripCallingData == null) {
+      _profileData.tripCallingData = ServiceTripCallingData(); // Initialize if null
+    }
+    _profileData.tripCallingData!.availabilityChoosen = available;
+    print('Available slot ${_profileData.tripCallingData!.availabilityChoosen}');
+    // notifyListeners();
+  }
+
+  List<bool> retAvailableSlots (){
+    return _profileData.tripCallingData!.availabilityChoosen!;
   }
   void setServide1(){
     _profileData.service1 = !_profileData.service1;
     print('Set Service');
-    notifyListeners();
+    // notifyListeners();
   }
 
   bool retServide1(){
@@ -407,7 +437,7 @@ class ProfileDataProvider extends ChangeNotifier {
   void setServide2(){
     _profileData.service2 = !_profileData.service2;
     print('Set Service');
-    notifyListeners();
+    // notifyListeners();
   }
 
   bool retServide2(){
@@ -425,7 +455,7 @@ class ProfileDataProvider extends ChangeNotifier {
   //   }
   //   _profileData.tripAssistantData!.guideId = id!;
   //   print('Path is $id');
-  //   notifyListeners();
+  //   // notifyListeners();
   // }
   //
   // void setDate(String time){
@@ -434,7 +464,7 @@ class ProfileDataProvider extends ChangeNotifier {
   //   }
   //   _profileData.tripAssistantData!.guideId = time!;
   //   print('Path is $time');
-  //   notifyListeners();
+  //   // notifyListeners();
   // }
 
 
@@ -444,7 +474,7 @@ class ProfileDataProvider extends ChangeNotifier {
     }
     _profileData.reviewSection!.add(rating);
     print('Path is ${rating.name}');
-    notifyListeners();
+    // notifyListeners();
   }
 
 
@@ -454,18 +484,18 @@ class ProfileDataProvider extends ChangeNotifier {
     }
     _profileData.paymentDetail!.add(details);
     print('Path is ${details}');
-    notifyListeners();
+    // notifyListeners();
   }
 
   void removeCard(int index){
     _profileData.paymentDetail!.removeAt(index);
     print('Removed');
-    notifyListeners();
+    // notifyListeners();
   }
   void removeAllCards(){
     _profileData.paymentDetail = [];
     print('All Removed');
-    notifyListeners();
+    // notifyListeners();
   }
 }
 

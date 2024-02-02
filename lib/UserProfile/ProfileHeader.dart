@@ -172,8 +172,10 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             child: GestureDetector(
               onTap: (){
 
-
-                if(widget.fromWhichPage == 'yes' ){
+                if(widget.fromWhichPage=='trip_planning_schedule_profile'){
+                  widget.onButtonPressed!();
+                }
+                else if(widget.fromWhichPage == 'yes' ){
 
                   widget.chatsToWhere == 'local_assist' ?
 
@@ -185,7 +187,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (widget.meetStatus=='pending')?'Pending':(widget.meetStatus=='schedule')?'Scheduled':'All')),
+                    MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (widget.meetStatus=='pending')?'Pending':(widget.meetStatus=='schedule')?'Scheduled':(widget.meetStatus=='accept'||widget.meetStatus=='hold_accept')?'Accepted': widget.meetStatus=='cancel'?'Cancelled':(widget.meetStatus=='close')?'Closed':'All Pings')),
                   );
 
                 }
@@ -331,7 +333,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             ),
           ):
 
-          ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule') ?
+          ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule' || widget.meetStatus=='aceept' || widget.meetStatus=='hold_accept') ?
           Container(  width : 70, height: 80,
             child : PopupMenuButton<String>(
               color: Colors.white,

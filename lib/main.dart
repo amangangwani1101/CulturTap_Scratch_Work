@@ -140,7 +140,7 @@ class MyApp extends StatelessWidget {
           child: child!,
         );
       },
-      theme: darkMode == 'y s' ?
+      theme: darkMode == 'ys' ?
 
 
       ThemeData(

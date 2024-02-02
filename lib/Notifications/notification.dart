@@ -298,7 +298,14 @@ class NotificationServices{
 
   void handleMessage(BuildContext context,RemoteMessage message){
     // if(message.)
-    if(message.data['type']=='local_assistant_cancel'){
+    if(message.data['type']=='trip_planning_request'){
+      if(message.data['state']=='user'){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:'Trip Planning',state: message.data['meetId'],)));
+      }else{
+        Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:'Trip Planning',state: message.data['meetId'],)));
+      }
+    }
+    else if(message.data['type']=='local_assistant_cancel'){
       Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
     }
     // else if(message.data['type'].contains('local_assistant')){

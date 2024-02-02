@@ -123,7 +123,7 @@ class _SettingsPageState extends State<SettingsPage> {
             await _auth.signOut();
             // Redirect to the login or splash screen after logout
             // For example:
-            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => FirstPage()));
+            Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => SecondPage()));
           } catch (e) {
             print('Error while logging out: $e');
             // Handle the error as needed
@@ -569,6 +569,20 @@ class _EditProfileState extends State<EditProfile>{
             content: Text('Profile Updated Successfully!',style: Theme.of(context).textTheme.subtitle2,),
           ),
         );
+        final FirebaseFirestore _db = FirebaseFirestore.instance;
+        var userRef = _db.collection('users');
+        print('User firebase is ${userFirebaseId} ,${name}');
+        if (userFirebaseId!= null && userFirebaseId.isNotEmpty) {
+          userRef.doc(userFirebaseId).update({'name': name})
+              .then((_) {
+            print('User name updated successfully');
+          })
+              .catchError((error) {
+            print('Error updating user name: $error');
+          });
+        } else {
+          print('Invalid userCredId');
+        }
         Navigator.of(context).pop();
         print('Data updated successfully');
       } else {

@@ -597,7 +597,7 @@ class _PingSectionState extends State<PingsSection>{
           return false; // Returning true will allow the user to pop the page
         },
         child: Scaffold(
-
+          backgroundColor: Theme.of(context).primaryColorLight,
           appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName,),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent, toolbarHeight: 90,),
           body: !isLoading
               ? RefreshIndicator(
@@ -661,9 +661,9 @@ class _PingSectionState extends State<PingsSection>{
                                     ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
                                         (_selectedValue == 'Accepted' && meetStatus =='accept')||
                                         (_selectedValue == 'Pending' && meetStatus =='pending')||
-                                        (_selectedValue == 'Closed' && meetStatus =='close')||
+                                        (_selectedValue == 'Closed' && meetStatus =='close' && meetStatus =='closed')||
                                         (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
-                                        _selectedValue =='All Pings')
+                                        _selectedValue =='All Pings' && meetStatus!='cancel' && meetStatus!='close' && meetStatus!='closed')
                                         ? Container(
                                       padding: EdgeInsets.only(top:10,bottom:20),
                     
@@ -906,28 +906,28 @@ class _PingSectionState extends State<PingsSection>{
                                                     },
                                                     child: Container(child: Text('Cancel',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
                                                 SizedBox(width: screenWidth*0.08,),
-                                                // InkWell(
-                                                //     onTap: ()async{
-                                                //       bool res = await Navigator.push(
-                                                //         context,
-                                                //         MaterialPageRoute(
-                                                //           builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
-                                                //         ),
-                                                //       );
-                                                //       if(res){
-                                                //         paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
-                                                //         cancelMeeting(date,index,'schedule',userId,'schedule');
-                                                //         _refreshPage(time:0,state:'Scheduled');
-                                                //         print('$date,$index');
-                                                //       }else{
-                                                //         ScaffoldMessenger.of(context).showSnackBar(
-                                                //           const SnackBar(
-                                                //             content: Text('Try Again!'),
-                                                //           ),
-                                                //         );
-                                                //       }
-                                                //     },
-                                                //     child: Container(child: Text('Unlock Calendar',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
+                                                InkWell(
+                                                    onTap: ()async{
+                                                      // bool res = await Navigator.push(
+                                                      //   context,
+                                                      //   MaterialPageRoute(
+                                                      //     builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
+                                                      //   ),
+                                                      // );
+                                                      if(true){
+                                                        paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
+                                                        cancelMeeting(date,index,'schedule',userId,'schedule');
+                                                        _refreshPage(time:0,state:'Scheduled');
+                                                        print('$date,$index');
+                                                      }else{
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text('Try Again!'),
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Container(child: Text('Unlock Calendar',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
                                               ],
                                             ),
                                           )
@@ -1005,7 +1005,7 @@ class _PingSectionState extends State<PingsSection>{
                             return Container(
                               child:
                               ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
-                                  (_selectedValue == 'Accepted' && meetStatus =='accept')||
+                                  (_selectedValue == 'Accepted' && (meetStatus =='accept'||meetStatus=='hold_accept'))||
                                   (_selectedValue == 'Pending' && meetStatus =='pending')||
                                   (_selectedValue == 'Closed' && meetStatus =='close')||
                                   (_selectedValue == 'Cancelled' && meetStatus =='cancel')||

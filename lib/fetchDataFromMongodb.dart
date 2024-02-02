@@ -5,6 +5,7 @@ String userName = '';
 String userID = '';
 String userPhoneNumber = '';
 String userToken = '';
+String userFirebaseId = '';
 
 final FirebaseAuth _auth = FirebaseAuth.instance;
 FirebaseFirestore firestore = FirebaseFirestore.instance;
@@ -33,15 +34,18 @@ Future<void> fetchDataFromMongoDB() async {
       String uId = userData['userMongoId'];
       String uNumber = (userData['phoneNo'].toString());
       String uToken = userData['token'];
+      String userFireId = userData['uid'];
 
       userToken = uToken;
 
       print(uNumber);
       userPhoneNumber = uNumber;
       userName = uName;
+      userFirebaseId = userFireId;
       print('userNamewa: $uName');
       userID = uId;
       print('userIDmmmmm: $userID');
+      print('user firebase id: $userFirebaseId');
     }
   } catch (e) {
     print('Error fetching user data: $e');
