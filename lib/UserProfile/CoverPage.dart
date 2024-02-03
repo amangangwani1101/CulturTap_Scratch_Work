@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
@@ -49,7 +50,41 @@ String capitalizeWords(String input) {
   return words.join(' ');
 }
 
+class PhotoScreen extends StatelessWidget {
+  final String imagePath;
 
+  PhotoScreen({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(
+            child: Image.file(File(imagePath),
+            ),
+          ),
+          Positioned(
+            top:0,
+            left: 0,
+            child: Container(
+              alignment: Alignment.topLeft,
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.only(top: 30,left: 20,bottom: 20),
+              color: Colors.black38,
+              child: InkWell(
+                  onTap: (){
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(Icons.arrow_back,size: 40,)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 // Image Section
 class UserImage extends StatefulWidget {
@@ -177,37 +212,44 @@ class _UserImageState extends State<UserImage>{
                     children: [
                       Stack(
                         children: [
-                          Container(
-                            width: 132,
-                            height: 132,
-                            padding: widget.imagePath!=null || _userProfileImage!=null ?EdgeInsets.all(0) : EdgeInsets.all(10),
-                            decoration: BoxDecoration(
-                              shape: BoxShape.circle,
-                              color: widget.imagePath!=null || _userProfileImage!=null ? Colors.transparent:Colors.white,
-                              // border: Border.all(
-                              //   color: Theme.of(context).backgroundColor, // Border color
-                              //   width: 15.0, // Border width
-                              // ),
-                            ),
-                            child: widget.imagePath!=null && _userProfileImage==null
-                              ? widget.image=='network'
-                                ? CircleAvatar(
-                              radius: 60,
-                              backgroundImage: NetworkImage(widget.imagePath!), // Replace with the actual image URL
-                            )
-                                : CircleAvatar(
-                              radius: 60,
-                              backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>,
-                            )
-                              : _userProfileImage!=null
-                                ? CircleAvatar(
-                              radius: 60,
-                              backgroundImage: FileImage(_userProfileImage!),
-                            )
-                                : CircleAvatar(
-                              radius: 60,
-                              backgroundImage: AssetImage('assets/images/user.png'),
-                              backgroundColor: Colors.white,// Replace with user avatar image
+                          InkWell(
+                            onTap: (){
+                              if(widget.imagePath!=null || _userProfileImage!=null){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=> PhotoScreen(imagePath: widget.imagePath!=null?widget.imagePath!:_userProfileImage!.path)));
+                              }
+                            },
+                            child: Container(
+                              width: 132,
+                              height: 132,
+                              padding: widget.imagePath!=null || _userProfileImage!=null ?EdgeInsets.all(0) : EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: widget.imagePath!=null || _userProfileImage!=null ? Colors.transparent:Colors.white,
+                                // border: Border.all(
+                                //   color: Theme.of(context).backgroundColor, // Border color
+                                //   width: 15.0, // Border width
+                                // ),
+                              ),
+                              child: widget.imagePath!=null && _userProfileImage==null
+                                ? widget.image=='network'
+                                  ? CircleAvatar(
+                                radius: 60,
+                                backgroundImage: NetworkImage(widget.imagePath!), // Replace with the actual image URL
+                              )
+                                  : CircleAvatar(
+                                radius: 60,
+                                backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>,
+                              )
+                                : _userProfileImage!=null
+                                  ? CircleAvatar(
+                                radius: 60,
+                                backgroundImage: FileImage(_userProfileImage!),
+                              )
+                                  : CircleAvatar(
+                                radius: 60,
+                                backgroundImage: AssetImage('assets/images/user.png'),
+                                backgroundColor: Colors.white,// Replace with user avatar image
+                              ),
                             ),
                           ),
                           if (widget.reqPages<1) SizedBox(height: 0,) else

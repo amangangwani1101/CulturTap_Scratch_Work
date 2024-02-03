@@ -30,7 +30,8 @@ import 'UserInfo.dart';
 // Set Profile Fetching Data From DataBase
 class FinalProfile extends StatefulWidget{
   final String userId,clickedId;
-  FinalProfile({required this.userId,required this.clickedId});
+  String?fromWhichPage,toWhichPage;
+  FinalProfile({required this.userId,required this.clickedId,this.fromWhichPage,this.toWhichPage});
   @override
   _FinalProfileState createState() => _FinalProfileState();
 }
@@ -215,10 +216,15 @@ class _FinalProfileState extends State<FinalProfile> {
         appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: userID,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
         body: WillPopScope(
           onWillPop: ()async{
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-            );
+            if(widget.fromWhichPage=='pings'){
+              Navigator.of(context).pop();
+            }else{
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
+            }
+
 
             return false;
           },
