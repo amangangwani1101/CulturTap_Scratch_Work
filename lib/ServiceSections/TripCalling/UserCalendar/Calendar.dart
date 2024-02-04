@@ -874,6 +874,7 @@ class _TimeSetState extends State<TimeSet>{
         'meetingType' : 'sender',
         'userName':widget.userName,
         'userPhoto':widget.userPhoto==null?'':widget.userPhoto,
+        'userToken':widget.plannerToken,
     };
       print('33::${data}');
       final http.Response response = await http.post(
@@ -908,6 +909,7 @@ class _TimeSetState extends State<TimeSet>{
         'meetingType' : 'receiver',
         'userName':widget.user2Name,
         'userPhoto':widget.user2Photo==null?'':widget.user2Photo,
+        'userToken':widget.userToken,
       };
       print('44::${data}');
       final http.Response response = await http.post(
@@ -931,6 +933,23 @@ class _TimeSetState extends State<TimeSet>{
 
 
 
+  // bool isTimeInSlot(String userSlotStartTime, String userSlotEndTime, String chosenTime, String endTime) {
+  //   DateTime now = DateTime.now();
+  //   print('${userSlotStartTime},${userSlotEndTime},${chosenTime},${endTime}');
+  //   DateTime slotStartDateTime = _parseTime(now, userSlotStartTime);
+  //   DateTime slotEndDateTime = _parseTime(now, userSlotEndTime);
+  //   DateTime chosenDateTime = _parseTime(now, chosenTime);
+  //   DateTime endDateTime = _parseTime(now, endTime);
+  //   print('${slotStartDateTime},${slotEndDateTime},${chosenDateTime},${endDateTime}');
+  //
+  //   if ((chosenDateTime.isAfter(slotStartDateTime) || chosenDateTime.isAtSameMomentAs(slotStartDateTime))  &&
+  //       (endDateTime.isBefore(slotEndDateTime)|| (endDateTime.isAtSameMomentAs(slotEndDateTime)))) {
+  //     return true; // Both chosen time and end time are within the slot
+  //   } else {
+  //     return false; // Either chosen time or end time is not within the slot
+  //   }
+  // }
+
   bool isTimeInSlot(String userSlotStartTime, String userSlotEndTime, String chosenTime, String endTime) {
     DateTime now = DateTime.now();
     print('${userSlotStartTime},${userSlotEndTime},${chosenTime},${endTime}');
@@ -940,12 +959,21 @@ class _TimeSetState extends State<TimeSet>{
     DateTime endDateTime = _parseTime(now, endTime);
     print('${slotStartDateTime},${slotEndDateTime},${chosenDateTime},${endDateTime}');
 
-    if ((chosenDateTime.isAfter(slotStartDateTime) || chosenDateTime.isAtSameMomentAs(slotStartDateTime))  &&
-        (endDateTime.isBefore(slotEndDateTime)|| (endDateTime.isAtSameMomentAs(slotEndDateTime)))) {
-      return true; // Both chosen time and end time are within the slot
+    if (slotStartDateTime.isAfter(slotEndDateTime)) {
+      // Handle slots that span across different days
+      if ((chosenDateTime.isAfter(slotStartDateTime) || chosenDateTime.isAtSameMomentAs(slotStartDateTime)) ||
+          (endDateTime.isBefore(slotEndDateTime) || endDateTime.isAtSameMomentAs(slotEndDateTime))) {
+        return true; // Both chosen time and end time are within the slot
+      }
     } else {
-      return false; // Either chosen time or end time is not within the slot
+      // Handle slots within the same day
+      if ((chosenDateTime.isAfter(slotStartDateTime) || chosenDateTime.isAtSameMomentAs(slotStartDateTime)) &&
+          (endDateTime.isBefore(slotEndDateTime) || endDateTime.isAtSameMomentAs(slotEndDateTime))) {
+        return true; // Both chosen time and end time are within the slot
+      }
     }
+
+    return false; // Either chosen time or end time is not within the slot
   }
   DateTime _parseTime(DateTime date, String time) {
     final hourMinute = time.replaceAll(RegExp('[a-zA-Z]+'), '').split(':');
@@ -998,9 +1026,9 @@ class _TimeSetState extends State<TimeSet>{
         bool val = isTimeInSlot(widget.userStartTime!,widget.userEndTime!,startTime!,endTime!);
         timeOverlap = val;
         print(val);
-        // if(!timeOverlap){
-        //   startTime = '';
-        // }
+        if(!timeOverlap){
+          startTime = '';
+        }
         // widget.profileDataProvider?.setStartTime(_formatTime(pickedTime));
         print(pickedTime);
         // print("Start Time: ${_formatTime(_startTime)}");
