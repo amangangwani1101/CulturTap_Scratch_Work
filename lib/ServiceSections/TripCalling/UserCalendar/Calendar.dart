@@ -947,11 +947,6 @@ class _TimeSetState extends State<TimeSet>{
       return false; // Either chosen time or end time is not within the slot
     }
   }
-  // ScaffoldMessenger.of(context).showSnackBar(
-  // SnackBar(
-  // content: Text('Please select a weekend day.'),
-  // ),
-  // );
   DateTime _parseTime(DateTime date, String time) {
     final hourMinute = time.replaceAll(RegExp('[a-zA-Z]+'), '').split(':');
     final isPM = time.contains('PM');
@@ -1003,9 +998,9 @@ class _TimeSetState extends State<TimeSet>{
         bool val = isTimeInSlot(widget.userStartTime!,widget.userEndTime!,startTime!,endTime!);
         timeOverlap = val;
         print(val);
-        if(!timeOverlap){
-          startTime = '';
-        }
+        // if(!timeOverlap){
+        //   startTime = '';
+        // }
         // widget.profileDataProvider?.setStartTime(_formatTime(pickedTime));
         print(pickedTime);
         // print("Start Time: ${_formatTime(_startTime)}");
@@ -1173,6 +1168,7 @@ class _TimeSetState extends State<TimeSet>{
                     child: GestureDetector(
                         onTap: (){
                           _selectStartTime(context);
+                          print('gsiddgisa');
                           print(_startTime);
                         },
                         child: Text('${_formatTime(_startTime)}',style: TextStyle(fontSize: 27,fontFamily: 'Poppins'),)),

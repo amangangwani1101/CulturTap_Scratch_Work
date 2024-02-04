@@ -35,12 +35,12 @@ class ProfileHeader extends StatefulWidget {
   String? tripHelperId;
   String? meetStatus;
   String? requestSend;
-  String? state;
+  String? state,service;
   String? fromWhichPage;
   String? chatsToWhere;
   final String? profileHeaderOfPage;
 
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage,this.raiseCloseRequest});
+  ProfileHeader({required this.reqPage,this.service,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage,this.raiseCloseRequest});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -331,10 +331,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
                   : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
             ),
-          ):
-
-          ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule' || widget.meetStatus=='aceept' || widget.meetStatus=='hold_accept') ?
-          Container(  width : 70, height: 80,
+          )
+              :  widget.service!='trip_planning' && ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule' || widget.meetStatus=='aceept' || widget.meetStatus=='hold_accept') ?
+                   Container(  width : 70, height: 80,
             child : PopupMenuButton<String>(
               color: Colors.white,
               onSelected: (value) {
@@ -419,8 +418,75 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
 
 
-          ):
-          Container(height: 70,width: 70,) ,
+          )
+              : widget.service=='trip_planning'
+                ? Container(  width : 70, height: 80,
+            child : PopupMenuButton<String>(
+              color: Colors.white,
+              onSelected: (value) {
+                // Handle the selected option
+                if (value == 'closeRequest') {
+                  // Display the custom popup when "Close Request" is selected
+                  showDialog(
+                    context: context,
+                    builder: (BuildContext context) {
+                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
+                        meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
+                    },
+                  );
+                } else if (value == 'downloadRecording') {
+                  // Handle the "Download Recording" option
+                  // ...
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                if(widget.meetStatus!='close' || widget.meetStatus!='closed')
+                    PopupMenuItem<String>(
+                  value: 'closeRequest',
+                  child: Container(
+                    child: Row(
+                      children: [
+                        if(widget.meetStatus == 'schedule' || (widget.state=='trip_user' && widget.meetStatus=='start'))
+                          Icon(Icons.close, color: Colors.black),
+                        SizedBox(width: 8),
+                        if(widget.meetStatus == 'schedule' || (widget.state=='trip_user' && widget.meetStatus=='start'))
+                          Text('Close Request', style: Theme.of(context).textTheme.subtitle2,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'downloadRecording',
+                  child: Container(
+                    child: Row(
+                      children: [
+                        Icon(Icons.download, color:  widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
+                        SizedBox(width: 8),
+                        Text(
+                          'Download Recording',
+                          style: TextStyle( fontSize : 14, fontWeight:FontWeight.w300,color : widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              child: Container(
+                width: 70,
+                height: 80,
+                child: Icon(
+                  Icons.more_vert,
+                  color: Theme.of(context).primaryColorDark,
+                  size: 24,
+                ),
+              ),
+            ),
+
+
+
+          )
+                : Container(height: 70,width: 70,) ,
         ],
       ),
     );

@@ -661,7 +661,7 @@ class _PingSectionState extends State<PingsSection>{
                                   ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
                                       (_selectedValue == 'Accepted' && meetStatus =='accept')||
                                       (_selectedValue == 'Pending' && meetStatus =='pending')||
-                                      (_selectedValue == 'Closed' && meetStatus =='close' && meetStatus =='closed')||
+                                      (_selectedValue == 'Closed' && (meetStatus =='close' || meetStatus =='closed'))||
                                       (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
                                       _selectedValue =='All Pings' && meetStatus!='cancel' && meetStatus!='close' && meetStatus!='closed')
                                       ? Container(

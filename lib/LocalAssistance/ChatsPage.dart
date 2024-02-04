@@ -3378,7 +3378,8 @@ class _ChatsPageState extends State<ChatsPage> {
                   bottom : 0,
                   left : 0,
                   right : 0,
-                  child: _isMeetStatusFound ? Container(
+                  child: _isMeetStatusFound
+                      ? Container(
                     color : Theme.of(context).backgroundColor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -3581,7 +3582,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                 setState(() {
                                                   scrollToBottom();
                                                 });
-
+                                                // aaaa
                                                 if (text.length > 0) {
                                                   setState(() {
                                                     messageTyping = true;

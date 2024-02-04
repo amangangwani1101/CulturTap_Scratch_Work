@@ -1,6 +1,5 @@
 import 'dart:async';
 import 'dart:convert';
-import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
@@ -30,7 +29,6 @@ class _ChatAppsState extends State<ChatApps> {
   List<RTCIceCandidate> rtcIceCadidates = [];
   RTCPeerConnection? _rtcPeerConnection;
   late IO.Socket socket;
-  FocusNode _textFieldFocusNode = FocusNode();
   List<List<String>> messages = [];
   List<String>sender=[],receiver=[];
   final String serverUrl = Constant().serverUrl;  // Replace with your server's URL
@@ -52,9 +50,8 @@ class _ChatAppsState extends State<ChatApps> {
   bool dispalyHi = true;
   VoidCallback? onButtonPressed;
   bool dataFetched = false;
-  String userId='',plannerId='',meetId='',date='',index='',meetStatus='',userName='',userPhoto='',plannerName='',plannerPhoto='';
+  String userId='',plannerId='',meetId='',date='',index='',meetStatus='';
   DateTime? time;
-  bool meetClosed = false,_isTyping=false;
 
 
 
@@ -69,42 +66,16 @@ class _ChatAppsState extends State<ChatApps> {
     setState(() {
       dataFetched = false;
     });
-
-    await fetchMeetStatus();
     await fetchTripPlanningMeetDetais();
-    await fetchDataset();
     await retriveMeetingConversation(meetId);
-    if(meetStatus=='close' || meetStatus=='closed'){
-      setState(() {
-        _isUiEnabled = false;
-
-      });
+    if (time != null && time!.isAfter(DateTime.now())) {
+      // DateTime is greater than current time, start the countdown
+      startCountdown();
     }
     else{
-      if (time != null && time!.isAfter(DateTime.now())) {
-        // DateTime is greater than current time, start the countdown
-        startCountdown();
-      }
-      else{
-        _isUiEnabled = false;
-        _textFieldFocusNode.addListener(() {
-          scrollToBottom();
-          setState(() {
-            scrollToBottom();
-            _isTyping = _textFieldFocusNode.hasFocus;
-            if (_isTyping) {
-              print("Keyboard opened");
-              scrollToBottom();
-            } else {
-              _isTyping = false;
-              print("Keyboard closed");
-              scrollToBottom();
-            }
-          });
-        });
-        startMeetingTimer();
-        await startSocketConnection();
-      }
+      _isUiEnabled = false;
+      startMeetingTimer();
+      await startSocketConnection();
     }
     setState(() {
       dataFetched = true;
@@ -151,29 +122,6 @@ class _ChatAppsState extends State<ChatApps> {
     return parsedDateTime2;
   }
 
-  Future<void> fetchDataset() async {
-    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
-    final url = Uri.parse('$serverUrl/userStoredData/${userID}'); // Replace with your backend URL
-    final http.Response response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final data = json.decode(response.body);
-      print('Users Name and Photo Taken');
-      setState(() {
-        if(widget.senderId!=''){
-          userName = data['userName'];
-          userPhoto = data['userPhoto']!=null?data['userPhoto']:'';
-        }else{
-          plannerName = data['userName'];
-          plannerPhoto = data['userPhoto']!=null?data['userPhoto']:'';
-        }
-      });
-    } else {
-      // Handle error
-      print('Failed to fetch users name & phone : ${response.statusCode}');
-    }
-  }
-
   Future<void> startSocketConnection()async{
     socket = IO.io(serverUrl+'/tripPlanning', <String, dynamic>{
       'transports': ['websocket'],
@@ -200,7 +148,6 @@ class _ChatAppsState extends State<ChatApps> {
 
     // Emit 'join' event with uniqueIdentifier, senderId, receiverId, and meetingId
     try {
-      print('Meetig ${widget.meetingId}');
       socket.emit('join', {widget.meetingId});
     } catch (err) {
       print('Error in Joining :$err');
@@ -263,29 +210,22 @@ class _ChatAppsState extends State<ChatApps> {
         // userWith10km = List<String>.from(data);
         print('Data fethced $data');
         setState(() {
-          userId = userID;
-          plannerId = data['plannerId'];
-          meetId = data['meetId'];
-          meetStatus = data['meetStatus'];
-          time= setDateTime(widget.date, data['start']);
-          if(data['meetType']=='sender'){
-            widget.senderId = userID;
-            // widget.receiverId = data['plannerId'];
-          }else{
-            // widget.senderId = ;
-            widget.receiverId = userID;
-          }
-          widget.meetingId = meetId;
-          widget.currentTime = time;
-          if(widget.senderId!=''){
-            plannerName = data['plannerName'];
-            plannerPhoto = data['plannerPhoto'];
-          }else{
-            userName = data['plannerName'];
-            userPhoto = data['plannerPhoto'];
-          }
+           userId = userID;
+           plannerId = data['userId'];
+           meetId = data['meetId'];
+           meetStatus = data['meetStatus'];
+           time= setDateTime(widget.date, data['start']);
+           if(data['meetType']=='sender'){
+             widget.senderId = userID;
+             // widget.receiverId = data['plannerId'];
+           }else{
+             // widget.senderId = ;
+             widget.receiverId = userID;
+           }
+           widget.meetingId = meetId;
+           widget.currentTime = time;
         });
-        print('Meeting is ${widget.meetingId}');
+        // print(data['start']);
         return ; // Return the ID
       } else {
         print("Failed to save meet. Status code: ${response}");
@@ -323,9 +263,6 @@ class _ChatAppsState extends State<ChatApps> {
         setState(() {
           meetStatus = data['meetStatus'];
         });
-        if(meetStatus=='closed' || meetStatus=='close'){
-          meetClosed=true;
-        }
         // print(data['start']);
         return ; // Return the ID
       } else {
@@ -378,11 +315,8 @@ class _ChatAppsState extends State<ChatApps> {
       messages.add([data['message'],data['user']]);
       if(data['user']=='sender')
         sender.add(data['message']);
-      else if(data['user']=='receiver')
+      else
         receiver.add(data['message']);
-      else if(data['user']=='admin-close'){
-        meetClosed = true;
-      }
     });
     scrollToBottom();
   }
@@ -540,8 +474,6 @@ class _ChatAppsState extends State<ChatApps> {
 
   void navigateToEndScreen() async{
     // Navigate to the end screen after the meeting ends
-    await updateMeetingChats(meetId,['','admin-close']);
-    socket.emit('message', {'message':'','user1':'admin-close','user2':''});
     await cancelMeeting(widget.date!,widget.index!,'close',widget.receiverId==''?widget.senderId:widget.receiverId,'close');
     // showMeetingEndedAlert();
 
@@ -578,7 +510,7 @@ class _ChatAppsState extends State<ChatApps> {
         //     storeDataLocally(receiverNavigatorId);
         // }
         Navigator.of(context).pop();
-      },service:'trip_planning',meetStatus:_isUiEnabled==false?'started':meetStatus,state: (widget.senderId!='')?'trip_user':'trip_planner',),),
+      }),),
       body: WillPopScope(
         onWillPop: ()async{
           // if(_isUiEnabled!=true){
@@ -593,37 +525,33 @@ class _ChatAppsState extends State<ChatApps> {
         },
         child: dataFetched
             ? Container(
+          margin: EdgeInsets.only(left: 20,right:20),
           child: Column(
             children: [
-              Container(
-                margin: EdgeInsets.only(left: 20,right:20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 15,),
-                    Container(
-                        width: 200,
-                        child: Text('Get Connected With Customer',style:Theme.of(context).textTheme.headline2,)),
-                    SizedBox(height: 10,),
-                    Text('You can chat, talk or do the Video call',style: Theme.of(context).textTheme.subtitle2,),
-                    SizedBox(height: 10,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Image.asset('assets/images/clock.png',width: 22,height: 22,color: meetClosed?Colors.orange : _isUiEnabled?Colors.red:Colors.green,),
-                        SizedBox(width: 10,),
-                        meetClosed
-                            ?Text('00M:00S',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w800,color: Colors.orange,fontFamily: 'Poppins'),)
-                            : _isUiEnabled
-                            ?Text(
-                          "${twoDigits(_remainingTime.inDays,0)}${twoDigits((_remainingTime.inHours)%24,1)}${twoDigits((_remainingTime.inMinutes % 60),2)}${twoDigits((_remainingTime.inSeconds % 60),3)}",
-                          style: TextStyle(fontSize: 18, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.red),
-                        )
-                            : Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
-                      ],
-                    ),
-                  ],
-                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: 15,),
+                  Container(
+                      width: 200,
+                      child: Text('Get Connected With Customer',style:Theme.of(context).textTheme.headline2,)),
+                  SizedBox(height: 10,),
+                  Text('You can chat, talk or do the Video call',style: Theme.of(context).textTheme.subtitle2,),
+                  SizedBox(height: 10,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Image.asset('assets/images/clock.png',width: 22,height: 22,color: _isUiEnabled?Colors.red:Colors.green,),
+                      SizedBox(width: 10,),
+                      _isUiEnabled
+                          ?Text(
+                        "${twoDigits(_remainingTime.inDays,0)}${twoDigits((_remainingTime.inHours)%24,1)}${twoDigits((_remainingTime.inMinutes % 60),2)}${twoDigits((_remainingTime.inSeconds % 60),3)}",
+                        style: TextStyle(fontSize: 18, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.red),
+                      )
+                          : Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                    ],
+                  ),
+                ],
               ),
               SizedBox(height: 20,),
               messages.length==0 && !_isUiEnabled
@@ -634,8 +562,7 @@ class _ChatAppsState extends State<ChatApps> {
                       width: screenWidth<450?screenWidth*0.85:336,
                       height: 134,
                       decoration: BoxDecoration(
-                        // color: Colors.white,
-                        color: Colors.red,// Container background color
+                        color: Colors.white, // Container background color
                         boxShadow: [
                           BoxShadow(
                             color: Colors.grey.withOpacity(0.5), // Shadow color
@@ -660,257 +587,28 @@ class _ChatAppsState extends State<ChatApps> {
               )
                   :!_isUiEnabled
                   ? Expanded(
-                child: Container(
-                  // color: Colors.red,
-                  // decoration: BoxDecoration(border:Border.all(width: 1)),
-                  child: ListView.builder(
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title:messages[index][1]=='sender'
-                            ?widget.senderId!=''
-                            ?Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.black,
-
-                                  radius: 15.0,
-                                  backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                ),
-                                SizedBox(width: 6,),
-                                Container(
-                                    width:240,
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.3,
-                                          blurRadius: 0.4,
-                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
-                                        ),
-                                      ],
-
-                                      color: Theme.of(context).primaryColorLight,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0.0),
-                                        topRight: Radius.circular(10.0),
-                                        bottomLeft: Radius.circular(10.0),
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Container(
-                                            width: 200,
-                                            padding: EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  Constant().extractFirstName(userName),
-                                                  style: Theme.of(context).textTheme.subtitle1,
-                                                ),
-                                                SizedBox(height: 5,),
-                                                Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
-                                              ],
-                                            )),
-                                      ],
-                                    )
-                                ),
-                              ],
-                            )
-                            :Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.black,
-                                   radius: 15.0,
-                                  backgroundImage: FileImage(File(plannerPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                ),
-                                SizedBox(width: 6,),
-                                Container(
-                                    width:240,
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.3,
-                                          blurRadius: 0.4,
-                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
-                                        ),
-                                      ],
-
-                                      color: Theme.of(context).primaryColorLight,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0.0),
-                                        topRight: Radius.circular(10.0),
-                                        bottomLeft: Radius.circular(10.0),
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Container(
-                                            width: 200,
-                                            padding: EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  Constant().extractFirstName(plannerName),
-                                                  style: Theme.of(context).textTheme.subtitle1,
-                                                ),
-                                                SizedBox(height: 5,),
-                                                Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
-                                              ],
-                                            )),
-                                      ],
-                                    )),
-                              ],
-                            )
-                            :messages[index][1]=='receiver'
-                            ?widget.senderId==''
-                            ?Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.black,
-
-                                  radius: 15.0,
-                                  backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                ),
-                                SizedBox(width: 6,),
-                                Container(
-                                    width:240,
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.3,
-                                          blurRadius: 0.4,
-                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
-                                        ),
-                                      ],
-
-                                      color: Theme.of(context).primaryColorLight,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0.0),
-                                        topRight: Radius.circular(10.0),
-                                        bottomLeft: Radius.circular(10.0),
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Container(
-                                            width: 200,
-                                            padding: EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  Constant().extractFirstName(userName),
-                                                  style: Theme.of(context).textTheme.subtitle1,
-                                                ),
-                                                SizedBox(height: 5,),
-                                                Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
-                                              ],
-                                            )),
-                                      ],
-                                    )),
-                              ],
-                            )
-                            :Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.black,
-
-                                  radius: 15.0,
-                                  backgroundImage: FileImage(File(plannerPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                ),
-                                SizedBox(width: 6,),
-                                Container(
-                                    width:240,
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.3,
-                                          blurRadius: 0.4,
-                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
-                                        ),
-                                      ],
-
-                                      color: Theme.of(context).primaryColorLight,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0.0),
-                                        topRight: Radius.circular(10.0),
-                                        bottomLeft: Radius.circular(10.0),
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Container(
-                                            width: 200,
-                                            padding: EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  Constant().extractFirstName(plannerName),
-                                                  style: Theme.of(context).textTheme.subtitle1,
-                                                ),
-                                                SizedBox(height: 5,),
-                                                Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
-                                              ],
-                                            )),
-                                      ],
-                                    )),
-                              ],
-                            )
-                            :SizedBox(height: 0,),
-                      );
-                    },
-                  ),
+                child: Row(
+                  children: [
+                    SizedBox(width: 20,),
+                    Container(
+                      width: screenWidth<450?screenWidth*0.92:400,
+                      // decoration: BoxDecoration(border:Border.all(width: 1)),
+                      child: ListView.builder(
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            title:messages[index][1]=='sender'
+                                ?widget.senderId!=''
+                                ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                :widget.senderId==''
+                                ?Align(alignment: Alignment.centerRight, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),)))
+                                :Align(alignment: Alignment.centerLeft, child: Container(decoration:BoxDecoration(color: HexColor('#E9EAEB').withOpacity(1)),  padding:EdgeInsets.all(10),  child: Text(messages[index][0],style: TextStyle(fontFamily: 'Poppins',fontSize: 14,color: Colors.black),))),
+                          );
+                        },
+                      ),
+                    ),
+                  ],
                 ),
               )
                   :Expanded(child: SizedBox(height: 10,)),
@@ -919,34 +617,15 @@ class _ChatAppsState extends State<ChatApps> {
         )
             : Center(
           // Show a circular progress indicator while data is being fetched
-          child: CircularProgressIndicator(
-            color: Theme.of(context).primaryColorDark,
-          ),
+          child: CircularProgressIndicator(),
         ),
       ),
-      bottomNavigationBar: meetClosed
-          ? InkWell(
-            onTap: (){},
-            child: Container(
-        height : 63,
-        padding:EdgeInsets.only(left:10,right:10),
-        decoration: BoxDecoration(
-            color : Colors.grey[200],
-            borderRadius: BorderRadius.circular(0),
-            border: Border.all(color: Colors.orange),
-        ),
-        child: Center(child:Text(meetStatus=='cancel'?'Cancelled': meetStatus=='close'?'Rate & Feedback' :'Closed',style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.orange,
-              fontSize: 18))),
-      ),
-          )
-          :  Row(
+      bottomNavigationBar: Row(
         mainAxisAlignment: MainAxisAlignment.start,
         children: [
           Container(
-            width: MediaQuery.of(context).size.width,
-            height: 60,
+            width: screenWidth<400?screenWidth*0.70:320,
+            height: 58,
             decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2'),
             ),
             child: Row(
@@ -955,21 +634,6 @@ class _ChatAppsState extends State<ChatApps> {
                 SizedBox(width: 30,),
                 Expanded(
                   child: TextField(
-                    onChanged: (text){
-                      setState(() {
-                        scrollToBottom();
-                      });
-                    },
-                    onTapOutside: (value){
-                      _textFieldFocusNode.unfocus();
-                    },
-                    onSubmitted: (value){
-                      _textFieldFocusNode.unfocus();
-                    },
-                    onEditingComplete: (){
-                      _textFieldFocusNode.unfocus();
-                    },
-                    focusNode: _textFieldFocusNode,
                     controller: _controller,
                     decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
                   ),
@@ -981,24 +645,24 @@ class _ChatAppsState extends State<ChatApps> {
               ],
             ),
           ),
-          // SizedBox(width: 5,),
-          // Container(
-          //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
-          //   child: IconButton(
-          //     icon: Icon(Icons.call),
-          //     // onPressed:initiateVideoCall,
-          //     onPressed: !_isUiEnabled ? startCall : null,
-          //   ),
-          // ),
-          // SizedBox(width: 5,),
-          // Container(
-          //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
-          //   child: IconButton(
-          //     icon: Icon(Icons.videocam),
-          //     // onPressed:initiateVideoCall,
-          //     onPressed: (){},
-          //   ),
-          // ),
+          SizedBox(width: 5,),
+          Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+            child: IconButton(
+              icon: Icon(Icons.call),
+              // onPressed:initiateVideoCall,
+              onPressed: !_isUiEnabled ? startCall : null,
+            ),
+          ),
+          SizedBox(width: 5,),
+          Container(
+            decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+            child: IconButton(
+              icon: Icon(Icons.videocam),
+              // onPressed:initiateVideoCall,
+              onPressed: (){},
+            ),
+          ),
         ],
       ),
     );
@@ -1142,7 +806,6 @@ class _ChatAppsState extends State<ChatApps> {
     print('Destroy');
     // _timer.cancel();
     countdownTimer.cancel();
-    _textFieldFocusNode.dispose();
     // alertTimer.cancel();
     // if (_rtcPeerConnection != null) {
     //   _rtcPeerConnection!.dispose();
