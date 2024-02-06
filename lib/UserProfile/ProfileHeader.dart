@@ -171,8 +171,15 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
             child: GestureDetector(
               onTap: (){
-
-                if(widget.fromWhichPage=='trip_planning_schedule_profile'){
+                if(widget.fromWhichPage=='trip_planning'){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ),
+                  );
+                }
+                else if(widget.fromWhichPage=='trip_planning_schedule_profile' || widget.fromWhichPage=='trip_planning_calendar_pings'){
                   widget.onButtonPressed!();
                 }
                 else if(widget.fromWhichPage == 'yes' ){
@@ -344,7 +351,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     context: context,
                     builder: (BuildContext context) {
                       return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
-                          meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
+                        meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
                     },
                   );
                 } else if (value == 'downloadRecording') {
@@ -427,30 +434,52 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 // Handle the selected option
                 if (value == 'closeRequest') {
                   // Display the custom popup when "Close Request" is selected
-                  showDialog(
-                    context: context,
-                    builder: (BuildContext context) {
-                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
-                        meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
-                    },
-                  );
+                  if(widget.fromWhichPage=='trip_planning_calendar_pings'){
+                    widget.cancelCloseClick!();
+                  }
+                  else{
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
+                          meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
+                      },
+                    );
+                  }
                 } else if (value == 'downloadRecording') {
                   // Handle the "Download Recording" option
                   // ...
                 }
+                else if (value == 'raiseRequest') {
+
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (BuildContext context)
+                  // {
+                  //   return CustomPopUp(imagePath: '',
+                  //       textField: 'Request Raised Successfully',
+                  //       extraText: 'Thankyou for your Service',
+                  //       what: '',
+                  //       button: 'OK');
+                  // });
+
+                  widget.raiseCloseRequest!();
+
+                }
               },
               itemBuilder: (BuildContext context) => [
-                if(widget.meetStatus!='close' || widget.meetStatus!='closed')
+                if(!(widget.state=='helper' && widget.meetStatus=='schedule') && (widget.meetStatus!='close' && widget.meetStatus!='closed'))
                     PopupMenuItem<String>(
-                  value: 'closeRequest',
+                  value: widget.state == 'helper' ? 'raiseRequest' : 'closeRequest',
                   child: Container(
                     child: Row(
                       children: [
-                        if(widget.meetStatus == 'schedule' || (widget.state=='trip_user' && widget.meetStatus=='start'))
-                          Icon(Icons.close, color: Colors.black),
+                        widget.meetStatus == 'schedule' || widget.state=='trip_user' && widget.meetStatus=='start'  ?
+                        Icon(Icons.cancel_schedule_send_rounded , color: Colors.grey) : Icon(Icons.close, color: Colors.black),
                         SizedBox(width: 8),
-                        if(widget.meetStatus == 'schedule' || (widget.state=='trip_user' && widget.meetStatus=='start'))
-                          Text('Close Request', style: Theme.of(context).textTheme.subtitle2,
+                        Text(
+                          widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Close Request' :  'Cancel Request',
+                          style: Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),

@@ -98,7 +98,14 @@ class CalendarPage extends StatefulWidget{
       },),automaticallyImplyLeading: false,shadowColor: Colors.transparent,backgroundColor: Colors.white,),
       body: WillPopScope(
         onWillPop: () async{
-          Navigator.of(context).pop();
+          // Navigator.of(context).pop();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+              create:(context) => ProfileDataProvider(),
+              child: FinalProfile(userId: widget.currentUser,clickedId: widget.clickedUser,),
+            ),),
+          );
           return true;
         },
         child: isDataFetched
@@ -297,6 +304,7 @@ class CalendarPage extends StatefulWidget{
       //   ),
       // ),
     );
+
   }
 }
 
@@ -348,12 +356,12 @@ class _CallTimeState extends State<CallTime>{
                 children: [
                   Image.asset('assets/images/clock.png',width: 22,height: 22,),
                   SizedBox(width: 5,),
-                  Text('${userDataSet?.setStartTime} - ${userDataSet?.setEndTime} ${country} ',style: TextStyle(fontWeight: FontWeight.w600,color:Colors.orange,fontSize: 14,),),
+                  Text('${userDataSet?.setStartTime} - ${userDataSet?.setEndTime} ${country} ',style: TextStyle(fontWeight: FontWeight.w600,color:Theme.of(context).primaryColorDark,fontSize: 14,),),
                 ],
               ),
               Container(
                   padding: EdgeInsets.only(left: 27),
-                  child: Text('(${daysLetter(userDataSet!.availabilityChoosen!).join(',')})',style: TextStyle(fontWeight: FontWeight.w600,color:Colors.orange,fontSize: 13,),)),
+                  child: Text('(${daysLetter(userDataSet!.availabilityChoosen!).join(',')})',style: TextStyle(fontWeight: FontWeight.w600,color:Theme.of(context).primaryColorDark,fontSize: 13,),)),
           ],
         ),
       ],
@@ -445,7 +453,14 @@ DateTime findNextAvailableDate(List<int>disable) {
 class _CalendarCheckState extends State<CalendarCheck>{
 
   String? selectedDate,sendDate;
-  bool showCalendar =false;
+  bool showCalendar =true;
+
+  @override
+  void initState(){
+    super.initState();
+    sendDate = formatTodayDate(findNextAvailableDate(daysInt(widget.daysChoosen!)));
+  }
+
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
@@ -508,8 +523,7 @@ class _CalendarCheckState extends State<CalendarCheck>{
             }),
           ),
           showCalendar? SizedBox(height: 20,): SizedBox(height: 0,),
-          showCalendar
-            ?Container(
+          Container(
               // color: Colors.red,
             padding: EdgeInsets.only(top: 10,bottom: 10),
             margin: EdgeInsets.only(right: 30),
@@ -543,10 +557,9 @@ class _CalendarCheckState extends State<CalendarCheck>{
                   Text('Calendar will help you to select the time for interaction with the user.',style: TextStyle(color: HexColor('#FF0000'),fontSize: 12,fontWeight: FontWeight.w500),)
                 ],
               ),
-            )
-            :SizedBox(height: 0,),
-            !showCalendar?SizedBox(height: 30,):SizedBox(height: 15,),
-            TimeSet(slotChoosen:widget.slotChoosen,selectedDate:selectedDate,setDate:sendDate,userStartTime:widget.userStartTime,userEndTime:widget.userEndTime,plans:widget.plans,id:widget.id,id2:widget.id2,userName:widget.userName,userPhoto:widget.userPhoto,user2Name:widget.uName,user2Photo:widget.uPhoto,userToken:widget.userToken,plannerToken:widget.plannerToken,daysChoosen:widget.daysChoosen),
+            ),
+          !showCalendar?SizedBox(height: 30,):SizedBox(height: 15,),
+          TimeSet(slotChoosen:widget.slotChoosen,selectedDate:selectedDate,setDate:sendDate,userStartTime:widget.userStartTime,userEndTime:widget.userEndTime,plans:widget.plans,id:widget.id,id2:widget.id2,userName:widget.userName,userPhoto:widget.userPhoto,user2Name:widget.uName,user2Photo:widget.uPhoto,userToken:widget.userToken,plannerToken:widget.plannerToken,daysChoosen:widget.daysChoosen),
         ],
       ),
     );
@@ -690,6 +703,8 @@ class _TimeSetState extends State<TimeSet>{
   bool timeOverlap = false;
   final TextEditingController _meetingEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
+  bool buttonPressed = false;
+
 
   @override
   void dispose(){
@@ -706,7 +721,7 @@ class _TimeSetState extends State<TimeSet>{
   }
 
   @override
-  void checkSetDate_Time () async{
+  Future<void> checkSetDate_Time () async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
@@ -733,22 +748,25 @@ class _TimeSetState extends State<TimeSet>{
           await saveMeetingSchedule();
           sendCustomNotificationToOneUser(
               widget.plannerToken!,
-              'Messages From ${widget.userName}',
-              'Trip Planning Request',_meetingEditingController.text,
+              'Messages From ${widget.user2Name}',
+              'Messages From ${widget.user2Name}','Trip Planning Request <br/> ${_meetingEditingController.text}',
               'All Pings','trip_planning_request',widget.id2!,'helper'
           );
           sendCustomNotificationToOneUser(
               widget.userToken!,
-              'Messages Sent To  ${widget.user2Name}',
-              '','Trip Planning Request Sent Successfully',
+              'Messages Sent To  ${widget.userName}',
+              'Messages Sent To  ${widget.userName}','Trip Planning Request Sent Successfully',
               'Pending','trip_planning_request',widget.id!,'user'
           );
+          setState(() {
+            buttonPressed = false;
+          });
           await showDialog(context: context, builder: (BuildContext context){
             return Container(child: CustomHelpOverlay(button:'Check Your Pings >', extraText: 'Your request is send to the Trip Planner,you can check pings for request status.',navigate:'pings',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,onButtonPressed: (){
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PingsSection(userId:widget.id!,state:'Pending',selectedService: 'Trip Planning',),
+                  builder: (context) => PingsSection(userId:widget.id!,state:'Pending',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
                 ),
               );
             },onBackPressed: (){
@@ -762,6 +780,9 @@ class _TimeSetState extends State<TimeSet>{
           },);
         }
         else if(responseData['problem']=='service_close'){
+          setState(() {
+            buttonPressed = false;
+          });
           await Fluttertoast.showToast(
             msg:
             responseData['message'],
@@ -783,6 +804,9 @@ class _TimeSetState extends State<TimeSet>{
           );
         }
         else if(responseData['problem']=='overlap'){
+          setState(() {
+            buttonPressed = false;
+          });
           await showDialog(context: context, builder: (BuildContext context){
             return Container(child: CustomHelpOverlay(button:'Check ${userName} Calendar ', extraText: 'Trip planner is not available at your selected time !',navigate:'calendarhelper',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,onButtonPressed: ()async{
               await Navigator.push(
@@ -800,6 +824,9 @@ class _TimeSetState extends State<TimeSet>{
           // setState(() {});
         }
         else if(responseData['problem']=='update'){
+          setState(() {
+            buttonPressed = false;
+          });
           await Fluttertoast.showToast(
             msg:
             responseData['message'],
@@ -815,6 +842,7 @@ class _TimeSetState extends State<TimeSet>{
           await Navigator.push(context, MaterialPageRoute(builder: (context)=> CalendarPage(clickedUser: widget.id2!,currentUser: widget.id!,)));
 
         }
+
       }
       else {
         print('Failed to save data: ${response.statusCode}');
@@ -1229,22 +1257,31 @@ class _TimeSetState extends State<TimeSet>{
         :SizedBox(height: 0,),
         SizedBox(height: 40,),
         Container(
-          width: 326,
-          height: 53,
+          padding: EdgeInsets.only(left: 5,right:5),
+          height: 57,
           child: FiledButton(
-              backgroundColor: HexColor('#FB8C00'),
-              onPressed: () {
+              backgroundColor: Colors.orange,
+              onPressed: () async{
+                setState(() {
+                  buttonPressed = true;
+                });
                 print('$startTime,${widget.setDate},${_meetingEditingController.text}');
                 if(validator(startTime,_meetingEditingController.text,widget.setDate)){
-                  checkSetDate_Time();
+                  await checkSetDate_Time();
                 }else {}
+                setState(() {
+                  buttonPressed = false;
+                });
               },
               child: Center(
-                  child: Text('Request Call',
+                  child: buttonPressed==false
+                      ? Text('Request Call',
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          fontSize: 18)))),
+                          fontSize: 22))
+                      : CircularProgressIndicator(color: Colors.white,)
+              )),
         ),
         SizedBox(height:20),
       ],

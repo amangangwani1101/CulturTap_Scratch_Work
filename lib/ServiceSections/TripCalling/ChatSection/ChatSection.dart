@@ -52,7 +52,7 @@ class _ChatAppsState extends State<ChatApps> {
   bool dispalyHi = true;
   VoidCallback? onButtonPressed;
   bool dataFetched = false;
-  String userId='',plannerId='',meetId='',date='',index='',meetStatus='',userName='',userPhoto='',plannerName='',plannerPhoto='';
+  String userId='',plannerId='',meetId='',date='',index='',meetStatus='',userName='',userPhoto='',plannerName='',plannerPhoto='',startTime='',endTime='',meetType='',plannerToken='',userToken='';
   DateTime? time;
   bool meetClosed = false,_isTyping=false;
 
@@ -70,14 +70,13 @@ class _ChatAppsState extends State<ChatApps> {
       dataFetched = false;
     });
 
-    await fetchMeetStatus();
+    // await fetchMeetStatus();
     await fetchTripPlanningMeetDetais();
     await fetchDataset();
     await retriveMeetingConversation(meetId);
     if(meetStatus=='close' || meetStatus=='closed'){
       setState(() {
         _isUiEnabled = false;
-
       });
     }
     else{
@@ -87,25 +86,25 @@ class _ChatAppsState extends State<ChatApps> {
       }
       else{
         _isUiEnabled = false;
-        _textFieldFocusNode.addListener(() {
-          scrollToBottom();
-          setState(() {
-            scrollToBottom();
-            _isTyping = _textFieldFocusNode.hasFocus;
-            if (_isTyping) {
-              print("Keyboard opened");
-              scrollToBottom();
-            } else {
-              _isTyping = false;
-              print("Keyboard closed");
-              scrollToBottom();
-            }
-          });
-        });
         startMeetingTimer();
         await startSocketConnection();
       }
     }
+    _textFieldFocusNode.addListener(() {
+      scrollToBottom();
+      setState(() {
+        scrollToBottom();
+        _isTyping = _textFieldFocusNode.hasFocus;
+        if (_isTyping) {
+          print("Keyboard opened");
+          scrollToBottom();
+        } else {
+          _isTyping = false;
+          print("Keyboard closed");
+          scrollToBottom();
+        }
+      });
+    });
     setState(() {
       dataFetched = true;
     });
@@ -163,9 +162,6 @@ class _ChatAppsState extends State<ChatApps> {
         if(widget.senderId!=''){
           userName = data['userName'];
           userPhoto = data['userPhoto']!=null?data['userPhoto']:'';
-        }else{
-          plannerName = data['userName'];
-          plannerPhoto = data['userPhoto']!=null?data['userPhoto']:'';
         }
       });
     } else {
@@ -267,6 +263,14 @@ class _ChatAppsState extends State<ChatApps> {
           plannerId = data['plannerId'];
           meetId = data['meetId'];
           meetStatus = data['meetStatus'];
+          startTime = data['start'];
+          endTime = data['end'];
+          meetType = data['meetType'];
+          plannerToken = data['plannerToken'];
+          userName = data['plannerName'];
+          userPhoto = data['plannerPhoto'];
+          plannerName = data['plannerName'];
+          plannerPhoto = data['plannerPhoto'];
           time= setDateTime(widget.date, data['start']);
           if(data['meetType']=='sender'){
             widget.senderId = userID;
@@ -278,11 +282,8 @@ class _ChatAppsState extends State<ChatApps> {
           widget.meetingId = meetId;
           widget.currentTime = time;
           if(widget.senderId!=''){
-            plannerName = data['plannerName'];
-            plannerPhoto = data['plannerPhoto'];
           }else{
-            userName = data['plannerName'];
-            userPhoto = data['plannerPhoto'];
+
           }
         });
         print('Meeting is ${widget.meetingId}');
@@ -383,8 +384,8 @@ class _ChatAppsState extends State<ChatApps> {
       else if(data['user']=='admin-close'){
         meetClosed = true;
       }
+      scrollToBottom();
     });
-    scrollToBottom();
   }
 
   Future<void> cancelMeeting(String date,int index,String status,String otherId,String otherStatus)async{
@@ -568,7 +569,7 @@ class _ChatAppsState extends State<ChatApps> {
   @override
   Widget build(BuildContext context) {
     final screenWidth = MediaQuery.of(context).size.width;
-    int minutes = remainingTime.inMinutes;
+    // int minutes = remainingTime.inMinutes;
     return Scaffold(
       appBar: AppBar( automaticallyImplyLeading: false,title: ProfileHeader(reqPage: 2,text:'chats',userId:widget.senderId!=''?widget.senderId:widget.receiverId,onButtonPressed:(){
         // if(_isUiEnabled!=true){
@@ -593,327 +594,431 @@ class _ChatAppsState extends State<ChatApps> {
         },
         child: dataFetched
             ? Container(
-          child: Column(
+          color: Theme.of(context).backgroundColor,
+          height : MediaQuery.of(context).size.height,
+          width : double.infinity,
+          child: Stack(
             children: [
-              Container(
-                margin: EdgeInsets.only(left: 20,right:20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SizedBox(height: 15,),
-                    Container(
-                        width: 200,
-                        child: Text('Get Connected With Customer',style:Theme.of(context).textTheme.headline2,)),
-                    SizedBox(height: 10,),
-                    Text('You can chat, talk or do the Video call',style: Theme.of(context).textTheme.subtitle2,),
-                    SizedBox(height: 10,),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+              Column(
+                children: [
+                  Container(
+                    margin: EdgeInsets.only(left: 20,right:20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Image.asset('assets/images/clock.png',width: 22,height: 22,color: meetClosed?Colors.orange : _isUiEnabled?Colors.red:Colors.green,),
-                        SizedBox(width: 10,),
-                        meetClosed
-                            ?Text('00M:00S',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w800,color: Colors.orange,fontFamily: 'Poppins'),)
-                            : _isUiEnabled
-                            ?Text(
-                          "${twoDigits(_remainingTime.inDays,0)}${twoDigits((_remainingTime.inHours)%24,1)}${twoDigits((_remainingTime.inMinutes % 60),2)}${twoDigits((_remainingTime.inSeconds % 60),3)}",
-                          style: TextStyle(fontSize: 18, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.red),
-                        )
-                            : Text('$minutes min',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                        SizedBox(height: 15,),
+                        Container(
+                            width: 200,
+                            child: Text('Get Connected With Customer',style:Theme.of(context).textTheme.headline2,)),
+                        SizedBox(height: 10,),
+                        Text('You can chat, talk or do the Video call',style: Theme.of(context).textTheme.subtitle2,),
+                        SizedBox(height: 10,),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            Image.asset('assets/images/clock.png',width: 22,height: 22,color: meetClosed?Colors.orange : _isUiEnabled?Colors.red:Colors.green,),
+                            SizedBox(width: 10,),
+                            meetClosed
+                                ?Text('00M:00S',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w800,color: Colors.orange,fontFamily: 'Poppins'),)
+                                : _isUiEnabled
+                                ?Text(
+                              "${twoDigits(_remainingTime.inDays,0)}${twoDigits((_remainingTime.inHours)%24,1)}${twoDigits((_remainingTime.inMinutes % 60),2)}${twoDigits((_remainingTime.inSeconds % 60),3)}",
+                              style: TextStyle(fontSize: 18, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.red),
+                            )
+                                : Text('${remainingTime.inMinutes}Min : ${(remainingTime.inSeconds)%60}Sec',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                          ],
+                        ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+                  SizedBox(height: 20,),
+                  messages.length==0 && !_isUiEnabled
+                      ?Expanded(
+                    child: Column(
+                      children: [
+                        InkWell(
+                          onTap: (){
+                            if(meetType=='sender'){
+                              _controller.text = 'Hi ${Constant().extractFirstName(plannerName)},i want to have discussion about my next trip to....';
+                            }else{
+                              _controller.text = 'Hi ${Constant().extractFirstName(plannerName)},how can i help u with your next trip....';
+                            }
+                          },
+                          child: Container(
+                            margin: EdgeInsets.only(top: 20,left:25,right:25),
+                            padding: EdgeInsets.only(left: 30,right: 30),
+                            height: 150,
+                            decoration: BoxDecoration(
+                              // color: Colors.white,
+                              color: Colors.red,// Container background color
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.6),
+                                  spreadRadius: 0.4,
+                                  blurRadius: 0.6,
+                                  offset: Offset(0.5, 0.8),
+                                ),
+                              ],
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: [
+                                Text('Say Hi!',style: Theme.of(context).textTheme.headline1,),
+                                Text('You have 20 min, to discuss and plan your next trip',style: Theme.of(context).textTheme.subtitle1,textAlign: TextAlign.center,),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  )
+                      :!_isUiEnabled
+                      ? Expanded(
+                     child: Container(
+                      margin: EdgeInsets.only(bottom: 70),
+                      padding:EdgeInsets.only(right:5,left:5),
+                      // color: Colors.red,
+                      // decoration: BoxDecoration(border:Border.all(width: 1)),
+                      child: ListView.builder(
+                        controller: _scrollController,
+                        itemCount: messages.length,
+                        itemBuilder: (context, index) {
+                          return ListTile(
+                            minVerticalPadding: 7.0,
+                            title:messages[index][1]=='sender'
+                                ?widget.senderId!=''
+                                ?Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.black,
+
+                                      radius: 15.0,
+                                      backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                    ),
+                                    SizedBox(width: 6,),
+                                    Container(
+                                        width:240,
+                                        decoration: BoxDecoration(
+
+                                          boxShadow: [
+
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                              spreadRadius: 0.3,
+                                              blurRadius: 0.4,
+                                              offset: Offset(0.7, 0.8), // Adjust the shadow offset
+                                            ),
+                                          ],
+
+                                          color: Theme.of(context).primaryColorLight,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(0.0),
+                                            topRight: Radius.circular(10.0),
+                                            bottomLeft: Radius.circular(10.0),
+                                            bottomRight: Radius.circular(10.0),
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
+                                        child: Row(
+                                          children: [
+                                            SizedBox(width: 8,),
+                                            Container(
+                                                width: 200,
+                                                padding: EdgeInsets.only(left: 4),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment
+                                                      .start,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      Constant().extractFirstName('You'),
+                                                      style: Theme.of(context).textTheme.subtitle1,
+                                                    ),
+                                                    SizedBox(height: 5,),
+                                                    Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
+                                                  ],
+                                                )),
+                                          ],
+                                        )
+                                    ),
+                                  ],
+                                )
+                                :Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.black,
+                                       radius: 15.0,
+                                      backgroundImage: FileImage(File(plannerPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                    ),
+                                    SizedBox(width: 6,),
+                                    Container(
+                                        width:240,
+                                        decoration: BoxDecoration(
+
+                                          boxShadow: [
+
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                              spreadRadius: 0.3,
+                                              blurRadius: 0.4,
+                                              offset: Offset(0.7, 0.8), // Adjust the shadow offset
+                                            ),
+                                          ],
+
+                                          color: Theme.of(context).primaryColorLight,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(0.0),
+                                            topRight: Radius.circular(10.0),
+                                            bottomLeft: Radius.circular(10.0),
+                                            bottomRight: Radius.circular(10.0),
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
+                                        child: Row(
+                                          children: [
+                                            SizedBox(width: 8,),
+                                            Container(
+                                                width: 200,
+                                                padding: EdgeInsets.only(left: 4),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment
+                                                      .start,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      Constant().extractFirstName(plannerName),
+                                                      style: Theme.of(context).textTheme.subtitle1,
+                                                    ),
+                                                    SizedBox(height: 5,),
+                                                    Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
+                                                  ],
+                                                )),
+                                          ],
+                                        )),
+                                  ],
+                                )
+                                :messages[index][1]=='receiver'
+                                ?widget.senderId==''
+                                ?Row(
+                              mainAxisAlignment: MainAxisAlignment.end,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.black,
+
+                                      radius: 15.0,
+                                      backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                    ),
+                                    SizedBox(width: 6,),
+                                    Container(
+                                        width:240,
+                                        decoration: BoxDecoration(
+
+                                          boxShadow: [
+
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                              spreadRadius: 0.3,
+                                              blurRadius: 0.4,
+                                              offset: Offset(0.7, 0.8), // Adjust the shadow offset
+                                            ),
+                                          ],
+
+                                          color: Theme.of(context).primaryColorLight,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(0.0),
+                                            topRight: Radius.circular(10.0),
+                                            bottomLeft: Radius.circular(10.0),
+                                            bottomRight: Radius.circular(10.0),
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
+                                        child: Row(
+                                          children: [
+                                            SizedBox(width: 8,),
+                                            Container(
+                                                width: 200,
+                                                padding: EdgeInsets.only(left: 4),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment
+                                                      .start,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'You',
+                                                      style: Theme.of(context).textTheme.subtitle1,
+                                                    ),
+                                                    SizedBox(height: 5,),
+                                                    Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
+                                                  ],
+                                                )),
+                                          ],
+                                        )),
+                                  ],
+                                )
+                                :Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment:
+                              CrossAxisAlignment.start,
+                                  children: [
+                                    CircleAvatar(
+                                      backgroundColor: Colors.black,
+
+                                      radius: 15.0,
+                                      backgroundImage: FileImage(File(plannerPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                    ),
+                                    SizedBox(width: 6,),
+                                    Container(
+                                        width:240,
+                                        decoration: BoxDecoration(
+
+                                          boxShadow: [
+
+                                            BoxShadow(
+                                              color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                              spreadRadius: 0.3,
+                                              blurRadius: 0.4,
+                                              offset: Offset(0.7, 0.8), // Adjust the shadow offset
+                                            ),
+                                          ],
+
+                                          color: Theme.of(context).primaryColorLight,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(0.0),
+                                            topRight: Radius.circular(10.0),
+                                            bottomLeft: Radius.circular(10.0),
+                                            bottomRight: Radius.circular(10.0),
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
+                                        child: Row(
+                                          children: [
+                                            SizedBox(width: 8,),
+                                            Container(
+                                                width: 200,
+                                                padding: EdgeInsets.only(left: 4),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                  CrossAxisAlignment
+                                                      .start,
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      Constant().extractFirstName(plannerName),
+                                                      style: Theme.of(context).textTheme.subtitle1,
+                                                    ),
+                                                    SizedBox(height: 5,),
+                                                    Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
+                                                  ],
+                                                )),
+                                          ],
+                                        )),
+                                  ],
+                                )
+                                :SizedBox(height: 0,),
+                          );
+                        },
+                      ),
+                    ),
+                  )
+                      :Expanded(child: SizedBox(height: 10,)),
+                ],
               ),
-              SizedBox(height: 20,),
-              messages.length==0 && !_isUiEnabled
-                  ?Expanded(
-                child: Column(
+
+              Positioned(
+                bottom : 0,
+                left : 0,
+                right : 0,
+                child: meetClosed
+                    ? InkWell(
+                  onTap: (){},
+                  child: Container(
+                    height : 63,
+                    padding:EdgeInsets.only(left:10,right:10),
+                    decoration: BoxDecoration(
+                      color : Colors.grey[200],
+                      borderRadius: BorderRadius.circular(0),
+                      border: Border.all(color: Colors.orange),
+                    ),
+                    child: Center(child:Text(meetStatus=='cancel'?'Cancelled': meetStatus=='close'?'Rate & Feedback' :'Closed',style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: Colors.orange,
+                        fontSize: 18))),
+                  ),
+                )
+                    :  Row(
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: [
                     Container(
-                      width: screenWidth<450?screenWidth*0.85:336,
-                      height: 134,
-                      decoration: BoxDecoration(
-                        // color: Colors.white,
-                        color: Colors.red,// Container background color
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.grey.withOpacity(0.5), // Shadow color
-                            spreadRadius: 5, // Spread radius
-                            blurRadius: 7, // Blur radius
-                            offset: Offset(0, 3), // Changes the position of the shadow
-                          ),
-                        ],
-                        borderRadius: BorderRadius.circular(10),
+                      width: MediaQuery.of(context).size.width,
+                      height: 60,
+                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2'),
                       ),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Text('Say Hi!',style: TextStyle(fontWeight: FontWeight.bold,fontSize: 18,fontFamily: 'Poppins'),),
-                          Text('You have 20 min, to discuss and \nplan your next trip',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        children: <Widget>[
+                          SizedBox(width: 30,),
+                          Expanded(
+                            child: TextField(
+                              onChanged: (text){
+                                setState(() {
+                                  scrollToBottom();
+                                });
+                              },
+                              onTapOutside: (value){
+                                _textFieldFocusNode.unfocus();
+                              },
+                              onSubmitted: (value){
+                                _textFieldFocusNode.unfocus();
+                              },
+                              onEditingComplete: (){
+                                _textFieldFocusNode.unfocus();
+                              },
+                              focusNode: _textFieldFocusNode,
+                              controller: _controller,
+                              decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
+                            ),
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.send),
+                            onPressed: !_isUiEnabled ? _handleSend : null,
+                          ),
                         ],
                       ),
                     ),
+                    // SizedBox(width: 5,),
+                    // Container(
+                    //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+                    //   child: IconButton(
+                    //     icon: Icon(Icons.call),
+                    //     // onPressed:initiateVideoCall,
+                    //     onPressed: !_isUiEnabled ? startCall : null,
+                    //   ),
+                    // ),
+                    // SizedBox(width: 5,),
+                    // Container(
+                    //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+                    //   child: IconButton(
+                    //     icon: Icon(Icons.videocam),
+                    //     // onPressed:initiateVideoCall,
+                    //     onPressed: (){},
+                    //   ),
+                    // ),
                   ],
                 ),
               )
-                  :!_isUiEnabled
-                  ? Expanded(
-                child: Container(
-                  // color: Colors.red,
-                  // decoration: BoxDecoration(border:Border.all(width: 1)),
-                  child: ListView.builder(
-                    itemCount: messages.length,
-                    itemBuilder: (context, index) {
-                      return ListTile(
-                        title:messages[index][1]=='sender'
-                            ?widget.senderId!=''
-                            ?Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.black,
-
-                                  radius: 15.0,
-                                  backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                ),
-                                SizedBox(width: 6,),
-                                Container(
-                                    width:240,
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.3,
-                                          blurRadius: 0.4,
-                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
-                                        ),
-                                      ],
-
-                                      color: Theme.of(context).primaryColorLight,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0.0),
-                                        topRight: Radius.circular(10.0),
-                                        bottomLeft: Radius.circular(10.0),
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Container(
-                                            width: 200,
-                                            padding: EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  Constant().extractFirstName(userName),
-                                                  style: Theme.of(context).textTheme.subtitle1,
-                                                ),
-                                                SizedBox(height: 5,),
-                                                Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
-                                              ],
-                                            )),
-                                      ],
-                                    )
-                                ),
-                              ],
-                            )
-                            :Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.black,
-                                   radius: 15.0,
-                                  backgroundImage: FileImage(File(plannerPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                ),
-                                SizedBox(width: 6,),
-                                Container(
-                                    width:240,
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.3,
-                                          blurRadius: 0.4,
-                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
-                                        ),
-                                      ],
-
-                                      color: Theme.of(context).primaryColorLight,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0.0),
-                                        topRight: Radius.circular(10.0),
-                                        bottomLeft: Radius.circular(10.0),
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Container(
-                                            width: 200,
-                                            padding: EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  Constant().extractFirstName(plannerName),
-                                                  style: Theme.of(context).textTheme.subtitle1,
-                                                ),
-                                                SizedBox(height: 5,),
-                                                Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
-                                              ],
-                                            )),
-                                      ],
-                                    )),
-                              ],
-                            )
-                            :messages[index][1]=='receiver'
-                            ?widget.senderId==''
-                            ?Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.black,
-
-                                  radius: 15.0,
-                                  backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                ),
-                                SizedBox(width: 6,),
-                                Container(
-                                    width:240,
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.3,
-                                          blurRadius: 0.4,
-                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
-                                        ),
-                                      ],
-
-                                      color: Theme.of(context).primaryColorLight,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0.0),
-                                        topRight: Radius.circular(10.0),
-                                        bottomLeft: Radius.circular(10.0),
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Container(
-                                            width: 200,
-                                            padding: EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  Constant().extractFirstName(userName),
-                                                  style: Theme.of(context).textTheme.subtitle1,
-                                                ),
-                                                SizedBox(height: 5,),
-                                                Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
-                                              ],
-                                            )),
-                                      ],
-                                    )),
-                              ],
-                            )
-                            :Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment:
-                          CrossAxisAlignment.start,
-                              children: [
-                                CircleAvatar(
-                                  backgroundColor: Colors.black,
-
-                                  radius: 15.0,
-                                  backgroundImage: FileImage(File(plannerPhoto)) as ImageProvider<Object>, // Use a default asset image
-                                ),
-                                SizedBox(width: 6,),
-                                Container(
-                                    width:240,
-                                    decoration: BoxDecoration(
-
-                                      boxShadow: [
-
-                                        BoxShadow(
-                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
-                                          spreadRadius: 0.3,
-                                          blurRadius: 0.4,
-                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
-                                        ),
-                                      ],
-
-                                      color: Theme.of(context).primaryColorLight,
-                                      borderRadius: BorderRadius.only(
-                                        topLeft: Radius.circular(0.0),
-                                        topRight: Radius.circular(10.0),
-                                        bottomLeft: Radius.circular(10.0),
-                                        bottomRight: Radius.circular(10.0),
-                                      ),
-                                    ),
-                                    padding: EdgeInsets.only( right : 5, top : 3, bottom :10),
-                                    child: Row(
-                                      children: [
-                                        SizedBox(width: 8,),
-                                        Container(
-                                            width: 200,
-                                            padding: EdgeInsets.only(left: 4),
-                                            child: Column(
-                                              crossAxisAlignment:
-                                              CrossAxisAlignment
-                                                  .start,
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Text(
-                                                  Constant().extractFirstName(plannerName),
-                                                  style: Theme.of(context).textTheme.subtitle1,
-                                                ),
-                                                SizedBox(height: 5,),
-                                                Text(messages[index][0],style: Theme.of(context).textTheme.subtitle2,),
-                                              ],
-                                            )),
-                                      ],
-                                    )),
-                              ],
-                            )
-                            :SizedBox(height: 0,),
-                      );
-                    },
-                  ),
-                ),
-              )
-                  :Expanded(child: SizedBox(height: 10,)),
             ],
           ),
         )
@@ -924,83 +1029,84 @@ class _ChatAppsState extends State<ChatApps> {
           ),
         ),
       ),
-      bottomNavigationBar: meetClosed
-          ? InkWell(
-            onTap: (){},
-            child: Container(
-        height : 63,
-        padding:EdgeInsets.only(left:10,right:10),
-        decoration: BoxDecoration(
-            color : Colors.grey[200],
-            borderRadius: BorderRadius.circular(0),
-            border: Border.all(color: Colors.orange),
-        ),
-        child: Center(child:Text(meetStatus=='cancel'?'Cancelled': meetStatus=='close'?'Rate & Feedback' :'Closed',style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.orange,
-              fontSize: 18))),
-      ),
-          )
-          :  Row(
-        mainAxisAlignment: MainAxisAlignment.start,
-        children: [
-          Container(
-            width: MediaQuery.of(context).size.width,
-            height: 60,
-            decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2'),
-            ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.start,
-              children: <Widget>[
-                SizedBox(width: 30,),
-                Expanded(
-                  child: TextField(
-                    onChanged: (text){
-                      setState(() {
-                        scrollToBottom();
-                      });
-                    },
-                    onTapOutside: (value){
-                      _textFieldFocusNode.unfocus();
-                    },
-                    onSubmitted: (value){
-                      _textFieldFocusNode.unfocus();
-                    },
-                    onEditingComplete: (){
-                      _textFieldFocusNode.unfocus();
-                    },
-                    focusNode: _textFieldFocusNode,
-                    controller: _controller,
-                    decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
-                  ),
-                ),
-                IconButton(
-                  icon: Icon(Icons.send),
-                  onPressed: !_isUiEnabled ? _handleSend : null,
-                ),
-              ],
-            ),
-          ),
-          // SizedBox(width: 5,),
-          // Container(
-          //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
-          //   child: IconButton(
-          //     icon: Icon(Icons.call),
-          //     // onPressed:initiateVideoCall,
-          //     onPressed: !_isUiEnabled ? startCall : null,
-          //   ),
-          // ),
-          // SizedBox(width: 5,),
-          // Container(
-          //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
-          //   child: IconButton(
-          //     icon: Icon(Icons.videocam),
-          //     // onPressed:initiateVideoCall,
-          //     onPressed: (){},
-          //   ),
-          // ),
-        ],
-      ),
+      // bottomNavigationBar:
+      // meetClosed
+      //     ? InkWell(
+      //       onTap: (){},
+      //       child: Container(
+      //   height : 63,
+      //   padding:EdgeInsets.only(left:10,right:10),
+      //   decoration: BoxDecoration(
+      //       color : Colors.grey[200],
+      //       borderRadius: BorderRadius.circular(0),
+      //       border: Border.all(color: Colors.orange),
+      //   ),
+      //   child: Center(child:Text(meetStatus=='cancel'?'Cancelled': meetStatus=='close'?'Rate & Feedback' :'Closed',style: TextStyle(
+      //         fontWeight: FontWeight.bold,
+      //         color: Colors.orange,
+      //         fontSize: 18))),
+      // ),
+      //     )
+      //     :  Row(
+      //   mainAxisAlignment: MainAxisAlignment.start,
+      //   children: [
+      //     Container(
+      //       width: MediaQuery.of(context).size.width,
+      //       height: 60,
+      //       decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2'),
+      //       ),
+      //       child: Row(
+      //         mainAxisAlignment: MainAxisAlignment.start,
+      //         children: <Widget>[
+      //           SizedBox(width: 30,),
+      //           Expanded(
+      //             child: TextField(
+      //               onChanged: (text){
+      //                 setState(() {
+      //                   scrollToBottom();
+      //                 });
+      //               },
+      //               onTapOutside: (value){
+      //                 _textFieldFocusNode.unfocus();
+      //               },
+      //               onSubmitted: (value){
+      //                 _textFieldFocusNode.unfocus();
+      //               },
+      //               onEditingComplete: (){
+      //                 _textFieldFocusNode.unfocus();
+      //               },
+      //               focusNode: _textFieldFocusNode,
+      //               controller: _controller,
+      //               decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
+      //             ),
+      //           ),
+      //           IconButton(
+      //             icon: Icon(Icons.send),
+      //             onPressed: !_isUiEnabled ? _handleSend : null,
+      //           ),
+      //         ],
+      //       ),
+      //     ),
+      //     // SizedBox(width: 5,),
+      //     // Container(
+      //     //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+      //     //   child: IconButton(
+      //     //     icon: Icon(Icons.call),
+      //     //     // onPressed:initiateVideoCall,
+      //     //     onPressed: !_isUiEnabled ? startCall : null,
+      //     //   ),
+      //     // ),
+      //     // SizedBox(width: 5,),
+      //     // Container(
+      //     //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+      //     //   child: IconButton(
+      //     //     icon: Icon(Icons.videocam),
+      //     //     // onPressed:initiateVideoCall,
+      //     //     onPressed: (){},
+      //     //   ),
+      //     // ),
+      //   ],
+      // ),
     );
   }
 

@@ -181,12 +181,12 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                                 child: Image.asset('assets/images/clock.png',width: 22,height: 22,),
                               ),
                               SizedBox(width: 10,),
-                              Text('${widget.startTime} - ${widget.endTime}\t',style: Theme.of(context).textTheme.subtitle2),
+                              Text('${widget.startTime} - ${widget.endTime}\t',style: TextStyle(color:Colors.orange,fontSize: 14,fontWeight:FontWeight.w600,fontFamily: 'Poppins')),
                             ],
                           ),
                           Container(
                               padding: EdgeInsets.only(left: 27),
-                              child: Text('(${daysLetter(widget.daysChoosen!).join(',')})',style: TextStyle(fontSize: (13),color : Color(0xFF001B33) ,),)),
+                              child: Text('(${daysLetter(widget.daysChoosen!).join(',')})',style: TextStyle(color:Colors.orange,fontSize: 13,fontWeight:FontWeight.w600,fontFamily: 'Poppins'),)),
 
                         ],
                       ),

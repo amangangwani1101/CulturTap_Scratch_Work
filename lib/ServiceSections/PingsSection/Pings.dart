@@ -18,6 +18,7 @@ import 'package:provider/provider.dart';
 
 import '../../All_Notifications/customizeNotification.dart';
 import '../../BackendStore/BackendStore.dart';
+import '../../CustomItems/ImagePopUpWithTwoOption.dart';
 import '../../UserProfile/FinalUserProfile.dart';
 import '../../UserProfile/ProfileHeader.dart';
 // import '../../rating.dart';
@@ -57,8 +58,8 @@ class PingsDataStore{
 
 class PingsSection extends StatefulWidget{
   String userId;
-  String?text,userName,state,selectedService;
-  PingsSection({required this.userId,this.selectedService,this.text,this.userName,this.state});
+  String?text,userName,state,selectedService,fromWhichPage;
+  PingsSection({required this.userId,this.selectedService,this.text,this.userName,this.state,this.fromWhichPage});
   @override
   _PingSectionState createState() => _PingSectionState();
 }
@@ -67,6 +68,7 @@ class _PingSectionState extends State<PingsSection>{
   late PingsDataStore pingsDataStore;
   VoidCallback? callbacker;
   bool isLoading = true; // Add a boolean flag to indicate loading state
+  bool dataLoading = false;
   @override
   void initState() {
     super.initState();
@@ -80,9 +82,9 @@ class _PingSectionState extends State<PingsSection>{
 
 
 
-  void callback() {
+  void callback() async{
     print('I am !!');
-    _refreshPage(time:0);
+    await fetchDatasets(userID);
   }
 
 
@@ -121,11 +123,11 @@ class _PingSectionState extends State<PingsSection>{
       isLoading=true;
     });
     await Future.delayed(Duration(seconds: time));
+    await fetchDatasets(widget.userId);
     // Update the UI with new data if needed
     setState(() {
       isLoading = false;
       widget.state = state;
-      fetchDatasets(widget.userId);
     });
   }
 
@@ -300,7 +302,61 @@ class _PingSectionState extends State<PingsSection>{
 
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
-        print('Ama ${responseData['status']}');
+        print(responseData);
+        String currentStatus = responseData['status'];
+        String userPosition = responseData['type'];
+        if(userPosition=='sender'){
+          if((currentStatus=='pending' && status=='cancel') || (currentStatus=='accept' && (status=='cancel'|| status=='schedule'))){
+            return true;
+          }
+          else{
+            Fluttertoast.showToast(
+              msg:
+              'Meeting Is Already Cancelled By ${userName}',
+              toastLength:
+              Toast.LENGTH_SHORT,
+              gravity:
+              ToastGravity.BOTTOM,
+              backgroundColor:Theme.of(context).primaryColorDark,
+              textColor: Colors.orange,
+              fontSize: 16.0,
+            );
+            return false;
+          }
+        }
+        else if(userPosition=='receiver'){
+          if(currentStatus=='choose' && (status=='cancel'|| status=='pending')){
+            return true;
+          }
+          else{
+            Fluttertoast.showToast(
+              msg:
+              'Meeting Is Already Cancelled By ${userName}',
+              toastLength:
+              Toast.LENGTH_SHORT,
+              gravity:
+              ToastGravity.BOTTOM,
+              backgroundColor:Theme.of(context).primaryColorDark,
+              textColor: Colors.orange,
+              fontSize: 16.0,
+            );
+            return false;
+          }
+        }else{
+          Fluttertoast.showToast(
+            msg:
+            'Somethng Gone Wrong. Try Again After few moments',
+            toastLength:
+            Toast.LENGTH_SHORT,
+            gravity:
+            ToastGravity.BOTTOM,
+            backgroundColor:Theme.of(context).primaryColorDark,
+            textColor: Colors.orange,
+            fontSize: 16.0,
+          );
+          return false;
+        }
+        print('Current Staus is ${responseData['status']}');
         if(responseData['status']!=status){
           bool res = await showDialog(
               context: context,
@@ -572,7 +628,9 @@ class _PingSectionState extends State<PingsSection>{
     final screenWidth = MediaQuery.of(context).size.width;
     // callback();
     return WillPopScope(
-      onWillPop: ()async{
+      onWillPop: () async {
+        // If you want to prevent the user from going back, return false
+        // return false;
         if(widget.text=='meetingPings'){
           // Navigator.push(
           //   context,
@@ -585,682 +643,205 @@ class _PingSectionState extends State<PingsSection>{
           Navigator.of(context).pop();
           Navigator.of(context).pop();
         }
-        return true;
-      },
-      child: WillPopScope(
-        onWillPop: () async {
-          // If you want to prevent the user from going back, return false
-          // return false;
-
+        else if(widget.fromWhichPage=='trip_planning_schedule_profile'){
+          Navigator.of(context).pop();
+        }else{
           // If you want to navigate directly to the homepage
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (context) => HomePage()),
           );
+        }
+        return false; // Returning true will allow the user to pop the page
+      },
+      child: Scaffold(
+        backgroundColor: Theme.of(context).primaryColorLight,
+        appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName,fromWhichPage: widget.fromWhichPage,onButtonPressed: (){
+          Navigator.of(context).pop();
+        },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent, toolbarHeight: 90,),
+        body: !isLoading
+            ? RefreshIndicator(
+          onRefresh: ()=>_refreshPage(),
+          child: Stack(
+            children: [
 
-          return false; // Returning true will allow the user to pop the page
-        },
-        child: Scaffold(
-          backgroundColor: Theme.of(context).primaryColorLight,
-          appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName,),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent, toolbarHeight: 90,),
-          body: !isLoading
-              ? RefreshIndicator(
-            onRefresh: ()=>_refreshPage(),
-            child: Stack(
-              children: [
+              dataLoading ==false
+                  ? Container(
+                color : Theme.of(context).backgroundColor,
+                height : MediaQuery.of(context).size.height,
 
-                Container(
-                  color : Theme.of(context).backgroundColor,
-                  height : MediaQuery.of(context).size.height,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
 
-                  child: SingleChildScrollView(
-                    child: Column(
-                      children: [
-
-                        SizedBox(height : 120),
-                     
-
-                        toggle
-                            ? Container(
-                          padding: EdgeInsets.only(left:20,right:20),
-                          // width: screenWidth*0.85,
-                          // height: 50,
-                          child: Row(
-
-                            children: [
+                      SizedBox(height : 120),
 
 
+                      toggle
+                          ? Container(
+                        padding: EdgeInsets.only(left:20,right:20),
+                        // width: screenWidth*0.85,
+                        // height: 50,
+                        child: Row(
+
+                          children: [
 
 
 
-                            ],
-                          ),
-                        )
-                            : SizedBox(height: 0,),
-                        SizedBox(height: 10,),
-                        toggle
-                            ? _selectedService=='Trip Planning'
-                            ? Column(
-                          children: List.generate(pingsDataStore.meetData.length, (index)  {
-                            final date = pingsDataStore.meetData.keys.elementAt(index);
-                            final meetDetails = pingsDataStore.meetData[date];
-                            print('2::${date}');
-                            print('2::${meetDetails}');
-                            return Column(
-                              children:
-                              List.generate(meetDetails['meetStartTime'].length, (index) {
-                                String startTime= meetDetails['meetStartTime'][index];
-                                String endTime= meetDetails['meetEndTime'][index];
-                                String meetId = meetDetails['meetingId'][index];
-                                String meetStatus = meetDetails['meetingStatus'][index];
-                                String meetTitle = meetDetails['meetingTitle'][index];
-                                String userId = meetDetails['userId'][index];
-                                String meetType = meetDetails['meetingType'][index];
-                                String userName = meetDetails['userName'][index];
-                                String userPhoto = meetDetails['userPhoto'][index];
-                                String plannerToken = meetDetails['userToken'][index];
-                                // String token =
-                                return Container(
-                                  child:
-                                  ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
-                                      (_selectedValue == 'Accepted' && meetStatus =='accept')||
-                                      (_selectedValue == 'Pending' && meetStatus =='pending')||
-                                      (_selectedValue == 'Closed' && (meetStatus =='close' || meetStatus =='closed'))||
-                                      (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
-                                      _selectedValue =='All Pings' && meetStatus!='cancel' && meetStatus!='close' && meetStatus!='closed')
-                                      ? InkWell(
-                                        onTap: (){
-                                          if((meetType=='sender' && (meetStatus=='schedule' || meetStatus=='accept' || meetStatus=='close' || meetStatus=='closed')) || (meetType=='receiver' &&(meetStatus=='pending' || meetStatus=='schedule' || meetStatus=='close' || meetStatus=='closed'))){
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                builder: (context) => ScheduledCalendar(date:date,userId:userID,meetDetails:meetDetails,index:index),
-                                              ),
-                                            );
-                                          }
-                                        },
-                                        child: Container(
-                                    padding: EdgeInsets.all(18),
-                                    margin: EdgeInsets.only(left:12,right:15,top:10,bottom:20),
-                                    decoration: BoxDecoration(
-                                        color: Theme.of(context).backgroundColor, // Container background color
-                                        borderRadius: BorderRadius.circular(3),
-                                        boxShadow: [
-                                          BoxShadow(
-                                            color: Colors.grey.withOpacity(0.6),
-                                            spreadRadius: 0.4,
-                                            blurRadius: 0.6,
-                                            offset: Offset(0.5, 0.8),
-                                          ),
-                                        ],
-                                    ),
-                                    child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                        children: [
-                                          Container(
-                                            padding:EdgeInsets.only(top:10,bottom:20),
-                                            child: Text('Trip Planning',style:Theme.of(context).textTheme.subtitle1),
-                                          ),
-                                          Row(
-                                            mainAxisAlignment: MainAxisAlignment.spaceBetween ,
-                                            crossAxisAlignment: CrossAxisAlignment.center,
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  meetType=='sender'
-                                                      ? InkWell(
-                                                        onTap:(){
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
-                                                              create:(context) => ProfileDataProvider(),
-                                                              child: FinalProfile(userId: userID,clickedId: userID,fromWhichPage: 'pings',),
-                                                            ),),
-                                                          );
-                                                        },
-                                                        child: CircleAvatar(
-                                                    radius: 20.0,
-                                                    backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
-                                                          ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                                          : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                  ),
-                                                      )
-                                                      :InkWell(
-                                                        onTap:(){
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
-                                                              create:(context) => ProfileDataProvider(),
-                                                              child: FinalProfile(userId: userID,clickedId: userId,fromWhichPage: 'pings',),
-                                                            ),),
-                                                          );
-                                                        },
-                                                        child: CircleAvatar(
-                                                    radius: 20.0,
-                                                    backgroundImage: userPhoto!= null && userPhoto!= ''
-                                                          ? FileImage(File(userPhoto)) as ImageProvider<Object>?
-                                                          : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                  ),
-                                                      ),
-                                                  SizedBox(width: 6,),
-                                                  SvgPicture.asset(
-                                                    'assets/images/arrow_dir.svg', // Replace with the path to your SVG file
-                                                    width: 25, // Specify the width
-                                                    height: 25, // Specify the height
-                                                    color: Colors.black, // Change the color if needed
-                                                  ),
-                                                  SizedBox(width: 6,),
-                                                  meetType=='sender'
-                                                      ? InkWell(
-                                                        onTap:(){
-                                                          Navigator.push(
-                                                            context,
-                                                            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
-                                                              create:(context) => ProfileDataProvider(),
-                                                              child: FinalProfile(userId: userID,clickedId: userId,fromWhichPage: 'pings',),
-                                                            ),),
-                                                          );
-                                                        },
-                                                        child: CircleAvatar(
-                                                    radius: 20.0,
-                                                    backgroundImage: userPhoto!= null && userPhoto!= ''
-                                                          ? FileImage(File(userPhoto)) as ImageProvider<Object>?
-                                                          : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                  ),
-                                                      )
-                                                      :InkWell(
-                                                          onTap:(){
-                                                            Navigator.push(
-                                                              context,
-                                                              MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
-                                                                create:(context) => ProfileDataProvider(),
-                                                                child: FinalProfile(userId: userID,clickedId: userID,fromWhichPage: 'pings', ),
-                                                              ),),
-                                                            );
-                                                          },
-                                                        child: CircleAvatar(
-                                                    radius: 20.0,
-                                                    backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
-                                                          ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                                          : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                  ),
-                                                      ),
-                                                ],
-                                              ),
-                                              SizedBox(width: 20,),
-                                              meetStatus=='pending' || meetStatus=='cancel'?
-                                              Container(
-                                                color: Colors.red, // Background color red
-                                                height: 16  , // Height set to 16
-                                                constraints: BoxConstraints(
-                                                  minWidth: 0,
-                                                  maxWidth: double.infinity, // Adjust width according to text
-                                                ),
-                                                child: Text('   '+
-                                                    (meetStatus=='pending'?'Request Pending':'Cancelled')+'   ',
-                                                  style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
-                                                ),
-                                              )
-                                                  : meetStatus=='accept'
-                                                  ? Container(
-                                                color: HexColor('FB8C00'), // Background color red
-                                                height: 16  , // Height set to 16
-                                                constraints: BoxConstraints(
-                                                  minWidth: 0,
-                                                  maxWidth: double.infinity, // Adjust width according to text
-                                                ),
-                                                child: Text('   '+
-                                                    'Accepted'+'   ',
-                                                  style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
-                                                ),
-                                              )
-                                                  : meetStatus=='schedule'
-                                                  ? Container(
-                                                color: HexColor('0A8100'), // Background color red
-                                                height: 16  , // Height set to 16
-                                                constraints: BoxConstraints(
-                                                  minWidth: 0,
-                                                  maxWidth: double.infinity, // Adjust width according to text
-                                                ),
-                                                child: Text('   '+
-                                                    'Scheduled'+'   ',
-                                                  style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
-                                                ),
-                                              )
-                                                  :meetStatus=='choose'
-                                                  ?SizedBox(height: 0,)
-                                                  : Container(
-                                                color: HexColor('FB8C00'), // Background color red
-                                                height: 16  , // Height set to 16
-                                                constraints: BoxConstraints(
-                                                  minWidth: 0,
-                                                  maxWidth: double.infinity, // Adjust width according to text
-                                                ),
-                                                child: Text('   '+
-                                                    'Closed'+'   ',
-                                                  style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                          SizedBox(height: 18,),
-                                          meetType=='sender'
-                                              ?Container(
-                                                child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-                                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text('Trip planning Call with',style: Theme.of(context).textTheme.subtitle2,),
-                                                    Container(
-                                                        width: 150,
-                                                        child: Text('${Constant().extractFirstName(userName)}',style: Theme.of(context).textTheme.subtitle2,))
-                                                  ],
-                                                ),
-                                              )
-                                              :Container(
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                              children: [
-                                                Text('Trip Planning Call by',style: Theme.of(context).textTheme.subtitle2,),
-                                                Container(
-                                                    width: 150,
-                                                    child: Text('${Constant().extractFirstName(userName)}',style: Theme.of(context).textTheme.subtitle2,))
-                                              ],
+
+
+                          ],
+                        ),
+                      )
+                          : SizedBox(height: 0,),
+                      SizedBox(height: 10,),
+                      toggle
+                          ? _selectedService=='Trip Planning'
+                          ? Column(
+                        children: List.generate(pingsDataStore.meetData.length, (index)  {
+                          final date = pingsDataStore.meetData.keys.elementAt(index);
+                          final meetDetails = pingsDataStore.meetData[date];
+                          print('2::${date}');
+                          print('2::${meetDetails}');
+                          return Column(
+                            children:
+                            List.generate(meetDetails['meetStartTime'].length, (index) {
+                              String startTime= meetDetails['meetStartTime'][index];
+                              String endTime= meetDetails['meetEndTime'][index];
+                              String meetId = meetDetails['meetingId'][index];
+                              String meetStatus = meetDetails['meetingStatus'][index];
+                              String meetTitle = meetDetails['meetingTitle'][index];
+                              String userId = meetDetails['userId'][index];
+                              String meetType = meetDetails['meetingType'][index];
+                              String userName = meetDetails['userName'][index];
+                              String userPhoto = meetDetails['userPhoto'][index];
+                              String plannerToken = meetDetails['userToken'][index];
+                              // String token =
+                              return Container(
+                                child:
+                                ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
+                                    (_selectedValue == 'Accepted' && meetStatus =='accept')||
+                                    (_selectedValue == 'Pending' && meetStatus =='pending')||
+                                    (_selectedValue == 'Closed' && (meetStatus =='close' || meetStatus =='closed'))||
+                                    (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
+                                    _selectedValue =='All Pings' && meetStatus!='cancel' && meetStatus!='close' && meetStatus!='closed')
+                                    ? InkWell(
+                                      onTap: (){
+                                        if((meetType=='sender' && (meetStatus=='schedule'  || meetStatus=='close' || meetStatus=='closed')) || (meetType=='receiver' &&(meetStatus=='pending' || meetStatus=='schedule' || meetStatus=='close' || meetStatus=='closed'))){
+                                          Navigator.push(
+                                            context,
+                                            MaterialPageRoute(
+                                              builder: (context) => ScheduledCalendar(date:date,userId:userID,meetDetails:meetDetails,index:index),
                                             ),
-                                          ),
-                                          SizedBox(height: 7,),
-                                          Container(
-                                            height: 20,
-                                            child: Row(
-                                              // mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  child: Image.asset('assets/images/time_icon.png',width: 22,height: 20,),
-                                                ),
-                                                Text(' ${startTime} - ${endTime} \t',style: Theme.of(context).textTheme.subtitle2),
-                                                Text('India',style: Theme.of(context).textTheme.subtitle2,)
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(height: 7,),
-                                          Container(
-                                            // decoration: BoxDecoration(border:Border.all(width: 1)),
-                                            child: Row(
-                                              children: [
-                                                Container(
-                                                  child: Image.asset('assets/images/calendar.png',width: 22,height: 22,),
-                                                ),
-                                                Text(' Date ${date} "${convertToDate(date)}"',style: Theme.of(context).textTheme.subtitle2),
-                                              ],
-                                            ),
-                                          ),
-                                          SizedBox(height: 7,),
-                                          Container(
-                                            // decoration: BoxDecoration(border:Border.all(width: 1)),
-                                            padding:EdgeInsets.only(left:3),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.start,
-                                              children: [
-                                                Container(
-                                                  width:260,
-                                                  child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style: Theme.of(context).textTheme.subtitle2,),
-                                                ),
-                                                // InkWell(
-                                                //   onTap:(){
-                                                //     setState(() {
-                                                //
-                                                //   });},
-                                                //   child: Container(
-                                                //     child: Image.asset('assets/images/arrow_down.png',width: 35,height: 35,),
-                                                //   ),
-                                                // ),
-                                              ],
-                                            ),
-                                          ),
-                                          (meetStatus=='pending' && meetType=='sender')
-                                              ?InkWell(
-                                              onTap: ()  async{
-                                                bool res = await checkStatus(date,index,userId,widget.userId,userName,'cancel');
-                                                if(res){
-                                                  sendCustomNotificationToOneUser(
-                                                      plannerToken,
-                                                      'Messages From ${widget.userName}',
-                                                      'Trip Planning Request Cancelled','Trip Planning Meeting is cancelled by ${widget.userName}',
-                                                      'Cancelled','trip_planning_cancel',userId,'helper'
-                                                  );
-                                                  _refreshPage(time: 0,state: 'Cancelled');
-                                                }else{
-                                                  Fluttertoast.showToast(
-                                                    msg:
-                                                    'Try Again!!',
-                                                    toastLength:
-                                                    Toast.LENGTH_SHORT,
-                                                    gravity:
-                                                    ToastGravity.BOTTOM,
-                                                    backgroundColor:
-                                                    Theme.of(context).primaryColorDark,
-                                                    textColor: Colors.orange,
-                                                    fontSize: 16.0,
-                                                  );
-                                                }
-                                                print('$date,$index');
-                                              },
-                                              child: Container(
-                                                padding: EdgeInsets.only(top:10,bottom:10),
-                                                child: Center(child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)),))
-                                              :(meetStatus=='pending' && meetType=='receiver')
-                                              ?Container(
-                                                padding: EdgeInsets.only(top:10,bottom:10),
-                                                child: Text('*User need to unlock calendar before complete call scheduled.Please wait for event. ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500,fontFamily: 'Poppins',color: HexColor('#FF0000')),),)
-                                              :(meetStatus=='choose')
-                                              ? Container(
-                                            // color: Colors.red,
-                                            // decoration: BoxDecoration(border:Border.all(width:1)),
-                                            child: Row(
-                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                              children: [
-                                                InkWell(
-                                                    onTap: ()async{
-                                                      bool res = await checkStatus(date,index,userId,widget.userId,userName,'cancel');
-                                                      if(res){
-                                                        _refreshPage(time:0,state: 'Cancelled');
-                                                        sendCustomNotificationToOneUser(
-                                                            plannerToken,
-                                                            'Messages From ${widget.userName}',
-                                                            'Trip Planning Request Cancelled','Trip Planning Meeting is cancelled by ${widget.userName}',
-                                                            'Cancelled','trip_planning_cancel',userId,'user'
-                                                        );
-                                                      }else{
-                                                        Fluttertoast.showToast(
-                                                          msg:
-                                                          'Try Again!!',
-                                                          toastLength:
-                                                          Toast.LENGTH_SHORT,
-                                                          gravity:
-                                                          ToastGravity.BOTTOM,
-                                                          backgroundColor:
-                                                          Theme.of(context).primaryColorDark,
-                                                          textColor: Colors.orange,
-                                                          fontSize: 16.0,
-                                                        );
-                                                      }
-                                                      print('$date,$index');
-                                                    },
-                                                    child: Container(padding: EdgeInsets.only(top: 10,bottom: 10), child: Text('Decline',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.red),),)),
-                                                InkWell(
-                                                    onTap: ()async{
-                                                      bool res = await checkStatus(date, index, userId, widget.userId, userName, 'choose');
-                                                      if(res){
-                                                        _refreshPage(time:0,state: 'Pending');
-                                                        sendCustomNotificationToOneUser(
-                                                            plannerToken,
-                                                            'Request Sent!',
-                                                            'Payment Request Sent Successfully!','Payment Request Sent Successfully!',
-                                                            'Pending','trip_planning_accept',userID,'helper'
-                                                        );
-                                                        sendCustomNotificationToOneUser(
-                                                            userToken,
-                                                            'Messages From ${widget.userName}',
-                                                            'Trip Planning Request Accepted','Please Complete Payment',
-                                                            'Accepted','trip_planning_accept',userId,'user'
-                                                        );
-                                                      }else{
-                                                        Fluttertoast.showToast(
-                                                          msg:
-                                                          'Try Again!!',
-                                                          toastLength:
-                                                          Toast.LENGTH_SHORT,
-                                                          gravity:
-                                                          ToastGravity.BOTTOM,
-                                                          backgroundColor:
-                                                          Theme.of(context).primaryColorDark,
-                                                          textColor: Colors.orange,
-                                                          fontSize: 16.0,
-                                                        );
-                                                      }
-                                                      print('$date,$index');
-                                                    },
-                                                    child: Container(padding: EdgeInsets.only(top: 10,bottom: 10), child: Text('Accept',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.orange),),)),
-                                              ],
-                                            ),
-                                          )
-                                              :(meetStatus=='accept')//accept
-                                              ?Row(
-                                                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                children: [
-                                                  InkWell(
-                                                      onTap: ()async{
-                                                        bool res = await checkStatus(date,index,userId,widget.userId,userName,'cancel');
-                                                        if(res){
-                                                          _refreshPage(time:0,state: 'Cancelled');
-                                                          sendCustomNotificationToOneUser(
-                                                              plannerToken,
-                                                              'Message from ${widget.userName}',
-                                                              'Trip Planning Request Cancelled','Trip Planning Request Cancelled',
-                                                              'Cancelled','trip_planning_cancel',userId,'helper'
-                                                          );
-                                                          sendCustomNotificationToOneUser(
-                                                              userToken,
-                                                              'Trip Planning Request Cancelled',
-                                                              'Trip Planning Request Cancelled','Trip Planning Request Cancelled',
-                                                              'Cancelled','trip_planning_cancel',userID,'user'
-                                                          );
-                                                        }else{
-                                                          Fluttertoast.showToast(
-                                                            msg:
-                                                            'Try Again!!',
-                                                            toastLength:
-                                                            Toast.LENGTH_SHORT,
-                                                            gravity:
-                                                            ToastGravity.BOTTOM,
-                                                            backgroundColor:
-                                                            Theme.of(context).primaryColorDark,
-                                                            textColor: Colors.orange,
-                                                            fontSize: 16.0,
-                                                          );
-                                                        }
-                                                        print('$date,$index');
-                                                      },
-                                                      child: Container(padding:EdgeInsets.only(top:10,bottom:10), child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
-                                                  InkWell(
-                                                      onTap: ()async{
-                                                        // bool res = await Navigator.push(
-                                                        //   context,
-                                                        //   MaterialPageRoute(
-                                                        //     builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
-                                                        //   ),
-                                                        // );
-                                                        if(true){
-                                                          // await paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
-                                                          await cancelMeeting(date,index,'schedule',userId,'schedule');
-                                                          _refreshPage(time:0,state:'Scheduled');
-                                                          sendCustomNotificationToOneUser(
-                                                              plannerToken,
-                                                              'Message To ${userName}',
-                                                              'Payment Request Sent Successfully!','Payment Request Sent Successfully!',
-                                                              'Scheduled','trip_planning_schedule',userId,'helper'
-                                                          );
-                                                          sendCustomNotificationToOneUser(
-                                                              userToken,
-                                                              'Payment Successful',
-                                                              'Trip Planning Request Scheduled','Trip Planning Request Scheduled',
-                                                              'Scheduled','trip_planning_schedule',userID,'user'
-                                                          );
-                                                          print('$date,$index');
-                                                        }else{
-                                                          ScaffoldMessenger.of(context).showSnackBar(
-                                                            const SnackBar(
-                                                              content: Text('Try Again!'),
-                                                            ),
-                                                          );
-                                                        }
-                                                      },
-                                                      child: Container(padding: EdgeInsets.only(top: 10,bottom:10),child: Text('Unlock Calendar',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
-                                                ],
-                                              )
-                                              :(meetStatus=='schedule')
-                                              ?InkWell(
-                                            onTap: (){
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => ScheduledCalendar(name:Constant().extractFirstName(userName),date:date,userId:widget.userId,meetDetails:meetDetails,index:index,callbacker:()=>_refreshPage(time:0,state: 'Closed')),
-                                                ),
-                                              );
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.only(top:10,bottom: 10),
-                                              child: Center(child: Text('Go To Calendar',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
-                                            ),
-                                          )
-                                              :(meetStatus=='close' && meetType=='receiver')
-                                              ?InkWell(
-                                            onTap: (){
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => RateFeedBack(pingsCallback:callback,userId:widget.userId,index:index,userPhoto:pingsDataStore.userPhotoPath,userName:userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId),
-                                                ),
-                                              );
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.only(top:10,bottom: 10),
-                                              child: Center(child: Text('Rate & Feedback',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
-                                            ),
-                                          )
-                                              :(meetStatus=='close')
-                                              ? InkWell(
-                                            onTap: (){
-                                              Navigator.push(
-                                                context,
-                                                MaterialPageRoute(
-                                                  builder: (context) => RateFeedBack(pingsCallback:callback,index:index,userPhoto: pingsDataStore.userPhotoPath,userName:userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId,userId:widget.userId),
-                                                ),
-                                              );
-                                            },
-                                            child: Container(
-                                              padding: EdgeInsets.only(top:10,bottom: 10),
-                                              child: Center(child: Text('Give Us A Feedback',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
-                                            ),
-                                          )
-                                              :SizedBox(height:0),
-                                        ],
-                                    ),
-                                  ),
-                                      ):SizedBox(height:0),
-                                );
-                              }),
-                            );
-                          }),
-                        )
-                            : Column(
-                          children:
-                          List.generate(pingsDataStore.localHelpMeetData.length, (index) {
-                            dynamic meetDetails = pingsDataStore.localHelpMeetData[index];
-                            print(meetDetails);
-
-                            String startTime= meetDetails['time'];
-                            String meetId = meetDetails['meetId'];
-                            String meetStatus = meetDetails['meetStatus'];
-                            String meetTitle = meetDetails['title'];
-                            String userId = meetDetails['userId'];
-                            String ?helperId = meetDetails['helperId'];
-                            String ?distance = meetDetails['distance']==null?'':meetDetails['distance'];
-                            String ?userName = meetDetails['userName']==null?'':meetDetails['userName'];
-                            String ?userPhoto = meetDetails['userPhoto'];
-                            String ?date = meetDetails['date']!=null?meetDetails['date']:'';
-                            return Container(
-                              child:
-                              ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
-                                  (_selectedValue == 'Accepted' && (meetStatus =='accept'||meetStatus=='hold_accept'))||
-                                  (_selectedValue == 'Pending' && meetStatus =='pending')||
-                                  (_selectedValue == 'Closed' && meetStatus =='close')||
-                                  (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
-                                  _selectedValue =='All Pings')
-                                  ? GestureDetector(
-                                onTap: ()async{
-                                  await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
-                                    state: widget.userId==userId?'user':'helper',
-                                    meetId: meetId,
-
-                                  ),));
-                                  _refreshPage();
-                                },
-                                child: Container(
-
+                                          );
+                                        }
+                                      },
+                                      child: Container(
                                   padding: EdgeInsets.all(18),
                                   margin: EdgeInsets.only(left:12,right:15,top:10,bottom:20),
                                   decoration: BoxDecoration(
-                                    color: Theme.of(context).backgroundColor, // Container background color
-                                    borderRadius: BorderRadius.circular(3),
-                                    boxShadow: [
-                                      BoxShadow(
-                                        color: Colors.grey.withOpacity(0.6),
-                                        spreadRadius: 0.4,
-                                        blurRadius: 0.6,
-                                        offset: Offset(0.5, 0.8),
-                                      ),
-                                    ],
+                                      color: Theme.of(context).backgroundColor, // Container background color
+                                      borderRadius: BorderRadius.circular(3),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.grey.withOpacity(0.6),
+                                          spreadRadius: 0.4,
+                                          blurRadius: 0.6,
+                                          offset: Offset(0.5, 0.8),
+                                        ),
+                                      ],
                                   ),
                                   child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Container(
-                                        padding:EdgeInsets.only(top:10,bottom:20),
-                                        child: Text('Immediate Local Assistance',style:Theme.of(context).textTheme.subtitle1),
-                                      ),
-                                      Container(
-                                        // width:screenWidth*0.73,
-                                        // height: 36,
-                                        child: Row(
+                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                          padding:EdgeInsets.only(top:10,bottom:20),
+                                          child: Text('Trip Planning',style:Theme.of(context).textTheme.subtitle1),
+                                        ),
+                                        Row(
                                           mainAxisAlignment: MainAxisAlignment.spaceBetween ,
                                           crossAxisAlignment: CrossAxisAlignment.center,
                                           children: [
                                             Row(
                                               children: [
-                                                userId==widget.userId
-                                                    ? CircleAvatar(
+                                                meetType=='sender'
+                                                    ? InkWell(
+                                                      onTap:(){
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                                                            create:(context) => ProfileDataProvider(),
+                                                            child: FinalProfile(userId: userID,clickedId: userID,fromWhichPage: 'pings',),
+                                                          ),),
+                                                        );
+                                                      },
+                                                      child: CircleAvatar(
                                                   radius: 20.0,
                                                   backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
-                                                      ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                                      : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                                                )
-                                                    : CircleAvatar(
-                                                  radius: 20.0,
-                                                  backgroundImage: userPhoto!= null
-                                                      ? FileImage(File(userPhoto)) as ImageProvider<Object>?
-                                                      : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                                        ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
+                                                        : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
                                                 ),
+                                                    )
+                                                    :InkWell(
+                                                      onTap:(){
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                                                            create:(context) => ProfileDataProvider(),
+                                                            child: FinalProfile(userId: userID,clickedId: userId,fromWhichPage: 'pings',),
+                                                          ),),
+                                                        );
+                                                      },
+                                                      child: CircleAvatar(
+                                                  radius: 20.0,
+                                                  backgroundImage: userPhoto!= null && userPhoto!= ''
+                                                        ? FileImage(File(userPhoto)) as ImageProvider<Object>?
+                                                        : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                                ),
+                                                    ),
                                                 SizedBox(width: 6,),
                                                 SvgPicture.asset(
-                                                  'assets/images/local_assist_logo.svg', // Replace with the path to your SVG file
+                                                  'assets/images/arrow_dir.svg', // Replace with the path to your SVG file
                                                   width: 25, // Specify the width
                                                   height: 25, // Specify the height
                                                   color: Colors.black, // Change the color if needed
-                                                ),// IconButton(
-                                                //   onPressed: () {},
-                                                //   icon: SvgPicture.asset(
-                                                //     'assets/images/tripassit.svg', // Replace with the path to your SVG icon
-                                                //     height: 24,
-                                                //   ),
-                                                // ),
-                                                SizedBox(width: 6,),
-                                                userId==widget.userId
-                                                    ? CircleAvatar(
-                                                  radius: 20.0,
-                                                  backgroundColor: Theme.of(context).backgroundColor,
-                                                  backgroundImage: userPhoto!= null
-                                                      ? FileImage(File(userPhoto)) as ImageProvider<Object>?
-                                                      : AssetImage('assets/images/profile_image.png'),// Use a default asset image
-                                                )
-                                                    :CircleAvatar(
-                                                  radius: 20.0,
-                                                  backgroundColor: Theme.of(context).backgroundColor,
-                                                  backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
-                                                      ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
-                                                      : AssetImage('assets/images/profile_image.png'),// Use a default asset image
                                                 ),
+                                                SizedBox(width: 6,),
+                                                meetType=='sender'
+                                                    ? InkWell(
+                                                      onTap:(){
+                                                        Navigator.push(
+                                                          context,
+                                                          MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                                                            create:(context) => ProfileDataProvider(),
+                                                            child: FinalProfile(userId: userID,clickedId: userId,fromWhichPage: 'pings',),
+                                                          ),),
+                                                        );
+                                                      },
+                                                      child: CircleAvatar(
+                                                  radius: 20.0,
+                                                  backgroundImage: userPhoto!= null && userPhoto!= ''
+                                                        ? FileImage(File(userPhoto)) as ImageProvider<Object>?
+                                                        : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                                ),
+                                                    )
+                                                    :InkWell(
+                                                        onTap:(){
+                                                          Navigator.push(
+                                                            context,
+                                                            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                                                              create:(context) => ProfileDataProvider(),
+                                                              child: FinalProfile(userId: userID,clickedId: userID,fromWhichPage: 'pings', ),
+                                                            ),),
+                                                          );
+                                                        },
+                                                      child: CircleAvatar(
+                                                  radius: 20.0,
+                                                  backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
+                                                        ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
+                                                        : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                                ),
+                                                    ),
                                               ],
                                             ),
                                             SizedBox(width: 20,),
@@ -1277,7 +858,7 @@ class _PingSectionState extends State<PingsSection>{
                                                 style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
                                               ),
                                             )
-                                                : meetStatus=='accept' || meetStatus=='hold_accept'
+                                                : meetStatus=='accept'
                                                 ? Container(
                                               color: HexColor('FB8C00'), // Background color red
                                               height: 16  , // Height set to 16
@@ -1319,551 +900,1120 @@ class _PingSectionState extends State<PingsSection>{
                                             ),
                                           ],
                                         ),
-                                      ),
-                                      SizedBox(height: 18,),
-                                      userName!=''
-                                          ? userId==widget.userId
-                                          ?Container(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          crossAxisAlignment: CrossAxisAlignment.start,
-                                          children: [
-                                            Text('Meesage With',style: Theme.of(context).textTheme.subtitle2,),
-                                            Container(
-                                                width: 150,
-                                                child: Text('${userName}',style: Theme.of(context).textTheme.subtitle2,)),
-                                          ],
+                                        SizedBox(height: 18,),
+                                        meetType=='sender'
+                                            ?Container(
+                                              child: Row(
+                                                mainAxisAlignment: MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  Text('Trip planning Call with',style: Theme.of(context).textTheme.subtitle2,),
+                                                  Container(
+                                                      width: 150,
+                                                      child: Text('${Constant().extractFirstName(userName)}',style: Theme.of(context).textTheme.subtitle2,))
+                                                ],
+                                              ),
+                                            )
+                                            :Container(
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            crossAxisAlignment: CrossAxisAlignment.start,
+                                            children: [
+                                              Text('Trip Planning Call by',style: Theme.of(context).textTheme.subtitle2,),
+                                              Container(
+                                                  width: 150,
+                                                  child: Text('${Constant().extractFirstName(userName)}',style: Theme.of(context).textTheme.subtitle2,))
+                                            ],
+                                          ),
                                         ),
-                                      )
-                                          :Container(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            Text('Meesage From',style: Theme.of(context).textTheme.subtitle2,),
-                                            Container(
-                                                width: 150,
-                                                child: Text('${userName}',style: Theme.of(context).textTheme.subtitle2,)),
-                                          ],
+                                        SizedBox(height: 7,),
+                                        Container(
+                                          height: 20,
+                                          child: Row(
+                                            // mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                child: Image.asset('assets/images/time_icon.png',width: 22,height: 20,),
+                                              ),
+                                              Text(' ${startTime} - ${endTime} \t',style: Theme.of(context).textTheme.subtitle2),
+                                              Text('India',style: Theme.of(context).textTheme.subtitle2,)
+                                            ],
+                                          ),
                                         ),
-                                      )
-                                          :SizedBox(height: 0,),
-                                      SizedBox(height: 7,),
-                                      Container(
-                                        height: 20,
-                                        child: Row(
-                                          // mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            Container(
-                                              child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,  ),
-                                            ),
-                                            Text(' ${startTime} \t',style: Theme.of(context).textTheme.subtitle2),
-                                            Text('India',style: Theme.of(context).textTheme.subtitle2,)
-                                          ],
+                                        SizedBox(height: 7,),
+                                        Container(
+                                          // decoration: BoxDecoration(border:Border.all(width: 1)),
+                                          child: Row(
+                                            children: [
+                                              Container(
+                                                child: Image.asset('assets/images/calendar.png',width: 22,height: 22,),
+                                              ),
+                                              Text(' Date ${date} "${convertToDate(date)}"',style: Theme.of(context).textTheme.subtitle2),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(height: 7,),
-                                      Container(
-                                        // decoration: BoxDecoration(border:Border.all(width: 1)),
-                                        child: Row(
-                                          children: [
-                                            Container(
-                                              child: Image.asset('assets/images/calendar.png',width: 22,height: 22,),
-                                            ),
-                                            Text(' Date ${date} "${convertToDate2(date!)}"',style: Theme.of(context).textTheme.subtitle2),
-                                          ],
+                                        SizedBox(height: 7,),
+                                        Container(
+                                          // decoration: BoxDecoration(border:Border.all(width: 1)),
+                                          padding:EdgeInsets.only(left:3),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.start,
+                                            children: [
+                                              Container(
+                                                width:260,
+                                                child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style: Theme.of(context).textTheme.subtitle2,),
+                                              ),
+                                              // InkWell(
+                                              //   onTap:(){
+                                              //     setState(() {
+                                              //
+                                              //   });},
+                                              //   child: Container(
+                                              //     child: Image.asset('assets/images/arrow_down.png',width: 35,height: 35,),
+                                              //   ),
+                                              // ),
+                                            ],
+                                          ),
                                         ),
-                                      ),
-                                      SizedBox(height: 7,),
-                                      Container(
-                                        // decoration: BoxDecoration(border: Border.all(color:Colors.green)),
-                                        padding:EdgeInsets.only(left:3),
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.start,
-                                          children: [
-                                            Container(
-
-                                              width:260,
-                                              child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style:Theme.of(context).textTheme.subtitle2,),
-                                            ),
-                                          ],
-                                        ),
-                                      ),
-                                      (userId==widget.userId && meetStatus=='pending') || (meetStatus=='cancel' || meetStatus=='closed')
-                                          ?SizedBox(height:10,)
-                                          :SizedBox(height:32),
-                                      (meetStatus=='pending' && userId==widget.userId)
-                                          ?InkWell(
-                                          onTap: ()  async{
-                                            //   Cancel Ka Funda
-                                            bool userConfirmed = await showConfirmationDialog(context, userName!);
-                                            if (userConfirmed) {
-                                              // User confirmed, do something
-                                              print('User confirmed');
-                                              await updateLocalUserPings(userId, meetId, 'cancel');
-                                              if(helperId!=null){
-                                                await updateLocalUserPings(helperId, meetId, 'cancel');
+                                        (meetStatus=='pending' && meetType=='sender')
+                                            ?InkWell(
+                                            onTap: ()  async{
+                                              bool res = await checkStatus(date,index,userId,widget.userId,userName,'cancel',);
+                                              if(res){
+                                                bool finalRes = await showDialog(
+                                                    context: context,
+                                                    builder: (BuildContext context) {
+                                                      return ConfirmationDialog(
+                                                        message:'Are You Sure To Cancel Meet With ${userName} Scheduled At ${date}',
+                                                        onCancel: () {
+                                                          // Perform action on confirmation
+                                                          Navigator.pop(context,false);
+                                                          // Add your action here
+                                                          print('Action cancelled');
+                                                        },
+                                                        onConfirm: () async{
+                                                          Navigator.pop(context,true);
+                                                          print('Action confirmed');
+                                                        },
+                                                      );});
+                                                if(finalRes){
+                                                  setState(() {
+                                                    dataLoading=true;
+                                                  });
+                                                  await cancelMeeting(date, index, 'cancel', userId, 'cancel');
+                                                  setState(() {
+                                                    dataLoading = false;
+                                                    widget.state='Cancelled';
+                                                  });
+                                                  Fluttertoast.showToast(
+                                                    msg:
+                                                    'Updated Meeting Status Successfully!!',
+                                                    toastLength:
+                                                    Toast.LENGTH_SHORT,
+                                                    gravity:
+                                                    ToastGravity.BOTTOM,
+                                                    backgroundColor:
+                                                    Theme.of(context).primaryColorDark,
+                                                    textColor: Colors.orange,
+                                                    fontSize: 16.0,
+                                                  );
+                                                  sendCustomNotificationToOneUser(
+                                                      plannerToken,
+                                                      'Messages From ${userName}',
+                                                      'Messages From ${userName}','Meeting request for ${date} is cancelled ',
+                                                      'Cancelled','trip_planning_cancel',userId,'helper'
+                                                  );
+                                                  // _refreshPage(time: 0,state: 'Cancelled');
+                                                }
                                               }
                                               else{
-                                                await removePingsHelper(meetId);
+                                                setState(() {
+                                                  widget.state='Cancelled';
+                                                });
                                               }
-                                              // sendCustomNotificationToOneUser(
-                                              //     helperToken,
-                                              //     'Messages From ${userName}',
-                                              //     'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
-                                              //     '${widget.meetId}','trip_assistance_required',helperId,'helper'
-                                              // );
-                                              await updateMeetingChats(meetId!,['','admin-cancel']);
-                                              await updatePaymentStatus('close',meetId);
-                                              _refreshPage();
+                                              print('$date,$index');
+                                            },
+                                            child: Container(
+                                              padding: EdgeInsets.only(top:10,bottom:10),
+                                              child: Center(child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)),))
+                                            :(meetStatus=='pending' && meetType=='receiver')
+                                            ?Container(
+                                              padding: EdgeInsets.only(top:10,bottom:10),
+                                              child: Text('*User need to unlock calendar before complete call scheduled.Please wait for event. ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500,fontFamily: 'Poppins',color: HexColor('#FF0000')),),)
+                                            :(meetStatus=='choose')
+                                            ? Container(
+                                          // color: Colors.red,
+                                          // decoration: BoxDecoration(border:Border.all(width:1)),
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                            children: [
+                                              InkWell(
+                                                  onTap: ()async{
 
-                                            } else {
-                                              // User canceled, do something else
-                                              print('User canceled');
-                                            }
+                                                    bool res = await checkStatus(date,index,userId,widget.userId,userName,'cancel',);
+                                                    if(res){
+                                                      bool finalRes = await showDialog(
+                                                          context: context,
+                                                          builder: (BuildContext context) {
+                                                            return ConfirmationDialog(
+                                                              message:'Are You Sure To Cancel Meet With ${userName} Scheduled At ${date}',
+                                                              onCancel: () {
+                                                                // Perform action on confirmation
+                                                                Navigator.pop(context,false);
+                                                                // Add your action here
+                                                                print('Action cancelled');
+                                                              },
+                                                              onConfirm: () async{
+                                                                Navigator.pop(context,true);
+                                                                print('Action confirmed');
+                                                              },
+                                                            );});
+                                                      if(finalRes){
+                                                        setState(() {
+                                                          dataLoading=true;
+                                                        });
+                                                        await cancelMeeting(date, index, 'cancel', userId, 'cancel');
+                                                        setState(() {
+                                                          dataLoading = false;
+                                                          widget.state='Cancelled';
+                                                        });
+                                                        Fluttertoast.showToast(
+                                                          msg:
+                                                          'Updated Meeting Status Successfully!!',
+                                                          toastLength:
+                                                          Toast.LENGTH_SHORT,
+                                                          gravity:
+                                                          ToastGravity.BOTTOM,
+                                                          backgroundColor:
+                                                          Theme.of(context).primaryColorDark,
+                                                          textColor: Colors.orange,
+                                                          fontSize: 16.0,
+                                                        );
+                                                        sendCustomNotificationToOneUser(
+                                                            plannerToken,
+                                                            'Messages From ${userName}',
+                                                            'Messages From ${userName}','Your trip planning request for ${date} is cancelled by planner',
+                                                            'Cancelled','trip_planning_cancel',userId,'user'
+                                                        );
+                                                        // _refreshPage(time: 0,state: 'Cancelled');
+                                                      }
+                                                    }
+                                                    else{
+                                                      setState(() {
+                                                        widget.state='Cancelled';
+                                                      });
+                                                    }
+                                                  },
+                                                  child: Container(padding: EdgeInsets.only(top: 10,bottom: 10), child: Text('Decline',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.red),),)),
+                                              InkWell(
+                                                  onTap: ()async{
+                                                    bool res = await checkStatus(date,index,userId,widget.userId,userName,'cancel',);
+                                                    if(res){
+                                                      setState(() {
+                                                        dataLoading=true;
+                                                      });
+                                                      await cancelMeeting(date, index, 'pending', userId, 'accept');
+                                                      setState(() {
+                                                        dataLoading = false;
+                                                        widget.state='Pending';
+                                                      });
+                                                      Fluttertoast.showToast(
+                                                        msg:
+                                                        'Updated Meeting Status Successfully!!',
+                                                        toastLength:
+                                                        Toast.LENGTH_SHORT,
+                                                        gravity:
+                                                        ToastGravity.BOTTOM,
+                                                        backgroundColor:
+                                                        Theme.of(context).primaryColorDark,
+                                                        textColor: Colors.orange,
+                                                        fontSize: 16.0,
+                                                      );
+                                                      sendCustomNotificationToOneUser(
+                                                          userToken,
+                                                          'Request Sent!',
+                                                          'Payment Request Sent Successfully!','Payment Request Sent Successfully!',
+                                                          'Pending','trip_planning_accept',userID,'helper'
+                                                      );
+                                                      sendCustomNotificationToOneUser(
+                                                          plannerToken,
+                                                          'Messages From ${userName}',
+                                                          'Messages From ${userName}','Trip Planning Request Accepted <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Please Complete Payment</b>',
+                                                          'Accepted','trip_planning_accept',userId,'user'
+                                                      );
+                                                    }
+                                                  },
+                                                  child: Container(padding: EdgeInsets.only(top: 10,bottom: 10), child: Text('Accept',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.orange),),)),
+                                            ],
+                                          ),
+                                        )
+                                            :(meetStatus=='accept')//accept
+                                            ?Row(
+                                              mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                              children: [
+                                                InkWell(
+                                                    onTap: ()async{
+                                                      bool res = await checkStatus(date,index,userId,widget.userId,userName,'cancel',);
+                                                      if(res){
+                                                        bool finalRes = await showDialog(
+                                                            context: context,
+                                                            builder: (BuildContext context) {
+                                                              return ConfirmationDialog(
+                                                                message:'Are You Sure To Cancel Meet With ${userName} Scheduled At ${date}',
+                                                                onCancel: () {
+                                                                  // Perform action on confirmation
+                                                                  Navigator.pop(context,false);
+                                                                  // Add your action here
+                                                                  print('Action cancelled');
+                                                                },
+                                                                onConfirm: () async{
+                                                                  Navigator.pop(context,true);
+                                                                  print('Action confirmed');
+                                                                },
+                                                              );});
+                                                        if(finalRes){
+                                                          setState(() {
+                                                            dataLoading=true;
+                                                          });
+                                                          await cancelMeeting(date, index, 'cancel', userId, 'cancel');
+                                                          setState(() {
+                                                            dataLoading = false;
+                                                            widget.state='Cancelled';
+                                                          });
+                                                          Fluttertoast.showToast(
+                                                            msg:
+                                                            'Updated Meeting Status Successfully!!',
+                                                            toastLength:
+                                                            Toast.LENGTH_SHORT,
+                                                            gravity:
+                                                            ToastGravity.BOTTOM,
+                                                            backgroundColor:
+                                                            Theme.of(context).primaryColorDark,
+                                                            textColor: Colors.orange,
+                                                            fontSize: 16.0,
+                                                          );
+                                                          sendCustomNotificationToOneUser(
+                                                              plannerToken,
+                                                              'Messages From ${userName}',
+                                                              'Messages From ${userName}','Meeting request for ${date} is cancelled ',
+                                                              'Cancelled','trip_planning_cancel',userId,'helper'
+                                                          );
+                                                          // _refreshPage(time: 0,state: 'Cancelled');
+                                                        }
+                                                      }
+                                                      else{
+                                                        setState(() {
+                                                          widget.state='Cancelled';
+                                                        });
+                                                      }
+                                                    },
+                                                    child: Container(padding:EdgeInsets.only(top:10,bottom:10), child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),),)),
+                                                InkWell(
+                                                    onTap: ()async{
+                                                      // bool res = await Navigator.push(
+                                                      //   context,
+                                                      //   MaterialPageRoute(
+                                                      //     builder: (context) => UpiPayments(name:pingsDataStore.userName,merchant:userName,amount:100000.0,phoneNo:generateRandomPhoneNumber()),
+                                                      //   ),
+                                                      // );
+                                                      if(true){
+                                                        // await paymentHandler(pingsDataStore.userName,userName,100000.0,generateRandomPhoneNumber());
+                                                        setState(() {
+                                                          dataLoading = true;
+                                                        });
+                                                        await cancelMeeting(date,index,'schedule',userId,'schedule');
+                                                        setState(() {
+                                                          dataLoading = false;
+                                                          widget.state = 'Scheduled';
+                                                        });
+                                                        sendCustomNotificationToOneUser(
+                                                            userToken,
+                                                            'Payment Successful',
+                                                            'Payment Successful','Trip Planning Request Scheduled <br/> Meeting is On <a href="https://google.com">${date}</a> , ${startTime} - ${endTime} ',
+                                                            'Scheduled','trip_planning_schedule',userID,'user'
+                                                        );
+                                                        sendCustomNotificationToOneUser(
+                                                            plannerToken,
+                                                            'Message From ${userName}',
+                                                            'Message From ${userName}','Trip Planning Request Scheduled <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Be On Time .</b> <br/> Notifications will be sent before meeting',
+                                                            'Scheduled','trip_planning_schedule',userId,'helper'
+                                                        );
+                                                        print('$date,$index');
+                                                      }else{
+                                                        ScaffoldMessenger.of(context).showSnackBar(
+                                                          const SnackBar(
+                                                            content: Text('Try Again!'),
+                                                          ),
+                                                        );
+                                                      }
+                                                    },
+                                                    child: Container(padding: EdgeInsets.only(top: 10,bottom:10),child: Text('Unlock Calendar',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
+                                              ],
+                                            )
+                                            :(meetStatus=='schedule')
+                                            ?InkWell(
+                                          onTap: (){
+                                             Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => ScheduledCalendar(name:Constant().extractFirstName(userName),date:date,userId:widget.userId,meetDetails:meetDetails,index:index,callbacker:()=>_refreshPage(time:0,state: 'Closed')),
+                                              ),
+                                            );
                                           },
                                           child: Container(
-                                            width: double.infinity,
-                                            padding : EdgeInsets.only(top : 20,bottom : 10),
+                                            padding: EdgeInsets.only(top:10,bottom: 10),
+                                            child: Center(child: Text('Go To Calendar',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
+                                          ),
+                                        )
+                                            :(meetStatus=='close' && meetType=='receiver')
+                                            ?InkWell(
+                                          onTap: (){
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => RateFeedBack(pingsCallback:callback,userId:widget.userId,index:index,userPhoto:pingsDataStore.userPhotoPath,userName:userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.only(top:10,bottom: 10),
+                                            child: Center(child: Text('Rate & Feedback',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
+                                          ),
+                                        )
+                                            :(meetStatus=='close')
+                                            ? InkWell(
+                                          onTap: (){
+                                            Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (context) => RateFeedBack(pingsCallback:callback,index:index,userPhoto: pingsDataStore.userPhotoPath,userName:userName,startTime:startTime,endTime:endTime,date:date,meetTitle:meetTitle,meetType:meetType,meetId:meetId,userId:widget.userId),
+                                              ),
+                                            );
+                                          },
+                                          child: Container(
+                                            padding: EdgeInsets.only(top:10,bottom: 10),
+                                            child: Center(child: Text('Give Us A Feedback',style: TextStyle(fontSize: 18,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
+                                          ),
+                                        )
+                                            :SizedBox(height:0),
+                                      ],
+                                  ),
+                                ),
+                                    ):SizedBox(height:0),
+                              );
+                            }),
+                          );
+                        }),
+                      )
+                          : Column(
+                        children:
+                        List.generate(pingsDataStore.localHelpMeetData.length, (index) {
+                          dynamic meetDetails = pingsDataStore.localHelpMeetData[index];
+                          print(meetDetails);
 
-                                            child: Center(child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),)),))
-                                          :(meetStatus=='pending' && userId!=widget.userId)
-                                          ?Center(child: Container(child: Text('*Payment Pending. Please wait for event. ',style: TextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontFamily: 'Poppins',color: HexColor('#FF0000')),),))
-                                          :(meetStatus=='accept' || meetStatus=='hold_accpet')
-                                          ?Container(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.center,
-                                          children: [
+                          String startTime= meetDetails['time'];
+                          String meetId = meetDetails['meetId'];
+                          String meetStatus = meetDetails['meetStatus'];
+                          String meetTitle = meetDetails['title'];
+                          String userId = meetDetails['userId'];
+                          String ?helperId = meetDetails['helperId'];
+                          String ?distance = meetDetails['distance']==null?'':meetDetails['distance'];
+                          String ?userName = meetDetails['userName']==null?'':meetDetails['userName'];
+                          String ?userPhoto = meetDetails['userPhoto'];
+                          String ?date = meetDetails['date']!=null?meetDetails['date']:'';
+                          return Container(
+                            child:
+                            ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
+                                (_selectedValue == 'Accepted' && (meetStatus =='accept'||meetStatus=='hold_accept'))||
+                                (_selectedValue == 'Pending' && meetStatus =='pending')||
+                                (_selectedValue == 'Closed' && meetStatus =='close')||
+                                (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
+                                _selectedValue =='All Pings')
+                                ? GestureDetector(
+                              onTap: ()async{
+                                await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                  state: widget.userId==userId?'user':'helper',
+                                  meetId: meetId,
 
-                                            InkWell(
-                                                onTap: ()async{
+                                ),));
+                                _refreshPage();
+                              },
+                              child: Container(
 
-                                                          await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
-                                                            state: widget.userId==userId?'user':'helper',
-                                                            meetId: meetId,
-                                                          ),));
+                                padding: EdgeInsets.all(18),
+                                margin: EdgeInsets.only(left:12,right:15,top:10,bottom:20),
+                                decoration: BoxDecoration(
+                                  color: Theme.of(context).backgroundColor, // Container background color
+                                  borderRadius: BorderRadius.circular(3),
+                                  boxShadow: [
+                                    BoxShadow(
+                                      color: Colors.grey.withOpacity(0.6),
+                                      spreadRadius: 0.4,
+                                      blurRadius: 0.6,
+                                      offset: Offset(0.5, 0.8),
+                                    ),
+                                  ],
+                                ),
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Container(
+                                      padding:EdgeInsets.only(top:10,bottom:20),
+                                      child: Text('Immediate Local Assistance',style:Theme.of(context).textTheme.subtitle1),
+                                    ),
+                                    Container(
+                                      // width:screenWidth*0.73,
+                                      // height: 36,
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceBetween ,
+                                        crossAxisAlignment: CrossAxisAlignment.center,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              userId==widget.userId
+                                                  ? CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
+                                                    ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
+                                                    : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                              )
+                                                  : CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundImage: userPhoto!= null
+                                                    ? FileImage(File(userPhoto)) as ImageProvider<Object>?
+                                                    : AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                                              ),
+                                              SizedBox(width: 6,),
+                                              SvgPicture.asset(
+                                                'assets/images/local_assist_logo.svg', // Replace with the path to your SVG file
+                                                width: 25, // Specify the width
+                                                height: 25, // Specify the height
+                                                color: Colors.black, // Change the color if needed
+                                              ),// IconButton(
+                                              //   onPressed: () {},
+                                              //   icon: SvgPicture.asset(
+                                              //     'assets/images/tripassit.svg', // Replace with the path to your SVG icon
+                                              //     height: 24,
+                                              //   ),
+                                              // ),
+                                              SizedBox(width: 6,),
+                                              userId==widget.userId
+                                                  ? CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundColor: Theme.of(context).backgroundColor,
+                                                backgroundImage: userPhoto!= null
+                                                    ? FileImage(File(userPhoto)) as ImageProvider<Object>?
+                                                    : AssetImage('assets/images/profile_image.png'),// Use a default asset image
+                                              )
+                                                  :CircleAvatar(
+                                                radius: 20.0,
+                                                backgroundColor: Theme.of(context).backgroundColor,
+                                                backgroundImage: pingsDataStore.userPhotoPath != null && pingsDataStore.userPhotoPath != ''
+                                                    ? FileImage(File(pingsDataStore.userPhotoPath)) as ImageProvider<Object>?
+                                                    : AssetImage('assets/images/profile_image.png'),// Use a default asset image
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(width: 20,),
+                                          meetStatus=='pending' || meetStatus=='cancel'?
+                                          Container(
+                                            color: Colors.red, // Background color red
+                                            height: 16  , // Height set to 16
+                                            constraints: BoxConstraints(
+                                              minWidth: 0,
+                                              maxWidth: double.infinity, // Adjust width according to text
+                                            ),
+                                            child: Text('   '+
+                                                (meetStatus=='pending'?'Request Pending':'Cancelled')+'   ',
+                                              style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
+                                            ),
+                                          )
+                                              : meetStatus=='accept' || meetStatus=='hold_accept'
+                                              ? Container(
+                                            color: HexColor('FB8C00'), // Background color red
+                                            height: 16  , // Height set to 16
+                                            constraints: BoxConstraints(
+                                              minWidth: 0,
+                                              maxWidth: double.infinity, // Adjust width according to text
+                                            ),
+                                            child: Text('   '+
+                                                'Accepted'+'   ',
+                                              style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
+                                            ),
+                                          )
+                                              : meetStatus=='schedule'
+                                              ? Container(
+                                            color: HexColor('0A8100'), // Background color red
+                                            height: 16  , // Height set to 16
+                                            constraints: BoxConstraints(
+                                              minWidth: 0,
+                                              maxWidth: double.infinity, // Adjust width according to text
+                                            ),
+                                            child: Text('   '+
+                                                'Scheduled'+'   ',
+                                              style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
+                                            ),
+                                          )
+                                              :meetStatus=='choose'
+                                              ?SizedBox(height: 0,)
+                                              : Container(
+                                            color: HexColor('FB8C00'), // Background color red
+                                            height: 16  , // Height set to 16
+                                            constraints: BoxConstraints(
+                                              minWidth: 0,
+                                              maxWidth: double.infinity, // Adjust width according to text
+                                            ),
+                                            child: Text('   '+
+                                                'Closed'+'   ',
+                                              style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 18,),
+                                    userName!=''
+                                        ? userId==widget.userId
+                                        ?Container(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Meesage With',style: Theme.of(context).textTheme.subtitle2,),
+                                          Container(
+                                              width: 150,
+                                              child: Text('${userName}',style: Theme.of(context).textTheme.subtitle2,)),
+                                        ],
+                                      ),
+                                    )
+                                        :Container(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Text('Meesage From',style: Theme.of(context).textTheme.subtitle2,),
+                                          Container(
+                                              width: 150,
+                                              child: Text('${userName}',style: Theme.of(context).textTheme.subtitle2,)),
+                                        ],
+                                      ),
+                                    )
+                                        :SizedBox(height: 0,),
+                                    SizedBox(height: 7,),
+                                    Container(
+                                      height: 20,
+                                      child: Row(
+                                        // mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Container(
+                                            child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,  ),
+                                          ),
+                                          Text(' ${startTime} \t',style: Theme.of(context).textTheme.subtitle2),
+                                          Text('India',style: Theme.of(context).textTheme.subtitle2,)
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 7,),
+                                    Container(
+                                      // decoration: BoxDecoration(border:Border.all(width: 1)),
+                                      child: Row(
+                                        children: [
+                                          Container(
+                                            child: Image.asset('assets/images/calendar.png',width: 22,height: 22,),
+                                          ),
+                                          Text(' Date ${date} "${convertToDate2(date!)}"',style: Theme.of(context).textTheme.subtitle2),
+                                        ],
+                                      ),
+                                    ),
+                                    SizedBox(height: 7,),
+                                    Container(
+                                      // decoration: BoxDecoration(border: Border.all(color:Colors.green)),
+                                      padding:EdgeInsets.only(left:3),
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        children: [
+                                          Container(
 
-
-                                                },
-                                                child: Container(child: Text('Go To Chats',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)),
-
-
-                                            // SizedBox(width: screenWidth*0.08,),
-                                            // InkWell(
-                                            //     onTap: ()async{
-                                            //       // payment ka funda
-                                            //       bool res = await Navigator.push(
-                                            //         context,
-                                            //         MaterialPageRoute(
-                                            //           builder: (context) => RazorPayIntegration(),
-                                            //         ),
-                                            //       );
-                                            //       if(res){
-                                            //         sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(pingsDataStore.userName, meetId));
-                                            //         await updateLocalUserPings(userId, meetId, 'schedule');
-                                            //         await updateLocalUserPings(helperId!, meetId, 'schedule');
-                                            //         await updatePaymentStatus('pending',meetId);
-                                            //         await updateMeetingChats(meetId!,['','admin-helper-1']);
-                                            //         await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
-                                            //           state: widget.userId==userId?'user':'helper',
-                                            //           meetId: meetId,
-                                            //         ),));
-                                            //         _refreshPage();
-                                            //       }else{
-                                            //         ScaffoldMessenger.of(context).showSnackBar(
-                                            //           const SnackBar(
-                                            //             content: Text('Payment is UnSuccessful'),
-                                            //           ),
-                                            //         );
-                                            //       }
-                                            //     },
-                                            //     child: Container(child: Text('Pay Charge',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
-
-                                          ],
-                                        ),
-                                      )
-                                          :(meetStatus=='choose')
-                                          ?InkWell(
-                                          onTap: ()  async{
-                                            //   Accept ka funda
-
-                                            await updateLocalHelperPings(meetId, 'hold_accept');
-                                            await createUpdateLocalUserPings(userId ,meetId, 'hold_accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
-                                            // await updateMeetingChats(meetId,[userID,'admin-user-1']);
-                                            await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
-                                              state: 'helper',
-                                              meetId: meetId,
-                                            ),));
-
-
+                                            width:260,
+                                            child: Text(meetTitle==''?'Please Enter Tile Next Time':meetTitle,style:Theme.of(context).textTheme.subtitle2,),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                    (userId==widget.userId && meetStatus=='pending') || (meetStatus=='cancel' || meetStatus=='closed')
+                                        ?SizedBox(height:10,)
+                                        :SizedBox(height:32),
+                                    (meetStatus=='pending' && userId==widget.userId)
+                                        ?InkWell(
+                                        onTap: ()  async{
+                                          //   Cancel Ka Funda
+                                          bool userConfirmed = await showConfirmationDialog(context, userName!);
+                                          if (userConfirmed) {
+                                            // User confirmed, do something
+                                            print('User confirmed');
+                                            await updateLocalUserPings(userId, meetId, 'cancel');
+                                            if(helperId!=null){
+                                              await updateLocalUserPings(helperId, meetId, 'cancel');
+                                            }
+                                            else{
+                                              await removePingsHelper(meetId);
+                                            }
                                             // sendCustomNotificationToOneUser(
                                             //     helperToken,
                                             //     'Messages From ${userName}',
                                             //     'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
                                             //     '${widget.meetId}','trip_assistance_required',helperId,'helper'
                                             // );
+                                            await updateMeetingChats(meetId!,['','admin-cancel']);
+                                            await updatePaymentStatus('close',meetId);
                                             _refreshPage();
-                                            // sendCustomNotificationToUsers([userId],localAssistantHelperAccepted(userName!, meetId));
-                                          },
-                                          child: Center(child: Container(child: Text('Accept & Reply',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)))
-                                          :(meetStatus=='close' && userId!=widget.userId)
-                                          ?InkWell(
-                                        onTap: (){
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) => RateFeed(meetId:meetId,service: 'Local Assistant',),
-                                            ),
-                                          );
+
+                                          } else {
+                                            // User canceled, do something else
+                                            print('User canceled');
+                                          }
                                         },
                                         child: Container(
-                                          width: screenWidth*0.70,
-                                          child: Center(child: Text('Rate & Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
-                                        ),
-                                      )
-                                          :(meetStatus=='close')
-                                          ? InkWell(
-                                        onTap: (){
-                                          Navigator.push(
-                                            context,
-                                            MaterialPageRoute(
-                                              builder: (context) =>  RateFeed(meetId:meetId,service: 'Local Assistant',),
-                                            ),
-                                          );
+                                          width: double.infinity,
+                                          padding : EdgeInsets.only(top : 20,bottom : 10),
+
+                                          child: Center(child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),)),))
+                                        :(meetStatus=='pending' && userId!=widget.userId)
+                                        ?Center(child: Container(child: Text('*Payment Pending. Please wait for event. ',style: TextStyle(fontSize: 12,fontWeight: FontWeight.w400,fontFamily: 'Poppins',color: HexColor('#FF0000')),),))
+                                        :(meetStatus=='accept' || meetStatus=='hold_accpet')
+                                        ?Container(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.center,
+                                        children: [
+
+                                          InkWell(
+                                              onTap: ()async{
+
+                                                        await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                                          state: widget.userId==userId?'user':'helper',
+                                                          meetId: meetId,
+                                                        ),));
+
+
+                                              },
+                                              child: Container(child: Text('Go To Chats',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)),
+
+
+                                          // SizedBox(width: screenWidth*0.08,),
+                                          // InkWell(
+                                          //     onTap: ()async{
+                                          //       // payment ka funda
+                                          //       bool res = await Navigator.push(
+                                          //         context,
+                                          //         MaterialPageRoute(
+                                          //           builder: (context) => RazorPayIntegration(),
+                                          //         ),
+                                          //       );
+                                          //       if(res){
+                                          //         sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(pingsDataStore.userName, meetId));
+                                          //         await updateLocalUserPings(userId, meetId, 'schedule');
+                                          //         await updateLocalUserPings(helperId!, meetId, 'schedule');
+                                          //         await updatePaymentStatus('pending',meetId);
+                                          //         await updateMeetingChats(meetId!,['','admin-helper-1']);
+                                          //         await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                          //           state: widget.userId==userId?'user':'helper',
+                                          //           meetId: meetId,
+                                          //         ),));
+                                          //         _refreshPage();
+                                          //       }else{
+                                          //         ScaffoldMessenger.of(context).showSnackBar(
+                                          //           const SnackBar(
+                                          //             content: Text('Payment is UnSuccessful'),
+                                          //           ),
+                                          //         );
+                                          //       }
+                                          //     },
+                                          //     child: Container(child: Text('Pay Charge',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)),
+
+                                        ],
+                                      ),
+                                    )
+                                        :(meetStatus=='choose')
+                                        ?InkWell(
+                                        onTap: ()  async{
+                                          //   Accept ka funda
+
+                                          await updateLocalHelperPings(meetId, 'hold_accept');
+                                          await createUpdateLocalUserPings(userId ,meetId, 'hold_accept',pingsDataStore.userName,pingsDataStore.userPhotoPath);
+                                          // await updateMeetingChats(meetId,[userID,'admin-user-1']);
+                                          await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                            state: 'helper',
+                                            meetId: meetId,
+                                          ),));
+
+
+                                          // sendCustomNotificationToOneUser(
+                                          //     helperToken,
+                                          //     'Messages From ${userName}',
+                                          //     'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
+                                          //     '${widget.meetId}','trip_assistance_required',helperId,'helper'
+                                          // );
+                                          _refreshPage();
+                                          // sendCustomNotificationToUsers([userId],localAssistantHelperAccepted(userName!, meetId));
                                         },
-                                        child: Container(
+                                        child: Center(child: Container(child: Text('Accept & Reply',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)))
+                                        :(meetStatus=='close' && userId!=widget.userId)
+                                        ?InkWell(
+                                      onTap: (){
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => RateFeed(meetId:meetId,service: 'Local Assistant',),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
+                                        width: screenWidth*0.70,
+                                        child: Center(child: Text('Rate & Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
+                                      ),
+                                    )
+                                        :(meetStatus=='close')
+                                        ? InkWell(
+                                      onTap: (){
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) =>  RateFeed(meetId:meetId,service: 'Local Assistant',),
+                                          ),
+                                        );
+                                      },
+                                      child: Container(
 
 
-                                          child: Center(child: Text('Give Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
-                                        ),
-                                      )
-                                          :(meetStatus=='schedule')
-                                          ? userId==userID?
-                                      Container(
-                                        child: Row(
-                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                          children: [
-                                            InkWell(
-                                                onTap: ()async{
-                                                  bool userConfirmed = await showConfirmationDialog(context, userName!);
-                                                  if (userConfirmed) {
-                                                    // User confirmed, do something
-                                                    print('User confirmed');
-                                                    await updateLocalUserPings(userId, meetId, 'close');
-                                                    await updateLocalUserPings(helperId!, meetId, 'close');
-                                                    await updatePaymentStatus('close',meetId);
-                                                    // sendCustomNotificationToOneUser(
-                                                    //     helperToken,
-                                                    //     'Messages From ${userName}',
-                                                    //     'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
-                                                    //     '${meetId}','trip_assistance_required',helperId,'helper'
-                                                    // );
-                                                    _refreshPage(time: 0,state: 'Closed');
-                                                    // sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
+                                        child: Center(child: Text('Give Feedback',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),)),
+                                      ),
+                                    )
+                                        :(meetStatus=='schedule')
+                                        ? userId==userID?
+                                    Container(
+                                      child: Row(
+                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                        children: [
+                                          InkWell(
+                                              onTap: ()async{
+                                                bool userConfirmed = await showConfirmationDialog(context, userName!);
+                                                if (userConfirmed) {
+                                                  // User confirmed, do something
+                                                  print('User confirmed');
+                                                  await updateLocalUserPings(userId, meetId, 'close');
+                                                  await updateLocalUserPings(helperId!, meetId, 'close');
+                                                  await updatePaymentStatus('close',meetId);
+                                                  // sendCustomNotificationToOneUser(
+                                                  //     helperToken,
+                                                  //     'Messages From ${userName}',
+                                                  //     'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
+                                                  //     '${meetId}','trip_assistance_required',helperId,'helper'
+                                                  // );
+                                                  _refreshPage(time: 0,state: 'Closed');
+                                                  // sendCustomNotificationToUsers([helperId!], localAssistantMeetCancel(pingsDataStore.userName));
 
 
 
-                                                  } else {
-                                                    // User canceled, do something else
-                                                    print('User Closed');
-                                                  }
-                                                },
-                                                child: Container(child: Text('Close',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)),
-                                            InkWell(
-                                                onTap: ()async{
-                                                  await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
-                                                    state: widget.userId==userId?'user':'helper',
-                                                    meetId: meetId,
-                                                  ),));
-                                                  _refreshPage();
-                                                },
-                                                child: Center(child: Container(child: Text('Continue',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)))
-                                          ],
-                                        ),
-                                      )
-                                          :
-                                      InkWell(
-                                          onTap: ()async{
-                                            await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
-                                              state: widget.userId==userId?'user':'helper',
-                                              meetId: meetId,
-                                            ),));
-                                            _refreshPage();
-                                          },
-                                          child: Center(child: Container(child: Text('Continue',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)))
-                                          :SizedBox(height: 0,),
-                                    ],
-                                  ),
+                                                } else {
+                                                  // User canceled, do something else
+                                                  print('User Closed');
+                                                }
+                                              },
+                                              child: Container(child: Text('Close',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Theme.of(context).floatingActionButtonTheme.backgroundColor),),)),
+                                          InkWell(
+                                              onTap: ()async{
+                                                await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                                  state: widget.userId==userId?'user':'helper',
+                                                  meetId: meetId,
+                                                ),));
+                                                _refreshPage();
+                                              },
+                                              child: Center(child: Container(child: Text('Continue',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)))
+                                        ],
+                                      ),
+                                    )
+                                        :
+                                    InkWell(
+                                        onTap: ()async{
+                                          await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                            state: widget.userId==userId?'user':'helper',
+                                            meetId: meetId,
+                                          ),));
+                                          _refreshPage();
+                                        },
+                                        child: Center(child: Container(child: Text('Continue',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#0A8100')),),)))
+                                        :SizedBox(height: 0,),
+                                  ],
                                 ),
-                              )
-                                  :SizedBox(height: 0,),
-                            );
-                          }),
-                        )
-                            :SizedBox(height:0),
-                      ],
-                    ),
+                              ),
+                            )
+                                :SizedBox(height: 0,),
+                          );
+                        }),
+                      )
+                          :SizedBox(height:0),
+                    ],
                   ),
                 ),
+              )
+                  : Center(child: CircularProgressIndicator(color: Colors.orange,),),
+              Positioned(
+                top : 0, right : 0,left:  0,
 
-                Positioned(
-                  top : 0, right : 0,left:  0,
-
-                    child: Container(
-                      padding : EdgeInsets.only(top : 20,left : 20,right : 20),
-                     color : Theme.of(context).backgroundColor,
-                  child : Column(
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Expanded(
-                            child: Container(
-                              child: InkWell(
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: (){
-                                  setState(() {
-                                    toggle = true;
-                                  });
-                                },
-                                child: Container(
+                  child: Container(
+                    padding : EdgeInsets.only(top : 20,left : 20,right : 20),
+                   color : Theme.of(context).backgroundColor,
+                child : Column(
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: [
+                        Expanded(
+                          child: Container(
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: (){
+                                setState(() {
+                                  toggle = true;
+                                });
+                              },
+                              child: Container(
 
 
-                                  decoration:BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: toggle?HexColor('#FB8C00'):Theme.of(context).backgroundColor, // Choose the color you want for the bottom border
-                                        width: 2.0, // Adjust the width of the border
-                                      ),
+                                decoration:BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: toggle?HexColor('#FB8C00'):Theme.of(context).backgroundColor, // Choose the color you want for the bottom border
+                                      width: 2.0, // Adjust the width of the border
                                     ),
                                   ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        child: Column(
-                                          children: [
-                                            Text('Requests',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold,color:toggle?HexColor('#FB8C00'):Colors.black),),
-                                            SizedBox(height : 5),
-                                          ],
-                                        ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      child: Column(
+                                        children: [
+                                          Text('Requests',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold,color:toggle?HexColor('#FB8C00'):Colors.black),),
+                                          SizedBox(height : 5),
+                                        ],
                                       ),
-                                      SizedBox(width: 5,),
-                                      Container(
-                                        width: 22,
-                                        height: 22,
-                                        decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '2',
-                                            style: TextStyle(
-                                              color: Theme.of(context).backgroundColor,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                    ),
+                                    SizedBox(width: 5,),
+                                    Container(
+                                      width: 22,
+                                      height: 22,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '2',
+                                          style: TextStyle(
+                                            color: Theme.of(context).backgroundColor,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      )
-                                    ],
-                                  ),
+                                      ),
+                                    )
+                                  ],
                                 ),
                               ),
                             ),
                           ),
-                          Expanded(
-                            child: Container(
-                              child: InkWell(
-                                splashColor: Colors.transparent,
-                                highlightColor: Colors.transparent,
-                                onTap: (){
-                                  setState(() {
-                                    toggle = false;
-                                  });
-                                },
-                                child: Container(
+                        ),
+                        Expanded(
+                          child: Container(
+                            child: InkWell(
+                              splashColor: Colors.transparent,
+                              highlightColor: Colors.transparent,
+                              onTap: (){
+                                setState(() {
+                                  toggle = false;
+                                });
+                              },
+                              child: Container(
 
-                                  decoration:BoxDecoration(
-                                    border: Border(
-                                      bottom: BorderSide(
-                                        color: !toggle?HexColor('#FB8C00'):Theme.of(context).backgroundColor, // Choose the color you want for the bottom border
-                                        width: 2.0, // Adjust the width of the border
-                                      ),
+                                decoration:BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(
+                                      color: !toggle?HexColor('#FB8C00'):Theme.of(context).backgroundColor, // Choose the color you want for the bottom border
+                                      width: 2.0, // Adjust the width of the border
                                     ),
                                   ),
-                                  child: Row(
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    mainAxisAlignment: MainAxisAlignment.center,
-                                    children: [
-                                      Container(
-                                        child: Column(
-                                          children: [
-                                            Text('Notification',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold,color: !toggle?HexColor('#FB8C00'):Colors.black),),
-                                            SizedBox(height : 5),
-                                          ],
-                                        ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Container(
+                                      child: Column(
+                                        children: [
+                                          Text('Notification',style: TextStyle(fontFamily: 'Poppins',fontSize: 16,fontWeight: FontWeight.bold,color: !toggle?HexColor('#FB8C00'):Colors.black),),
+                                          SizedBox(height : 5),
+                                        ],
                                       ),
-                                      SizedBox(width: 5,),
-                                      Container(
-                                        width: 22,
-                                        height: 22,
-                                        decoration: BoxDecoration(
-                                          color: Colors.red,
-                                          shape: BoxShape.circle,
-                                        ),
-                                        child: Center(
-                                          child: Text(
-                                            '2',
-                                            style: TextStyle(
-                                              color: Theme.of(context).backgroundColor,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                    ),
+                                    SizedBox(width: 5,),
+                                    Container(
+                                      width: 22,
+                                      height: 22,
+                                      decoration: BoxDecoration(
+                                        color: Colors.red,
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '2',
+                                          style: TextStyle(
+                                            color: Theme.of(context).backgroundColor,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
-                                      )
-                                    ],
-                                  ),
+                                      ),
+                                    )
+                                  ],
                                 ),
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+
+                    SizedBox(height : 20),
+
+                    toggle
+                        ? Container(
+
+                      // width: screenWidth*0.85,
+                      // height: 50,
+                      child: Row(
+
+                        children: [
+
+                          Expanded(
+                            child: Container(
+
+                              decoration: BoxDecoration(
+                                color : Theme.of(context).backgroundColor,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.6),
+                                    spreadRadius: 0.4,
+                                    blurRadius: 0.6,
+                                    offset: Offset(0.5, 0.8),
+                                  ),
+                                ],
+                                // border: Border.all(
+                                //     color: HexColor('#FB8C00')
+                                // ),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Container(
+
+
+                                    child: DropdownButton<String>(
+                                      elevation: 1,
+                                      alignment: AlignmentDirectional.bottomEnd,
+                                      dropdownColor: Theme.of(context).backgroundColor,
+                                      value: _selectedService,
+                                      items: <String>['Trip Planning', 'Local Assistant']
+                                          .map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value,style:  TextStyle(color: Colors.orange,fontSize: 14,fontFamily: 'Poppins'),),);
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        if (newValue != null) {
+                                          print(newValue);
+                                          _updateSelectedService(newValue);
+                                        }
+                                      },
+                                      // Change the dropdown text style
+                                      underline: Container(), // Hide the underline
+                                      icon: Icon(Icons.keyboard_arrow_down, color: HexColor('#FB8C00')), // Change the dropdown icon
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+
+                          Container(width : 10),
+
+                          Expanded(
+                            child: Container(
+
+
+                              decoration: BoxDecoration(
+                                color : Theme.of(context).backgroundColor,
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.grey.withOpacity(0.6),
+                                    spreadRadius: 0.4,
+                                    blurRadius: 0.6,
+                                    offset: Offset(0.5, 0.8),
+                                  ),
+                                ],
+                                // border: Border(
+                                //   bottom: BorderSide(
+                                //     color: HexColor('#FB8C00'),
+                                //     width: 1.0, // Adjust the width of the border as needed
+                                //   ),
+                                // ),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: <Widget>[
+                                  Container(
+                                    child: DropdownButton<String>(
+                                      elevation : 1,
+
+                                      dropdownColor: Theme.of(context).backgroundColor,
+                                      value: _selectedValue,
+                                      items:  <String>['All Pings','Scheduled', 'Accepted', 'Pending' , 'Closed','Cancelled']
+                                          .map((String value) {
+                                        return DropdownMenuItem<String>(
+                                          value: value,
+                                          child: Text(value,style:  TextStyle(color: Colors.orange,fontSize: 14,fontFamily: 'Poppins'),),
+                                        );
+                                      }).toList(),
+                                      onChanged: (String? newValue) {
+                                        if (newValue != null) {
+                                          print(':::');
+                                          _updateSelectedValue(newValue);
+                                        }
+                                      },// Change the dropdown text style
+                                      underline: Container(), // Hide the underline
+                                      icon: Icon(Icons.keyboard_arrow_down, color: HexColor('#FB8C00')), // Change the dropdown icon
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),
                         ],
                       ),
+                    )
+                        : SizedBox(height: 0,),
 
-                      SizedBox(height : 20),
-
-                      toggle
-                          ? Container(
-
-                        // width: screenWidth*0.85,
-                        // height: 50,
-                        child: Row(
-
-                          children: [
-
-                            Expanded(
-                              child: Container(
-
-                                decoration: BoxDecoration(
-                                  color : Theme.of(context).backgroundColor,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.6),
-                                      spreadRadius: 0.4,
-                                      blurRadius: 0.6,
-                                      offset: Offset(0.5, 0.8),
-                                    ),
-                                  ],
-                                  // border: Border.all(
-                                  //     color: HexColor('#FB8C00')
-                                  // ),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-
-
-                                      child: DropdownButton<String>(
-                                        elevation: 1,
-                                        alignment: AlignmentDirectional.bottomEnd,
-                                        dropdownColor: Theme.of(context).backgroundColor,
-                                        value: _selectedService,
-                                        items: <String>['Trip Planning', 'Local Assistant']
-                                            .map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value,style:  TextStyle(color: Colors.orange,fontSize: 14,fontFamily: 'Poppins'),),);
-                                        }).toList(),
-                                        onChanged: (String? newValue) {
-                                          if (newValue != null) {
-                                            print(newValue);
-                                            _updateSelectedService(newValue);
-                                          }
-                                        },
-                                        // Change the dropdown text style
-                                        underline: Container(), // Hide the underline
-                                        icon: Icon(Icons.keyboard_arrow_down, color: HexColor('#FB8C00')), // Change the dropdown icon
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-
-                            Container(width : 10),
-
-                            Expanded(
-                              child: Container(
-
-
-                                decoration: BoxDecoration(
-                                  color : Theme.of(context).backgroundColor,
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: Colors.grey.withOpacity(0.6),
-                                      spreadRadius: 0.4,
-                                      blurRadius: 0.6,
-                                      offset: Offset(0.5, 0.8),
-                                    ),
-                                  ],
-                                  // border: Border(
-                                  //   bottom: BorderSide(
-                                  //     color: HexColor('#FB8C00'),
-                                  //     width: 1.0, // Adjust the width of the border as needed
-                                  //   ),
-                                  // ),
-                                  borderRadius: BorderRadius.circular(5),
-                                ),
-                                child: Column(
-                                  mainAxisAlignment: MainAxisAlignment.center,
-                                  children: <Widget>[
-                                    Container(
-                                      child: DropdownButton<String>(
-                                        elevation : 1,
-
-                                        dropdownColor: Theme.of(context).backgroundColor,
-                                        value: _selectedValue,
-                                        items:  <String>['All Pings','Scheduled', 'Accepted', 'Pending' , 'Closed','Cancelled']
-                                            .map((String value) {
-                                          return DropdownMenuItem<String>(
-                                            value: value,
-                                            child: Text(value,style:  TextStyle(color: Colors.orange,fontSize: 14,fontFamily: 'Poppins'),),
-                                          );
-                                        }).toList(),
-                                        onChanged: (String? newValue) {
-                                          if (newValue != null) {
-                                            print(':::');
-                                            _updateSelectedValue(newValue);
-                                          }
-                                        },// Change the dropdown text style
-                                        underline: Container(), // Hide the underline
-                                        icon: Icon(Icons.keyboard_arrow_down, color: HexColor('#FB8C00')), // Change the dropdown icon
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      )
-                          : SizedBox(height: 0,),
-
-                    ],
-                  ),
-                ))
-              ],
-            ),
-          )
-              :Center(
-            // Show a circular progress indicator while data is being fetched
-            child: CircularProgressIndicator(),
-          ),),
-      ),
+                  ],
+                ),
+              ))
+            ],
+          ),
+        )
+            :Center(
+          // Show a circular progress indicator while data is being fetched
+          child: CircularProgressIndicator(),
+        ),),
     );
   }
 
@@ -1882,6 +2032,8 @@ class ScheduledCalendar extends StatefulWidget {
 
 class _ScheduledCalendarState extends State<ScheduledCalendar>{
 
+
+  bool updatedStatus = true;
   DateTime setDateTime(date,time){
     String parsedDateTime = ('$date $time');
     DateTime parsedDateTime2 = parseCustomDateTime(parsedDateTime);
@@ -1927,9 +2079,9 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
   DateTime? timeleft;
   Timer? _timer;
   Timer? countdownTimer;
-  bool dataLoaded = false,start20Min=false,closedMeet=false;
+  bool dataLoaded = true,start20Min=false,closedMeet=false;
   Duration meetingDuration = Duration(minutes: 20); // Set your meeting duration
-  String startTime='',endTime='',plannerName='',meetType='',meetStatus='';
+  String startTime='',endTime='',plannerName='',meetType='',meetStatus='',plannerId='',plannerToken='';
   @override
   void initState() {
     super.initState();
@@ -1964,8 +2116,10 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
           startTime = data['start'];
           endTime = data['end'];
           plannerName = data['plannerName'];
+          plannerId = data['plannerId'];
           meetType = data['meetType'];
           meetStatus = data['meetStatus'];
+          plannerToken = data['plannerToken'];
         });
         return ; // Return the ID
       } else {
@@ -1983,15 +2137,39 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
       dataLoaded = false;
     });
     await fetchTripPlanningMeetDetais();
-    if(!start20Min){
+    if(meetStatus!='close'){
       timeleft = setDateTime(widget.date, widget.meetDetails['meetStartTime'][widget.index]);
-      startCountdown();
-    }else if(!closedMeet){
-      startMeetingTimer();
-    }else{}
-    setState(() {
-      dataLoaded = true;
-    });
+      _remainingTime = timeleft!.difference(DateTime.now());
+      if(_remainingTime.inSeconds>0){
+        startCountdown();
+      }else{
+        DateTime currentTime = DateTime.now();
+        Duration elapsed = currentTime.difference(timeleft!);
+        _remainingTime = meetingDuration - elapsed;
+        if(_remainingTime.inSeconds>0){
+          startMeetingTimer();
+          setState(() {
+            start20Min = true;
+          });
+        }else{
+          print('Meet Closed');
+        }
+      }
+      setState(() {
+        dataLoaded = true;
+      });
+    }
+    else{
+      setState(() {
+        closedMeet = true;
+        dataLoaded = true;
+      });
+    }
+    // if(!start20Min){
+    //   startCountdown();
+    // }else if(!closedMeet){
+    //   startMeetingTimer();
+    // }else{}
   }
 
   void updateRemainingTime() {
@@ -2016,7 +2194,6 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
     });
   }
   void startCountdown() {
-    _remainingTime = timeleft!.difference(DateTime.now());
     _timer = Timer.periodic(Duration(seconds: 1), (timer) {
       if(mounted){
         setState(() {
@@ -2031,6 +2208,63 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
     });
   }
 
+  Future<void> cancelMeeting(String date,int index,String status,String otherId,String otherStatus)async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'userId': userID,
+        'date':date,
+        'index':index,
+        'setStatus':status,
+        'user2Id':plannerId,
+        'set2Status':otherStatus,
+      };
+      print('PPPPP::$data');
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/cancelMeeting'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+      } else {
+        print('Failed to save data: ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error Is 1: $err");
+    }
+  }
+  Future<void> updateMeetingChats(String meetId,List<String>meetDetails)async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'meetId':meetId,
+        'conversation':meetDetails,
+      };
+      print('PPPPP::$data');
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/storeMeetingConversation'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+      } else {
+        print('Failed to save data: ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error is 2: $err");
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -2043,134 +2277,257 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
     String endTime= meetDetails['meetEndTime'][widget.index];
     String meetId = meetDetails['meetingId'][widget.index];
     String meetType = meetDetails['meetingType'][widget.index];
+
+    Future<void> fetchMeetStatus()async{
+      final serverUrl = Constant().serverUrl;
+      final url = Uri.parse('$serverUrl/fetchMeetDetails');
+      // Replace with your data
+      Map<String, dynamic> requestData = {
+        "userId" : userID,
+        "date" : widget.date,
+        "index":widget.index
+      };
+
+      try {
+        final response = await http.patch(
+          url,
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: jsonEncode(requestData),
+        );
+
+        if (response.statusCode == 200) {
+          // Parse the response JSON
+          final data = jsonDecode(response.body)['details'][0];
+          // userWith10km = List<String>.from(data);
+          print('Data fethced $data');
+          setState(() {
+            meetStatus = data['meetStatus'];
+          });
+          // print(data['start']);
+          return ; // Return the ID
+        } else {
+          print("Failed to save meet. Status code: ${response}");
+          throw Exception("Failed to save meet");
+        }
+        setState(() {});
+      } catch (e) {
+        print("Error: $e");
+        throw Exception("Error during API call");
+      }
+    }
     return Scaffold(
-      appBar: AppBar(title: ProfileHeader(reqPage: 2,),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor,shadowColor: Colors.transparent,),
-      body: SingleChildScrollView(
-        child: Container(
-          width:screenWidth,
-          margin: EdgeInsets.only(left: 20,right:20),
-          // color:Colors.red,
-          // decoration: BoxDecoration(border:Border.all(width: 1)),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: 30,),
-              Text('Scheduled Calendar',style: Theme.of(context).textTheme.subtitle1,),
-              SizedBox(height: 30,),
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Date',style: Theme.of(context).textTheme.subtitle1),
-                  SizedBox(height: 10,),
-                  Container(
-                    width:145,
-                    height: 40,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(5),
-                      border: Border.all(
-                          color: HexColor('#FB8C00')
+      appBar: AppBar(title: ProfileHeader(reqPage: 2,state:meetType=='sender'?'user':'helper',service: 'trip_planning', fromWhichPage: 'trip_planning_calendar_pings',meetStatus: meetStatus,
+        onButtonPressed: ()async{
+          String currentMeetStatus = meetStatus;
+          await fetchMeetStatus();
+          print('Meet is $meetStatus');
+          if(currentMeetStatus!=meetStatus || meetStatus=='close'){
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PingsSection(userId:userID,state:'Closed',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+              ),
+            );
+          }else{
+            Navigator.of(context).pop();
+          }
+        },
+        cancelCloseClick: ()async{
+          // await updateMeetingChats(meetId,['','admin-close']);
+          String currentMeetStatus = meetStatus;
+          await fetchMeetStatus();
+          if(currentMeetStatus!=meetStatus){
+            Fluttertoast.showToast(
+              msg:
+              'Meeting Is Already Closed By ${plannerName}.Update Page!!',
+              toastLength:
+              Toast.LENGTH_SHORT,
+              gravity:
+              ToastGravity.BOTTOM,
+              backgroundColor:
+              Theme.of(context).primaryColorDark,
+              textColor: Colors.orange,
+              fontSize: 16.0,
+            );
+            setState(() {
+              closedMeet = true;
+            });
+          }else{
+              showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField:'You are closing this request ?',extraText: 'Thank you for using our services !', what: 'a',
+                  option2Callback:()async{
+                    setState(() {
+                      updatedStatus = false;
+                    });
+                    await cancelMeeting(widget.date!,widget.index!,'close',plannerId,'close');
+                    if(meetType=='sender'){
+                      sendCustomNotificationToOneUser(
+                          userToken,
+                          'Trip Planning Meeting Updates',
+                          'Trip Planning Request Updates','Meeting is closed successfully',
+                          'Closed','trip_planning_close',userID,'user'
+                      );
+                    }
+                    else{
+                      sendCustomNotificationToOneUser(
+                          plannerToken,
+                          'Message From ${userName}',
+                          'Messages From ${userName}' ,'Meeting  with ${date} , ${startTime} is cancelled by ${userName}',
+                          'Closed','trip_planning_close',userId,'helper'
+                      );
+                    }
+                    setState(() {
+                      closedMeet = true;
+                      updatedStatus = true;
+                    });
+                  },);
+              },
+            );
+          }
+      },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor,shadowColor: Colors.transparent,),
+      body: dataLoaded
+          ? SingleChildScrollView(
+        child:  WillPopScope(
+          onWillPop: ()async{
+            await fetchMeetStatus();
+            if(meetStatus=='close'||closedMeet){
+              Navigator.pop(context,'Closed');
+            }else{
+              Navigator.pop(context,'Scheduled');
+            }
+            return true;
+        },
+          child: Container(
+            width:screenWidth,
+            margin: EdgeInsets.only(left: 20,right:20),
+            // color:Colors.red,
+            // decoration: BoxDecoration(border:Border.all(width: 1)),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(height: 30,),
+                Text('Scheduled Calendar',style: Theme.of(context).textTheme.subtitle1,),
+                SizedBox(height: 30,),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Date',style: Theme.of(context).textTheme.subtitle1),
+                    SizedBox(height: 10,),
+                    Container(
+                      width:155,
+                      height: 42,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(5),
+                        border: Border.all(
+                            color: HexColor('#FB8C00')
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SizedBox(width: 5,),
+                          SvgPicture.asset(
+                            'assets/images/calendar.svg', // Replace with the path to your SVG file
+                            width: 18, // Specify the width
+                            height: 18, // Specify the height
+                            color: Colors.orange, // Change the color if needed
+                          ),
+                          SizedBox(width: 10,),
+                          Text('${date}',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)
+                        ],
                       ),
                     ),
+                  ],
+                ),
+                SizedBox(height: 30,),
+                Text('Planned Call',style: Theme.of(context).textTheme.subtitle1),
+                SizedBox(height: 10,),
+                Container(
+                decoration: BoxDecoration(
+                  color: Theme.of(context).backgroundColor, // Container background color
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.grey.withOpacity(0.6),
+                      spreadRadius: 0.4,
+                      blurRadius: 0.6,
+                      offset: Offset(0.5, 0.8),
+                    ),
+                  ],
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: InkWell(
+                  onTap: (){
+                    meetType=='sender'
+                        ? Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatApps(senderId:userID,receiverId:'',date:date,index:widget.index),
+                      ),
+                    )
+                        :Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => ChatApps(callbacker:widget.callbacker,senderId:'',receiverId:userId,meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
+                      ),
+                    );
+                  },
+                  child: Container(
+                    padding: EdgeInsets.all(20),
+                    // color: Colors.red,
                     child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        SizedBox(width: 5,),
-                        SvgPicture.asset(
-                          'assets/images/calendar.svg', // Replace with the path to your SVG file
-                          width: 18, // Specify the width
-                          height: 18, // Specify the height
-                          color: Colors.orange, // Change the color if needed
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children:[
+                              Text('${startTime} - ${endTime}',style: Theme.of(context).textTheme.subtitle2),
+                              SizedBox(height:10),
+                              Container(
+                                  width: 200,
+                                  child: Text('Trip Planning Call With ${Constant().extractFirstName(plannerName)}',style: Theme.of(context).textTheme.subtitle2,))
+                            ],
+                          ),
                         ),
-                        SizedBox(width: 10,),
-                        Text('${date}',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)
+                        Icon(Icons.arrow_forward_ios,size: 25,color: Colors.orange,),
                       ],
                     ),
                   ),
-                ],
-              ),
-              SizedBox(height: 30,),
-              Text('Planned Call',style: Theme.of(context).textTheme.subtitle1),
-              SizedBox(height: 10,),
-              Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).backgroundColor, // Container background color
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.grey.withOpacity(0.6),
-                    spreadRadius: 0.4,
-                    blurRadius: 0.6,
-                    offset: Offset(0.5, 0.8),
-                  ),
-                ],
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: InkWell(
-                onTap: (){
-                  meetType=='sender'
-                      ? Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatApps(callbacker:widget.callbacker,senderId:userId,receiverId:'',meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
-                    ),
-                  )
-                      :Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatApps(callbacker:widget.callbacker,senderId:'',receiverId:userId,meetingId:meetId,date:date,index:widget.index,currentTime:setDateTime(date, startTime)),
-                    ),
-                  );
-                },
-                child: Container(
-                  padding: EdgeInsets.all(20),
-                  // color: Colors.red,
-                  child: Row(
-                    children: [
-                      Expanded(
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children:[
-                            Text('${startTime} - ${endTime}',style: Theme.of(context).textTheme.subtitle2),
-                            SizedBox(height:10),
-                            Container(
-                                width: 200,
-                                child: Text('Trip Planning Call With ${widget.name}',style: Theme.of(context).textTheme.subtitle2,))
-                          ],
-                        ),
-                      ),
-                      Icon(Icons.arrow_forward_ios,size: 25,color: Colors.orange,),
-                    ],
-                  ),
+                  // child: Column(
+                  //   crossAxisAlignment: CrossAxisAlignment.start,
+                  //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  //   children: [
+                  //     Container(
+                  //       // color: Colors.red,
+                  //       padding: EdgeInsets.only(left: 10,right:10),
+                  //       child: Row(
+                  //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  //         children: [
+                  //           Text('${startTime} - ${endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                  //           Container(
+                  //             child: Image.asset('assets/images/arrow_fwd.png',width: 25,height: 25,),
+                  //           ),
+                  //         ],
+                  //       ),
+                  //     ),
+                  //     Text('Trip Planning call with customer',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                  //   ],
+                  // ),
                 ),
-                // child: Column(
-                //   crossAxisAlignment: CrossAxisAlignment.start,
-                //   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                //   children: [
-                //     Container(
-                //       // color: Colors.red,
-                //       padding: EdgeInsets.only(left: 10,right:10),
-                //       child: Row(
-                //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                //         children: [
-                //           Text('${startTime} - ${endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                //           Container(
-                //             child: Image.asset('assets/images/arrow_fwd.png',width: 25,height: 25,),
-                //           ),
-                //         ],
-                //       ),
-                //     ),
-                //     Text('Trip Planning call with customer',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                //   ],
-                // ),
-              ),
-                ),
-            ],
+                  ),
+              ],
+            ),
           ),
         ),
-      ),
-      bottomNavigationBar: dataLoaded?
-              start20Min==false
+      )
+          : Center(child:CircularProgressIndicator(color:Colors.orange)),
+      bottomNavigationBar: dataLoaded && updatedStatus?
+              start20Min==false && closedMeet==false
                   ? Container(
                       height : 63,
                       padding:EdgeInsets.only(left:10,right:10),
@@ -2189,10 +2546,19 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
                     )
                   : closedMeet==false
                       ? Container(
+                        height : 63,
+                        padding:EdgeInsets.only(left:10,right:10),
+                        decoration: BoxDecoration(
+                          color : Colors.white60,
+                          // borderRadius: BorderRadius.circular(0),
+                          // border: Border.all(color: Colors.orange),
+                        ),
                       // alignment: Alignment.center,
-                      child: Text(
-                        '${(_remainingTime.inMinutes % 60)<=0?'00':(_remainingTime.inMinutes % 60)}M : ${(_remainingTime.inSeconds % 60)<=0?'00':(_remainingTime.inSeconds % 60)}S',
-                        style: TextStyle(fontSize: 18, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.green),
+                      child: Center(
+                        child: Text(
+                          '${(_remainingTime.inMinutes % 60)<=0?'00':(_remainingTime.inMinutes % 60)}M : ${(_remainingTime.inSeconds % 60)<=0?'00':(_remainingTime.inSeconds % 60)}S',
+                          style: TextStyle(fontSize: 25, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.green),
+                        ),
                       ),
                     )
                       : Container(

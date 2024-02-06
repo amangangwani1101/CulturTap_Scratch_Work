@@ -11,17 +11,17 @@ class ConfirmationDialog extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      backgroundColor: Colors.white,
-      title: Text('Alert Box',style: TextStyle(color: HexColor('#FB8C00'),fontFamily: 'Poppins',fontWeight: FontWeight.bold,fontSize: 16)),
-      content: Text(message,style: TextStyle(color: HexColor('#FB8C00'),fontFamily: 'Poppins',fontWeight: FontWeight.bold,fontSize: 14)),
+      backgroundColor: Theme.of(context).primaryColorLight,
+      title: Text('Alert Box',style: Theme.of(context).textTheme.headline2),
+      content: Text(message,style:Theme.of(context).textTheme.subtitle1),
       actions: [
         TextButton(
           onPressed: onCancel,
-          child: Text('Cancel', style: TextStyle(color: HexColor('#FB8C00'),fontFamily: 'Poppins',fontWeight: FontWeight.bold,fontSize: 14)),
+          child: Text('Cancel', style: TextStyle(color: Colors.orange,fontFamily: 'Poppins',fontWeight: FontWeight.bold,fontSize: 16)),
         ),
         TextButton(
           onPressed: onConfirm,
-          child: Text('Proceed', style: TextStyle(color: HexColor('#FB8C00'),fontFamily: 'Poppins',fontWeight: FontWeight.bold,fontSize: 14)),
+          child: Text('Ok', style: TextStyle(color: Colors.orange,fontFamily: 'Poppins',fontWeight: FontWeight.bold,fontSize: 16)),
         ),
       ],
     );

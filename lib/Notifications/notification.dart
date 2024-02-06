@@ -133,6 +133,25 @@ class NotificationServices{
     );
   }
 
+  String getCurrentTime() {
+    // Get the current time
+    DateTime currentTime = DateTime.now();
+
+    // Extract hours and minutes
+    int hours = currentTime.hour;
+    int minutes = currentTime.minute;
+
+    // Format the time to HH:MM
+    String formattedTime = '${_padZero(hours)}:${_padZero(minutes)}';
+
+    return formattedTime;
+  }
+
+// Helper function to pad a single-digit number with a leading zero
+  String _padZero(int number) {
+    return number.toString().padLeft(2, '0');
+  }
+
   Future<void> showNotification(RemoteMessage message)async{
 
     AndroidNotificationChannel channel = AndroidNotificationChannel(
@@ -166,7 +185,7 @@ class NotificationServices{
       ) ? true : false,
 
       ticker: 'ticker',
-      subText: message.data['type'],
+      subText: getCurrentTime(),
       ledColor: const Color.fromARGB(255, 255, 0, 0), // Replace with your LED color
       ledOnMs: 1000, // LED on duration in milliseconds
       ledOffMs: 500, // LED off duration in milliseconds
@@ -298,7 +317,7 @@ class NotificationServices{
 
   void handleMessage(BuildContext context,RemoteMessage message){
     // if(message.)
-    if(message.data['type']=='trip_planning_request'){
+    if((message.data['type']).contains('trip_planning')){
       if(message.data['state']=='user'){
         Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:'Trip Planning',state: message.data['meetId'],)));
       }else{
