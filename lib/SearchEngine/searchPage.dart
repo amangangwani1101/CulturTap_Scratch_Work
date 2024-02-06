@@ -12,8 +12,10 @@ import 'package:learn_flutter/CulturTap/searchBar.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/SearchEngine/FilterButton.dart';
+import 'package:learn_flutter/SearchEngine/RotationTransition.dart';
 import 'package:learn_flutter/SearchEngine/SearchDatabaseHelper.dart';
 import 'package:learn_flutter/SearchEngine/SuggestionList.dart';
+import 'package:learn_flutter/SearchEngine/UserProfileCard.dart';
 import 'package:learn_flutter/SearchEngine/searchPage.dart';
 import "package:learn_flutter/Utils/location_utils.dart";
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
@@ -54,18 +56,23 @@ class SearchPage extends StatefulWidget {
 class _SearchPageState extends State<SearchPage> {
   bool _isVisible = true;
   bool isSearchInitiated = false;
+  
+  bool showLoaderInMiddle = false;
 
-  bool isLoading = true;
+  bool _showSuggestions = true;
   String userName = '';
   String userID = '';
   ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
-  List<String> suggestions = ['India','Street Food Near Me','Trending NearBy'];
+  List<String> suggestions = ['India','Street Food Near Me','Trending NearBy','jhansi'];
   String selectedFilter = '';
   late FocusNode _searchFocusNode;
   late SearchDatabaseHelper _databaseHelper;
   bool isSearching = true;
   String location = 'Gwalior';
+
+
+  List<UserProfileCard> userProfiles = [];
 
   final List<String> searchPhrases = ['Mood', 'Food Near You', 'Places'];
   int currentPhraseIndex = 0;
@@ -97,6 +104,44 @@ class _SearchPageState extends State<SearchPage> {
     ...generateCategoryData(
         name: 'Market', apiEndpoint: '/api/stories/best/genre/Market'),
   ];
+
+
+
+  Future<void> fetchUserProfiles(String query) async {
+    final String serverUrl = Constant().serverUrl;
+    final apiUrl = '$serverUrl/api/user-profiles?query=$query';
+
+    try {
+      final response = await http.get(Uri.parse(apiUrl));
+
+      if (response.statusCode == 200) {
+        final List<dynamic> jsonResponse = json.decode(response.body);
+
+        // Clear existing user profiles
+        userProfiles.clear();
+
+        // Add new user profiles to the list
+        for (var userData in jsonResponse) {
+          final UserProfileCard userProfile = UserProfileCard(
+            username: userData['username'],
+            profileImage: userData['profileImage'],
+            bio: userData['bio'],
+          );
+          userProfiles.add(userProfile);
+        }
+
+        setState(() {
+          _showSuggestions = false;
+        });
+      } else {
+        print('Error fetching user profiles: ${response.statusCode}');
+      }
+    } catch (error) {
+      print('Error fetching user profiles: $error');
+    }
+  }
+
+
 
   Future<List<String>> fetchSuggestions(String query) async {
     final String serverUrl = Constant().serverUrl;
@@ -152,7 +197,7 @@ class _SearchPageState extends State<SearchPage> {
       setState(() {
         suggestions = List<String>.from(jsonResponse['suggestions']);
         isSearching = true;
-        isLoading = false;
+        _showSuggestions = false;
       });
     } else {
       print('Error fetching suggestions: ${response.statusCode}');
@@ -195,7 +240,9 @@ class _SearchPageState extends State<SearchPage> {
           processedData['storyDetailsList'];
 
       setState(() {
-        isLoading = false;
+        _showSuggestions = false;
+        showLoaderInMiddle = false;
+        
       });
 
       print(
@@ -241,15 +288,15 @@ class _SearchPageState extends State<SearchPage> {
 
   Future<void> fetchUserLocationAndData() async {
     setState(() {
-      isLoading = false;
+      showLoaderInMiddle = true;
+      _showSuggestions = false;
       categoryData.clear();
       _searchFocusNode.unfocus();
     });
 
     categoryData = [
       ...generateCategoryData(name: 'NearBy You', apiEndpoint: '/api/search'),
-      ...generateCategoryData(
-          name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
+
       ...generateCategoryData(
           name: 'Most Trending Visits', apiEndpoint: '/api/stories/best'),
       ...generateCategoryData(
@@ -261,6 +308,9 @@ class _SearchPageState extends State<SearchPage> {
       ...generateCategoryData(
           name: 'Wildlife attractions',
           apiEndpoint: '/api/stories/best/genre/WildLife attractions'),
+
+      ...generateCategoryData(
+          name: 'LifeStyle', apiEndpoint: '/api/stories/best/genre/Lifestyle'),
       ...generateCategoryData(
           name: 'Advanture Places',
           apiEndpoint: '/api/stories/best/genre/Advanture Places'),
@@ -425,7 +475,7 @@ class _SearchPageState extends State<SearchPage> {
                                   controller: _searchController,
                                   onChanged: (query) {
                                     fetchSuggestions(_searchController.text);
-                                    isLoading = true;
+                                    _showSuggestions = true;
                                   },
                                   onEditingComplete: () {
                                     requestLocationPermission();
@@ -466,31 +516,40 @@ class _SearchPageState extends State<SearchPage> {
                               ],
                             ),
                           ),
+
+
+
+
                           SizedBox(height: 30),
                           FiltersWithHorizontalScroll(
                             selectedFilter: selectedFilter,
                             onFilterSelected: (filter) {
                               setState(() {
                                 selectedFilter = filter;
-                                isLoading = true;
+                                _showSuggestions = true;
                                 // Set loading state when changing the filter
                               });
                               fetchUserLocationAndData(); // Fetch data based on the new filter
                             },
                           ),
                           SizedBox(height: 20),
+
+
+
+
+
                         ],
                       ),
                       if (!_searchController.text.isEmpty)
-                        isLoading
+                        _showSuggestions
                             ? Container(
                           height : 600,
                               child: SingleChildScrollView(
                                 child: SuggestionList(
-                                                        suggestions: suggestions,
-                                                        searchController: _searchController,
-                                                        onSuggestionSelected: (selectedSuggestion) async {
-                                // Handle the selected suggestion
+                                  suggestions: suggestions,
+                                  searchController: _searchController,
+                                  onSuggestionSelected: (selectedSuggestion) async {
+
                                 print('Selected suggestion: $selectedSuggestion');
         
                                 // Set the search input value
@@ -498,26 +557,28 @@ class _SearchPageState extends State<SearchPage> {
         
         
                                 await onSuggestionSearch(selectedSuggestion);
-        
-                                                        },
-                                                        onSuggestionSearch: (query) async {
+                                },
+                                onSuggestionSearch: (query) async {
         
                                 print('Performing search for: $query');
         
                                 setState(() {
         
-                                  isLoading = true;
+                                  _showSuggestions = true;
         
                                 });
                                 fetchUserLocationAndData();
         
         
-                                // Add your search logic here
+
                                                         },
                                                       ),
                               ),
                             )
-                            : Column(
+                            : showLoaderInMiddle ?
+                        Container(
+                            height : 500,child: Center(child: CustomBlinkingLoader())) :
+                        Column(
                                 children:
                                     categoryData.asMap().entries.map((entry) {
                                   final int categoryIndex = entry.key;
@@ -532,6 +593,7 @@ class _SearchPageState extends State<SearchPage> {
         
                                   final String categoryName = category['name'];
                                   final String whereTo = 'search';
+
                                   final List<String> storyUrls =
                                       category['storyUrls'];
                                   final List<String> videoCounts =
