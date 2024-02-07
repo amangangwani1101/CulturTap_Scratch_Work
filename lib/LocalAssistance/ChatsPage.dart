@@ -21,9 +21,11 @@ import 'package:flutter_webrtc/flutter_webrtc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:photo_view/photo_view.dart';
+import 'package:share_plus/share_plus.dart';
 
 // import '../Notifications/NotificationManager.dart';
 import '../CustomItems/CustomPopUp.dart';
+import '../CustomItems/ImagePopUpWithTwoOption.dart';
 import '../Notifications/CustomNotificationMessages.dart';
 import '../ServiceSections/TripCalling/Payments/RazorPay.dart';
 
@@ -78,7 +80,6 @@ class _ChatsPageState extends State<ChatsPage> {
   String paymentStatus = '';
 
 
-
   List<String>userIds = [];
   List<String>distance = [];
   bool _isTyping = false;
@@ -129,7 +130,7 @@ class _ChatsPageState extends State<ChatsPage> {
   late RTCPeerConnection _peerConnection;
 
 
-  String userName = '',userPhoto = '',helperId='',helperAddress='',helperName='',helperPhoto='',helperLongitude='',helperNumber='',meetStatus='',helperLatitude='', helperToken='';
+  String userName = '',userPhoto = '',helperId='',helperAddress='',helperName='',helperPhoto='',helperLongitude='',helperNumber='',meetStatus='',helperLatitude='', helperToken='',liveLatitudeToShare='',liveLongitudeToShare='';
   bool helperMessage=false;
   final String serverUrl = Constant().serverUrl;  // Replace with your server's URL
 
@@ -157,6 +158,35 @@ class _ChatsPageState extends State<ChatsPage> {
   //   });
   // }
 
+  Future<void> checkIsLocalAssistantEligbileForPings(List<String> userIds) async {
+    final url = Uri.parse('$serverUrl/finalCheckBeforeUpdatingLocalAssistantPings');
+    // Replace with your data
+    Map<String, dynamic> requestData = {
+      "userIds": userIds,
+    };
+    try {
+      final response = await http.post(
+        url,
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(requestData),
+      );
+
+      if (response.statusCode == 200) {
+        // Parse the response JSON
+        final List<dynamic> data = jsonDecode(response.body)['filteredUserIds'];
+        userWith10km = List<String>.from(data);
+        return ; // Return the ID
+      } else {
+        print("Failed to save meet. Status code: ${response.statusCode}");
+        throw Exception("Failed to save meet");
+      }
+    } catch (e) {
+      print("Error: $e");
+      throw Exception("Error during API call");
+    }
+  }
 
   Future<String> createMeetRequest() async {
     final url = Uri.parse('$serverUrl/updateLocalAssistantMeetDetails');
@@ -508,14 +538,17 @@ class _ChatsPageState extends State<ChatsPage> {
         receiver.add(data['message']);
     });
     if(data['user'].contains('admin')){
-
-      if(data['user']=='admin-user-1'|| data['user']=='admin-cancel')
-        {
-          _refreshPage(widget.meetId!,state: pageVisitor?'user':'helper');
-          await fetchHelperDataset(helperId);
-        }
+      if(data['user']=='admin-user-1'|| data['user']=='admin-cancel' || data['user']=='admin-close')
+      {
+        _refreshPage(widget.meetId!,state: pageVisitor?'user':'helper');
+        await fetchHelperDataset(helperId);
+      }
       else
         await fetchHelperDataset(helperId);
+      await getMeetStatus();
+    }
+    if(data['user']=='helper-close-request'){
+      await fetchHelperDataset(helperId);
       await getMeetStatus();
     }
     if(widget.meetId!=null && pageVisitor && helperId!=''){
@@ -591,6 +624,27 @@ class _ChatsPageState extends State<ChatsPage> {
     } else {
       // Handle error
       print('Failed to fetch users profile data : ${response.statusCode}');
+    }
+  }
+
+  Future<void> PingsAssistanceEligible(userId) async {
+    try{
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final url = Uri.parse('$serverUrl/checkLocalUserEligible/${userId}'); // Replace with your backend URL
+      final http.Response response = await http.get(url);
+
+      if (response.statusCode == 200) {
+        final data = json.decode(response.body);
+        print('checking for eligibility');
+        print(data);
+
+      } else {
+        // Handle error
+        print('Failed to fetch dataset: ${response.statusCode}');
+      }
+    }
+    catch(err){
+      print('Error $err');
     }
   }
 
@@ -715,7 +769,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
     final String serverUrl = Constant().serverUrl;
-    final Uri uri = Uri.parse('$serverUrl/findUserIdsAndDistancesWithin10Km?providedLatitude=$providedLatitude&providedLongitude=$providedLongitude&vardis=${vardis}');
+    final Uri uri = Uri.parse('$serverUrl/findUserIdsAndDistancesWithin10Km?providedLatitude=$providedLatitude&providedLongitude=$providedLongitude&vardis=${vardis}&userId=${userID}');
 
     try {
       final response = await http.get(uri);
@@ -743,14 +797,13 @@ class _ChatsPageState extends State<ChatsPage> {
         print('helping hands');
 
         setState(() {
-          userTokens = data
-              .where((user) => user['id'] != userID)
-              .map((user) => user["uniqueToken"].toString()).toList();
-          print('printing users tokens here $userTokens');
+          userTokens = data.map((user) => user["uniqueToken"].toString()).toList();
+          print('printing users tokensssss here $userTokens');
 
-          if(vardis==10 || vardis==15 && userIdsAndDistances.length!=0 ){
-            helpingHands = '${userIdsAndDistances.length}';
+          if((vardis==10 || vardis==15) && userIdsAndDistances.length!=0 ){
+            helpingHands = '${(userIdsAndDistances.length)}';
           }
+          print(helpingHands);
           if(userIdsAndDistances.length==0 ){
             helpingHands = '-1';
 
@@ -933,6 +986,8 @@ class _ChatsPageState extends State<ChatsPage> {
 
       String providedLatitude = '${position.latitude}';
       String providedLongiude = '${position.longitude}';
+      liveLatitudeToShare = providedLatitude;
+      liveLongitudeToShare = providedLongiude;
 
       await getAndPrintLocationName(position.latitude, position.longitude);
       // Update the state with the user location
@@ -943,7 +998,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
         Map<String,double> fifteenKm = {};
 
-        if(userWith10km.length==0){
+        if(tenKm.length<2){
           tenKm = await getUserIdsAndDistances(providedLatitude, providedLongiude, userID,15);
         }
 
@@ -995,7 +1050,7 @@ class _ChatsPageState extends State<ChatsPage> {
       try {
         // Send the message to the server
         if(pageVisitor) {
-          updateMeetingChats(widget.meetId!,[message,'user']);
+          await updateMeetingChats(widget.meetId!,[message,'user']);
           sendCustomNotificationToOneUser(
             helperToken,
             'Messages From ${helperName}',
@@ -1010,7 +1065,7 @@ class _ChatsPageState extends State<ChatsPage> {
             _controller.text,_controller.text,
             '${widget.meetId}','trip_assistance_required',helperId,'helper'
           );
-          updateMeetingChats(widget.meetId!,[message,'helper']);
+          await updateMeetingChats(widget.meetId!,[message,'helper']);
           socket.emit('message', {'message':message,'user1':'','user2':'helper'});
         }
         _controller.clear();
@@ -1202,9 +1257,14 @@ class _ChatsPageState extends State<ChatsPage> {
         )) :
 
 
+        // Navigator.pushReplacement(
+        //   context,
+        //   MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (meetStatus=='pending')?'Pending':(meetStatus=='schedule')?'Scheduled':'All Pings')),
+        // );
+
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (meetStatus=='pending')?'Pending':(meetStatus=='schedule')?'Scheduled':'All')),
+          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (meetStatus=='pending')?'Pending':(meetStatus=='schedule')?'Scheduled':(meetStatus=='accept'||meetStatus=='hold_accept')?'Accepted': meetStatus=='cancel'?'Cancelled':(meetStatus=='close')?'Closed':'All Pings')),
         );
 
         return false;
@@ -1217,6 +1277,12 @@ class _ChatsPageState extends State<ChatsPage> {
             await updateLocalUserPings(widget.userId, widget.meetId!, updatedStatus);
             if(helperId!=''){
               await updateLocalUserPings(helperId, widget.meetId!, updatedStatus);
+              sendCustomNotificationToOneUser(
+                  helperToken,
+                  'Messages From ${userName}',
+                  'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
+                  '${widget.meetId}','trip_assistance_required',helperId,'helper'
+              );
             }
             else{
               await removePingsHelper(widget.meetId!);
@@ -1233,12 +1299,6 @@ class _ChatsPageState extends State<ChatsPage> {
                 button: 'Go Back',
               );
             },);
-            sendCustomNotificationToOneUser(
-                helperToken,
-                'Messages From ${userName}',
-                'Meeting is Cancelled By ${userName}','Meeting is Cancelled By ${userName}',
-                '${widget.meetId}','trip_assistance_required',helperId,'helper'
-            );
           }else {
             await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
             await updateLocalUserPings(helperId, widget.meetId!, 'close');
@@ -1260,7 +1320,16 @@ class _ChatsPageState extends State<ChatsPage> {
             );
           }
           _refreshPage(widget.meetId!,state:pageVisitor?'user':'helper');
-        },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
+        },raiseCloseRequest: ()async{
+          await updateMeetingChats(widget.meetId!,['','helper-close-request']);
+          socket.emit('message', {'message':'','user1':'helper-close-request','user2':''});
+          sendCustomNotificationToOneUser(
+              helperToken,
+              'Messages From ${userName}',
+              'Ticket To Close Meet','Ticket To Close Meet',
+              '${widget.meetId}','trip_assistance_required',helperId,'user'
+          );
+          },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
         body: Container(
           color: Theme.of(context).backgroundColor,
           height : MediaQuery.of(context).size.height,
@@ -1336,8 +1405,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   ? SizedBox(height: 10)
                                   : SizedBox(height: 0),
 
-                              pageVisitor
-                                  ? Container(
+                              if (pageVisitor) Container(
                                 padding: EdgeInsets.only(left:16,right:16,),
 
                                 child: Row(
@@ -1368,19 +1436,23 @@ class _ChatsPageState extends State<ChatsPage> {
                                       ),
                                     ),
                                     SizedBox(width : 20),
-                                    Row(
-                                      children: [
-                                        IconButton(
-                                          icon: Icon(Icons.share, color: Colors.orange,size: 25,),
-                                          onPressed: () {},
-                                        ),
-                                        Text('Share Location',style:TextStyle(fontSize:16,color :Colors.orange)),
-                                      ],
+                                    InkWell(
+                                      onTap: ()async{
+                                        if(liveLocation!='fetching location'){
+                                          String googleMapsUrl = 'https://www.google.com/maps?q=${liveLatitudeToShare},${liveLongitudeToShare}';
+                                          await Share.share('Hey I am Stuck here -> \n${liveLocation}.\n\nPlease Help me out!!! \n\n Track My Live Location : $googleMapsUrl',subject: '!!!Emergency!!!');
+                                        }
+                                      },
+                                      child: Row(
+                                        children: [
+                                          Icon(Icons.share, color: liveLocation=='fetching location'?Colors.orange.withOpacity(0.3):Colors.orange,size: 25,),
+                                          Text('Share Location',style:TextStyle(fontSize:16,color :liveLocation=='fetching location'?Colors.orange.withOpacity(0.3):Colors.orange)),
+                                        ],
+                                      ),
                                     )
                                   ],
                                 ),
-                              )
-                                  : SizedBox(height: 0,),
+                              ) else SizedBox(height: 0,),
 
                               pageVisitor
                                   ? SizedBox(height: 20)
@@ -1399,7 +1471,7 @@ class _ChatsPageState extends State<ChatsPage> {
                               Column(
                                 children: [
                                   SizedBox(height : 10),
-                                  helpingHands == '-1' ? Container(
+                                  helpingHands == '-1' || helpingHands=='0' ? Container(
 
 
                                     child : Center(
@@ -1544,7 +1616,129 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                     children: messages.map((message) {
                                       return ListTile(
-                                        title: message[1] == 'admin-helper-1'
+                                        title: message[1]=='helper-close-request'
+                                            ? widget.state=='user'
+                                              ? Row(
+                                        mainAxisAlignment: MainAxisAlignment.start,
+                                        crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                                children: [
+                                                  CircleAvatar(
+                                                    backgroundColor: Colors.black,
+
+                                                    radius: 15.0,
+                                                    backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                                  ),
+                                                  SizedBox(width: 6,),
+                                                  Container(
+                                        width:240,
+                                        decoration: BoxDecoration(
+
+                                          boxShadow: [
+
+                                            BoxShadow(
+                                                  color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                                  spreadRadius: 0.3,
+                                                  blurRadius: 0.4,
+                                                  offset: Offset(0.7, 0.8), // Adjust the shadow offset
+                                            ),
+                                          ],
+
+                                          color: Theme.of(context).primaryColorLight,
+                                          borderRadius: BorderRadius.only(
+                                            topLeft: Radius.circular(0.0),
+                                            topRight: Radius.circular(20.0),
+                                            bottomLeft: Radius.circular(20.0),
+                                            bottomRight: Radius.circular(20.0),
+                                          ),
+                                        ),
+                                        padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
+                                        child: Column(
+                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                          children: [
+                                            SizedBox(height: 5,),
+                                            Row(
+
+                                              crossAxisAlignment: CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      '$helperName',
+                                                      style: Theme.of(context).textTheme.subtitle1,
+                                                    ),
+                                                    SizedBox(width : 10),
+                                                    Expanded(
+                                                      child: Container(
+
+                                                        child: Text(
+                                                          'Close Request Ticket Raised By ${helperName}',
+                                                          style: TextStyle(fontSize: 10, fontFamily: 'Poppins', color: Colors.green),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                            ),
+                                            SizedBox(height: 15,),
+                                            Text(
+                                                  '${helperName} raise a request to close meet.',
+                                                  style: Theme.of(context).textTheme.subtitle2,
+                                            ),
+                                            SizedBox(height: 15,),
+                                            meetStatus=='close'
+                                                    ? SizedBox(height:0)
+                                                    : InkWell(
+                                                      onTap: ()async{
+                                                        await showDialog(
+                                                          context: context,
+                                                          builder: (BuildContext context) {
+                                                            return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: 'You are closing this request ?',extraText: 'Thank you for using our services !', what: 'a',
+                                                              meetId:widget.meetId ,helperId:helperId,meetStatus:meetStatus,option2Callback:()async{
+                                                                await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
+                                                                await updateLocalUserPings(helperId, widget.meetId!, 'close');
+                                                                await updatePaymentStatus('close',widget.meetId!);
+                                                                socket.emit('message', {'message':'','user1':'admin-close','user2':''});
+                                                                sendCustomNotificationToOneUser(
+                                                                    helperToken,
+                                                                    'Messages From ${userName}',
+                                                                    'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
+                                                                    '${widget.meetId}','trip_assistance_required',helperId,'helper'
+                                                                );
+                                                                await showDialog(context: context, builder: (BuildContext context){
+                                                                  return CustomPopUp(
+                                                                    imagePath: "assets/images/turnOff.svg",
+                                                                    textField: "Local Assistant Service" ,
+                                                                    extraText:'Meeting is Closed Successfully' ,
+                                                                    what:'OK',
+                                                                    button: '< Go Back',
+                                                                  );
+                                                                },);
+                                                              },);
+                                                          },
+                                                        );
+                                                      },
+                                                      child: Expanded(
+                                                        child: Container(
+                                                          padding: EdgeInsets.only(top:5,bottom:5),
+                                                          child: Row(
+                                                  mainAxisAlignment: MainAxisAlignment.start,
+
+                                                  children: [
+                                                          Text('Do You Want To ',style: TextStyle(fontSize:14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                                                          Text('Close Meet ?',style: TextStyle(fontSize:14,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.orange),),
+                                                  ],
+                                            ),
+                                                        ),
+                                                      ),
+                                                    ),
+
+                                            // SizedBox(height: 10,),
+                                          ],
+                                        ),
+                                      ),
+                                                ],
+                                              )
+                                              :SizedBox(height: 0,)
+                                            : message[1] == 'admin-helper-1'
                                             ? widget.state == 'user'
                                             ? Align(
                                           alignment: Alignment.centerLeft,
@@ -2568,7 +2762,6 @@ class _ChatsPageState extends State<ChatsPage> {
                                             ),
                                           ),
                                         )
-
                                             : widget.state == 'user' &&
                                             message[1].contains(
                                                 'admin') ==
@@ -2818,79 +3011,74 @@ class _ChatsPageState extends State<ChatsPage> {
                                                       ),
                                                     ),
                                                     padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
-                                                    child: Container(
+                                                    child: Column(
+                                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                      children: [
+                                                        SizedBox(height: 5,),
+                                                        Row(
 
 
+                                                          children: [
+                                                            Text(
+                                                              'Saviour',
+                                                              style: Theme.of(context).textTheme.subtitle1,
+                                                            ),
+                                                            SizedBox(width : 10),
 
-                                                      child: Column(
-                                                        crossAxisAlignment: CrossAxisAlignment.start,
-                                                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                                                        children: [
-                                                          SizedBox(height: 5,),
-                                                          Row(
+                                                            Expanded(
+                                                              child: Container(
 
-
-                                                            children: [
-                                                              Text(
-                                                                'Saviour',
-                                                                style: Theme.of(context).textTheme.subtitle1,
+                                                                child: Text(
+                                                                  'Allotment Successful',
+                                                                  style: TextStyle(fontSize: 10, fontFamily: 'Poppins', color: Colors.green),
+                                                                ),
                                                               ),
-                                                              SizedBox(width : 10),
-
-                                                              Expanded(
-                                                                child: Container(
-
-                                                                  child: Text(
-                                                                    'Allotment Successful',
-                                                                    style: TextStyle(fontSize: 10, fontFamily: 'Poppins', color: Colors.green),
-                                                                  ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                        SizedBox(height: 15,),
+                                                        Text(
+                                                          message[0],
+                                                          style: Theme.of(context).textTheme.subtitle2,
+                                                        ),
+                                                        SizedBox(height: 15,),
+                                                        RichText(
+                                                          text: TextSpan(
+                                                            children: [
+                                                              TextSpan(
+                                                                text: 'This service will cost you ',
+                                                                style: TextStyle(
+                                                                  fontFamily: 'Poppins',
+                                                                  fontWeight: FontWeight.w300,
+                                                                  fontSize: 14,
+                                                                  color: Colors.black, // Set the color as needed
+                                                                ),
+                                                              ),
+                                                              TextSpan(
+                                                                text: CountryName == 'India' ? 'Rs 500' : '\$10',
+                                                                style: TextStyle(
+                                                                  fontFamily: 'Poppins',
+                                                                  fontWeight: FontWeight.w300,
+                                                                  fontSize: 14,
+                                                                  color: Colors.green, // Set the color as needed
+                                                                ),
+                                                              ),
+                                                              TextSpan(
+                                                                text: ' if you successfully get assistance!',
+                                                                style: TextStyle(
+                                                                  fontFamily: 'Poppins',
+                                                                  fontWeight: FontWeight.w300,
+                                                                  fontSize: 14,
+                                                                  color: Colors.black, // Set the color as needed
                                                                 ),
                                                               ),
                                                             ],
                                                           ),
-                                                          SizedBox(height: 15,),
-                                                          Text(
-                                                            message[0],
-                                                            style: Theme.of(context).textTheme.subtitle2,
-                                                          ),
-                                                          SizedBox(height: 15,),
-                                                          RichText(
-                                                            text: TextSpan(
-                                                              children: [
-                                                                TextSpan(
-                                                                  text: 'This service will cost you ',
-                                                                  style: TextStyle(
-                                                                    fontFamily: 'Poppins',
-                                                                    fontWeight: FontWeight.w300,
-                                                                    fontSize: 14,
-                                                                    color: Colors.black, // Set the color as needed
-                                                                  ),
-                                                                ),
-                                                                TextSpan(
-                                                                  text: CountryName == 'India' ? 'Rs 500' : '\$10',
-                                                                  style: TextStyle(
-                                                                    fontFamily: 'Poppins',
-                                                                    fontWeight: FontWeight.w300,
-                                                                    fontSize: 14,
-                                                                    color: Colors.green, // Set the color as needed
-                                                                  ),
-                                                                ),
-                                                                TextSpan(
-                                                                  text: ' if you successfully get assistance!',
-                                                                  style: TextStyle(
-                                                                    fontFamily: 'Poppins',
-                                                                    fontWeight: FontWeight.w300,
-                                                                    fontSize: 14,
-                                                                    color: Colors.black, // Set the color as needed
-                                                                  ),
-                                                                ),
-                                                              ],
-                                                            ),
-                                                          ),
+                                                        ),
 
-                                                          SizedBox(height: 10,),
-                                                        ],
-                                                      ),
+                                                        SizedBox(height: 10,),
+                                                      ],
                                                     ),
                                                   ),
                                                 ],
@@ -3087,7 +3275,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                     }).toList(),
                                   )
                                       : SizedBox(
-                                    height: 10,
+                                    height: 0,
                                   ),
                                   widget.userId==userID && meetStatus=='pending' && pageVisitor && _userRefreshingPageOnFirstMessage ==false &&  messages.length>0 && liveLocation!='fetching location'
                                       ? Container(
@@ -3185,12 +3373,13 @@ class _ChatsPageState extends State<ChatsPage> {
 
                 ///----------------------------------------------------------------------------------------------------------------------------
 
-                _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' || findingHelpingHands=='start' || helpingHands == '-1'  ? Container() :
+                _userRefreshingPageOnFirstMessage || liveLocation=='fetching location' || findingHelpingHands=='start' || helpingHands == '-1' || helpingHands=='0'  ? Container() :
                 Positioned(
                   bottom : 0,
                   left : 0,
                   right : 0,
-                  child: _isMeetStatusFound ? Container(
+                  child: _isMeetStatusFound
+                      ? Container(
                     color : Theme.of(context).backgroundColor,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
@@ -3393,7 +3582,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                 setState(() {
                                                   scrollToBottom();
                                                 });
-
+                                                // aaaa
                                                 if (text.length > 0) {
                                                   setState(() {
                                                     messageTyping = true;
@@ -3403,6 +3592,15 @@ class _ChatsPageState extends State<ChatsPage> {
                                                     messageTyping = false;
                                                   });
                                                 }
+                                              },
+                                              onTapOutside: (value){
+                                                _textFieldFocusNode.unfocus();
+                                              },
+                                              onEditingComplete: (){
+                                                _textFieldFocusNode.unfocus();
+                                              },
+                                              onSubmitted: (value){
+                                                _textFieldFocusNode.unfocus();
                                               },
                                               maxLines: null,
                                               controller: _controller,
@@ -3522,42 +3720,76 @@ class _ChatsPageState extends State<ChatsPage> {
                                           setState(() {
                                             _userRefreshingPageOnFirstMessage = true;
                                           });
-                                          String meetingId = await createMeetRequest();
+                                          await PingsAssistanceEligible(widget.userId);
+                                          await checkIsLocalAssistantEligbileForPings(userWith10km);
+                                          if(userWith10km.length>0) {
+                                            String meetingId = await createMeetRequest();
 
-                                          List<Map<String,dynamic>> payloadData = localAssistantRequest(userName,meetingId,_controller.text);
+                                            List<Map<String,
+                                                dynamic>> payloadData = localAssistantRequest(
+                                                userName, meetingId,
+                                                _controller.text);
 
-                                          sendCustomNotificationToOneUser(
-                                            userToken,
-                                            'Request Sent',
-                                            'Request Raised Successfully','Finding NearyBy Helping Hands For You 🔎',
-                                            '$meetingId','trip_assistance_required',userID,'user',
-                                          );
+                                            sendCustomNotificationToOneUser(
+                                              userToken,
+                                              'Request Sent',
+                                              'Request Raised Successfully',
+                                              'Finding NearyBy Helping Hands For You 🔎',
+                                              '$meetingId',
+                                              'trip_assistance_required',
+                                              userID,
+                                              'user',
+                                            );
 
-                                          sendCustomNotificationToUserss(
-                                              userTokens,
-                                              'Local Assistance Request By \n${userName}',
-                                              '${_controller.text}','Local Assistance Request By \n${userName}',
-                                              '$meetingId',widget.state!,userID
-                                          );
-                                          //
-                                          // startTimer(() {
-                                          //   getMeetStatus(); // Replace this with your function call
-                                          // });
+                                            sendCustomNotificationToUserss(
+                                                userTokens,
+                                                'Local Assistance Request By \n${userName}',
+                                                '${_controller.text}',
+                                                'Local Assistance Request By \n${userName}',
+                                                '$meetingId',
+                                                widget.state!,
+                                                userID
+                                            );
+                                            //
+                                            // startTimer(() {
+                                            //   getMeetStatus(); // Replace this with your function call
+                                            // });
 
-                                          _controller.clear();
+                                            _controller.clear();
 
-                                          // startTimer(() {
-                                          //
-                                          //   checkMeetStatus(meetingId);
-                                          //
-                                          //   print("Function called!"); // Replace this with your function call
-                                          // });
-                                          // _refreshPage(meetingId,state:'user');
-                                          setState(() {
-                                            _userRefreshingPageOnFirstMessage = false;
-                                          });
-                                          // startConnectionCards();
-
+                                            // startTimer(() {
+                                            //
+                                            //   checkMeetStatus(meetingId);
+                                            //
+                                            //   print("Function called!"); // Replace this with your function call
+                                            // });
+                                            // _refreshPage(meetingId,state:'user');
+                                            setState(() {
+                                              _userRefreshingPageOnFirstMessage =
+                                              false;
+                                            });
+                                            // startConnectionCards();
+                                          }
+                                          else{
+                                            // socket.emit('message', {'message':'','user1':'admin-cancel','user2':''});
+                                            await showDialog(context: context, builder: (BuildContext context){
+                                              return CustomPopUp(
+                                                imagePath: "assets/images/turnOff.svg",
+                                                textField: "Local Assistant Service" ,
+                                                extraText:'We Are Unable To fecth Saviour for you. Please Try Again After Few Moments!!' ,
+                                                what:'local_assistant',
+                                                button: '< Go Back',
+                                                landingCallback: (){
+                                                  Navigator.push(
+                                                    context,
+                                                    MaterialPageRoute(
+                                                      builder: (context) =>LocalAssist(),
+                                                    ),
+                                                  );
+                                                },
+                                              );
+                                            },);
+                                          }
                                         }else{
                                           print('kya baat hai');
 

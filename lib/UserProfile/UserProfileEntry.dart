@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:learn_flutter/UserProfile/MultiCheckBox.dart';
 
 import 'package:learn_flutter/widgets/01_helpIconCustomWidget.dart';
 import 'package:learn_flutter/widgets/03_imageUpoad_Crop.dart';
@@ -100,6 +101,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 imagePath: ((widget.profileDataProvider)!=null && (widget.profileDataProvider!.retImagePath())!=null ? (widget.profileDataProvider!.retImagePath()):null),
                 image: (widget.profileDataProvider)!=null && (widget.profileDataProvider!.retImagePath())!=null?'network':null,
                 name:widget.userName),
+              SizedBox(height: 15,),
               SizedBox(height: 35,),
               widget.reqPage==0?SizedBox(width: 0,):MotivationalQuote(profileDataProvider:widget.profileDataProvider),
               SizedBox(height: 5.0),
@@ -249,9 +251,9 @@ class UserInformationSection extends StatelessWidget {
                   children: [
                     ServiceCard(isToggle:false,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'for Becoming Trip planner ',profileDataProvider:profileDataProvider),
                     SizedBox(height: 70,),
-                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Assistant for other’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming Superhero as a saviour ! ',profileDataProvider:profileDataProvider),
-                    SizedBox(height: 70,),
-                    ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'for Becoming a smart guide for tourists !',profileDataProvider:profileDataProvider),
+                    ServiceCard(text:'service2',isToggle:false,titleLabel: 'Become a Trip Assistant for other’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming Superhero as a saviour ! ',profileDataProvider:profileDataProvider),
+                    // SizedBox(height: 70,),
+                    // ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'for Becoming a smart guide for tourists !',profileDataProvider:profileDataProvider),
                   ],
                 ),
               ),
@@ -307,7 +309,7 @@ class ProfielStatusAndButton  extends StatelessWidget{
 
   @override
   Widget build(BuildContext context) {
-    void sendDataToBackend () async{
+    Future<void> sendDataToBackend () async{
       print('Status');
       try {
 
@@ -351,9 +353,9 @@ class ProfielStatusAndButton  extends StatelessWidget{
       padding: const EdgeInsets.only(left: 10.0,right: 10.0),
       child: FiledButton(
           backgroundColor: HexColor('#FB8C00'),
-          onPressed: () {
+          onPressed: () async{
             print('Reqpages is $reqPages');
-            reqPages==1?sendDataToBackend():null;
+            reqPages==1?await sendDataToBackend():null;
             reqPages<1
                 ?Navigator.push(context, MaterialPageRoute(builder: (context) => CompleteProfilePage(userId:userId,userName:userName),))
                 :Navigator.push(

@@ -39,7 +39,7 @@ class CustomDropdown {
                           color: HexColor('#FB8C00'),
                         ),
                       ),
-                      suffixIcon: text!='edit'?Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')):null,
+                      suffixIcon: text!='edit'?selectedValue!=null?Icon(Icons.check_circle, color: Colors.green) : Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')):null,
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.grey),
                       ),
@@ -81,7 +81,7 @@ class CustomDOBDropDown extends StatelessWidget{
   final ValueChanged<DateTime?> onDateSelected;
   double deviceWidth;
 
-  CustomDOBDropDown({
+    CustomDOBDropDown({
     required this.label,
     required this.onDateSelected,
     required this.selectedDate,
@@ -94,12 +94,28 @@ class CustomDOBDropDown extends StatelessWidget{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 10,),
         Text(label,  style: Theme.of(context).textTheme.subtitle1,),
         SizedBox(height: 10,),
         InkWell(
           onTap: () async {
             DateTime? selected = await showDatePicker(
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      primary: Colors.orange, // header background color
+                      onPrimary: Colors.white, // header text color
+                      onSurface: Colors.orange, // body text color
+                    ),
+                    textButtonTheme: TextButtonThemeData(
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.orange, // button text color
+                      ),
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
               context: context,
               initialDate: selectedDate ?? DateTime.now(),
               firstDate: DateTime(1900),
@@ -126,8 +142,12 @@ class CustomDOBDropDown extends StatelessWidget{
                         : 'Select Date',
                    style: Theme.of(context).textTheme.subtitle2,),
                     text=='edit'
-                    ? Text('EDIT',  style: Theme.of(context).textTheme.headline4,)
-                    :Icon(Icons.calendar_today_rounded,color: Colors.orange,),
+                        ? Text('EDIT',  style: Theme.of(context).textTheme.headline4,)
+                        :selectedDate!=null?Icon(Icons.check_circle, color: Colors.green) : Padding(
+
+                          padding: const EdgeInsets.all(3.0),
+                          child: Icon(Icons.calendar_today_rounded,color: Colors.orange,size: 23,),
+                        ),
                   // Calendar icon
                 ],
               ),

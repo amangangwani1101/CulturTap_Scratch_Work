@@ -30,7 +30,8 @@ import 'UserInfo.dart';
 // Set Profile Fetching Data From DataBase
 class FinalProfile extends StatefulWidget{
   final String userId,clickedId;
-  FinalProfile({required this.userId,required this.clickedId});
+  String?fromWhichPage,toWhichPage;
+  FinalProfile({required this.userId,required this.clickedId,this.fromWhichPage,this.toWhichPage});
   @override
   _FinalProfileState createState() => _FinalProfileState();
 }
@@ -153,12 +154,19 @@ class _FinalProfileState extends State<FinalProfile> {
   }
 
   ServiceTripCallingData? parseServiceTripCallingData(Map<String, dynamic> data) {
+    print('Days are ${data['daysChoosen']}');
     return ServiceTripCallingData(
       setStartTime: data['startTimeFrom'] as String?,
       setEndTime: data['endTimeTo'] as String?,
       slots: data['slotsChossen'] as String?,
+      availabilityChoosen:data['daysChoosen'].where((dynamic element) => element is bool) // Filter out non-bool values
+          .cast<bool>() // Cast the remaining values to bool
+          .toList(),
     );
   }
+
+  // List<bool> boolList = dynamicList.map((dynamic element) => element as bool).toList();
+
 
   List<RatingEntry> parseRatings(List<dynamic> data) {
     return data.map((item) {
@@ -208,10 +216,15 @@ class _FinalProfileState extends State<FinalProfile> {
         appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: userID,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
         body: WillPopScope(
           onWillPop: ()async{
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => HomePage()),
-            );
+            if(widget.fromWhichPage=='pings'){
+              Navigator.of(context).pop();
+            }else{
+              Navigator.pushReplacement(
+                context,
+                MaterialPageRoute(builder: (context) => HomePage()),
+              );
+            }
+
 
             return false;
           },
@@ -438,7 +451,7 @@ class _TripCallingState extends State<TripCalling>{
     int min  = timing.inMinutes;
     return Container(
       padding : EdgeInsets.all(15),
-      height:250,
+      // height:250,
       // decoration: BoxDecoration(
       //   border:Border.all(
       //     color: Colors.red,
@@ -450,65 +463,63 @@ class _TripCallingState extends State<TripCalling>{
         children: [
           Text('${widget.name}’s provided avilable time for trip planning interaction calls -',
               style: Theme.of(context).textTheme.subtitle1),
-          SizedBox(height : 10),
-          Container(
-
-            height: 76,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      children: [
-                        Image.asset('assets/images/time_icon.png',width: 22,height: 22,color : Colors.white,),
-                        SizedBox(width: 10,),
-                        Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India (${hour>0?hour:min} ${hour>0?'H':'M'})', style: Theme.of(context).textTheme.subtitle2),
+          SizedBox(height : 25),
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Row(
+                    children: [
+                      Image.asset('assets/images/time_icon.png',width: 22,height: 22,color : Theme.of(context).primaryColorDark,),
+                      SizedBox(width: 10,),
+                      Text('${widget.data?.setStartTime} - ${widget.data?.setEndTime} India (${hour>0?hour:min} ${hour>0?'H':'M'})', style: Theme.of(context).textTheme.subtitle2),
+                    ],
+                  ),
+                  widget.currentUserId == widget.actualUserId
+                      ? InkWell(
+                    onTap: ()async{
+                      await Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(userId: widget.actualUserId,data:widget.data)));
+                      setState(() {});
+                    },
+                    child: Row(
+                      children:[
+                        Image.asset('assets/images/edit_icon.png',width: 15,height: 15,),
+                        SizedBox(width: 3,),
+                        Text('EDIT',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
                       ],
                     ),
-                    widget.currentUserId == widget.actualUserId
-                        ? InkWell(
-                      onTap: ()async{
-                        await Navigator.push(context, MaterialPageRoute(builder: (context)=> ServicePage(userId: widget.actualUserId,data:widget.data)));
-                        setState(() {});
-                      },
-                      child: Row(
-                        children:[
-                          Image.asset('assets/images/edit_icon.png',width: 15,height: 15,),
-                          SizedBox(width: 3,),
-                          Text('EDIT',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: HexColor('#FB8C00')),),
-                        ],
-                      ),
-                    )
-                        :SizedBox(width: 0,),
-                  ],
-                ),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
-                    SizedBox(width: 10,),
-                    Text('5 already pending requests for \ninteraction with Hemant',style: Theme.of(context).textTheme.subtitle2),
-                    SizedBox(height : 20,),                  ],
-                ),
-              ],
-            ),
+                  )
+                      :SizedBox(width: 0,),
+                ],
+              ),
+              SizedBox(height: 10,),
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
+                  SizedBox(width: 10,),
+                  Text('5 already pending requests for \ninteraction with Hemant',style: Theme.of(context).textTheme.subtitle2),
+                  SizedBox(height : 20,),                  ],
+              ),
+            ],
           ),
           widget.currentUserId != widget.actualUserId
               ? Container(
-            width: 331,
-            height: 47,
+            width: MediaQuery.of(context).size.width,
+            // color:Colors.red,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text('Cost of trip planning interaction call',style: TextStyle(fontSize: 12,fontFamily: 'Poppins'),),
-                Text('$costCall INR',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w900,color: HexColor('#0A8100')),)
+                SizedBox(height: 15,),
+                Text('Cost of trip planning interaction call',style:Theme.of(context).textTheme.subtitle2,),
+                SizedBox(height:2),
+                Text('$costCall INR',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: HexColor('#0A8100')),)
               ],
             ),
           )
-              :SizedBox(height: 10,),
+              :SizedBox(height: 15,),
           widget.currentUserId == widget.actualUserId
               ? Container(
               width: 163,
@@ -525,36 +536,34 @@ class _TripCallingState extends State<TripCalling>{
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId:widget.currentUserId!,state:'pending'),
+                        builder: (context) => PingsSection(userId:widget.currentUserId!,state:'Pending',selectedService: 'Trip Planning',),
                       ),
                     );
                   },
                   child: Center(child: Text('Schedual Requests',style: TextStyle(fontSize: 13,fontWeight: FontWeight.bold,color: HexColor('#FB8C00'),fontFamily: 'Poppins'),)))
           )
               : Row(
-            children: [
-              Container(
-                width: 250,
-                height: 35,
-                child: FiledButton(
-                    backgroundColor: HexColor('#FB8C00'),
-                    onPressed: () {
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=> CalendarPage(clickedUser: widget.actualUserId!,currentUser: widget.currentUserId!,)));
-                    },
-                    child: Container(
-                      width: 212,
-                      height: 21,
-                      child: Center(
-                        child: Text('Schedual a  Trip Planning Call',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 13)),
-                      ),
-                    )),
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: [
+                  FiledButton(
+                      backgroundColor: HexColor('#FB8C00'),
+                      onPressed: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context)=> CalendarPage(clickedUser: widget.actualUserId!,currentUser: widget.currentUserId!,)));
+                      },
+                      child: Container(
+                        width: 212,
+                        height: 21,
+
+                        child: Center(
+                          child: Text('Schedual a  Trip Planning Call',
+                              style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.white,
+                                  fontSize: 13)),
+                        ),
+                      )),
+                ],
               ),
-            ],
-          ),
 
         ],
       ),

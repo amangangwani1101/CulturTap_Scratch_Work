@@ -56,44 +56,46 @@ class _ServiceCardState extends State<ServiceCard>{
     print(widget.text);
     print(widget.haveCards);
     return Container(
-      width: 400,
-      height: 250,
+      padding: EdgeInsets.only(left: 5,right: 5),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(widget.titleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-              IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-                showDialog(context: context, builder: (BuildContext context){
-                  return Container(child:
+              Container(
+                  width: 200,
+                  child: Text(widget.titleLabel,style: Theme.of(context).textTheme.subtitle1,)),
+              InkWell(
+                  onTap: ()
+                  {
+                    showDialog(context: context, builder: (BuildContext context){
+                      return Container(child:
 
-                  widget.iconImage == 'assets/images/service_help_1.jpg' ?
-
-                  CustomPopUp(
-                    imagePath: "assets/images/tripPlanningHelp.svg",
-                    textField: "Accept trip planning calls for your expert regions to earn. connect with tourists and help them plan their future trips." ,
-                    extraText:' You will earn dynamically in future, for now 800 INR for 20 min of professional trip planning call.' ,
-                    what:'OK',
-                    button: 'OK, Get it',
-                  ) :
-
-                  CustomPopUp(
-                    imagePath: "assets/images/turnOff.svg",
-                    textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
-                    extraText:'You will earn dynamically in future, for now Ypo will earn 400 INR for your presence. ' ,
-                    what:'OK',
-                    button: 'OK, Get it',
-                  )
-                  );
-                },
-                );
-              },
+                      widget.iconImage == 'assets/images/service_help_1.jpg'
+                          ? CustomPopUp(
+                        imagePath: "assets/images/tripPlanningHelp.svg",
+                        textField: "Accept trip planning calls for your expert regions to earn. connect with tourists and help them plan their future trips." ,
+                        extraText:' You will earn dynamically in future, for now 800 INR for 20 min of professional trip planning call.' ,
+                        what:'OK',
+                        button: 'OK, Get it',
+                      )
+                          : CustomPopUp(
+                        imagePath: "assets/images/turnOff.svg",
+                        textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
+                        extraText:'You will earn dynamically in future, for now Ypo will earn 400 INR for your presence. ' ,
+                        what:'OK',
+                        button: 'OK, Get it',)
+                      );
+                    },
+                    );
+                  },
+                  child: Icon(Icons.help_outline,color: HexColor('#FB8C00'),)
               ),
             ],
           ),
+          SizedBox(height: 27,),
           Container(
             decoration: BoxDecoration(
               border: Border.all(
@@ -110,8 +112,9 @@ class _ServiceCardState extends State<ServiceCard>{
                   Image.asset(widget.serviceImage,width: 160,height: 89,fit: BoxFit.contain,),
                   Column(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(widget.subTitleLabel,style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
+                      Text(widget.subTitleLabel,style: Theme.of(context).textTheme.subtitle1,),
                       Container(
                         child: RichText(
                           text: TextSpan(
@@ -138,26 +141,30 @@ class _ServiceCardState extends State<ServiceCard>{
               ),
             ),
           ),
+          SizedBox(height: 27,),
           Row(
-            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              RichText(
-                text: TextSpan(
-                  text: 'Turn yourself', // Replace with your actual text
-                  style: DefaultTextStyle.of(context).style,
-                  children: <TextSpan>[
-                    TextSpan(
-                      text: ' ON ',
-                      style: TextStyle(
-                        color: Colors.green,
-                        fontWeight: FontWeight.w600,// Set the color to green
-                        // Add any other styling properties as needed
+              Container(
+                width: 200,
+                child: RichText(
+                  text: TextSpan(
+                    text: 'Turn yourself', // Replace with your actual text
+                    style: Theme.of(context).textTheme.bodyText2,
+                    children: <TextSpan>[
+                      TextSpan(
+                        text: ' ON ',
+                        style: TextStyle(
+                          color: Colors.green,
+                          fontWeight: FontWeight.w600,// Set the color to green
+                          // Add any other styling properties as needed
+                        ),
                       ),
-                    ),
-                    TextSpan(
-                      text: (widget.endLabel),
-                    ),
-                  ],
+                      TextSpan(
+                        text: (widget.endLabel),
+                      ),
+                    ],
+                  ),
                 ),
               ),
 
@@ -201,10 +208,20 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
     }
     else{
       await showDialog(context: context, builder: (BuildContext context){
-        return Container(child: CustomHelpOverlay(imagePath: 'assets/images/clock_icon.jpg',serviceSettings: true,profileDataProvider:widget.profileDataProvider,),);
+        return Container(child: CustomHelpOverlay(button:'Continue', text : 'Set your clock', extraText: 'Set your clock Please provide timing when you will be able to attend the calls from other turists.',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+          Navigator.push(context, MaterialPageRoute(builder: (context) => ServicePage(profileDataProvider:widget.profileDataProvider)));
+        },onBackPressed: (){
+          Navigator.of(context).pop();
+        },),);
       },);
       setService();
     }
+    // else{
+    //   await showDialog(context: context, builder: (BuildContext context){
+    //     return Container(child: CustomHelpOverlay(imagePath: 'assets/images/clock_icon.jpg',serviceSettings: true,profileDataProvider:widget.profileDataProvider,),);
+    //   },);
+    //   setService();
+    // }
   }
 
   void service1HandlerOff(String image) async{
@@ -224,6 +241,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
       return Container(child: CustomHelpOverlay(imagePath: 'assets/images/service1-state.png',text: 'Check Pings',navigate: 'edit',onButtonPressed: (){
         Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(
           userId: widget.userId!,
+          selectedService: 'Trip Planning',
           state: 'Pending',
           text: 'edit',
         ),));
@@ -377,13 +395,47 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
   }
   @override
   Widget build(BuildContext context) {
-    print('3rd Page');
+    print('again!!!');
     print(widget.userId);
     print(widget.text);
     print(widget.haveCards);
     return GestureDetector(
       onTap: () async{
-        if(widget.text=='editService2'){
+        if(widget.text=='service2'){
+          if(widget.profileDataProvider?.retServide2()==false){
+            widget.profileDataProvider?.setServide2();
+            setState(() {
+              widget.isToggled = true;
+            });
+          }
+          else{
+            widget.profileDataProvider?.setServide2();
+            showDialog(context: context, builder: (BuildContext context){
+              return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Are You Sure ?',extraText: 'You Want To Turn Off Local Assistant Service',option1:'No',option2:'Yes',onButton1Pressed: (){
+                // Perform action on confirmation
+                Navigator.of(context).pop();
+              },onButton2Pressed: (){
+                widget.profileDataProvider?.setServide1();
+                // widget.profileDataProvider?.unsetTripCalling();
+                setState(() {
+                  // widget.profileDataProvider?.setServide1();
+                  // widget.profileDataProvider?.unsetTripCalling();
+                  widget.isToggled = false;
+                });
+                Navigator.of(context).pop();
+              },);
+            },);
+          }
+          // if(widget.isToggled==true){
+          //   if(widget.profileDataProvider?.cardHaYaNhi()==false) {
+          //     await Navigator.push(context, MaterialPageRoute(
+          //         builder: (context) =>
+          //             PaymentSection(text: widget.text,
+          //               profileDataProvider: widget.profileDataProvider,)));
+          //   }
+          // }
+        }
+        else if(widget.text=='editService2'){
           setState(() {
             widget.isToggled = widget.isToggled==true?false:true;
           });
@@ -394,7 +446,8 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
           }
           if(widget.isToggled==false)
             service1HandlerOff('assets/images/service2_off.png');
-        }else{
+        }
+        else{
           if(widget.profileDataProvider?.retServide1()==true){
             showDialog(context: context, builder: (BuildContext context){
               return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Are You Sure ?',extraText: 'You Want To Turn Off Trip Calling Service',option1:'No',option2:'Yes',onButton1Pressed: (){
@@ -402,7 +455,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
                 Navigator.of(context).pop();
               },onButton2Pressed: (){
                 widget.profileDataProvider?.setServide1();
-                widget.profileDataProvider?.unsetTripCalling();
+                // widget.profileDataProvider?.unsetTripCalling();
                 setState(() {
                   // widget.profileDataProvider?.setServide1();
                   // widget.profileDataProvider?.unsetTripCalling();

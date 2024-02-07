@@ -23,6 +23,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 
+import 'MultiCheckBox.dart';
+
 // raw data variable
 typedef void SetQuote(String? image);
 
@@ -67,11 +69,10 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              SizedBox(width: 5,),
               widget.state=='final'
                 ?Container(
                 width: 300,
-                  child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: Theme.of(context).textTheme.subtitle2,textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
+                  child: Text('${widget.quote==null?'':'" ${capitalizeWords(widget.quote!)}"'} ' ,style: Theme.of(context).textTheme.subtitle1,textAlign: TextAlign.center,maxLines: null,overflow: TextOverflow.visible,
                 ),
                 )
                 :GestureDetector(
@@ -82,21 +83,27 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
                 widget.quote!=null
                     ? Container(
                   width : 300,
-                  child: Text('" ${capitalizeWords(widget.text=='edit'?setQuote!:widget.quote!)} "' ,style: TextStyle(fontSize: 14,fontFamily: 'Poppins',),textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
+                  // color: Colors.green,
+                  child: Text('" ${capitalizeWords(widget.text=='edit'?setQuote!:widget.quote!)} "' ,style: Theme.of(context).textTheme.subtitle2,textAlign: TextAlign.center,maxLines: 10,overflow: TextOverflow.visible,
                   ),
                     )
                     : !isQuoteSet?
                 Center(
-                  child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),textAlign: TextAlign.center,
+
+                  child: Container(
+                    // color: Colors.black,
+                    child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,color: HexColor('#FB8C00'),fontFamily: 'Poppins',),textAlign: TextAlign.center,
+                    ),
                   ),
                 ):
                 Container(
-                  width: 300,
-                  child: Text(setQuote!,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w800,fontFamily: 'Poppins',),textAlign: TextAlign.center,maxLines: 5,overflow: TextOverflow.ellipsis,
+                  width: 280,
+                  // color: Colors.blue,
+                  child: Text(setQuote!,style: Theme.of(context).textTheme.subtitle1,textAlign: TextAlign.center,maxLines: null,overflow: TextOverflow.visible,
                   ),
                 ),
               ),
-              SizedBox(width: 20,),
+              SizedBox(width: 10,),
               widget.quote!=null || widget.state=='final'
                   ?SizedBox(width: 0,)
                   :widget.text!='edit' || widget.quote==null
@@ -109,7 +116,11 @@ class _MotivationalQuoteState extends State<MotivationalQuote>{
                             );
                           },
                         child: Icon(Icons.help_outline,color: HexColor('#FB8C00')))
-                       :SizedBox(width: 0,)
+                       :GestureDetector(
+                        onTap: (){
+                          Navigator.push(context, MaterialPageRoute(builder: (context)=> EditQuote(setQuote:handleQuote,quote:setQuote=='+ Add your Motivational quote'?'':capitalizeWords(setQuote!))));
+                        },
+                        child: Icon(Icons.edit_outlined,color: Theme.of(context).primaryColorDark))
                      :SizedBox(width: 0,),
             ],
           ),
@@ -167,74 +178,70 @@ class _EditQuoteState extends State<EditQuote>{
   }
   @override
   Widget build(BuildContext context) {
+    final width = MediaQuery.of(context).size.width;
+    final height = MediaQuery.of(context).size.height;
     return Scaffold(
-      body: Center(
-        child: SingleChildScrollView(
-          child: Container(
-            width: 333,
-            height: 572,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                Container(
-                  width: 303,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Container(
-                        child: Text('Quote',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: 'Poppins',),),
-                      ),
-                      Container(
-                        child: IconButton(
-                          icon: Icon(Icons.close),
-                          onPressed: (){
-                            Navigator.of(context).pop();
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 10,),
-                Container(
-                  width: 333,
-                  height: 361,
-                  color: HexColor('#D9D9D9'),
-                  child: TextField(
-                    maxLines: null,
-                    controller: _textEditingController,
-                    decoration: InputDecoration(
-                      hintText:'Type your quote........',
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.only(top: 20,left: 20, ),
-                      hintStyle:  Theme.of(context).textTheme.bodyText1),
+      body: SingleChildScrollView(
+        child: Container(
+          width: width,
+          height: height,
+          padding:EdgeInsets.only(left: 20,right: 20,top: 20,bottom: 20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.spaceAround,
+            children: [
+              Container(
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      child: Text('Quote',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,fontFamily: 'Poppins',),),
                     ),
-
-
+                    Container(
+                      child: IconButton(
+                        icon: Icon(Icons.close),
+                        onPressed: (){
+                          Navigator.of(context).pop();
+                        },
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              Container(
+                height: 361,
+                color: HexColor('#D9D9D9').withOpacity(0.5),
+                child: TextField(
+                  cursorColor: Colors.orange,
+                  style: Theme.of(context).textTheme.subtitle1,
+                  maxLines: null,
+                  controller: _textEditingController,
+                  decoration: InputDecoration(
+                    hintText:'Type your quote........',
+                    border: InputBorder.none,
+                    contentPadding: EdgeInsets.only(top: 20,left: 20, ),
+                    hintStyle:  Theme.of(context).textTheme.subtitle1),
                   ),
 
-                Container(
-                  width: 326,
-                  height: 53,
-                  child: FiledButton(
-                      backgroundColor: HexColor('#FB8C00'),
-                      onPressed: () {
-                        setState(() {
-                          _setsQuote = capitalizeWords(_textEditingController.text);
-                          widget.quote = _setsQuote!;
-                        });
-                        widget.setQuote(_setsQuote!);
-                        Navigator.of(context).pop();
-                      },
-                      child: Center(
-                          child: Text('SET QUOTE',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 18,)))),
+
                 ),
-              ],
-            ),
+              Container(
+                width: 326,
+                height: 53,
+                child: FiledButton(
+                    backgroundColor: Colors.orange,
+                    onPressed: () {
+                      setState(() {
+                        _setsQuote = capitalizeWords(_textEditingController.text);
+                        widget.quote = _setsQuote!;
+                      });
+                      widget.setQuote(_setsQuote!);
+                      Navigator.of(context).pop();
+                    },
+                    child: Center(
+                        child: Text('SET QUOTE',
+                            style: Theme.of(context).textTheme.caption))),
+              ),
+            ],
           ),
         ),
       ),
@@ -679,8 +686,8 @@ class _ProfileFormState extends State<ProfileForm> {
   FocusNode _focusNode = FocusNode();
   final List<String> genders = ['Male', 'Female', 'Other'];
   bool _isListVisible = false;
-
-  bool otherHome=false,otherPro=false;
+  List<String> languageOptions = [];
+  bool otherHome=false,otherPro=false,showLocationConfirm=false;
   TextEditingController _otherHomeController = TextEditingController();
   TextEditingController _otherProController = TextEditingController();
   // final FocusNode _focusNode = FocusNode();
@@ -729,6 +736,7 @@ class _ProfileFormState extends State<ProfileForm> {
     }
     if(widget.setLanguage!=null){
       selectedOptionsList.value = widget.setLanguage!;
+      languageOptions = widget.setLanguage!;
     }
     if(widget.setDOB!=null){
       selectedDateOfBirth = widget.setDOB;
@@ -845,8 +853,10 @@ class _ProfileFormState extends State<ProfileForm> {
                       ),
                       border: OutlineInputBorder(),
                       suffixIcon: widget.text != 'edit'
-                          ? Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'))
-                          : null,
+                          ? (widget.profileDataProvider?.retUpdatePlace()!='Others' && widget.profileDataProvider?.retUpdatePlace()!=''
+                          ? Icon(Icons.check_circle, color: Colors.green)  // Green tick icon
+                          : Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')))
+                          :null,
                       suffix: widget.text == 'edit'
                           ? Text('EDIT', style: Theme.of(context).textTheme.headline4)
                           : null,
@@ -926,7 +936,7 @@ class _ProfileFormState extends State<ProfileForm> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextField(
-                  focusNode: _focusNode,
+                  style: Theme.of(context).textTheme.subtitle2,
                   controller: _otherHomeController,
                   decoration: InputDecoration(
                     hintText: 'Type Here....',
@@ -980,6 +990,7 @@ class _ProfileFormState extends State<ProfileForm> {
           //     // Add your logic here
           //   },
           // ),
+          SizedBox(height: 10,),
           RawAutocomplete(
             optionsBuilder: (TextEditingValue textEditingValue)async {
               if (textEditingValue.text == '') {
@@ -1030,8 +1041,10 @@ class _ProfileFormState extends State<ProfileForm> {
                       ),
                       border: OutlineInputBorder(),
                       suffixIcon: widget.text != 'edit'
-                          ? Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00'))
-                          : null,
+                          ? (widget.profileDataProvider?.retUpdateProfession()!='Others' && widget.profileDataProvider?.retUpdateProfession()!=''
+                          ? Icon(Icons.check_circle, color: Colors.green)  // Green tick icon
+                          : Icon(Icons.arrow_drop_down_circle, color: HexColor('#FB8C00')))
+                          :null,
                       suffix: widget.text == 'edit'
                           ? Text('EDIT', style: Theme.of(context).textTheme.headline4)
                           : null,
@@ -1082,6 +1095,7 @@ class _ProfileFormState extends State<ProfileForm> {
               );
             },
           ),
+          SizedBox(height: 10,),
           otherPro
               ?Container(
             height: 79,
@@ -1090,7 +1104,7 @@ class _ProfileFormState extends State<ProfileForm> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
                 TextField(
-                  focusNode: _focusNode,
+                  style: Theme.of(context).textTheme.subtitle2,
                   controller: _otherProController,
                   decoration: InputDecoration(
                     hintText: 'Type Here....',
@@ -1112,7 +1126,7 @@ class _ProfileFormState extends State<ProfileForm> {
             ),
           )
               :SizedBox(height: 0,),
-          SizedBox(height: 10,),
+          SizedBox(height:10),
           CustomDOBDropDown(
             label: 'Date of Birth',
             text: widget.text,
@@ -1137,7 +1151,7 @@ class _ProfileFormState extends State<ProfileForm> {
               }
             },
           ),
-          SizedBox(height: 20,),
+          SizedBox(height: 10,),
           CustomDropdown.build(
             label: 'Gender',
             items: genders,
@@ -1158,10 +1172,11 @@ class _ProfileFormState extends State<ProfileForm> {
                   widget.profileDataProvider?.updateFieldCnt(1);
                 widget.profileDataProvider?.updateGender(newValue!);
               }
+              setState(() {});
             },
             selectedValue: selectedGender, // Pass the selected value to the widget
           ),
-          SizedBox(height: 20,),
+          SizedBox(height: 10,),
           Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1171,100 +1186,173 @@ class _ProfileFormState extends State<ProfileForm> {
             style: Theme.of(context).textTheme.subtitle1,
               ),
               SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  border: Border.all(color: Colors.grey), // Add a grey border
-                  borderRadius: BorderRadius.circular(8.0), // Optional: Add border radius
-                ),
-
-                height : 60,
-                alignment: Alignment.center,
-                child: Expanded(
-                  child: DropDownMultiSelect(
-                    hint: Text('Select...'), // Hint text for the dropdown
-                    hintStyle: Theme.of(context).textTheme.subtitle1,
-                    isDense: true,
-                    // menuItembuilder: (item) {
-                    //   return Container(
-                    //     padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-                    //     child: Row(
-                    //       children: [
-                    //         Icon(Icons.check_circle, // You can change the icon based on selection
-                    //             color: selectedOptionsList.value.contains(item)
-                    //                 ? Colors.green // Change color if item is selected
-                    //                 : Colors.grey),
-                    //         SizedBox(width: 10),
-                    //         Text(
-                    //           item.toString(), // Display the item's text
-                    //           style: TextStyle(
-                    //             fontSize: 16,
-                    //             color: selectedOptionsList.value.contains(item)
-                    //                 ? Colors.black // Change text color if item is selected
-                    //                 : Colors.grey,
-                    //           ),
-                    //         ),
-                    //       ],
-                    //     ),
-                    //   );
-                    // },
-                    childBuilder: (selected) {
-                      return Row(
-                        children: [
-                          Container(
-
-                            padding: EdgeInsets.all(10),
-                            width: 300, // Adjust as needed
-                            child: Text(
-                              selected.join(', '),
-                              style: TextStyle(
-                                fontSize: 14,
-                                overflow: TextOverflow.ellipsis,
-                                fontWeight: FontWeight.w600,
-                              ),
-                            ),
+              // Container(
+              //   decoration: BoxDecoration(
+              //     border: Border.all(color: Colors.grey), // Add a grey border
+              //     borderRadius: BorderRadius.circular(8.0), // Optional: Add border radius
+              //   ),
+              //
+              //   height : 60,
+              //   alignment: Alignment.center,
+              //   child: DropDownMultiSelect(
+              //     hint: Text('Select...',style: Theme.of(context).textTheme.subtitle1,), // Hint text for the dropdown
+              //     hintStyle: Theme.of(context).textTheme.subtitle1,
+              //     isDense: true,
+              //     menuItembuilder: (item) {
+              //       return Container(
+              //         padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              //         child: Row(
+              //           children: [
+              //             Icon(Icons.check_circle, // You can change the icon based on selection
+              //                 color: selectedOptionsList.value.contains(item)
+              //                     ? Colors.green // Change color if item is selected
+              //                     : Colors.grey),
+              //             SizedBox(width: 10),
+              //             Text(
+              //               item.toString(), // Display the item's text
+              //               style: TextStyle(
+              //                 fontSize: 16,
+              //                 color: selectedOptionsList.value.contains(item)
+              //                     ? Colors.black // Change text color if item is selected
+              //                     : Colors.grey,
+              //               ),
+              //             ),
+              //           ],
+              //         ),
+              //       );
+              //     },
+              //     childBuilder: (selected) {
+              //       return Row(
+              //         children: [
+              //           Container(
+              //
+              //             padding: EdgeInsets.all(10),
+              //             width: 300, // Adjust as needed
+              //             child: Text(
+              //               selected.join(', '),
+              //               style: TextStyle(
+              //                 fontSize: 14,
+              //                 color : Color(0xFF001B33),
+              //                 overflow: TextOverflow.ellipsis,
+              //                 fontWeight: FontWeight.w400,
+              //               ),
+              //             ),
+              //           ),
+              //           SizedBox(width: 10),
+              //         ],
+              //       );
+              //     },
+              //     enabled: true,
+              //     options: Constant().languageList,
+              //     decoration: InputDecoration(
+              //       border: InputBorder.none,
+              //       contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
+              //       fillColor: Colors.orange,
+              //       suffixIcon: widget.text == 'edit'
+              //           ? Padding(
+              //         padding: const EdgeInsets.only(right: 8.0, top: 10),
+              //         child: Text(
+              //           'EDIT',
+              //           style: Theme.of(context).textTheme.headline4,
+              //         ),
+              //       )
+              //           : selectedOptionsList.value.length>0
+              //           ? Icon(Icons.check_circle, color: Colors.green)
+              //           :  Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
+              //     ),
+              //     icon: SizedBox.shrink(),
+              //     onChanged: (value) {
+              //       selectedOptionsList.value = value;
+              //       selectedOptions.value = '';
+              //       selectedOptionsList.value.forEach((item) {
+              //         selectedOptions.value = selectedOptions.value + ',' + item;
+              //       });
+              //       if (widget.text == 'edit') {
+              //         widget.languageCallback!(selectedOptionsList.value);
+              //       } else {
+              //         if(selectedOptionsList.value.length>0)
+              //           widget.profileDataProvider?.updateFieldCnt(1);
+              //         widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
+              //       }
+              //       setState(() {
+              //
+              //       });
+              //     },
+              //     selectedValues: selectedOptionsList.value,
+              //   ),
+              // ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  InkWell(
+                    onTap: () async {
+                      // Open the selection screen and wait for the result
+                      final List<String>? result = await Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => SelectionScreen(
+                              selectedOptions: widget.text=='edit'? languageOptions : widget.profileDataProvider!.retUpdatedLanguage()
                           ),
-                          SizedBox(width: 10),
-                        ],
-                      );
-                    },
-                    enabled: true,
-                    options: Constant().languageList,
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                      contentPadding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 16.0),
-
-                      suffixIcon: widget.text == 'edit'
-                          ? Padding(
-                        padding: const EdgeInsets.only(right: 8.0, top: 10),
-                        child: Text(
-                          'EDIT',
-                          style: Theme.of(context).textTheme.headline4,
                         ),
-                      )
-                          : Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
-                    ),
-                    icon: SizedBox.shrink(),
-                    onChanged: (value) {
-                      selectedOptionsList.value = value;
-                      selectedOptions.value = '';
-                      selectedOptionsList.value.forEach((item) {
-                        selectedOptions.value = selectedOptions.value + ',' + item;
-                      });
-                      if (widget.text == 'edit') {
-                        widget.languageCallback!(selectedOptionsList.value);
-                      } else {
-                        if(selectedOptionsList.value.length>0)
-                          widget.profileDataProvider?.updateFieldCnt(1);
-                        widget.profileDataProvider?.updateLanguages(selectedOptionsList.value);
+                      );
+
+                      // Update selected options based on the result
+                      if (result != null) {
+                        setState(() {
+                          languageOptions = result;
+                        });
+                        if (widget.text == 'edit') {
+                          widget.languageCallback!(languageOptions);
+                        } else {
+                          if(languageOptions.length>0)
+                            widget.profileDataProvider?.updateFieldCnt(1);
+                          widget.profileDataProvider?.updateLanguages(languageOptions);
+                        }
                       }
                     },
-                    selectedValues: selectedOptionsList.value,
+                    child: Container(
+                      padding: EdgeInsets.all(10.0),
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        border: Border.all(color: Colors.grey), // Add a grey border
+                        borderRadius: BorderRadius.circular(5.0), // Optional: Add border radius
+                        // color: Colors.red,
+                      ),
+                      height : 60,
+                      alignment: Alignment.centerLeft,
+                      child: Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              overflow: TextOverflow.ellipsis,
+                              // maxLines: 4,
+                              style:Theme.of(context).textTheme.subtitle2,
+                              languageOptions.isEmpty
+                                  ? 'Select...'
+                                  : languageOptions.join(', '),
+                            ),
+                          ),
+                          widget.text == 'edit'
+                              ? Padding(
+                            padding: const EdgeInsets.only(right: 8.0, top: 10),
+                            child: Text(
+                              'EDIT',
+                              style: Theme.of(context).textTheme.headline4,
+                            ),
+                          )
+                              : languageOptions.length>0
+                              ? Icon(Icons.check_circle, color: Colors.green)
+                              :  Icon(Icons.arrow_drop_down_circle, color: Colors.orange),
+                          // Icon(Icons.arrow_drop_down_circle, color: Colors.orange)
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
             ],
           ),
-
+          // LocationButtonConfirmation(),
           SizedBox(height: 30,),
       // Padding(
       //   padding: const EdgeInsets.all(16.0),
@@ -1299,4 +1387,27 @@ class _ProfileFormState extends State<ProfileForm> {
   }
 }
 
+class LocationButtonConfirmation extends StatelessWidget {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: null,
+      backgroundColor: Colors.white.withOpacity(0.1),
+      bottomNavigationBar: InkWell(
+        onTap: (){
+          Navigator.of(context).pop();
+        },
+        child: Container(
+          width:MediaQuery.of(context).size.width,
+          padding:EdgeInsets.only(left:(MediaQuery.of(context).size.width)/3,right: 12,top:12,bottom: 12 ),
+          decoration:BoxDecoration(
+            color: Colors.orange,
+          ),
+          child: Text('Set Language',style: Theme.of(context).textTheme.headline5,),
+        ),
+      ),
+    );
+  }
+}
 

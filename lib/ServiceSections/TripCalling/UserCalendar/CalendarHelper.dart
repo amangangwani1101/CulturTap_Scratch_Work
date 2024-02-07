@@ -16,9 +16,58 @@ import '../../../widgets/hexColor.dart';
 class CalendarHelper extends StatefulWidget{
   Map<String,dynamic>?plans;
   String ?choosenDate,startTime,endTime,slotChossen,date,text,userName;
-  CalendarHelper({this.plans,this.choosenDate,this.startTime,this.endTime,this.slotChossen,this.date,this.text,this.userName});
+  List<bool>?daysChoosen;
+  CalendarHelper({this.plans,this.choosenDate,this.startTime,this.endTime,this.slotChossen,this.date,this.text,this.userName,this.daysChoosen});
   @override
   _CalendarHelperState createState()=> _CalendarHelperState();
+}
+
+List<int> daysInt(List<bool>days){
+  List<int>retDays = [];
+  for(int i=0;i<7;i++){
+    if(days[i]){
+      retDays.add(i+1);
+    }
+  }
+  return retDays;
+}
+
+DateTime findNextAvailableDate(List<int>disable) {
+  List<int> disabledDays = disable; // Sunday, Friday, Saturday
+
+  DateTime currentDate = DateTime.now();
+  int currentWeekday = currentDate.weekday;
+
+  if (disabledDays.contains(currentWeekday)) {
+    // If today is not in the disable list, return today's date
+    return currentDate;
+  } else {
+    // Find the next available date that is not in the disable list
+    int daysToAdd = 1;
+    while (!disabledDays.contains((currentWeekday + daysToAdd) % 7)) {
+      daysToAdd++;
+    }
+
+    return currentDate.add(Duration(days: daysToAdd));
+  }
+}
+
+
+String formatTodayDate(DateTime date) {
+  // Format day, month, and year separately
+  List<String>months = [
+    'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+    'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'
+  ];
+  String day = date.day.toString();
+  String month = date.month.toString();
+  String year = date.year.toString();
+
+  // Format with leading zeros if needed
+  if (day.length == 1) day = '$day';
+  if (month.length == 1) month = '$month';
+
+  return '$day/${months[int.parse(month)-1]}/$year';
 }
 
 class _CalendarHelperState  extends State<CalendarHelper>{
@@ -27,20 +76,25 @@ class _CalendarHelperState  extends State<CalendarHelper>{
 
   @override
   void initState(){
-    if(widget.choosenDate!=null)
-     printMeetTimes(widget.choosenDate!);
+    if(widget.choosenDate!=null){
+      printMeetTimes(widget.choosenDate!);
+      sendDate= widget.choosenDate;
+    }
     print('Plans:${widget.plans}');
+
   }
   void printMeetTimes(String key) {
     try {
+      if(widget.plans==null) return;
       Map<String, dynamic> parsedData = widget.plans as Map<String, dynamic>;
       print(parsedData);
       if (parsedData.containsKey(key)) {
         print(2);
         List<dynamic> value = parsedData[key]['meetingStatus'];
+        print('xxxx');
         print(value);
         for (int index=0;index<value.length;index++){
-          if(value[index]!='close' && value[index]!='closed'){
+          if(value[index]!='close' && value[index]!='closed' && value[index]!='cancel'){
             meetStartTimes.add(parsedData[key]['meetStartTime'][index]);
             meetEndTimes.add(parsedData[key]['meetEndTime'][index]);
           }
@@ -74,161 +128,179 @@ class _CalendarHelperState  extends State<CalendarHelper>{
 
       return months[monthNumber - 1];
     }
+    List<String> daysLetter(List<bool>intDays){
+      List<String> days = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],retDays=[];
+      for(int i=0;i<7;i++){
+        if(intDays[i]){
+          retDays.add(days[i]);
+        }
+      }
+      return retDays;
+    }
     return WillPopScope(
       onWillPop: ()async{
         if(widget.text=='calendarhelper'){
           print(1);
           Navigator.of(context).pop();
-          Navigator.of(context).pop();
+          // Navigator.of(context).pop();
         }else{
           print(2);
+          Navigator.pop(context,sendDate);
         }
         return true;
       },
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 5,text: widget.text,),automaticallyImplyLeading: false,shadowColor: Colors.transparent,backgroundColor: Colors.white,),
+        backgroundColor: Colors.white,
+        appBar: AppBar(title: ProfileHeader(reqPage: 5,text: widget.text,fromWhichPage: 'trip_planning_schedule_profile',onButtonPressed: (){
+          Navigator.pop(context,sendDate);
+        },),automaticallyImplyLeading: false,shadowColor: Colors.transparent,backgroundColor: Colors.white,),
         body: SingleChildScrollView(
-          child: Center(
-            child: Container(
-              width: screenWidth*0.83,
-              // decoration: BoxDecoration(border: Border.all(width: 1)),
-              child: Column(
-                children: [
-                  SizedBox(height: 48,),
-                  Container(
-                    height: 241,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text('Check Calendar',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                        Container(
-                          height: 82,
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          child: Container(
+            margin: EdgeInsets.only(left: 25,right:35),
+            // color: Colors.red,
+            // decoration: BoxDecoration(border: Border.all(width: 1)),
+            child: Column(
+              children: [
+                SizedBox(height: 40,),
+                Container(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Check Calendar',style:Theme.of(context).textTheme.subtitle1,),
+                      SizedBox(height: 25,),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${widget.userName}’s provided avilable time for trip planning interaction calls -',style: Theme.of(context).textTheme.subtitle1,),
+                          SizedBox(height: 8,),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('${widget.userName}’s provided avilable time for trip planning interaction calls -',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                              Row(
-                                children: [
-                                  Container(
-                                    child: Image.asset('assets/images/clock.png',width: 22,height: 22,),
-                                  ),
-                                  SizedBox(width: 10,),
-                                  Text('${widget.startTime} - ${widget.endTime} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                  Text('India',style: TextStyle(fontWeight: FontWeight.bold,fontSize:14,fontFamily: 'Poppins'),)
-                                ],
+                              Container(
+                                child: Image.asset('assets/images/clock.png',width: 22,height: 22,),
                               ),
+                              SizedBox(width: 10,),
+                              Text('${widget.startTime} - ${widget.endTime}\t',style: TextStyle(color:Colors.orange,fontSize: 14,fontWeight:FontWeight.w600,fontFamily: 'Poppins')),
                             ],
                           ),
-                        ),
-                        CustomDOBDropDown(
-                          initData: widget.date==null?'15 NOV':widget.date,
-                          label: 'Select Date',
-                          selectedDate: selectedDate,
-                          deviceWidth: screenWidth*0.60,
-                          onDateSelected: widget.slotChossen=='choice_1'?((DateTime? newDate) {
+                          Container(
+                              padding: EdgeInsets.only(left: 27),
+                              child: Text('(${daysLetter(widget.daysChoosen!).join(',')})',style: TextStyle(color:Colors.orange,fontSize: 13,fontWeight:FontWeight.w600,fontFamily: 'Poppins'),)),
+
+                        ],
+                      ),
+                      SizedBox(height: 25,),
+                      CustomDOBDropDown(
+                        initData: widget.date==null?'15 NOV':widget.date,
+                        label: 'Select Date',
+                        disableDays:daysInt(widget.daysChoosen!),
+                        selectedDate: sendDate==null?formatTodayDate(findNextAvailableDate(daysInt(widget.daysChoosen!))):sendDate,
+                        deviceWidth: 260,
+                        onDateSelected: widget.slotChossen=='choice_1'?((DateTime? newDate) {
+                          setState(() {
+                            selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
+                            sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
+                            print('Selected: ${sendDate}');
+                            printMeetTimes(sendDate!);
+                          });
+                        })
+                            :((DateTime? newDate) {
+                          // Check if the selected date is a weekend day (Saturday or Sunday)
+                          if (newDate != null &&
+                              (newDate.weekday == DateTime.saturday ||
+                                  newDate.weekday == DateTime.sunday)) {
                             setState(() {
                               selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
                               sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
-                              print('Selected: ${sendDate}');
+                              print('Selected: ${newDate}');
                               printMeetTimes(sendDate!);
                             });
-                          })
-                              :((DateTime? newDate) {
-                            // Check if the selected date is a weekend day (Saturday or Sunday)
-                            if (newDate != null &&
-                                (newDate.weekday == DateTime.saturday ||
-                                    newDate.weekday == DateTime.sunday)) {
-                              setState(() {
-                                selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
-                                sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
-                                print('Selected: ${newDate}');
-                                printMeetTimes(sendDate!);
-                              });
-                            } else if(newDate!=null) {
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Please select a weekend day.'),
-                                ),
-                              );
-                            }else{
-                              ScaffoldMessenger.of(context).showSnackBar(
-                                SnackBar(
-                                  content: Text('Please select a date.'),
-                                ),
-                              );
-                            }
-                          }),
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 50,),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Day Plans',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold),),
-                      SizedBox(height:20),
-                      meetStartTimes.length!=0
-                      ? Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: List.generate(
-                          meetStartTimes.length,
-                              (index) =>  Padding(
-                            padding: const EdgeInsets.only(bottom: 20.0),
-                            child: Container(
-                              width: 369,
-                              height: 101,
-                              decoration: BoxDecoration(
-                                color: Colors.white,
-                                borderRadius: BorderRadius.circular(12.0),
-                                boxShadow: [
-                                  BoxShadow(
-                                    color: Colors.grey.withOpacity(0.5),
-                                    spreadRadius: 2,
-                                    blurRadius: 5,
-                                    offset: Offset(0, 3),
-                                  ),
-                                ],
+                          } else if(newDate!=null) {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please select a weekend day.'),
                               ),
-                              child:Container(
-                                padding: EdgeInsets.only(left: 10),
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Text('${meetStartTimes[index]} - ${meetEndTimes[index]} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
-                                    Text('Trip Planning call with customer',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
-                                  ],
+                            );
+                          }else{
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Please select a date.'),
+                              ),
+                            );
+                          }
+                        }),
+                      ),
+                    ],
+                  ),
+                ),
+                SizedBox(height: 45,),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('Day Plans',style: Theme.of(context).textTheme.subtitle1,),
+                    SizedBox(height:20),
+                    meetStartTimes.length!=0
+                    ? Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: List.generate(
+                        meetStartTimes.length,
+                            (index) =>  Padding(
+                          padding: const EdgeInsets.only(bottom: 20.0),
+                          child: Container(
+                            width: 369,
+                            height: 101,
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(12.0),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: Colors.grey.withOpacity(0.5),
+                                  spreadRadius: 2,
+                                  blurRadius: 5,
+                                  offset: Offset(0, 3),
                                 ),
+                              ],
+                            ),
+                            child:Container(
+                              padding: EdgeInsets.only(left: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  Text('${meetStartTimes[index]} - ${meetEndTimes[index]} \t',style: TextStyle(fontSize:14,fontFamily: 'Poppins')),
+                                  Text('Trip Planning call with customer',style: TextStyle(fontSize: 14,fontFamily: 'Poppins'),),
+                                ],
                               ),
                             ),
                           ),
                         ),
-                      )
-                      :Container(
-                        width: 369,
-                        height: 112,
-                        decoration:BoxDecoration(
-                          color: Colors.white,
-                          borderRadius: BorderRadius.circular(12.0),
-                          boxShadow: [
-                            BoxShadow(
-                              color: Colors.grey.withOpacity(0.5),
-                              spreadRadius: 2,
-                              blurRadius: 5,
-                              offset: Offset(0, 3),
-                            ),
-                          ],
-                        ),
-                        // padding: EdgeInsets.all(15),
-                        child: Center(child: Text('Nothing planned this day, You \ncan scheduled your slots for \ninteraction',style: TextStyle(fontSize: 16,fontFamily: 'Poppins'),)),
                       ),
-                    ],
-                  ),
-                ],
-              ),
+                    )
+                    :Container(
+                      width: 369,
+                      height: 90,
+                      decoration:BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(12.0),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.grey.withOpacity(0.5),
+                            spreadRadius: 2,
+                            blurRadius: 5,
+                            offset: Offset(0, 3),
+                          ),
+                        ],
+                      ),
+                      // padding: EdgeInsets.all(15),
+                      child: Center(child: Container(
+                          width: 250,
+                          // color: Colors.red,
+                          child: Text('Nothing planned this day, You can scheduled your slots for interaction',style: Theme.of(context).textTheme.subtitle2,))),
+                    ),
+                  ],
+                ),
+              ],
             ),
           ),
         ),
@@ -241,6 +313,7 @@ class _CalendarHelperState  extends State<CalendarHelper>{
 class CustomDOBDropDown extends StatelessWidget{
   final String label;
   final String? selectedDate;
+  List<int> ?disableDays;
   final ValueChanged<DateTime?> onDateSelected;
   final String?initData;
   double deviceWidth;
@@ -251,6 +324,7 @@ class CustomDOBDropDown extends StatelessWidget{
     required this.onDateSelected,
     required this.selectedDate,
     required this.deviceWidth,
+    this.disableDays,
   });
 
   DateTime currentDate = DateTime.now();
@@ -259,15 +333,36 @@ class CustomDOBDropDown extends StatelessWidget{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Text(label,style: TextStyle(fontSize: 14,fontWeight: FontWeight.w900,fontFamily: 'Poppins'),),
+        Text(label,style: Theme.of(context).textTheme.subtitle1,),
         SizedBox(height: 10,),
         InkWell(
           onTap: () async {
             DateTime? selected = await showDatePicker(
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      primary: Colors.orange, // header background color
+                      onPrimary: Colors.white, // header text color
+                      onSurface: Colors.orange, // body text color
+                    ),
+                    textButtonTheme: TextButtonThemeData(
+                      style: TextButton.styleFrom(
+                        textStyle: Theme.of(context).textTheme.subtitle1,
+                        foregroundColor: Colors.orange, // button text color
+                      ),
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
               context: context,
-              initialDate: DateTime.now(),
-              firstDate: DateTime(currentDate.year-1),
-              lastDate:  DateTime(currentDate.year+5),
+              initialDate: findNextAvailableDate(disableDays!),
+              firstDate: findNextAvailableDate(disableDays!),
+              lastDate:  DateTime(currentDate.year+2),
+              selectableDayPredicate: (DateTime day){
+                return (disableDays!.contains(day.weekday));
+              }
             );
             onDateSelected(selected);
 
@@ -285,12 +380,12 @@ class CustomDOBDropDown extends StatelessWidget{
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Icon(Icons.calendar_today_rounded,color: Colors.white,), // Calendar icon
+                  Icon(Icons.calendar_today_rounded,color: Colors.white,size: 25,), // Calendar icon
                   Text(
                     selectedDate != null
                         ? "${selectedDate}"
                         : '${initData}',
-                    style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.white),),
+                    style: Theme.of(context).textTheme.headline5,),
                   Image.asset('assets/images/arrow_down.png',color: Colors.white,),
                 ],
               ),
