@@ -64,6 +64,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
       setState(() {
         widget.userId = userID;
         widget.userName = data['userName'];
+        widget.imagePath = data['userPhoto'];
         widget.profileStatus = data['profileStatus'];
       });
     } else {
@@ -134,13 +135,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                           child: Visibility(
 
-                            visible: widget.imagePath != null,
-                            child: CircleAvatar(
-                              backgroundColor: Colors.transparent,
+                            visible: true,
+                            child: widget.imagePath != null && widget.imagePath!='' ? CircleAvatar(
+                              backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>?,
+                              // backgroundColor: Colors.transparent,
                               radius: 20.0,
 
-                            ),
-                            replacement: SvgPicture.asset(
+                            )
+                                : SvgPicture.asset(
                               'assets/images/profile_icon.svg',
                               color : Theme.of(context).primaryColor,
                               width: 50.0,
@@ -153,7 +155,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                         ),
                         SizedBox(height: 2,),
-                        Text('Profile',style: Theme.of(context).textTheme.bodyText1),
+                        Text(Constant().extractFirstName(userName),style: Theme.of(context).textTheme.bodyText1),
                       ]
                   ),
                 ),
@@ -165,7 +167,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
               ? Container (
 
-
+            // color: Colors.red,
             width: 70,
             height: 75,
 
@@ -179,7 +181,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     ),
                   );
                 }
-                else if(widget.fromWhichPage=='trip_planning_schedule_profile' || widget.fromWhichPage=='trip_planning_calendar_pings'){
+                else if(widget.fromWhichPage=='trip_planning_schedule_profile' || widget.fromWhichPage=='trip_planning_calendar_pings' || widget.fromWhichPage=='trip_planning_chat' || widget.fromWhichPage=='final_profile_edit'){
                   widget.onButtonPressed!();
                 }
                 else if(widget.fromWhichPage == 'yes' ){
@@ -225,7 +227,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   Navigator.of(context).pop();
                 }
               },
-              child: Center(child: Text('< Back ', style : TextStyle(fontSize: 16,fontWeight: FontWeight.w600))),
+              child: Center(child: Text('< Back ', style : TextStyle(fontSize: 14,fontWeight: FontWeight.w600))),
             ),
           )
               : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 0,): SizedBox(height: 0,),
@@ -434,7 +436,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 // Handle the selected option
                 if (value == 'closeRequest') {
                   // Display the custom popup when "Close Request" is selected
-                  if(widget.fromWhichPage=='trip_planning_calendar_pings'){
+                  if(widget.fromWhichPage=='trip_planning_calendar_pings' || widget.fromWhichPage=='trip_planning_chat'){
                     widget.cancelCloseClick!();
                   }
                   else{
@@ -468,18 +470,15 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 }
               },
               itemBuilder: (BuildContext context) => [
-                if(!(widget.state=='helper' && widget.meetStatus=='schedule') && (widget.meetStatus!='close' && widget.meetStatus!='closed'))
+                if(!(widget.state=='helper' && widget.meetStatus=='started') && (widget.meetStatus!='close' && widget.meetStatus!='closed'))
                     PopupMenuItem<String>(
                   value: widget.state == 'helper' ? 'raiseRequest' : 'closeRequest',
                   child: Container(
                     child: Row(
                       children: [
-                        widget.meetStatus == 'schedule' || widget.state=='trip_user' && widget.meetStatus=='start'  ?
-                        Icon(Icons.cancel_schedule_send_rounded , color: Colors.grey) : Icon(Icons.close, color: Colors.black),
+                        Icon(Icons.close, color: Colors.black),
                         SizedBox(width: 8),
-                        Text(
-                          widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Close Request' :  'Cancel Request',
-                          style: Theme.of(context).textTheme.subtitle2,
+                        Text('Close Request' , style: Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),

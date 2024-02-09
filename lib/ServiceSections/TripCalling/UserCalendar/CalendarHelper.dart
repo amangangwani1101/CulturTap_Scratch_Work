@@ -73,7 +73,7 @@ String formatTodayDate(DateTime date) {
 class _CalendarHelperState  extends State<CalendarHelper>{
   late List<String> meetStartTimes=[],meetEndTimes=[];
   String? selectedDate,sendDate;
-
+  DateTime?choosen;
   @override
   void initState(){
     if(widget.choosenDate!=null){
@@ -161,13 +161,13 @@ class _CalendarHelperState  extends State<CalendarHelper>{
             // decoration: BoxDecoration(border: Border.all(width: 1)),
             child: Column(
               children: [
-                SizedBox(height: 40,),
+                SizedBox(height: 10,),
                 Container(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text('Check Calendar',style:Theme.of(context).textTheme.subtitle1,),
-                      SizedBox(height: 25,),
+                      SizedBox(height: 35,),
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
@@ -181,19 +181,20 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                                 child: Image.asset('assets/images/clock.png',width: 22,height: 22,),
                               ),
                               SizedBox(width: 10,),
-                              Text('${widget.startTime} - ${widget.endTime}\t',style: TextStyle(color:Colors.orange,fontSize: 14,fontWeight:FontWeight.w600,fontFamily: 'Poppins')),
+                              Text('${widget.startTime} - ${widget.endTime}\t',style: TextStyle(color:Theme.of(context).primaryColor,fontSize: 14,fontWeight:FontWeight.w400,fontFamily: 'Poppins')),
                             ],
                           ),
                           Container(
                               padding: EdgeInsets.only(left: 27),
-                              child: Text('(${daysLetter(widget.daysChoosen!).join(',')})',style: TextStyle(color:Colors.orange,fontSize: 13,fontWeight:FontWeight.w600,fontFamily: 'Poppins'),)),
+                              child: Text('(${daysLetter(widget.daysChoosen!).join(',')})',style: TextStyle(color:Theme.of(context).primaryColor,fontSize: 13,fontWeight:FontWeight.w300,fontFamily: 'Poppins'),)),
 
                         ],
                       ),
-                      SizedBox(height: 25,),
+                      SizedBox(height: 35,),
                       CustomDOBDropDown(
                         initData: widget.date==null?'15 NOV':widget.date,
                         label: 'Select Date',
+                        choosenDate:choosen,
                         disableDays:daysInt(widget.daysChoosen!),
                         selectedDate: sendDate==null?formatTodayDate(findNextAvailableDate(daysInt(widget.daysChoosen!))):sendDate,
                         deviceWidth: 260,
@@ -203,6 +204,7 @@ class _CalendarHelperState  extends State<CalendarHelper>{
                             sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
                             print('Selected: ${sendDate}');
                             printMeetTimes(sendDate!);
+                            choosen = newDate;
                           });
                         })
                             :((DateTime? newDate) {
@@ -314,6 +316,7 @@ class CustomDOBDropDown extends StatelessWidget{
   final String label;
   final String? selectedDate;
   List<int> ?disableDays;
+  DateTime?choosenDate;
   final ValueChanged<DateTime?> onDateSelected;
   final String?initData;
   double deviceWidth;
@@ -325,6 +328,7 @@ class CustomDOBDropDown extends StatelessWidget{
     required this.selectedDate,
     required this.deviceWidth,
     this.disableDays,
+    this.choosenDate,
   });
 
   DateTime currentDate = DateTime.now();
@@ -334,7 +338,7 @@ class CustomDOBDropDown extends StatelessWidget{
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,style: Theme.of(context).textTheme.subtitle1,),
-        SizedBox(height: 10,),
+        SizedBox(height: 8,),
         InkWell(
           onTap: () async {
             DateTime? selected = await showDatePicker(
@@ -342,13 +346,34 @@ class CustomDOBDropDown extends StatelessWidget{
                 return Theme(
                   data: Theme.of(context).copyWith(
                     colorScheme: ColorScheme.light(
-                      primary: Colors.orange, // header background color
+                      surface: Theme.of(context).primaryColor,
+                      background: Theme.of(context).primaryColor,
+                      primary: Colors.orange,  // header background color
                       onPrimary: Colors.white, // header text color
-                      onSurface: Colors.orange, // body text color
+                      onSurface: Theme.of(context).primaryColor,     // body text color
+                      secondary: Theme.of(context).primaryColor,
+                      onSecondary: Theme.of(context).primaryColor,
+                      onSecondaryContainer: Theme.of(context).primaryColor,
+                      surfaceVariant: Theme.of(context).primaryColor,
+                      outline: Theme.of(context).primaryColor,
+                      outlineVariant: Theme.of(context).primaryColor,
+                    ),
+                    textTheme: TextTheme(
+                      subtitle1: Theme.of(context).textTheme.subtitle1,
+                      subtitle2: Theme.of(context).textTheme.subtitle1,
+                      headline1: Theme.of(context).textTheme.subtitle1,
+                      headline2: Theme.of(context).textTheme.subtitle1,
+                      headline3: Theme.of(context).textTheme.headline1,
+                      headline4: Theme.of(context).textTheme.headline1,
+                      headline5: Theme.of(context).textTheme.subtitle1,
+                      bodyText2:  Theme.of(context).textTheme.subtitle1,
+                      bodyText1:  Theme.of(context).textTheme.subtitle1,
+                      overline:  Theme.of(context).textTheme.subtitle1,
+                      caption: Theme.of(context).textTheme.subtitle1,
                     ),
                     textButtonTheme: TextButtonThemeData(
                       style: TextButton.styleFrom(
-                        textStyle: Theme.of(context).textTheme.subtitle1,
+                        textStyle: Theme.of(context).textTheme.headline2,
                         foregroundColor: Colors.orange, // button text color
                       ),
                     ),
@@ -357,7 +382,7 @@ class CustomDOBDropDown extends StatelessWidget{
                 );
               },
               context: context,
-              initialDate: findNextAvailableDate(disableDays!),
+              initialDate: choosenDate==null?findNextAvailableDate(disableDays!):choosenDate!,
               firstDate: findNextAvailableDate(disableDays!),
               lastDate:  DateTime(currentDate.year+2),
               selectableDayPredicate: (DateTime day){
@@ -380,13 +405,13 @@ class CustomDOBDropDown extends StatelessWidget{
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Icon(Icons.calendar_today_rounded,color: Colors.white,size: 25,), // Calendar icon
+                  Icon(Icons.calendar_today_rounded,color: Colors.white,size: 18,), // Calendar icon
                   Text(
                     selectedDate != null
                         ? "${selectedDate}"
                         : '${initData}',
-                    style: Theme.of(context).textTheme.headline5,),
-                  Image.asset('assets/images/arrow_down.png',color: Colors.white,),
+                    style: TextStyle(fontFamily: 'Poppins',fontSize: 15,color: Colors.white,fontWeight: FontWeight.w600),),
+                  Icon(Icons.keyboard_arrow_down,color: Colors.white,size: 20,)
                 ],
               ),
             ),

@@ -3,6 +3,7 @@ import 'dart:core';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/UserProfile/ProfileHeader.dart';
@@ -85,6 +86,9 @@ class CalendarPage extends StatefulWidget{
       print('Failed to fetch dataset: ${response.statusCode}');
     }
   }
+  Future<void> _refreshPage()async{
+    await fetchData();
+  }
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: ProfileHeader(reqPage: 1,userId:widget.currentUser,fromWhichPage: 'trip_planning_schedule_profile',onButtonPressed: (){
@@ -109,36 +113,46 @@ class CalendarPage extends StatefulWidget{
           return true;
         },
         child: isDataFetched
-            ? SingleChildScrollView(
-          child: Container(
-            // decoration: BoxDecoration(
-            //   border:Border.all(
-            //     width: 1,
-            //   ),
-            // ),
-            // color: Colors.red,
-            width: MediaQuery.of(context).size.width,
-            margin:EdgeInsets.only(left:20,right:20),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                SizedBox(height: 40,),
-                CallTime(clickedUserDataSet:clickedUserDataSet),
-                SizedBox(height: 33,),
-                CalendarCheck(plans:clickedUserDataSet?['userServiceTripCallingData']['dayPlans']
-                    ,slotChoosen:clickedUserDataSet?['userServiceTripCallingData']['slotsChossen']
-                    ,userStartTime:clickedUserDataSet?['userServiceTripCallingData']['startTimeFrom']
-                    ,userEndTime:clickedUserDataSet?['userServiceTripCallingData']['endTimeTo'],
-                     daysChoosen:clickedUserDataSet?['userServiceTripCallingData']['daysChoosen'].where((dynamic element) => element is bool) // Filter out non-bool values
-                         .cast<bool>() // Cast the remaining values to bool
-                         .toList(),
-                     id:widget.currentUser,userName:clickedUserDataSet?['userName'],userPhoto:clickedUserDataSet?['userPhoto']
-                    ,uName:currentUserDataSet?['userName'],uPhoto:currentUserDataSet?['userPhoto'],id2:widget.clickedUser
-                    ,userToken:currentUserDataSet?['uniqueToken'],plannerToken:clickedUserDataSet?['uniqueToken']),
-              ],
-            ),
+            ? RefreshIndicator(
+              backgroundColor: Color(0xFF263238),
+              color: Colors.orange,
+              onRefresh: _refreshPage,
+              child: SingleChildScrollView(
+          child: Column(
+            children: [
+              Container(
+                  // decoration: BoxDecoration(
+                  //   border:Border.all(
+                  //     width: 1,
+                  //   ),
+                  // ),
+                  // color: Colors.red,
+                  width: MediaQuery.of(context).size.width,
+                  margin:EdgeInsets.only(left:20,right:20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      SizedBox(height: 30,),
+                      CallTime(clickedUserDataSet:clickedUserDataSet),
+                      SizedBox(height: 30,),
+                    ],
+                  ),
+              ),
+              CalendarCheck(plans:clickedUserDataSet?['userServiceTripCallingData']['dayPlans']
+                  ,slotChoosen:clickedUserDataSet?['userServiceTripCallingData']['slotsChossen']
+                  ,userStartTime:clickedUserDataSet?['userServiceTripCallingData']['startTimeFrom']
+                  ,userEndTime:clickedUserDataSet?['userServiceTripCallingData']['endTimeTo'],
+                  daysChoosen:clickedUserDataSet?['userServiceTripCallingData']['daysChoosen'].where((dynamic element) => element is bool) // Filter out non-bool values
+                      .cast<bool>() // Cast the remaining values to bool
+                      .toList(),
+                  id:widget.currentUser,userName:clickedUserDataSet?['userName'],userPhoto:clickedUserDataSet?['userPhoto']
+                  ,uName:currentUserDataSet?['userName'],uPhoto:currentUserDataSet?['userPhoto'],id2:widget.clickedUser
+                  ,userToken:currentUserDataSet?['uniqueToken'],plannerToken:clickedUserDataSet?['uniqueToken']),
+
+            ],
           ),
-        )
+        ),
+            )
             : Center(
           child: Container(
             color : Theme.of(context).backgroundColor,
@@ -343,25 +357,26 @@ class _CallTimeState extends State<CallTime>{
             Text("${widget.clickedUserDataSet!=null ?widget.clickedUserDataSet!['userName']:'Wait...'}",style: Theme.of(context).textTheme.subtitle2,),
           ],
         ),
-        SizedBox(height: 15,),
+        SizedBox(height: 25,),
         Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
               Container(
                   width: 300,
+                  // color: Colors.red,
                   child: Text('User provided available time for trip planning interaction calls -',style: Theme.of(context).textTheme.subtitle1,)),
-              SizedBox(height: 8,),
+              SizedBox(height: 10,),
               Row(
                 children: [
-                  Image.asset('assets/images/clock.png',width: 22,height: 22,),
+                  Image.asset('assets/images/clock.png',width: 18,height: 18,),
                   SizedBox(width: 5,),
-                  Text('${userDataSet?.setStartTime} - ${userDataSet?.setEndTime} ${country} ',style: TextStyle(fontWeight: FontWeight.w600,color:Theme.of(context).primaryColorDark,fontSize: 14,),),
+                  Text('${userDataSet?.setStartTime} - ${userDataSet?.setEndTime} ${country} ',style: TextStyle(fontWeight: FontWeight.w400,color:Theme.of(context).primaryColorDark,fontSize: 14,),),
                 ],
               ),
               Container(
-                  padding: EdgeInsets.only(left: 27),
-                  child: Text('(${daysLetter(userDataSet!.availabilityChoosen!).join(',')})',style: TextStyle(fontWeight: FontWeight.w600,color:Theme.of(context).primaryColorDark,fontSize: 13,),)),
+                  padding: EdgeInsets.only(left: 24),
+                  child: Text('(${daysLetter(userDataSet!.availabilityChoosen!).join(',')})',style: TextStyle(fontWeight: FontWeight.w300,color:Theme.of(context).primaryColorDark,fontSize: 13,),)),
           ],
         ),
       ],
@@ -460,108 +475,131 @@ class _CalendarCheckState extends State<CalendarCheck>{
     super.initState();
     sendDate = formatTodayDate(findNextAvailableDate(daysInt(widget.daysChoosen!)));
   }
+  DateTime?choosen;
 
   @override
   Widget build(BuildContext context) {
     double screenWidth = MediaQuery.of(context).size.width;
-    return Container(
-      // decoration: BoxDecoration(
-      //   border:Border.all(
-      //     width: 1,
-      //   ),
-      // ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          CustomDOBDropDown(
-            label: 'Select Date',
-            disableDays:daysInt(widget.daysChoosen!),
-            selectedDate: sendDate==null?formatTodayDate(findNextAvailableDate(daysInt(widget.daysChoosen!))):sendDate,
-            deviceWidth: 270,
-            onDateSelected: widget.slotChoosen=='choice_1'?((DateTime? newDate) {
-              setState(() {
-                if( newDate!=null){
-                  String cmp = getThreeLetterMonth(newDate!.month);
-                  selectedDate = ('${newDate?.day}/${cmp.toUpperCase()}');
-                  sendDate = ('${newDate?.day}/${cmp}/${newDate!.year}');
-                  showCalendar = true;
-                }
-                else{
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text('Please select a date.'),
-                    ),
-                  );
-                }
-                print('Selected: ${newDate}');
-              });
-            })
-            :((DateTime? newDate) {
-              // Check if the selected date is a weekend day (Saturday or Sunday)
-              if (newDate != null &&
-                  (newDate.weekday == DateTime.saturday ||
-                      newDate.weekday == DateTime.sunday)) {
-                setState(() {
-                  selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
-                  sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
-                  showCalendar = true;
-                  print('Selected: ${newDate}');
-                });
-              } else if(newDate!=null) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Please select a weekend day.'),
-                  ),
-                );
-              }else{
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Please select a date.'),
-                  ),
-                );
-              }
-            }),
-          ),
-          showCalendar? SizedBox(height: 20,): SizedBox(height: 0,),
-          Container(
-              // color: Colors.red,
-            padding: EdgeInsets.only(top: 10,bottom: 10),
-            margin: EdgeInsets.only(right: 30),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  InkWell(
-                    onTap: ()async{
-                      String choosenDate = await Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => CalendarHelper(userName:widget.userName,plans:widget.plans,choosenDate:sendDate!,startTime:widget.userStartTime!,endTime:widget.userEndTime!,slotChossen: widget.slotChoosen!,daysChoosen:widget.daysChoosen,date:sendDate!),
+    return Column(
+      children: [
+        Container(
+          // decoration: BoxDecoration(
+          //   border:Border.all(
+          //     width: 1,
+          //   ),
+          // ),
+          padding: EdgeInsets.only(left: 20,right:20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              CustomDOBDropDown(
+                choosenDate:choosen,
+                label: 'Select Date',
+                disableDays:daysInt(widget.daysChoosen!),
+                selectedDate: sendDate==null?formatTodayDate(findNextAvailableDate(daysInt(widget.daysChoosen!))):sendDate,
+                deviceWidth: 270,
+                onDateSelected: widget.slotChoosen=='choice_1'?((DateTime? newDate) {
+                  setState(() {
+                    if( newDate!=null){
+                      String cmp = getThreeLetterMonth(newDate!.month);
+                      selectedDate = ('${newDate?.day}/${cmp.toUpperCase()}');
+                      sendDate = ('${newDate?.day}/${cmp}/${newDate!.year}');
+                      showCalendar = true;
+                      choosen=newDate;
+                    }
+                    else{
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('Please select a date.'),
                         ),
                       );
-                      setState(() {
-                        sendDate = choosenDate;
-                      });
-                    },
-                    child: Container(
-
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                        Text('Check User Calendar',style: TextStyle(fontSize: 14,color: Colors.orange,fontWeight: FontWeight.w700),),
-                        Icon(Icons.arrow_forward_ios,color: HexColor('FB8C00'),size: 20,),
-                        ],
+                    }
+                    print('Selected: ${newDate}');
+                  });
+                })
+                :((DateTime? newDate) {
+                  // Check if the selected date is a weekend day (Saturday or Sunday)
+                  if (newDate != null &&
+                      (newDate.weekday == DateTime.saturday ||
+                          newDate.weekday == DateTime.sunday)) {
+                    setState(() {
+                      selectedDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}');
+                      sendDate = ('${newDate?.day}/${getThreeLetterMonth(newDate!.month)}/${newDate!.year}');
+                      showCalendar = true;
+                      print('Selected: ${newDate}');
+                    });
+                  } else if(newDate!=null) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please select a weekend day.'),
                       ),
+                    );
+                  }else{
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text('Please select a date.'),
+                      ),
+                    );
+                  }
+                }),
+              ),
+              showCalendar? SizedBox(height: 25,): SizedBox(height: 0,),
+              InkWell(
+                onTap: ()async{
+                  String choosenDate = await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => CalendarHelper(userName:widget.userName,plans:widget.plans,choosenDate:sendDate!,startTime:widget.userStartTime!,endTime:widget.userEndTime!,slotChossen: widget.slotChoosen!,daysChoosen:widget.daysChoosen,date:sendDate!),
+                    ),
+                  );
+                  setState(() {
+                    sendDate = choosenDate;
+                  });
+                },
+                child: Container(
+                    // color: Colors.red,
+                  padding: EdgeInsets.only(top: 10,bottom: 10),
+                  margin: EdgeInsets.only(right: 20),
+                    // color: Colors.red,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: [
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Container(
+                              //
+                              //   child: Row(
+                              //     mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              //     children: [
+                              //     Text('Check User Calendar',style: TextStyle(fontSize: 14,color: Colors.orange,fontWeight: FontWeight.w700),),
+                              //     ],
+                              //   ),
+                              // ),
+                              Text('Check User Calendar',style: TextStyle(fontSize: 14,color: Colors.orange,fontWeight: FontWeight.w600),),
+                              SizedBox(height: 5,),
+                              Container(
+                                  child: Text('*Calendar will help you to select the time for interaction with the user.',style: TextStyle(color: HexColor('#FF0000'),fontSize: 12,fontWeight: FontWeight.w600,fontFamily: 'Poppins'),))
+                            ],
+                          ),
+                        ),
+                        Container(
+                          alignment: Alignment.centerRight,
+                            width: 80,
+                            child: Icon(Icons.arrow_forward_ios,color: HexColor('FB8C00'),size: 25,)),
+                      ],
                     ),
                   ),
-                  SizedBox(height: 5,),
-                  Text('Calendar will help you to select the time for interaction with the user.',style: TextStyle(color: HexColor('#FF0000'),fontSize: 12,fontWeight: FontWeight.w500),)
-                ],
               ),
-            ),
-          !showCalendar?SizedBox(height: 30,):SizedBox(height: 15,),
-          TimeSet(slotChoosen:widget.slotChoosen,selectedDate:selectedDate,setDate:sendDate,userStartTime:widget.userStartTime,userEndTime:widget.userEndTime,plans:widget.plans,id:widget.id,id2:widget.id2,userName:widget.userName,userPhoto:widget.userPhoto,user2Name:widget.uName,user2Photo:widget.uPhoto,userToken:widget.userToken,plannerToken:widget.plannerToken,daysChoosen:widget.daysChoosen),
-        ],
-      ),
+              !showCalendar?SizedBox(height: 30,):SizedBox(height: 25,),
+            ],
+          ),
+        ),
+        TimeSet(slotChoosen:widget.slotChoosen,selectedDate:selectedDate,setDate:sendDate,userStartTime:widget.userStartTime,userEndTime:widget.userEndTime,plans:widget.plans,id:widget.id,id2:widget.id2,userName:widget.userName,userPhoto:widget.userPhoto,user2Name:widget.uName,user2Photo:widget.uPhoto,userToken:widget.userToken,plannerToken:widget.plannerToken,daysChoosen:widget.daysChoosen),
+
+      ],
     );
   }
 }
@@ -570,6 +608,7 @@ class _CalendarCheckState extends State<CalendarCheck>{
 
 class CustomDOBDropDown extends StatelessWidget{
   final String label;
+  DateTime?choosenDate;
   final String? selectedDate;
   List<int> ?disableDays;
   final ValueChanged<DateTime?> onDateSelected;
@@ -580,6 +619,7 @@ class CustomDOBDropDown extends StatelessWidget{
     required this.onDateSelected,
     required this.selectedDate,
     required this.deviceWidth,
+    this.choosenDate,
     this.disableDays
   });
 
@@ -590,7 +630,7 @@ class CustomDOBDropDown extends StatelessWidget{
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Text(label,style: Theme.of(context).textTheme.subtitle1,),
-        SizedBox(height: 10,),
+        SizedBox(height: 6,),
         InkWell(
           onTap: () async {
             DateTime? selected = await showDatePicker(
@@ -598,13 +638,34 @@ class CustomDOBDropDown extends StatelessWidget{
                 return Theme(
                   data: Theme.of(context).copyWith(
                     colorScheme: ColorScheme.light(
-                      primary: Colors.orange, // header background color
+                      surface: Theme.of(context).primaryColor,
+                      background: Theme.of(context).primaryColor,
+                      primary: Colors.orange,  // header background color
                       onPrimary: Colors.white, // header text color
-                      onSurface: Colors.orange, // body text color
+                      onSurface: Theme.of(context).primaryColor,     // body text color
+                      secondary: Theme.of(context).primaryColor,
+                      onSecondary: Theme.of(context).primaryColor,
+                      onSecondaryContainer: Theme.of(context).primaryColor,
+                      surfaceVariant: Theme.of(context).primaryColor,
+                      outline: Theme.of(context).primaryColor,
+                      outlineVariant: Theme.of(context).primaryColor,
+                    ),
+                    textTheme: TextTheme(
+                      subtitle1: Theme.of(context).textTheme.subtitle1,
+                      subtitle2: Theme.of(context).textTheme.subtitle1,
+                      headline1: Theme.of(context).textTheme.subtitle1,
+                      headline2: Theme.of(context).textTheme.subtitle1,
+                      headline3: Theme.of(context).textTheme.headline1,
+                      headline4: Theme.of(context).textTheme.headline1,
+                      headline5: Theme.of(context).textTheme.subtitle1,
+                      bodyText2:  Theme.of(context).textTheme.subtitle1,
+                      bodyText1:  Theme.of(context).textTheme.subtitle1,
+                      overline:  Theme.of(context).textTheme.subtitle1,
+                      caption: Theme.of(context).textTheme.subtitle1,
                     ),
                     textButtonTheme: TextButtonThemeData(
                       style: TextButton.styleFrom(
-                        textStyle: Theme.of(context).textTheme.subtitle1,
+                        textStyle: Theme.of(context).textTheme.headline2,
                         foregroundColor: Colors.orange, // button text color
                       ),
                     ),
@@ -613,7 +674,7 @@ class CustomDOBDropDown extends StatelessWidget{
                 );
               },
               context: context,
-              initialDate: findNextAvailableDate(disableDays!),
+              initialDate: choosenDate==null?findNextAvailableDate(disableDays!):choosenDate!,
               firstDate: findNextAvailableDate(disableDays!),
               lastDate:  DateTime(currentDate.year+2),
               selectableDayPredicate: (DateTime day){
@@ -632,15 +693,16 @@ class CustomDOBDropDown extends StatelessWidget{
             width: deviceWidth*0.60,
             height: 45,
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Icon(Icons.calendar_today_rounded,color: Colors.white,size: 25,), // Calendar icon
+                Icon(Icons.calendar_today_rounded,color: Colors.white,size: 18,), // Calendar icon
                 Text(
                   selectedDate != null
                       ? "${selectedDate}"
                       : '15/NOV',
-                  style: Theme.of(context).textTheme.headline5,),
-                Image.asset('assets/images/arrow_down.png',color: Colors.white,),
+                  style: TextStyle(fontFamily: 'Poppins',fontSize: 15,color: Colors.white,fontWeight: FontWeight.w600)),
+                Icon(Icons.keyboard_arrow_down,color: Colors.white,size: 20,)
+                // Image.asset('assets/images/arrow_down.png',color: Colors.white,),
               ],
             ),
           ),
@@ -704,7 +766,7 @@ class _TimeSetState extends State<TimeSet>{
   final TextEditingController _meetingEditingController = TextEditingController();
   final FocusNode _focusNode = FocusNode();
   bool buttonPressed = false;
-
+  bool meetTitle = true,meetTime=true;
 
   @override
   void dispose(){
@@ -1079,8 +1141,95 @@ class _TimeSetState extends State<TimeSet>{
     return '$hour:$minuteStr $period';
   }
 
+  bool isFutureSchedule(String scheduledDay, String scheduledStartTime) {
+    DateTime now = DateTime.now();
+
+    List<String> dayParts = scheduledDay.split('/');
+    int scheduledYear = int.parse(dayParts[2]);
+    int scheduledMonth = _getMonthIndex(dayParts[1]);
+    int scheduledDayInt = int.parse(dayParts[0]);
+
+    List<String> timeParts = scheduledStartTime.split(':');
+    int scheduledHour = int.parse(timeParts[0]) % 12 + (timeParts[1].contains('PM') ? 12 : 0);
+    int scheduledMinute = int.parse(timeParts[1].split(' ')[0]);
+
+    DateTime scheduledDateTime = DateTime(scheduledYear, scheduledMonth, scheduledDayInt, scheduledHour, scheduledMinute);
+
+    // Adjust scheduledDateTime if it's after current time and before 3 AM (midnight handling)
+    if (scheduledDateTime.isAfter(now) && scheduledDateTime.hour < 3 && now.hour >= 3) {
+      scheduledDateTime = scheduledDateTime.subtract(Duration(days: 1));
+    }
+
+    return scheduledDateTime.isAfter(now);
+  }
+
+  int _getMonthIndex(String month) {
+    switch (month.toLowerCase()) {
+      case 'jan':
+        return DateTime.january;
+      case 'feb':
+        return DateTime.february;
+      case 'mar':
+        return DateTime.march;
+      case 'apr':
+        return DateTime.april;
+      case 'may':
+        return DateTime.may;
+      case 'jun':
+        return DateTime.june;
+      case 'jul':
+        return DateTime.july;
+      case 'aug':
+        return DateTime.august;
+      case 'sep':
+        return DateTime.september;
+      case 'oct':
+        return DateTime.october;
+      case 'nov':
+        return DateTime.november;
+      case 'dec':
+        return DateTime.december;
+      default:
+        return -1; // Invalid month
+    }
+  }
+
   bool validator(String? time,String title,String? date){
-    if(time!=null && title!='' && date!=null && time!=''){
+    if(title==''){
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     backgroundColor: Colors.red,
+      //     margin: EdgeInsets.all(10),
+      //     behavior: SnackBarBehavior.floating,
+      //     // showCloseIcon: true,
+      //     // closeIconColor: Colors.white,
+      //     duration: Duration(seconds: 2),
+      //     dismissDirection: DismissDirection.endToStart,
+      //     content: Center(child: Text('Enter Meeting Title',style: Theme.of(context).textTheme.headline5,)),
+      //   ),
+      // );
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Enter Meeting Title'),
+        ),
+      );
+      setState(() {
+        meetTitle = false;
+      });
+      return false;
+    }
+    else if(time==null || !isFutureSchedule(date!,time!)){
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Time Choosen Is Not Valid!!'),
+        ),
+      );
+      setState(() {
+        meetTime = false;
+      });
+      return false;
+    }
+    else if(time!=null && title!='' && date!=null && time!='' && isFutureSchedule(date,time)){
       return true;
     }else{
       ScaffoldMessenger.of(context).showSnackBar(
@@ -1140,131 +1289,158 @@ class _TimeSetState extends State<TimeSet>{
       return false;
     },
     child: Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Set Time',style: Theme.of(context).textTheme.subtitle1,),
-            SizedBox(height: 4,),
-            Text('Note : the call duration will be  for 20 min so make sure that your questions are planned.',style: Theme.of(context).textTheme.subtitle2,)
-          ],
-        ),
-        SizedBox(height: 15,),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Meeting Title',style: Theme.of(context).textTheme.subtitle1,),
-            Container(
-              width: screenWidth,
-              margin: EdgeInsets.only(right: 15),
-              decoration: BoxDecoration(
-                // color: Colors.red,
-                border: Border(
-                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                ),
+        Container(
+          padding: EdgeInsets.only(left:20,right:20),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Set Time',style: Theme.of(context).textTheme.subtitle1,),
+                  SizedBox(height: 4,),
+                  Text('Note : the call duration will be  for 20 min so make sure that your questions are planned.',style: Theme.of(context).textTheme.subtitle2,)
+                ],
               ),
-              child: TextField(
-                cursorColor: Colors.orange,
-                onTapOutside: (value){
-                  print('called');
-                  _focusNode.unfocus();
-                },
-                onSubmitted: (String value) {
-                  print('Submitted: $value');
-                  // Handle onSubmitted action here
-                  _focusNode.unfocus(); // Unfocus the TextField on submission
-                },
-                maxLines: null,
-                focusNode: _focusNode,
-                style: Theme.of(context).textTheme.subtitle2,
-                controller: _meetingEditingController,
-                decoration: InputDecoration(
-                  hintText: 'Type here.......', // Placeholder text
-                  hintStyle: TextStyle(color: Colors.grey,fontStyle: FontStyle.italic,fontSize: 14,fontWeight: FontWeight.w600),
-                //   enabledBorder: UnderlineInputBorder(
-                //   borderSide: BorderSide(color: Colors.black), // Bottom border color
-                // ),
-                // focusedBorder: UnderlineInputBorder(
-                // borderSide: BorderSide(color: Colors.orange), // Bottom border color when focused
-                // ),
-                  enabledBorder: InputBorder.none,
-                  focusedBorder: InputBorder.none,
-                ),),
-            ),
-          ],
-        ),
-        SizedBox(height: 25,),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Select your starting time',style: Theme.of(context).textTheme.subtitle1,),
-            SizedBox(height: 20,),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              crossAxisAlignment: CrossAxisAlignment.center,
-              children: [
-                Container(
-                  child: Image.asset('assets/images/clock.png',width: 35,height: 35,),
-                ),
-                SizedBox(width: 6,),
-                Container(
-                  padding: EdgeInsets.all(2),
-                  height: 57,
-                  decoration: BoxDecoration(
-                    color:HexColor('#5EEBEB').withOpacity(0.2),
-                    border: Border(
-                      bottom: BorderSide(
-                        color: Colors.black,
-                        width: 2,
+              SizedBox(height: 25,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Meeting Title',style: meetTitle==false? TextStyle(color:Colors.red,fontSize: 16,fontWeight: FontWeight.w600,fontFamily: 'Poppnis',):Theme.of(context).textTheme.subtitle1,),
+                  Container(
+                    width: screenWidth,
+                    margin: EdgeInsets.only(right: 15),
+                    decoration: BoxDecoration(
+                      // color: Colors.red,
+                      border: Border(
+                        bottom: meetTitle==false?BorderSide(color: Colors.red, width: 2.0) :BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                       ),
                     ),
+                    child: TextField(
+                      cursorColor: Colors.orange,
+                      onTapOutside: (value){
+                        print('called');
+                        _meetingEditingController.text = _meetingEditingController.text.trim();
+                        _focusNode.unfocus();
+                      },
+                      onTap: (){
+                        setState(() {
+                          meetTitle = true;
+                        });
+                      },
+                      onSubmitted: (String value) {
+                        print('Submitted: $value');
+                        _meetingEditingController.text = _meetingEditingController.text.trim();
+                        // Handle onSubmitted action here
+                        _focusNode.unfocus(); // Unfocus the TextField on submission
+                      },
+                      maxLines: null,
+                      focusNode: _focusNode,
+                      style: Theme.of(context).textTheme.subtitle2,
+                      controller: _meetingEditingController,
+                      decoration: InputDecoration(
+                        hintText: 'Type here.......', // Placeholder text
+                        hintStyle: TextStyle(color:meetTitle==false?Colors.red :Colors.grey,fontStyle: FontStyle.italic,fontSize: 14,fontWeight: FontWeight.w600),
+                      //   enabledBorder: UnderlineInputBorder(
+                      //   borderSide: BorderSide(color: Colors.black), // Bottom border color
+                      // ),
+                      // focusedBorder: UnderlineInputBorder(
+                      // borderSide: BorderSide(color: Colors.orange), // Bottom border color when focused
+                      // ),
+                        enabledBorder: InputBorder.none,
+                        focusedBorder: InputBorder.none,
+                      ),),
                   ),
-                  child: Center(
-                    child: GestureDetector(
-                        onTap: (){
-                          _selectStartTime(context);
-                          print('gsiddgisa');
-                          print(_startTime);
-                        },
-                        child: Text('${_formatTime(_startTime)}',style: TextStyle(fontSize: 27,fontFamily: 'Poppins'),)),
+                ],
+              ),
+              SizedBox(height: 35,),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Select your starting time',style: meetTime==false?TextStyle(fontFamily: 'Poppins',fontSize: 14,fontWeight: FontWeight.w600,color:Colors.red) : Theme.of(context).textTheme.subtitle1,),
+                  SizedBox(height: 10,),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                       meetTime==false
+                         ? SvgPicture.asset(
+                          'assets/images/clock_red_icon.svg', // Replace with the path to your SVG file
+                          width: 35, // Specify the width
+                          height: 35, // Specify the height
+                         // Change the color if needed
+                        )
+                        : SvgPicture.asset(
+                           'assets/images/clock_black_icon.svg', // Replace with the path to your SVG file
+                           width: 35, // Specify the width
+                           height: 35, // Specify the height
+                        ),
+                      SizedBox(width: 6,),
+                      Container(
+                        padding: EdgeInsets.all(2),
+                        height: 57,
+                        decoration: BoxDecoration(
+                          color: HexColor('#5EEBEB').withOpacity(0.2),
+                          border: Border(
+                            bottom: BorderSide(
+                              color: meetTime==false?Colors.red:Colors.black,
+                              width: 2,
+                            ),
+                          ),
+                        ),
+                        child: Center(
+                          child: GestureDetector(
+                              onTap: (){
+                                setState(() {
+                                  meetTime = true;
+                                });
+                                _selectStartTime(context);
+                                print('gsiddgisa');
+                                print(_startTime);
+                              },
+                              child: Text('${_formatTime(_startTime)}',style: TextStyle(fontSize: 27,fontFamily: 'Poppins',color: meetTime==false?Colors.red:Colors.black),)),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+              SizedBox(height: 10,),
+              startTime!=null && startTime!=''?
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text('Selected slot details',style:  TextStyle(fontSize: 14,fontFamily: 'Poppins',color: meetTime==false?Colors.red:Colors.black)),
+                  SizedBox(height: 2,),
+                  Row(
+                    children: [
+                      Container(
+                        child: Image.asset('assets/images/clock.png',width: 22,height: 22,),
+                      ),
+                      SizedBox(width: 5,),
+                      Text('${startTime} - ${endTime} India',style: TextStyle(color: meetTime==false?Colors.red:Colors.green,fontFamily: 'Poppins',fontWeight: FontWeight.w600,fontSize: 14,),),
+                    ],
+                  ),
+                ],
+              ):SizedBox(height:0),
+              startTime==''?
+                Text('*Please select a valid time.',style: TextStyle(color: Colors.red,fontFamily: 'Poppins',fontWeight: FontWeight.w600,fontSize: 13),)
+              :SizedBox(height: 0,),
+              SizedBox(height: 40,),
+            ],
+          ),
         ),
-        SizedBox(height: 10,),
-        startTime!=null && startTime!=''?
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Selected slot details',style: TextStyle(fontSize: 14,fontFamily: 'Poppins')),
-            SizedBox(height: 2,),
-            Row(
-              children: [
-                Container(
-                  child: Image.asset('assets/images/clock.png',width: 22,height: 22,),
-                ),
-                SizedBox(width: 5,),
-                Text('${startTime} - ${endTime} India',style: TextStyle(color: Colors.green,fontFamily: 'Poppins',fontWeight: FontWeight.w600,fontSize: 14,),),
-              ],
-            ),
-          ],
-        ):SizedBox(height:0),
-        startTime==''?
-          Text('*Please select a valid time.',style: TextStyle(color: Colors.red,fontFamily: 'Poppins',fontWeight: FontWeight.w600,fontSize: 13),)
-        :SizedBox(height: 0,),
-        SizedBox(height: 40,),
         Container(
-          padding: EdgeInsets.only(left: 5,right:5),
-          height: 57,
+          width:MediaQuery.of(context).size.width,
+          height: 63,
           child: FiledButton(
               backgroundColor: Colors.orange,
               onPressed: () async{
                 setState(() {
                   buttonPressed = true;
                 });
+                _meetingEditingController.text = _meetingEditingController.text.trim();
                 print('$startTime,${widget.setDate},${_meetingEditingController.text}');
                 if(validator(startTime,_meetingEditingController.text,widget.setDate)){
                   await checkSetDate_Time();
@@ -1279,11 +1455,10 @@ class _TimeSetState extends State<TimeSet>{
                       style: TextStyle(
                           fontWeight: FontWeight.bold,
                           color: Colors.white,
-                          fontSize: 22))
+                          fontSize: 20))
                       : CircularProgressIndicator(color: Colors.white,)
               )),
         ),
-        SizedBox(height:20),
       ],
     ),
   );

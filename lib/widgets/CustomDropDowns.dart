@@ -103,12 +103,34 @@ class CustomDOBDropDown extends StatelessWidget{
                 return Theme(
                   data: Theme.of(context).copyWith(
                     colorScheme: ColorScheme.light(
-                      primary: Colors.orange, // header background color
+                      surface: Theme.of(context).primaryColor,
+                      background: Theme.of(context).primaryColor,
+                      primary: Colors.orange,  // header background color
                       onPrimary: Colors.white, // header text color
-                      onSurface: Colors.orange, // body text color
+                      onSurface: Theme.of(context).primaryColor,     // body text color
+                      secondary: Theme.of(context).primaryColor,
+                      onSecondary: Theme.of(context).primaryColor,
+                      onSecondaryContainer: Theme.of(context).primaryColor,
+                      surfaceVariant: Theme.of(context).primaryColor,
+                      outline: Theme.of(context).primaryColor,
+                      outlineVariant: Theme.of(context).primaryColor,
+                    ),
+                    textTheme: TextTheme(
+                      subtitle1: Theme.of(context).textTheme.subtitle1,
+                      subtitle2: Theme.of(context).textTheme.subtitle1,
+                      headline1: Theme.of(context).textTheme.subtitle1,
+                      headline2: Theme.of(context).textTheme.subtitle1,
+                      headline3: Theme.of(context).textTheme.headline1,
+                      headline4: Theme.of(context).textTheme.headline1,
+                      headline5: Theme.of(context).textTheme.subtitle1,
+                      bodyText2:  Theme.of(context).textTheme.subtitle1,
+                      bodyText1:  Theme.of(context).textTheme.subtitle1,
+                      overline:  Theme.of(context).textTheme.subtitle1,
+                      caption: Theme.of(context).textTheme.subtitle1,
                     ),
                     textButtonTheme: TextButtonThemeData(
                       style: TextButton.styleFrom(
+                        textStyle: Theme.of(context).textTheme.headline2,
                         foregroundColor: Colors.orange, // button text color
                       ),
                     ),

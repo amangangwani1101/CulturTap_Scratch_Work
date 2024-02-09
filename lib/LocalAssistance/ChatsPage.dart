@@ -3644,7 +3644,8 @@ class _ChatsPageState extends State<ChatsPage> {
 
                               SizedBox(width: 5,),
                               widget.meetId!=null ?
-                              messageTyping==false &&  (meetStatus=='schedule' ||  sender.length<=1)? Container(
+                              messageTyping==false &&  (meetStatus=='schedule' ||  sender.length<=1)
+                                  ? Container(
                                 decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
 
                                   boxShadow: [

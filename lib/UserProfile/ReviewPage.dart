@@ -25,13 +25,16 @@ class _RatingSectionState extends State<RatingSection> {
     final screenWidth = MediaQuery.of(context).size.width;
     return Container(
       width: screenWidth,
-      padding: EdgeInsets.only(left: 10,right: 10),
+      padding: EdgeInsets.only(left: 15,right: 10),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
-          Text(
-            'Reviews About ${widget.name==null?'you':widget.name} ( ${widget.reviewCnt} )',
-            style: Theme.of(context).textTheme.subtitle1,
+          Container(
+            // color: Colors.orange,
+            child: Text(
+              'Reviews About ${widget.name==null?'you':widget.name} ( ${widget.reviewCnt} )',
+              style: Theme.of(context).textTheme.subtitle1,
+            ),
           ),
           SizedBox(height: 9),
           widget.reviewCnt==0?

@@ -47,12 +47,16 @@ class _FinalProfileState extends State<FinalProfile> {
   void initState() {
     super.initState();
 
-    fetchDataset();
+    startInitialSetup();
+  }
+
+  Future<void> startInitialSetup()async{
+    await fetchDataset();
     // print('userid is');
     // print(userID);
     // print('clickedid is');
     fetchingStoriesUserID(widget.clickedId);
-    fetchUserLocationAndData();
+    await fetchUserLocationAndData();
     print("clicked ID");
     print(widget.clickedId);
   }
@@ -213,7 +217,7 @@ class _FinalProfileState extends State<FinalProfile> {
       onRefresh: _refreshPage,
 
       child: Scaffold(
-        appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto'] : null,userId: userID,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
+        appBar:AppBar(title: ProfileHeader(reqPage: 0,imagePath:dataset != null ? dataset!['userPhoto']  : null,userId: userID,), shadowColor: Colors.transparent,automaticallyImplyLeading:false,toolbarHeight: 90,),
         body: WillPopScope(
           onWillPop: ()async{
             if(widget.fromWhichPage=='pings'){
@@ -263,9 +267,9 @@ class _FinalProfileState extends State<FinalProfile> {
                         ReachAndLocation(profileDataProvider: profileDataProvider,followers:dataset != null ? dataset!['userFollowers'] : null,following:dataset != null ? dataset!['userFollowing'] : null,locations:dataset != null ? dataset!['userExploredLocations'] : null),
                         SizedBox(height: 40,),
                         Container(
-                          width: 360,
+                          width: MediaQuery.of(context).size.width,
                           child: Center(
-                            child: UserDetailsTable(place:dataset != null && dataset?['userPlace']!=null? dataset!['userPlace'] : null,
+                            child: UserDetailsTable(id:widget.clickedId,place:dataset != null && dataset?['userPlace']!=null? dataset!['userPlace'] : null,
                               profession:dataset != null && dataset?['userProfession']!=null? dataset!['userProfession'] : null,
                               age:dataset != null && dataset?['userAge']!=null? dataset!['userAge'] : null,
                               gender:dataset != null && dataset?['userGender']!=null? dataset!['userGender'] : null,
@@ -277,8 +281,8 @@ class _FinalProfileState extends State<FinalProfile> {
                         ExpertCardDetails(),
                         SizedBox(height: 40,),
                         dataset?['userServiceTripCallingData'] != null && dataset?['userServiceTripCallingData']['startTimeFrom']!=null?TripCalling(name:dataset != null ? dataset!['userName'] : null,data:parseServiceTripCallingData(dataset?['userServiceTripCallingData']), actualUserId : widget.clickedId,currentUserId : userID,plans:dataset?['userServiceTripCallingData']['dayPlans']):SizedBox(height: 0,),
-                        SizedBox(height: 50,),
-                        RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:dataset?['userName']),
+                        SizedBox(height: 30,),
+                        RatingSection(ratings: dataset?['userReviewsData']!=null ?parseRatings(dataset?['userReviewsData']):[], reviewCnt: dataset?['userReviewsData']!=null? (dataset?['userReviewsData'].length):0,name:userID==widget.clickedId?'you':dataset?['userName']),
 
                         SizedBox(height : 40),
                       ],
@@ -500,7 +504,7 @@ class _TripCallingState extends State<TripCalling>{
                 children: [
                   Image.asset('assets/images/notification_icon.png',width: 22,height: 22,),
                   SizedBox(width: 10,),
-                  Text('5 already pending requests for \ninteraction with Hemant',style: Theme.of(context).textTheme.subtitle2),
+                  Text('5 already pending requests left for \ninteraction ',style: Theme.of(context).textTheme.subtitle2),
                   SizedBox(height : 20,),                  ],
               ),
             ],
@@ -512,14 +516,15 @@ class _TripCallingState extends State<TripCalling>{
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                SizedBox(height: 15,),
+                SizedBox(height: 25,),
                 Text('Cost of trip planning interaction call',style:Theme.of(context).textTheme.subtitle2,),
                 SizedBox(height:2),
-                Text('$costCall INR',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: HexColor('#0A8100')),)
+                Text('$costCall INR',style: TextStyle(fontSize: 20,fontWeight: FontWeight.bold,color: HexColor('#0A8100')),),
+                SizedBox(height: 45,),
               ],
             ),
           )
-              :SizedBox(height: 15,),
+              :SizedBox(height: 35,),
           widget.currentUserId == widget.actualUserId
               ? Container(
               width: 163,
@@ -546,20 +551,28 @@ class _TripCallingState extends State<TripCalling>{
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: [
                   FiledButton(
-                      backgroundColor: HexColor('#FB8C00'),
+                      backgroundColor: Colors.orange,
                       onPressed: () {
                         Navigator.push(context, MaterialPageRoute(builder: (context)=> CalendarPage(clickedUser: widget.actualUserId!,currentUser: widget.currentUserId!,)));
                       },
                       child: Container(
-                        width: 212,
-                        height: 21,
-
-                        child: Center(
-                          child: Text('Schedual a  Trip Planning Call',
-                              style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.white,
-                                  fontSize: 13)),
+                        width: 260,
+                        padding: EdgeInsets.only(left:2,right: 2,top: 13,bottom: 13),
+                         decoration: BoxDecoration(
+                           borderRadius: BorderRadius.circular(10),
+                         ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.center,
+                          children: [
+                            Text('Schedual a Trip Planning Call',
+                                style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                    fontSize: 15)),
+                            SizedBox(width: 1,),
+                            Icon(Icons.arrow_forward_ios,size: 20,weight: 5,color: Colors.white,),
+                          ],
                         ),
                       )),
                 ],

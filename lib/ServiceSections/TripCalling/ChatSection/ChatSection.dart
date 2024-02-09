@@ -3,24 +3,29 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/svg.dart';
 import 'package:flutter_webrtc/flutter_webrtc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:socket_io_client/socket_io_client.dart' as IO;
 // import 'package:socket_io_common/src/util/event_emitter.dart';
 import 'package:http/http.dart' as http;
+import '../../../All_Notifications/customizeNotification.dart';
+import '../../../CustomItems/ImagePopUpWithTwoOption.dart';
 import '../../../UserProfile/ProfileHeader.dart';
 import '../../../fetchDataFromMongodb.dart';
 import '../../../widgets/Constant.dart';
 import '../../../widgets/hexColor.dart';
+import '../../LocalAssistant/ChatSection/Uploader.dart';
 
 class ChatApps extends StatefulWidget {
   String senderId='',receiverId='';
-  String ?date,meetingId;
+  String ?date,meetingId,startTime;
   DateTime?currentTime;
   VoidCallback? callbacker;
   int ?index;
-  ChatApps({required this.senderId,required this.receiverId, this.meetingId,this.date,this.index,this.currentTime,this.callbacker});
+  ChatApps({required this.senderId,required this.receiverId, this.meetingId,this.date,this.index,this.currentTime,this.callbacker,this.startTime});
   @override
   _ChatAppsState createState() => _ChatAppsState();
 }
@@ -37,7 +42,7 @@ class _ChatAppsState extends State<ChatApps> {
   late Timer meetingTimer;
   String senderNavigatorId = 'sender';
   String receiverNavigatorId = 'receiver';
-  int meetingTime =90;
+  int meetingTime =20;
   Duration meetingDuration = Duration(); // Set your meeting duration
   Duration remainingTime = Duration();
   Timer countdownTimer = Timer(Duration(seconds: 0), () { });
@@ -55,7 +60,7 @@ class _ChatAppsState extends State<ChatApps> {
   String userId='',plannerId='',meetId='',date='',index='',meetStatus='',userName='',userPhoto='',plannerName='',plannerPhoto='',startTime='',endTime='',meetType='',plannerToken='',userToken='';
   DateTime? time;
   bool meetClosed = false,_isTyping=false;
-
+  bool meetScheduled = false;
 
 
   @override
@@ -70,25 +75,32 @@ class _ChatAppsState extends State<ChatApps> {
       dataFetched = false;
     });
 
-    // await fetchMeetStatus();
+    await fetchMeetStatus();
     await fetchTripPlanningMeetDetais();
-    await fetchDataset();
-    await retriveMeetingConversation(meetId);
     if(meetStatus=='close' || meetStatus=='closed'){
       setState(() {
-        _isUiEnabled = false;
+        meetClosed = true;
       });
     }
     else{
       if (time != null && time!.isAfter(DateTime.now())) {
         // DateTime is greater than current time, start the countdown
+        setState(() {
+          meetScheduled = true;
+        });
         startCountdown();
+
       }
       else{
         _isUiEnabled = false;
         startMeetingTimer();
         await startSocketConnection();
       }
+    }
+    await fetchDataset();
+    await retriveMeetingConversation(meetId);
+    if(messages.length>0){
+      scrollToBottom();
     }
     _textFieldFocusNode.addListener(() {
       scrollToBottom();
@@ -160,6 +172,9 @@ class _ChatAppsState extends State<ChatApps> {
       print('Users Name and Photo Taken');
       setState(() {
         if(widget.senderId!=''){
+          userName = data['userName'];
+          userPhoto = data['userPhoto']!=null?data['userPhoto']:'';
+        }else{
           userName = data['userName'];
           userPhoto = data['userPhoto']!=null?data['userPhoto']:'';
         }
@@ -241,9 +256,10 @@ class _ChatAppsState extends State<ChatApps> {
     Map<String, dynamic> requestData = {
       "userId" : userID,
       "date" : widget.date,
-      "index":widget.index
+      "meetStartTime":widget.startTime,
     };
-
+    print('data is ');
+    print(requestData);
     try {
       final response = await http.patch(
         url,
@@ -304,7 +320,7 @@ class _ChatAppsState extends State<ChatApps> {
     Map<String, dynamic> requestData = {
       "userId" : userID,
       "date" : widget.date,
-      "index":widget.index
+      'meetStartTime':widget.startTime,
     };
 
     try {
@@ -367,34 +383,30 @@ class _ChatAppsState extends State<ChatApps> {
     WidgetsBinding.instance?.addPostFrameCallback((_) {
       _scrollController.animateTo(
         _scrollController.position.maxScrollExtent,
-        duration: Duration(milliseconds: 10),
+        duration: Duration(milliseconds: 600),
         curve: Curves.easeInOut,
       );
     });
   }
 
   void updateBroadCast(dynamic data)async{
-
     setState(() {
       messages.add([data['message'],data['user']]);
       if(data['user']=='sender')
         sender.add(data['message']);
       else if(data['user']=='receiver')
         receiver.add(data['message']);
-      else if(data['user']=='admin-close'){
-        meetClosed = true;
-      }
       scrollToBottom();
     });
   }
 
-  Future<void> cancelMeeting(String date,int index,String status,String otherId,String otherStatus)async{
+  Future<void> cancelMeeting(String date,String startTime,String status,String plannerId,String otherStatus)async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
-        'userId': widget.senderId==''?widget.receiverId:widget.senderId,
+        'userId':userID,
         'date':date,
-        'index':index,
+        'startTime':startTime,
         'setStatus':status,
         'user2Id':plannerId,
         'set2Status':otherStatus,
@@ -482,6 +494,7 @@ class _ChatAppsState extends State<ChatApps> {
           if (_remainingTime.inSeconds <= 0) {
             _timer.cancel();
             // _refreshPage();
+            meetScheduled = false;
             initalSetup();
           }
         });
@@ -541,9 +554,27 @@ class _ChatAppsState extends State<ChatApps> {
 
   void navigateToEndScreen() async{
     // Navigate to the end screen after the meeting ends
-    await updateMeetingChats(meetId,['','admin-close']);
-    socket.emit('message', {'message':'','user1':'admin-close','user2':''});
-    await cancelMeeting(widget.date!,widget.index!,'close',widget.receiverId==''?widget.senderId:widget.receiverId,'close');
+    await cancelMeeting(widget.date!,startTime,'close',plannerId,'close');
+    await fetchMeetStatus();
+    if(meetType=='sender'){
+      sendCustomNotificationToOneUser(
+          userToken,
+          'Trip Planning Meeting Updates',
+          'Trip Planning Request Updates','Meeting is closed successfully',
+          'Closed','trip_planning_close',userID,'user'
+      );
+    }
+    else{
+      sendCustomNotificationToOneUser(
+          plannerToken,
+          'Message From ${userName}',
+          'Messages From ${userName}' ,'Meeting  with ${date} , ${startTime} is cancelled by ${userName}',
+          'Closed','trip_planning_close',userId,'helper'
+      );
+    }
+    setState(() {
+      meetClosed = true;
+    });
     // showMeetingEndedAlert();
 
     // Navigator.of(context).pop();
@@ -571,15 +602,79 @@ class _ChatAppsState extends State<ChatApps> {
     final screenWidth = MediaQuery.of(context).size.width;
     // int minutes = remainingTime.inMinutes;
     return Scaffold(
-      appBar: AppBar( automaticallyImplyLeading: false,title: ProfileHeader(reqPage: 2,text:'chats',userId:widget.senderId!=''?widget.senderId:widget.receiverId,onButtonPressed:(){
-        // if(_isUiEnabled!=true){
-        //   if(widget.senderId!='')
-        //     storeDataLocally(senderNavigatorId);
-        //   else
-        //     storeDataLocally(receiverNavigatorId);
-        // }
-        Navigator.of(context).pop();
-      },service:'trip_planning',meetStatus:_isUiEnabled==false?'started':meetStatus,state: (widget.senderId!='')?'trip_user':'trip_planner',),),
+      appBar: AppBar( automaticallyImplyLeading: false,title: ProfileHeader(reqPage: 2,text:'chats',userId:userID,onButtonPressed:(){
+        if(meetStatus=='schedule'){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PingsSection(userId:userID,state:'Scheduled',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+            ),
+          );
+        }else{
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => PingsSection(userId:userID,state:'Closed',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+            ),
+          );
+        }
+          // if(widget.senderId!='')
+          //   storeDataLocally(senderNavigatorId);
+          // else
+          //   storeDataLocally(receiverNavigatorId);
+      },service:'trip_planning',fromWhichPage: 'trip_planning_chat',meetStatus:_isUiEnabled==false?'started':meetStatus,state: meetType=='sender'?'user':'helper',cancelCloseClick: ()async{
+        String currentMeetStatus = meetStatus;
+        await fetchMeetStatus();
+        if(currentMeetStatus!=meetStatus){
+          Fluttertoast.showToast(
+            msg:
+            'Meeting Is Closed By ${plannerName}.Update Page!!',
+            toastLength:
+            Toast.LENGTH_SHORT,
+            gravity:
+            ToastGravity.BOTTOM,
+            backgroundColor:
+            Theme.of(context).primaryColorDark,
+            textColor: Colors.orange,
+            fontSize: 16.0,
+          );
+          setState(() {
+            meetClosed = true;
+          });
+        }
+        else{
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField:'You are closing this request ?',extraText: 'Thank you for using our services !', what: 'a',
+                option2Callback:()async{
+
+                  await cancelMeeting(widget.date!,startTime,'close',plannerId,'close');
+                  socket.emit('message', {'message':'','user1':'admin-close','user2':''});
+                  if(meetType=='sender'){
+                    sendCustomNotificationToOneUser(
+                        userToken,
+                        'Trip Planning Meeting Updates',
+                        'Meeting is closed successfully <br/> Thank You For Using Service','Meeting is closed successfully',
+                        'Closed','trip_planning_close',userID,'user'
+                    );
+                  }
+                  else{
+                    sendCustomNotificationToOneUser(
+                        plannerToken,
+                        'Message From ${userName}',
+                        'Messages From ${userName} <br/> Meeting  with ${date} , ${startTime} is closed by ${userName}' ,'Meeting  with ${date} , ${startTime} is closed by ${plannerName}',
+                        'Closed','trip_planning_close',plannerId,'helper'
+                    );
+                  }
+                  setState(() {
+                    meetClosed = true;
+                  });
+                },);
+            },
+          );
+        }
+      },),),
       body: WillPopScope(
         onWillPop: ()async{
           // if(_isUiEnabled!=true){
@@ -588,18 +683,31 @@ class _ChatAppsState extends State<ChatApps> {
           //   else
           //     storeDataLocally(receiverNavigatorId);
           // }
-          Navigator.of(context).pop();
-
+          if(meetStatus=='schedule'){
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PingsSection(userId:userID,state:'Scheduled',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+              ),
+            );
+          }else{
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PingsSection(userId:userID,state:'Closed',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+              ),
+            );
+          }
           return true;
         },
-        child: dataFetched
-            ? Container(
+        child: Container(
           color: Theme.of(context).backgroundColor,
           height : MediaQuery.of(context).size.height,
           width : double.infinity,
           child: Stack(
             children: [
               Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Container(
                     margin: EdgeInsets.only(left: 20,right:20),
@@ -607,13 +715,22 @@ class _ChatAppsState extends State<ChatApps> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         SizedBox(height: 15,),
-                        Container(
+                        dataFetched
+                            ? Container(
                             width: 200,
-                            child: Text('Get Connected With Customer',style:Theme.of(context).textTheme.headline2,)),
-                        SizedBox(height: 10,),
-                        Text('You can chat, talk or do the Video call',style: Theme.of(context).textTheme.subtitle2,),
-                        SizedBox(height: 10,),
-                        Row(
+                            margin: EdgeInsets.only(bottom: 10),
+                            child: meetType=='sender'
+                                ? Text('Get Connected With Trip Planner',style:Theme.of(context).textTheme.headline2,)
+                                : Text('Get Connected With Your Customer',style:Theme.of(context).textTheme.headline2,)
+                        )
+                            : SizedBox(height: 0,),
+                        dataFetched
+                            ? Container(
+                            margin: EdgeInsets.only(bottom: 10),
+                            child: Text('You can chat, talk or do the Video call',style: Theme.of(context).textTheme.subtitle2,))
+                            : SizedBox(height: 0,),
+                        dataFetched
+                            ? Row(
                           mainAxisAlignment: MainAxisAlignment.start,
                           children: [
                             Image.asset('assets/images/clock.png',width: 22,height: 22,color: meetClosed?Colors.orange : _isUiEnabled?Colors.red:Colors.green,),
@@ -622,17 +739,34 @@ class _ChatAppsState extends State<ChatApps> {
                                 ?Text('00M:00S',style: TextStyle(fontSize: 18,fontWeight: FontWeight.w800,color: Colors.orange,fontFamily: 'Poppins'),)
                                 : _isUiEnabled
                                 ?Text(
-                              "${twoDigits(_remainingTime.inDays,0)}${twoDigits((_remainingTime.inHours)%24,1)}${twoDigits((_remainingTime.inMinutes % 60),2)}${twoDigits((_remainingTime.inSeconds % 60),3)}",
+                              "Time Left - ${twoDigits(_remainingTime.inDays,0)}${twoDigits((_remainingTime.inHours)%24,1)}${twoDigits((_remainingTime.inMinutes % 60),2)}${twoDigits((_remainingTime.inSeconds % 60),3)}",
                               style: TextStyle(fontSize: 18, fontFamily: 'Poppins', fontWeight: FontWeight.bold, color: Colors.red),
                             )
-                                : Text('${remainingTime.inMinutes}Min : ${(remainingTime.inSeconds)%60}Sec',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                                : Row(
+                                  mainAxisAlignment: MainAxisAlignment.start,
+                                  children: [
+                                    Text('${remainingTime.inMinutes}Min : ${(remainingTime.inSeconds)%60}Sec ',style: TextStyle(fontSize: 16,fontFamily: 'Poppins',fontWeight: FontWeight.bold,color: Colors.green),),
+                                    Text(' left ',style: TextStyle(fontWeight: FontWeight.w700,color: Colors.green.withOpacity(0.5),fontSize: 13,fontFamily: 'Poppins',fontStyle: FontStyle.normal),),
+                                  ],
+                                ),
                           ],
-                        ),
+                        )
+                            :SizedBox(height: 0,),
                       ],
                     ),
                   ),
                   SizedBox(height: 20,),
-                  messages.length==0 && !_isUiEnabled
+                  // !dataFetched
+                  //     ? Center(
+                  //   // Show a circular progress indicator while data is being fetched
+                  //   child: CircularProgressIndicator(
+                  //     color: Theme.of(context).primaryColorDark,
+                  //   ),
+                  // )
+                  // :SizedBox(height: 0,),
+                  meetScheduled
+                      ? Expanded(child: SizedBox(height: 0,))
+                      :messages.length==0 && !_isUiEnabled && dataFetched
                       ?Expanded(
                     child: Column(
                       children: [
@@ -650,7 +784,9 @@ class _ChatAppsState extends State<ChatApps> {
                             height: 150,
                             decoration: BoxDecoration(
                               // color: Colors.white,
-                              color: Colors.red,// Container background color
+                              // color: Colors.red,// Container background color
+                              color: Theme.of(context).primaryColorLight,
+
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.grey.withOpacity(0.6),
@@ -674,7 +810,7 @@ class _ChatAppsState extends State<ChatApps> {
                       ],
                     ),
                   )
-                      :!_isUiEnabled
+                      :(!_isUiEnabled || meetClosed) && dataFetched
                       ? Expanded(
                      child: Container(
                       margin: EdgeInsets.only(bottom: 70),
@@ -933,17 +1069,31 @@ class _ChatAppsState extends State<ChatApps> {
                       ),
                     ),
                   )
-                      :Expanded(child: SizedBox(height: 10,)),
+                      :Expanded(child: SizedBox(height: 0, child: Center(
+                        child: CircularProgressIndicator(
+                    color: Theme.of(context).primaryColorDark,
+                  ),
+                      ),)),
                 ],
               ),
 
-              Positioned(
+              dataFetched
+                  ? Positioned(
                 bottom : 0,
                 left : 0,
                 right : 0,
                 child: meetClosed
                     ? InkWell(
-                  onTap: (){},
+                  onTap: (){
+                    if(meetStatus=='close'){
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => RateFeedBack(userId:userID,startTime: widget.startTime!,date:widget.date,fromWhichPage:'trip_planning_chat'),
+                        ),
+                      );
+                    }
+                  },
                   child: Container(
                     height : 63,
                     padding:EdgeInsets.only(left:10,right:10),
@@ -952,82 +1102,218 @@ class _ChatAppsState extends State<ChatApps> {
                       borderRadius: BorderRadius.circular(0),
                       border: Border.all(color: Colors.orange),
                     ),
-                    child: Center(child:Text(meetStatus=='cancel'?'Cancelled': meetStatus=='close'?'Rate & Feedback' :'Closed',style: TextStyle(
+                    child: Center(child:Text(meetStatus=='close'?'Rate & Feedback' :'Closed',style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.orange,
                         fontSize: 18))),
                   ),
                 )
-                    :  Row(
+                    :  Container(
+                  margin: EdgeInsets.only(left:5,right:5,bottom: 10),
+
+                  child: Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: [
-                    Container(
-                      width: MediaQuery.of(context).size.width,
-                      height: 60,
-                      decoration: BoxDecoration(borderRadius: BorderRadius.circular(10),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2'),
+                      Flexible(
+                        child: Container(
+                          // width: 300,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color : Theme.of(context).primaryColorLight,
+
+                            boxShadow: [
+
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                spreadRadius: 0.5,
+                                blurRadius: 0.2,
+                                offset: Offset(0, 2), // Adjust the shadow offset
+                              ),
+                            ],
+
+                            borderRadius: BorderRadius.circular(50),
+                          ),
+                          // padding: EdgeInsets.only(left: 25,right: 0),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: <Widget>[
+                              SizedBox(width: 30,),
+                              Expanded(
+                                child: Container(
+                                  child: TextField(
+                                    style : Theme.of(context).textTheme.subtitle2,
+                                    onChanged: (text){
+                                      setState(() {
+                                        scrollToBottom();
+                                      });
+                                      // if (text.length > 0) {
+                                      //   setState(() {
+                                      //     messageTyping = true;
+                                      //   });
+                                      // } else {
+                                      //   setState(() {
+                                      //     messageTyping = false;
+                                      //   });
+                                      // }
+                                    },
+                                    onTap: (){
+                                      if(_isUiEnabled){
+                                        _textFieldFocusNode.unfocus();
+                                      }
+                                    },
+                                    onTapOutside: (value){
+                                      _textFieldFocusNode.unfocus();
+                                    },
+                                    onSubmitted: (value){
+                                      _textFieldFocusNode.unfocus();
+                                    },
+                                    onEditingComplete: (){
+                                      _textFieldFocusNode.unfocus();
+                                    },
+                                    maxLines: null,
+                                    focusNode: _textFieldFocusNode,
+                                    controller: _controller,
+                                    decoration: InputDecoration(hintText: 'Type your Message here....',hintStyle: Theme.of(context).textTheme.subtitle2,border: InputBorder.none, ),
+                                  ),
+                                ),
+                              ),
+                              GestureDetector(
+                                  onTap: ()async{
+                                    String ?path = await showDialog(context: context, builder: (BuildContext context){
+                                      return Container(child: UploadMethod());
+                                    },);
+                                    if(path!=null && path.length>0){
+                                      if(meetType=='receiver'){
+                                        await updateMeetingChats(meetId,[path,'helper']);
+                                        socket.emit('message', {'message':path,'user1':'','user2':'helper'});
+                                      }
+                                      else{
+                                        await updateMeetingChats(meetId,[path,'user']);
+                                        socket.emit('message', {'message':path,'user1':'user','user2':''});
+                                      }
+                                      setState(() {});
+                                    }
+                                  },
+                                  child: SvgPicture.asset('assets/images/attachment_icon.svg',color : Theme.of(context).primaryColor,)),
+                              SizedBox(width: 20,),
+                            ],
+                          ),
+                        ),
                       ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: <Widget>[
-                          SizedBox(width: 30,),
-                          Expanded(
-                            child: TextField(
-                              onChanged: (text){
-                                setState(() {
-                                  scrollToBottom();
-                                });
-                              },
-                              onTapOutside: (value){
-                                _textFieldFocusNode.unfocus();
-                              },
-                              onSubmitted: (value){
-                                _textFieldFocusNode.unfocus();
-                              },
-                              onEditingComplete: (){
-                                _textFieldFocusNode.unfocus();
-                              },
-                              focusNode: _textFieldFocusNode,
-                              controller: _controller,
-                              decoration: InputDecoration(hintText: 'Type your Message here',border: InputBorder.none, ),
+                      // SizedBox(width: 5,),
+                      // Container(
+                      //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+                      //   child: IconButton(
+                      //     icon: Icon(Icons.call),
+                      //     // onPressed:initiateVideoCall,
+                      //     onPressed: !_isUiEnabled ? startCall : null,
+                      //   ),
+                      // ),
+                      // SizedBox(width: 5,),
+                      // Container(
+                      //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
+                      //   child: IconButton(
+                      //     icon: Icon(Icons.videocam),
+                      //     // onPressed:initiateVideoCall,
+                      //     onPressed: (){},
+                      //   ),
+                      // ),
+                      _controller.text.length>0
+                        ? Container(
+                        margin: EdgeInsets.all(5),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
+
+                          boxShadow: [
+
+
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                              spreadRadius: 0.5,
+                              blurRadius: 0.2,
+                              offset: Offset(0, 2), // Adjust the shadow offset
                             ),
-                          ),
-                          IconButton(
-                            icon: Icon(Icons.send),
-                            onPressed: !_isUiEnabled ? _handleSend : null,
-                          ),
-                        ],
+                          ],
+                          color : Theme.of(context).primaryColorLight,
+                        ),
+                          child: IconButton(
+                          icon: Icon(Icons.send),
+                          onPressed: !_isUiEnabled ? _handleSend : null,
                       ),
-                    ),
-                    // SizedBox(width: 5,),
-                    // Container(
-                    //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
-                    //   child: IconButton(
-                    //     icon: Icon(Icons.call),
-                    //     // onPressed:initiateVideoCall,
-                    //     onPressed: !_isUiEnabled ? startCall : null,
-                    //   ),
-                    // ),
-                    // SizedBox(width: 5,),
-                    // Container(
-                    //   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),color: _isUiEnabled?HexColor('#F2F2F2').withOpacity(0.2):HexColor('#F2F2F2')),
-                    //   child: IconButton(
-                    //     icon: Icon(Icons.videocam),
-                    //     // onPressed:initiateVideoCall,
-                    //     onPressed: (){},
-                    //   ),
-                    // ),
+                        ):SizedBox(width: 0,),
+                      _controller.text.length==0
+                      ? Container(
+                        margin: EdgeInsets.all(5),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
+
+                          boxShadow: [
+
+
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                              spreadRadius: 0.5,
+                              blurRadius: 0.2,
+                              offset: Offset(0, 2), // Adjust the shadow offset
+                            ),
+                          ],
+                          color : Theme.of(context).primaryColorLight,
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.call),
+                          onPressed:()async{
+                            // await _joinCall(
+                            //   callerId: widget.meetId!,
+                            //   calleeId: widget.meetId!,
+                            //   section: 'audio',
+                            //   imageOwn:userPhoto,
+                            //   imageOther:helperPhoto,
+                            // );
+                          },
+                          // onPressed: !_isUiEnabled ? startCall : null,
+                          color : Theme.of(context).primaryColor,
+                        ),
+                      )
+                      :SizedBox(width: 0,),
+                      _controller.text.length==0
+                      ? Container(
+                        // margin: EdgeInsets.all(5),
+                        decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
+                          boxShadow: [
+
+
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                              spreadRadius: 0.5,
+                              blurRadius: 0.2,
+                              offset: Offset(0, 2), // Adjust the shadow offset
+                            ),
+                          ],
+                          color : Theme.of(context).primaryColorLight,
+                        ),
+                        child: IconButton(
+                          icon: Icon(Icons.videocam),
+                          // onPressed:initiateVideoCall,
+                          onPressed: (){
+                            // _joinCall(
+                            //   callerId: widget.meetId!,
+                            //   calleeId: widget.meetId!,
+                            //   section: 'video',
+                            //   imageOwn:userPhoto,
+                            //   imageOther:helperPhoto,
+                            // );
+
+                          },
+                          color : Theme.of(context).primaryColor,
+                        ),
+                      )
+                      :SizedBox(width: 0,),
                   ],
                 ),
+                    ),
               )
+                  : SizedBox(height: 0,),
             ],
           ),
         )
-            : Center(
-          // Show a circular progress indicator while data is being fetched
-          child: CircularProgressIndicator(
-            color: Theme.of(context).primaryColorDark,
-          ),
-        ),
       ),
       // bottomNavigationBar:
       // meetClosed
@@ -1115,12 +1401,25 @@ class _ChatAppsState extends State<ChatApps> {
     if (message.isNotEmpty) {
       try {
         // Send the message to the server
-        if(widget.senderId!='') {
+        print('Meet Type ${meetType} ${userName} ${widget.startTime} ${widget.date}');
+        if(meetType=='sender') {
           await updateMeetingChats(meetId,[message,'sender']);
           socket.emit('message', {'message':message,'user1':'sender','user2':''});
+          sendCustomNotificationToOneUser(
+              plannerToken,
+              'Message From ${userName}',
+              'Message From ${userName}',_controller.text,
+              '${widget.date}','trip_planning_chat_message','sender','${widget.startTime}'
+          );
         } else{
           await updateMeetingChats(meetId,[message,'receiver']);
           socket.emit('message', {'message':message,'user1':'','user2':'receiver'});
+          sendCustomNotificationToOneUser(
+              plannerToken,
+              'Message From ${userName}',
+              'Message From ${userName}',_controller.text,
+              '${widget.date}','trip_planning_chat_message','receiver','${widget.startTime}}'
+          );
         }
         print(message);
         _controller.clear();

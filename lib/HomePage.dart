@@ -435,9 +435,6 @@ class _HomePageState extends State<HomePage> {
 
       onWillPop: () => backButtonHandler10.onWillPop(context, true),
       child: Scaffold(
-
-
-
         backgroundColor: Theme.of(context).backgroundColor,
         body: RefreshIndicator(
           backgroundColor: Color(0xFF263238),

@@ -22,27 +22,33 @@ class _SelectionScreenState extends State<SelectionScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      appBar: AppBar(title: Container(
+          padding:EdgeInsets.only(left: 22),
+        child: Text('Select Languages ',style: Theme.of(context).textTheme.subtitle1,)),automaticallyImplyLeading: false,),
       body: ListView.builder(
         itemCount: options.length,
         itemBuilder: (context, index) {
           final option = options[index];
           final isSelected = selectedOptions.contains(option);
 
-          return CheckboxListTile(
-            activeColor: Colors.orange,
-            title: Text(option,style: Theme.of(context).textTheme.subtitle1,),
-            value: isSelected,
-            onChanged: (value) {
-              setState(() {
-                if (value != null) {
-                  if (value) {
-                    selectedOptions.add(option);
-                  } else {
-                    selectedOptions.remove(option);
+          return Container(
+            padding: EdgeInsets.only(left: 22,right:22),
+            child: CheckboxListTile(
+              activeColor: Colors.orange,
+              title: Text(option,style: Theme.of(context).textTheme.subtitle2,),
+              value: isSelected,
+              onChanged: (value) {
+                setState(() {
+                  if (value != null) {
+                    if (value) {
+                      selectedOptions.add(option);
+                    } else {
+                      selectedOptions.remove(option);
+                    }
                   }
-                }
-              });
-            },
+                });
+              },
+            ),
           );
         },
       ),

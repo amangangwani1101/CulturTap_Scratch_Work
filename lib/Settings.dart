@@ -21,10 +21,13 @@ import 'package:learn_flutter/widgets/CustomAutoSuggestionDropDown.dart';
 import 'package:learn_flutter/widgets/CustomButton.dart';
 import 'package:learn_flutter/widgets/hexColor.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
+import 'BackendStore/BackendStore.dart';
 import 'ServiceSections/ServiceCards.dart';
 import 'ServiceSections/TripCalling/Payments/RazorPay.dart';
 import 'SignUp/FirstPage.dart';
 import 'UserProfile/CoverPage.dart';
+import 'UserProfile/FinalUserProfile.dart';
 import 'UserProfile/UserInfo.dart';
 import 'widgets/Constant.dart';
 import 'widgets/CustomAlertImageBox.dart';
@@ -514,8 +517,8 @@ class _SettingsPageState extends State<SettingsPage> {
 }
 
 class EditProfile extends StatefulWidget{
-  String?userId;
-  EditProfile({this.userId});
+  String?userId,fromWhichPage;
+  EditProfile({this.userId,this.fromWhichPage});
   @override
   _EditProfileState createState() => _EditProfileState();
 }
@@ -583,7 +586,17 @@ class _EditProfileState extends State<EditProfile>{
         } else {
           print('Invalid userCredId');
         }
-        Navigator.of(context).pop();
+        if(widget.fromWhichPage=='final_profile_edit'){
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+              create:(context) => ProfileDataProvider(),
+              child: FinalProfile(userId: userID,clickedId: userID,),
+            ),),
+          );
+        }else{
+          Navigator.of(context).pop();
+        }
         print('Data updated successfully');
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -650,30 +663,42 @@ class _EditProfileState extends State<EditProfile>{
   Widget build(BuildContext context) {
     return WillPopScope(
       onWillPop: ()async{
-
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
-        );
-
+        if(widget.fromWhichPage=='final_profile_edit'){
+          Navigator.of(context).pop();
+        }else{
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
+          );
+        }
         return true;
       },
       child: Scaffold(
-          appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
+          appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,fromWhichPage: widget.fromWhichPage,onButtonPressed: (){
+            if(widget.fromWhichPage=='final_profile_edit'){
+              Navigator.of(context).pop();
+            }else{
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+                  create:(context) => ProfileDataProvider(),
+                  child: FinalProfile(userId: userID,clickedId: userID,),
+                ),),
+              );
+            }
+          },),automaticallyImplyLeading: false, shadowColor: Colors.transparent,toolbarHeight: 90),
           body: name!=null
               ?SingleChildScrollView(
-            child: Container(
-
-              padding: EdgeInsets.all(22),
-              color : Theme.of(context).backgroundColor,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  Center(
-                    child: Container(
-                      width: 360,
-                      child: Column(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.only(left:10,right:10),
+                  color : Theme.of(context).backgroundColor,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
@@ -692,78 +717,62 @@ class _EditProfileState extends State<EditProfile>{
                           MotivationalQuote(text:'edit',quote:quote,quoteCallback: (value){quote = value;print(value);},),
                         ],
                       ),
-                    ),
-                  ),
-                  Container(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        ProfileForm(text:'edit',homeCityCallback: (value){
-                          homeCity = value;
-                        },professionCallback:(value){
-                          profession = value;
-                        },dobCallback:(value){
-                          dateOfBirth = value;
-                        },genderCallback:(value){
-                          gender = value;
-                        },languageCallback:(values){
-                          language = values;
-                        },ageCallBack:(value){
-                          dob = value;
-                        }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
-                        ),
-
-                        SizedBox(height : 0),
-
-
-
-                        SizedBox(height : 20),
-
-                        Center(
-                          child: Container(
-
-                            padding: EdgeInsets.only(left : 10, right : 10),
-
-
-
-                            child: Column(
-                              children: [
-                                InkWell(
-                                  onTap: (){
-                                    sendDataToBackend();
-                                  },
-                                  child: Container(height : 53,width : double.infinity,
-
-                                    decoration: BoxDecoration(
-                                      color: Colors.orange,
-                                      borderRadius: BorderRadius.circular(10),
-                                      boxShadow: [
-                                        BoxShadow(
-                                          color: Colors.grey.withOpacity(0.5), // Shadow color
-                                          spreadRadius: 0.5,  // Spread radius
-                                          blurRadius: 0.3,    // Blur radius
-                                          offset: Offset(1, 1 ), // Offset (elevation of the shadow)
-                                        ),
-                                      ],
-                                      // Adjust the value for the desired border radius
-                                    ),
-                                    child : Center(child: Text('SUBMIT',style:TextStyle(fontSize: 18,color : Colors.white,fontWeight: FontWeight.bold))),
-                                  ),
-                                ),
-                                SizedBox(height : 35),
-
-                              ],
+                      Container(
+                        padding: EdgeInsets.only(left:5,right:5),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            ProfileForm(text:'edit',homeCityCallback: (value){
+                              homeCity = value;
+                            },professionCallback:(value){
+                              profession = value;
+                            },dobCallback:(value){
+                              dateOfBirth = value;
+                            },genderCallback:(value){
+                              gender = value;
+                            },languageCallback:(values){
+                              language = values;
+                            },ageCallBack:(value){
+                              dob = value;
+                            }, setHomeCity:homeCity,setProfession:profession,setGender:gender,setLanguage:language,setDOB:dateOfBirth,setAge:dob,
                             ),
-                          ),
+
+                            SizedBox(height : 0),
+
+
+
+                            SizedBox(height : 20),
+
+                          ],
+
                         ),
-
-                      ],
-
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+                InkWell(
+                  onTap: (){
+                    sendDataToBackend();
+                  },
+                  child: Container(height : 63,width : double.infinity,
+                    decoration: BoxDecoration(
+                      color: Colors.orange,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.grey.withOpacity(0.5), // Shadow color
+                          spreadRadius: 0.5,  // Spread radius
+                          blurRadius: 0.3,    // Blur radius
+                          offset: Offset(1, 1 ), // Offset (elevation of the shadow)
+                        ),
+                      ],
+                      // Adjust the value for the desired border radius
+                    ),
+                    child : Center(child: Text('SET PROFILE',style:TextStyle(fontSize: 18,color : Colors.white,fontWeight: FontWeight.bold,fontFamily: 'Poppins'))),
+                  ),
+                ),
+
+              ],
             ),
           )
               :Container(
@@ -775,16 +784,7 @@ class _EditProfileState extends State<EditProfile>{
               ],
             ),
           ),
-          bottomNavigationBar: AnimatedContainer(
 
-            duration: Duration(milliseconds: 100),
-            height : 70,
-            color: Colors.white,
-
-
-
-            child :  CustomFooter(userName: userName, userId: userID, lode: 'home',addButtonAdd: 'add'),
-          )
 
       ),
     );

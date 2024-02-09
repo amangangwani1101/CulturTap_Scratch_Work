@@ -9,6 +9,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:learn_flutter/LocalAssistance/ChatsPage.dart';
+import 'package:learn_flutter/ServiceSections/TripCalling/ChatSection/ChatSection.dart';
 import 'package:learn_flutter/VIdeoSection/CameraApp.dart';
 import 'package:learn_flutter/VIdeoSection/Draft/SavedDraftsPage.dart';
 import 'package:learn_flutter/fetchDataFromMongodb.dart';
@@ -317,7 +318,14 @@ class NotificationServices{
 
   void handleMessage(BuildContext context,RemoteMessage message){
     // if(message.)
-    if((message.data['type']).contains('trip_planning')){
+    if(message.data['type']=='trip_planning_chat_message'){
+      if(message.data['userId']=='sender'){
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ChatApps(senderId: '',receiverId:userID,date:message.data['meetId'],startTime:message.data['state'])));
+      }else{
+        Navigator.push(context, MaterialPageRoute(builder: (context) => ChatApps(senderId: userID,receiverId:'',date:message.data['meetId'],startTime: message.data['state'])));
+      }
+    }
+    else if((message.data['type']).contains('trip_planning')){
       if(message.data['state']=='user'){
         Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:'Trip Planning',state: message.data['meetId'],)));
       }else{

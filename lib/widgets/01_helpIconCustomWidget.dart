@@ -15,9 +15,11 @@ import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
+import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../BackendStore/BackendStore.dart';
 import '../CustomItems/CustomPopUp.dart';
+import '../UserProfile/FinalUserProfile.dart';
 import 'AlertBox2Option.dart';
 import 'Constant.dart';
 import 'package:http/http.dart' as http;
@@ -616,7 +618,13 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
           widget.onButtonPressed!();
         }
         else{
-          Navigator.of(context).pop();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+              create:(context) => ProfileDataProvider(),
+              child: FinalProfile(userId: userID,clickedId: userID,),
+            ),),
+          );
         }
         print('Data saved successfully');
       } else {

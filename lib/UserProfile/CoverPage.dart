@@ -104,16 +104,25 @@ class _UserImageState extends State<UserImage>{
 
 
   void handleImageUpdated(File image) {
-    print('Updated Image :${image.path}');
-    setState(() {
-      _userProfileImage = image; // Update the parameter in the main class
-    });
-    print('Updated Image :${_userProfileImage?.path}');
-    if (widget.text=='edit'){
-      widget.imagePathCallback!((image.path)!);
+    if(image.existsSync()==false){
+      print('its here');
+      setState(() {
+        _userProfileImage = null;
+        widget.imagePath=null;
+      });
+    }else{
+      print('Updated Image :${image!.path}');
+      setState(() {
+        _userProfileImage = image; // Update the parameter in the main class
+      });
+      print('Updated Image :${_userProfileImage?.path}');
+      if (widget.text=='edit'){
+        widget.imagePathCallback!((image.path)!);
+      }
+      else if(widget.profileDataProvider!=null)
+        widget.profileDataProvider?.updateImagePath((image.path)!);
     }
-    else if(widget.profileDataProvider!=null)
-      widget.profileDataProvider?.updateImagePath((image.path)!); // Update image path in the provider
+     // Update image path in the provider
   }
 
   @override
@@ -139,10 +148,10 @@ class _UserImageState extends State<UserImage>{
                     !hasVideoUploaded
                     ? Container(
                       color : Theme.of(context).primaryColorLight,
-                      width: 373,
-                      padding: EdgeInsets.only(top: 10),
+                      margin: EdgeInsets.only(left: 10),
+                      width: MediaQuery.of(context).size.width,
                       child: Column(
-                        mainAxisAlignment: widget.reqPages<1 ? MainAxisAlignment.center:MainAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           widget.reqPages<1
                           ? Container(
@@ -153,7 +162,10 @@ class _UserImageState extends State<UserImage>{
                               fit: BoxFit.contain, // Adjust the fit as needed
                             ),
                           )
-                          :Column(children:[
+                          :Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children:[
                               Container(
                                 child: Image.asset(
                                   'assets/images/video_icon.png', // Replace with the actual path to your asset image
@@ -263,7 +275,7 @@ class _UserImageState extends State<UserImage>{
                                   return Container(child: UploadMethods(onImageUpdated : handleImageUpdated));
                                 },)
                                     :showDialog(context: context, builder: (BuildContext context){
-                                  return Container(child: UploadMethods(onImageUpdated : handleImageUpdated));
+                                  return Container(child: UploadMethods(onImageUpdated : handleImageUpdated,hasPhoto:(widget.imagePath!=null || _userProfileImage!=null)?true:false));
                                 },);
                               },
                               child: Container(
@@ -274,8 +286,8 @@ class _UserImageState extends State<UserImage>{
                                     ? Center(
                                   child: Icon(Icons.camera_alt_outlined,color: Colors.white ,),
                                 )
-                                    : Center(
-                                  child: Icon(Icons.edit_outlined,color: Colors.white,),
+                                    :  Center(
+                                  child:Icon(Icons.edit_outlined,color: Colors.white,),
                                 ),
                               ),
                             ),
@@ -291,9 +303,11 @@ class _UserImageState extends State<UserImage>{
             ],
           ),
         ),
+        SizedBox(height: 10,),
         widget.reqPages<1
             ? Container(
-          width: 300,
+          padding: EdgeInsets.only(left: 10,right: 10),
+          width: MediaQuery.of(context).size.width,
           alignment: Alignment.center,
           child: Text(
             widget.name!=null?capitalizeWords(widget.name!):'', // Replace with actual user name
@@ -315,7 +329,8 @@ class _UserImageState extends State<UserImage>{
 // Image Uploading Optoins
 class UploadMethods extends StatefulWidget{
   final ImageCallback onImageUpdated;
-  UploadMethods({required this.onImageUpdated});
+  bool ?hasPhoto;
+  UploadMethods({required this.onImageUpdated,this.hasPhoto});
 
 
   @override
@@ -336,6 +351,14 @@ class _UploadMethodsState extends State<UploadMethods> {
       Navigator.of(context).pop();
       await uploadImage(pickedFile.path);
     }
+  }
+
+  Future<void> _removePicture() async {
+    print('we have picked the file');
+    File file = new File('');
+    widget.onImageUpdated(file);
+    Navigator.of(context).pop();
+
   }
 
   Future<void> _updateProfileImage() async {
@@ -401,51 +424,75 @@ class _UploadMethodsState extends State<UploadMethods> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Container(
-                width: 411,
-                height: 188,
                 color: Theme.of(context).backgroundColor,
                 child: Column(
                   children: [
-                    Center(
-                      child: Container(
-                        height: 90,
-                        width: 300,
-                        child: GestureDetector(
-                          onTap: _updateProfileImage,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Upload',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.black,decoration: TextDecoration.none,),),
-                              Icon(Icons.arrow_forward_rounded),
-                            ],
+                    widget.hasPhoto!=null && widget.hasPhoto==true
+                        ? Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(top: 28,bottom: 28,left: 15,right: 15),
+                          child: GestureDetector(
+                            onTap: _removePicture,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Remove Photo',style: TextStyle(fontSize: 17,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Theme.of(context).primaryColor,decoration: TextDecoration.none,),),
+                                Icon(Icons.arrow_forward_ios,size: 20,),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.black, // Set the border color
+                                width: 1.5, // Set the border width
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                        : SizedBox(height: 0,),
+                    Container(
+                      padding: EdgeInsets.only(top: 28,bottom: 28,left: 15,right: 15),
+                      child: GestureDetector(
+                        onTap: _takePicture,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Open Camera',style: TextStyle(fontSize: 17,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Theme.of(context).primaryColor,decoration: TextDecoration.none,),),
+                            Icon(Icons.arrow_forward_ios,size: 20,),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.black, // Set the border color
+                            width: 1.5, // Set the border width
                           ),
                         ),
                       ),
                     ),
                     Container(
-                      width: 380,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.black, // Set the border color
-                            width: 1.0, // Set the border width
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Container(
-                        height: 90,
-                        width: 300,
-                        child: GestureDetector(
-                          onTap: _takePicture,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Open Camera',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.black,decoration: TextDecoration.none,),),
-                              Icon(Icons.arrow_forward_rounded),
-                            ],
-                          ),
+                      // height: 90,
+                      // width: 300,
+                      padding: EdgeInsets.only(top: 30,bottom: 30,left: 15,right: 15),
+                      child: GestureDetector(
+                        onTap: _updateProfileImage,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Upload From Gallery',style: TextStyle(fontSize: 17,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Theme.of(context).primaryColor,decoration: TextDecoration.none,),),
+                            Icon(Icons.arrow_forward_ios,size: 20,),
+                          ],
                         ),
                       ),
                     ),
@@ -541,14 +588,22 @@ class _EditNameFormState extends State<EditNameForm> {
           ),
         )
             : Container(
-              width: 280,
-              alignment: Alignment.center,
-              child: Text(
-              userName!=null?userName:'',
-              style: Theme.of(context).textTheme.subtitle1,
+            margin: EdgeInsets.only(left: 25),
+            width: 180,
+              child: Expanded(
+                 child: Container(
+                   // width: 100,
+                   // color: Colors.red,
+                  alignment: Alignment.center,
+                  child: Text(
+                  userName!=null?userName:'',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.subtitle1,
           ),
+                ),
+              ),
             ),
-            SizedBox(width: 10,),
+            SizedBox(width: 5,),
             InkWell(
               child: Icon(isEditing ? Icons.save_as_outlined : Icons.edit_outlined,color: Colors.black),
           ),

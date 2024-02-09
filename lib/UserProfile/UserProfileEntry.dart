@@ -91,6 +91,7 @@ class _ProfilePageState extends State<ProfilePage> {
       appBar:AppBar(title: ProfileHeader(reqPage: widget.reqPage,userId: widget.userId,),automaticallyImplyLeading:false,backgroundColor: Colors.transparent,shadowColor: Colors.transparent,),
       body: SingleChildScrollView(
         child: Container(
+          padding: EdgeInsets.only(left: 5,right:15),
           color: Theme.of(context).backgroundColor,
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -101,18 +102,17 @@ class _ProfilePageState extends State<ProfilePage> {
                 imagePath: ((widget.profileDataProvider)!=null && (widget.profileDataProvider!.retImagePath())!=null ? (widget.profileDataProvider!.retImagePath()):null),
                 image: (widget.profileDataProvider)!=null && (widget.profileDataProvider!.retImagePath())!=null?'network':null,
                 name:widget.userName),
-              SizedBox(height: 15,),
-              SizedBox(height: 35,),
-              widget.reqPage==0?SizedBox(width: 0,):MotivationalQuote(profileDataProvider:widget.profileDataProvider),
-              SizedBox(height: 5.0),
+              SizedBox(height: 25,),
+               widget.reqPage==0?SizedBox(width: 0,):MotivationalQuote(profileDataProvider:widget.profileDataProvider),
+              SizedBox(height: 20),
               ReachAndLocation(profileDataProvider:widget.profileDataProvider),
-              SizedBox(height:45,),
-              widget.reqPage==0?SizedBox(height: 0):SignIn(profileDataProvider:widget.profileDataProvider,googleAuth:(){
-                setState(() {
-                  widget.userName = widget.profileDataProvider?.retUserName();
-                });
-                print('i have failed');
-              }),
+              SizedBox(height:30,),
+              // widget.reqPage==0?SizedBox(height: 0):SignIn(profileDataProvider:widget.profileDataProvider,googleAuth:(){
+              //   setState(() {
+              //     widget.userName = widget.profileDataProvider?.retUserName();
+              //   });
+              //   print('i have failed');
+              // }),
               UserInformationSection(reqPage:widget.reqPage,profileDataProvider:widget.profileDataProvider,userName:widget.userName,userId:widget.userId),
             ],
           ),
@@ -232,69 +232,71 @@ class UserInformationSection extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color : Theme.of(context).backgroundColor,
+    return Column(
+      children: [
+        Container(
+          color : Theme.of(context).backgroundColor,
 
-      padding: EdgeInsets.only(left: 15.0,right: 15),
-      child: Column(
-        children: [
-          reqPage==0?SizedBox(height: 0):SizedBox(height: 10),
-          reqPage==0?SizedBox(height: 0):SizedBox(height: 10),
-          reqPage==0?UserDetailsTable():ProfileForm(profileDataProvider:profileDataProvider),
-          SizedBox(height: 50.0),
-          ExpertCardDetails(),
-          SizedBox(height: 35.0),
-          reqPage==0?SizedBox(height: 0,) :Container(
-                padding: EdgeInsets.only(left: 10,right: 10),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    ServiceCard(isToggle:false,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'for Becoming Trip planner ',profileDataProvider:profileDataProvider),
-                    SizedBox(height: 70,),
-                    ServiceCard(text:'service2',isToggle:false,titleLabel: 'Become a Trip Assistant for other’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming Superhero as a saviour ! ',profileDataProvider:profileDataProvider),
-                    // SizedBox(height: 70,),
-                    // ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'for Becoming a smart guide for tourists !',profileDataProvider:profileDataProvider),
-                  ],
-                ),
-              ),
-          SizedBox(height: 60,),
-          reqPage==0?SizedBox(width: 0,): RatingSection(ratings: ratings,reviewCnt:currentReview,profileDataProvider:profileDataProvider),
-          SizedBox(height: 20,),
-          reqPage==0
-              ?SizedBox(width: 0,)
-              : !videoUploaded
-                ?Container(
-                  padding: EdgeInsets.only(left: 10,right: 10),
-                child: Column(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text('Other visits',
-                    style: Theme.of(context).textTheme.headline1,),
-                  SizedBox(height: 7,),
-                  Text('No visits till yet, You can start it now even, Just click on add “ + “ button at the bottom of your screen & '
-                      ' record your outside surroundings.',style: Theme.of(context).textTheme.subtitle2,),
-                  SizedBox(height: 13,),
-                  Text('You can make video post private & public as per your choice. ',
-                    style: Theme.of(context).textTheme.subtitle2,),
-                  SizedBox(height:7,),
-                  Column(
+          padding: EdgeInsets.only(left: 15.0,right: 15),
+          child: Column(
+            children: [
+              reqPage==0?SizedBox(height: 0):SizedBox(height: 10),
+              reqPage==0?SizedBox(height: 0):SizedBox(height: 10),
+              reqPage==0?UserDetailsTable():ProfileForm(profileDataProvider:profileDataProvider),
+              SizedBox(height: 50.0),
+              ExpertCardDetails(),
+              SizedBox(height: 35.0),
+              reqPage==0?SizedBox(height: 0,) :Container(
+                    padding: EdgeInsets.only(left: 10,right: 10),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        ServiceCard(isToggle:false,titleLabel: 'Become a Trip Planner ', serviceImage: 'assets/images/service_card_1.jpg', iconImage: 'assets/images/service_help_1.jpg', subTitleLabel: 'Help others to \nplan their trips.', endLabel: 'for Becoming Trip planner ',profileDataProvider:profileDataProvider),
+                        SizedBox(height: 70,),
+                        ServiceCard(text:'service2',isToggle:false,titleLabel: 'Become a Trip Assistant for other’s journey ', serviceImage: 'assets/images/service_card_2.jpg', iconImage: 'assets/images/service_help_2.jpg', subTitleLabel: 'Assist other \nneedy tourist !', endLabel: 'for Becoming Superhero as a saviour ! ',profileDataProvider:profileDataProvider),
+                        // SizedBox(height: 70,),
+                        // ServiceCard(isToggle:false,titleLabel: 'Become a Local Guide ', serviceImage: 'assets/images/service_card_3.jpg', iconImage: 'assets/images/service_help_3.jpg', subTitleLabel: 'Guide other \nTourists !', endLabel: 'for Becoming a smart guide for tourists !',profileDataProvider:profileDataProvider),
+                      ],
+                    ),
+                  ),
+              SizedBox(height: 60,),
+              reqPage==0?SizedBox(width: 0,): RatingSection(ratings: ratings,reviewCnt:currentReview,profileDataProvider:profileDataProvider),
+              SizedBox(height: 20,),
+              reqPage==0
+                  ?SizedBox(width: 0,)
+                  : !videoUploaded
+                    ?Container(
+                      padding: EdgeInsets.only(left: 10,right: 10),
+                    child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text('Profile Strength',style:Theme.of(context).textTheme.subtitle1,),
-                      Text('Medium',style: Theme.of(context).textTheme.headline4,),
+                      Text('Other visits',
+                        style: Theme.of(context).textTheme.headline1,),
+                      SizedBox(height: 7,),
+                      Text('No visits till yet, You can start it now even, Just click on add “ + “ button at the bottom of your screen & '
+                          ' record your outside surroundings.',style: Theme.of(context).textTheme.subtitle2,),
+                      SizedBox(height: 13,),
+                      Text('You can make video post private & public as per your choice. ',
+                        style: Theme.of(context).textTheme.subtitle2,),
+                      SizedBox(height:7,),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('Profile Strength',style:Theme.of(context).textTheme.subtitle1,),
+                          Text('Medium',style: Theme.of(context).textTheme.headline4,),
+                        ],
+                      ),
                     ],
                   ),
-                ],
-              ),
-            )
-                :VisitsSection(),
-          SizedBox(height: 20,),
-
-          ProfielStatusAndButton(reqPages: reqPage,userId:userId,userName:userName,profileDataProvider:profileDataProvider),
-          SizedBox(height: 20,),
-        ],
-      ),
+                )
+                    :VisitsSection(),
+              SizedBox(height: 20,),
+            ],
+          ),
+        ),
+        ProfielStatusAndButton(reqPages: reqPage,userId:userId,userName:userName,profileDataProvider:profileDataProvider),
+      ],
     );
   }
 }
@@ -350,7 +352,8 @@ class ProfielStatusAndButton  extends StatelessWidget{
     }
 
     return Container(
-      padding: const EdgeInsets.only(left: 10.0,right: 10.0),
+      width: MediaQuery.of(context).size.width,
+      height: 63,
       child: FiledButton(
           backgroundColor: HexColor('#FB8C00'),
           onPressed: () async{
