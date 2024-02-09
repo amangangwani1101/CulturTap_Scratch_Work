@@ -16,7 +16,7 @@ class _CustomBlinkingLoaderState extends State<CustomBlinkingLoader>
     super.initState();
     _controller = AnimationController(
       vsync: this,
-      duration: Duration(seconds: 2),
+      duration: Duration(seconds: 1),
     )..repeat();
   }
 
@@ -52,11 +52,11 @@ class _CustomBlinkingLoaderState extends State<CustomBlinkingLoader>
                   child: Opacity(
                     opacity: opacityTween.animate(_controller).value,
                     child: Container(
-                      width: 10,
-                      height: 10,
+                      width: 5,
+                      height: 5,
                       decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: index % 2 == 0 ? Colors.transparent : Colors.orange,
+                        color: index % 2 == 0 ? Colors.transparent : Colors.white30,
                       ),
                     ),
                   ),

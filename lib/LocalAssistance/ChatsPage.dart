@@ -1406,7 +1406,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                   : SizedBox(height: 0),
 
                               if (pageVisitor) Container(
-                                padding: EdgeInsets.only(left:16,right:16,),
+                                padding: EdgeInsets.all(16),
 
                                 child: Row(
                                   mainAxisAlignment: MainAxisAlignment.start,

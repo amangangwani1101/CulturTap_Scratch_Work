@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:learn_flutter/CustomItems/AutoScrollImages.dart';
 import 'package:learn_flutter/HomePage.dart';
 import "package:learn_flutter/Utils/BackButtonHandler.dart";
 import 'package:learn_flutter/VIdeoSection/ComposePage.dart';
@@ -528,15 +529,76 @@ class _CameraAppState extends State<CameraApp> {
                                   onPressed: () {
 
 
+                                      showDialog(
+                                        context: context,
+                                        builder: (BuildContext context) {
+                                          return  GestureDetector(
+                                            onTap:(){
+
+                                              Navigator.pop(context);
+
+                                            },
+                                            child: Container(
+
+                                              color:Colors.black,
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                    Container(
+
+
+
+
+
+
+                                                      child: Column(
+                                                        crossAxisAlignment: CrossAxisAlignment.start,
+
+                                                        children: [
+                                                          Container( margin:EdgeInsets.only(left:22,right:20, ),child: Text('How it Works ?',style:Theme.of(context).textTheme.headline5)),
+
+                                                          AutoScrollImages(
+                                                            format:'black',
+
+                                                            imageUrls: [
+                                                              'http://173.212.193.109:8080/appStories/addCameraone.webp',
+                                                              'http://173.212.193.109:8080/appStories/addCameratwo.webp',
+                                                              'http://173.212.193.109:8080/appStories/addCamerathree.webp',
+                                                              'http://173.212.193.109:8080/appStories/addCamerafour.webp',
+                                                              'http://173.212.193.109:8080/appStories/addCamerafive.webp',
+                                                              'http://173.212.193.109:8080/appStories/addCamerasix.webp',
+                                                              'http://173.212.193.109:8080/appStories/addCameraseven.webp',
+                                                              'http://173.212.193.109:8080/appStories/addCameraeight.webp',
+                                                              'http://173.212.193.109:8080/appStories/addCameranine.webp',
+                                                              // Add more image URLs as needed
+                                                            ],
+                                                          ),
+                                                          Center(child: Text('ok get it !',style:TextStyle(color:Colors.orange,decoration:TextDecoration.none,fontFamily:'poppins',fontSize:22)))
+                                                        ],
+                                                      ),
+                                                    ),
+
+
+                                                  ],
+                                                ),
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                      );
+
+
+
                                     print('has videos ');
 
 
 
                                   },
                                   icon: Icon(
-                                    Icons.close_rounded,
-                                    size: 25.0,
-                                    color: Colors.black,
+                                    Icons.help_outline,
+                                    size: !_isRecording ?24.0 : 0,
+                                    color: Colors.orange,
                                   ),
                                 ),
                               ),
@@ -547,6 +609,9 @@ class _CameraAppState extends State<CameraApp> {
                     ),
                   ),
                 ),
+
+
+
 
                 Stack(
 
@@ -562,8 +627,24 @@ class _CameraAppState extends State<CameraApp> {
 
 
 
-                    // //
-                    // CameraPreview(_controller!),
+
+
+                    Positioned(
+                      bottom: 350,
+                      left: 10,
+                      right: 0,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          if (!_controller!.value.isInitialized) // Check if the camera is not focused
+                            SvgPicture.asset(
+                              'assets/images/focus_camera.svg', // Replace with your SVG file path
+                              color: Colors.orange, // Change the color if needed
+                            ),
+                        ],
+                      ),
+                    ),
+
 
 
                       Positioned(

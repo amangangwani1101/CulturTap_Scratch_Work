@@ -49,6 +49,8 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
     }
 
     String fullThumbnailUrl = 'http://173.212.193.109:8080/thumbnails/$thumbnailPath';
+    print('this is full thumbnail url');
+    print(fullThumbnailUrl);
 
 
     try {
@@ -250,7 +252,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                         ),
                         Text(
                          '${widget.storyDetails['views']!}',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: Theme.of(context).textTheme.bodyText2,
                         ),
                       ],
                     ),
@@ -286,7 +288,7 @@ class _VideoStoryCardState extends State<VideoStoryCard> {
                         ),
                         Text(
                           '${widget.storyDetails['likes']!}',
-                          style: Theme.of(context).textTheme.bodyText1,
+                          style:Theme.of(context).textTheme.bodyText2,
                         ),
                       ],
                     ),

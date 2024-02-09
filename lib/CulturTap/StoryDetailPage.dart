@@ -123,8 +123,8 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
 
 
-        for (int i = 0; i < categoryData.length; i++) {
-          await fetchDataForCategory(latitude, longitude, i);
+      for (int i = 0; i < categoryData.length; i++) {
+        await fetchDataForCategory(latitude, longitude, i);
 
       }
 
@@ -338,18 +338,18 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
         showPreviousVideoIcon = true;
         showNextVideoIcon = false;
       });
-    // } else if (_currentIndex > 0) {
-    //   // Move to the previous story and play the last video of the previous story
-    //   _currentIndex--;
-    //
-    //   // Set the currentVideoIndex to the last index of the new story
-    //   currentVideoIndex = _videoControllersList[_currentIndex].length - 1;
-    //
-    //   _initializeChewieController(_currentIndex, currentVideoIndex);
-    //
-    //   setState(() {
-    //     showPlayPauseIcon = true;
-    //   });
+      // } else if (_currentIndex > 0) {
+      //   // Move to the previous story and play the last video of the previous story
+      //   _currentIndex--;
+      //
+      //   // Set the currentVideoIndex to the last index of the new story
+      //   currentVideoIndex = _videoControllersList[_currentIndex].length - 1;
+      //
+      //   _initializeChewieController(_currentIndex, currentVideoIndex);
+      //
+      //   setState(() {
+      //     showPlayPauseIcon = true;
+      //   });
 
 
       Future.delayed(Duration(milliseconds: 500), () {
@@ -717,11 +717,11 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                       children: [
                         InkWell(
                           child: SvgPicture.asset(
-                            'assets/images/heart.svg', // Replace with the path to your SVG file
-                            // color: Color(0xFF001B33),
-                            height :20,
-                            width : 20,
-                            color:Theme.of(context).primaryColor
+                              'assets/images/heart.svg', // Replace with the path to your SVG file
+                              // color: Color(0xFF001B33),
+                              height :20,
+                              width : 20,
+                              color:Theme.of(context).primaryColor
                           ),
                         ),
                         Text(
@@ -784,7 +784,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         style: Theme.of(context).textTheme.subtitle1,
                       ),
                       Text(
-                        '${storyDetails["storyLocation"]}',
+                        '${storyDetails["location"]}',
                         style: Theme.of(context).textTheme.subtitle2,
                       ),
                     ],
@@ -833,70 +833,220 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                   Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
                 ]),
 
-              storyDetails['label'] == 'Regular Story' ?
-
-              Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                  children:[
-
-                SizedBox(height: 18),
-                Text(
-                  'Story Title',
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
-                Text(
-                  '${storyDetails["storyTitle"]}',
-                  style: Theme.of(context).textTheme.subtitle2,
-                ),
-
-                SizedBox(height: 28),
-                Text(
-                  'Description',
-                  style: Theme.of(context).textTheme.subtitle1,
-                ),
+                storyDetails['label'] == 'Regular Story' ?
 
                 Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children:[
+
+                      SizedBox(height: 18),
+                      Text(
+                        'Story Title',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
+                      Text(
+                        '${storyDetails["storyTitle"]}',
+                        style: Theme.of(context).textTheme.subtitle2,
+                      ),
+
+                      SizedBox(height: 28),
+                      Text(
+                        'Description',
+                        style: Theme.of(context).textTheme.subtitle1,
+                      ),
+
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            '${storyDetails["storyDescription"]}',
+                            style: Theme.of(context).textTheme.subtitle2,
+                          ),
+                          SizedBox(height: 18),
+                          Text(
+                            'What ${storyDetails["userName"]} Love About This Place ?',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          Text(
+                            '${storyDetails["placeLoveDesc"]}',
+                            style: Theme.of(context).textTheme.subtitle2,
+                          ),
+                          SizedBox(height: 18),
+                          Text(
+                            'What ${storyDetails["userName"]} don`t like about About This Place ?',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          Text(
+                            '${storyDetails["dontLikeDesc"]}',
+                            style: Theme.of(context).textTheme.subtitle2,
+                          ),
+                          SizedBox(height: 18),
+                          Text(
+                            'Connect with ${storyDetails["userName"]} for trip planning advice & guidance for your upcoming ${storyDetails["storyCityLocation"]} visits.',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+
+                          SizedBox(height: 18),
+                          Text(
+                            'Cost of trip planning interaction call',
+                            style: Theme.of(context).textTheme.subtitle2,
+                          ),
+                          SizedBox(height: 1),
+
+                          Container(
+                            child: Row(
+                              children: [
+                                Text('1000 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+                                IconButton(
+                                  icon: Icon(Icons.help_outline),
+                                  color : Colors.orange,
+                                  onPressed: () {
+
+                                  },
+
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 15),
+                          Text(
+                            'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
+                            style: Theme.of(context).textTheme.subtitle2,
+                          ),
+                          SizedBox(height: 1),
+
+                          Row(
+                            children: [
+                              Text('500 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+                              IconButton(
+                                icon: Icon(Icons.help_outline),
+                                color : Colors.orange,
+                                onPressed: () {
+
+                                },
+
+                              ),
+                            ],
+
+                          ),
+
+
+                          SizedBox(height : 30),
+                          Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
+                          SizedBox(height : 30),
+                          Center(
+                            child: Container(
+                              width : 250,
+                              height: 63,
+                              child: ElevatedButton(
+                                onPressed: () async{
+
+                                },
+                                style: ElevatedButton.styleFrom(
+                                  primary: Colors.orange, // Change background color
+                                  elevation: 0, // No shadow
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(5.0),
+                                    side: BorderSide(color: Colors.orange, width: 2.0),
+                                  ),
+                                  padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
+                                ),
+                                child: Row(
+                                  children: [
+                                    IconButton(
+                                      icon: Icon(Icons.location_on_outlined),
+                                      color : Colors.white,
+                                      onPressed: () {
+                                        FinalProfile(userId:userID,clickedId: storyUserID,);
+                                      },
+
+                                    ),
+                                    Text(
+                                      'Follow Location',
+                                      style: TextStyle(
+                                        // Change text color
+                                        fontWeight: FontWeight.bold , // Change font weight
+                                        fontSize: 16,
+                                        color:Colors.white,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                          SizedBox(height : 30),
+
+
+
+                        ],),
+                    ]) : Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(
-                      '${storyDetails["storyDescription"]}',
-                      style: Theme.of(context).textTheme.subtitle2,
-                    ),
                     SizedBox(height: 18),
+
                     Text(
-                      'What ${storyDetails["userName"]} Love About This Place ?',
-                      style: Theme.of(context).textTheme.subtitle1,
-                    ),
-                    Text(
-                      '${storyDetails["placeLoveDesc"]}',
-                      style: Theme.of(context).textTheme.subtitle2,
-                    ),
-                    SizedBox(height: 18),
-                    Text(
-                      'What ${storyDetails["userName"]} don`t like about About This Place ?',
-                      style: Theme.of(context).textTheme.subtitle1,
-                    ),
-                    Text(
-                      '${storyDetails["dontLikeDesc"]}',
-                      style: Theme.of(context).textTheme.subtitle2,
-                    ),
-                    SizedBox(height: 18),
-                    Text(
-                      'Connect with ${storyDetails["userName"]} for trip planning advice & guidance for your upcoming ${storyDetails["storyCityLocation"]} visits.',
+                      'Description',
                       style: Theme.of(context).textTheme.subtitle1,
                     ),
 
-                    SizedBox(height: 18),
+
+
                     Text(
-                      'Cost of trip planning interaction call',
+                      '${storyDetails["productDescription"]}',
                       style: Theme.of(context).textTheme.subtitle2,
                     ),
-                    SizedBox(height: 1),
+                    SizedBox(height: 22),
 
-                    Container(
+
+                    Text(
+                      'Door Step service / delivery available ?',
+                      style: Theme.of(context).textTheme.subtitle1,
+                    ),
+
+                    storyDetails["selectedOption"] == 'Yes' ?
+
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        Icon(
+                          Icons.check_circle_outline_outlined,
+                          color: Colors.green,
+                        ),
+                        Text(
+                          '${storyDetails["selectedOption"]}',
+                          style: TextStyle(color : Colors.green, fontWeight: FontWeight.bold,fontSize : 16,),
+                        ),
+                      ],
+                    ) : Container(
+
                       child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: [
-                          Text('1000 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+                          Icon(
+                            Icons.block,
+                            color: Colors.red,
+                          ),
+                          Text(
+                            'No',
+                            style: TextStyle(color : Colors.red, fontWeight: FontWeight.bold,fontSize : 16,),
+                          ),
+                        ],
+                      ),
+                    ) ,
+
+
+                    SizedBox(height: 20),
+                    Container(
+                      height : 19,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Cost of service/Product .',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
                           IconButton(
                             icon: Icon(Icons.help_outline),
                             color : Colors.orange,
@@ -908,30 +1058,37 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
                         ],
                       ),
                     ),
+                    SizedBox(height: 1),
 
-                    SizedBox(height: 15),
-                    Text(
-                      'Cost of Trip Assistance In ${storyDetails["storyCityLocation"]} .',
-                      style: Theme.of(context).textTheme.subtitle2,
+                    Text('${storyDetails['productPrice']} INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
+
+                    SizedBox(height: 20),
+                    Container(
+                      height : 19,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+
+                          Text(
+                            'Delivery/Transport Charges .',
+                            style: Theme.of(context).textTheme.subtitle1,
+                          ),
+                          IconButton(
+                            icon: Icon(Icons.help_outline),
+                            color : Colors.orange,
+                            onPressed: () {
+
+                            },
+
+                          ),
+                        ],
+                      ),
                     ),
                     SizedBox(height: 1),
 
-                    Row(
-                      children: [
-                        Text('500 INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
-                        IconButton(
-                          icon: Icon(Icons.help_outline),
-                          color : Colors.orange,
-                          onPressed: () {
+                    Text('${storyDetails['transportationPricing']} INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
 
-                          },
-
-                        ),
-                      ],
-
-                    ),
-
-
+                    SizedBox(height: 1),
                     SizedBox(height : 30),
                     Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
                     SizedBox(height : 30),
@@ -963,7 +1120,7 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
                               ),
                               Text(
-                                'Follow Location',
+                                'Request Service',
                                 style: TextStyle(
                                   // Change text color
                                   fontWeight: FontWeight.bold , // Change font weight
@@ -981,163 +1138,6 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
 
 
                   ],),
-              ]) : Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  SizedBox(height: 18),
-
-                  Text(
-                    'Description',
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
-
-
-
-                  Text(
-                    '${storyDetails["productDescription"]}',
-                    style: Theme.of(context).textTheme.subtitle2,
-                  ),
-                  SizedBox(height: 22),
-
-
-                  Text(
-                    'Door Step service / delivery available ?',
-                    style: Theme.of(context).textTheme.subtitle1,
-                  ),
-
-                  storyDetails["selectedOption"] == 'Yes' ?
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Icon(
-                        Icons.check_circle_outline_outlined,
-                        color: Colors.green,
-                      ),
-                      Text(
-                        '${storyDetails["selectedOption"]}',
-                        style: TextStyle(color : Colors.green, fontWeight: FontWeight.bold,fontSize : 16,),
-                      ),
-                    ],
-                  ) : Container(
-
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Icon(
-                          Icons.block,
-                          color: Colors.red,
-                        ),
-                        Text(
-                          'No',
-                          style: TextStyle(color : Colors.red, fontWeight: FontWeight.bold,fontSize : 16,),
-                        ),
-                      ],
-                    ),
-                  ) ,
-
-
-                  SizedBox(height: 20),
-                  Container(
-                    height : 19,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          'Cost of service/Product .',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.help_outline),
-                          color : Colors.orange,
-                          onPressed: () {
-
-                          },
-
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 1),
-
-                  Text('${storyDetails['productPrice']} INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
-
-                  SizedBox(height: 20),
-                  Container(
-                    height : 19,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-
-                        Text(
-                          'Delivery/Transport Charges .',
-                          style: Theme.of(context).textTheme.subtitle1,
-                        ),
-                        IconButton(
-                          icon: Icon(Icons.help_outline),
-                          color : Colors.orange,
-                          onPressed: () {
-
-                          },
-
-                        ),
-                      ],
-                    ),
-                  ),
-                  SizedBox(height: 1),
-
-                  Text('${storyDetails['transportationPricing']} INR',style : TextStyle(color : Colors.green,fontWeight: FontWeight.bold,fontSize: 18)),
-
-                  SizedBox(height: 1),
-                  SizedBox(height : 30),
-                  Container(height : 0.2,color : Color(0xFF001B33), width : double.infinity),
-                  SizedBox(height : 30),
-                  Center(
-                    child: Container(
-                      width : 250,
-                      height: 63,
-                      child: ElevatedButton(
-                        onPressed: () async{
-
-                        },
-                        style: ElevatedButton.styleFrom(
-                          primary: Colors.orange, // Change background color
-                          elevation: 0, // No shadow
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(5.0),
-                            side: BorderSide(color: Colors.orange, width: 2.0),
-                          ),
-                          padding: EdgeInsets.symmetric(horizontal: 20.0, vertical: 10.0),
-                        ),
-                        child: Row(
-                          children: [
-                            IconButton(
-                              icon: Icon(Icons.location_on_outlined),
-                              color : Colors.white,
-                              onPressed: () {
-                                FinalProfile(userId:userID,clickedId: storyUserID,);
-                              },
-
-                            ),
-                            Text(
-                              'Request Service',
-                              style: TextStyle(
-                                // Change text color
-                                fontWeight: FontWeight.bold , // Change font weight
-                                fontSize: 16,
-                                color:Colors.white,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height : 30),
-
-
-
-                ],),
 
 
 
@@ -1272,7 +1272,3 @@ class _StoryDetailPageState extends State<StoryDetailPage> {
     ;
   }
 }
-
-
-
-
