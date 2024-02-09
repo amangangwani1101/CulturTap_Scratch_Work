@@ -209,6 +209,7 @@ class MyApp extends StatelessWidget {
 
 
 
+
         fontFamily: 'Poppins',
 
 
@@ -221,6 +222,8 @@ class MyApp extends StatelessWidget {
 
 
         textTheme: TextTheme(
+
+
 
           bodyText1: TextStyle(fontSize: (10 ),color : Color(0xFF001B33), fontWeight: FontWeight.w800),
           bodyText2: TextStyle(fontSize: (12 ),color : Color(0xFF001B33) ,),
