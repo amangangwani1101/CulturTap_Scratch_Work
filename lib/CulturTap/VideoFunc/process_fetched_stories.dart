@@ -82,6 +82,7 @@ Map<String, dynamic> processFetchedStories(List<dynamic> fetchedStoryList, doubl
       Map<String, dynamic> storyDetails = {
         'videoPaths': videoPaths,
         'storyDistance': distance,
+        'location' : location,
         'storyLocation': storyLocation,
         'storyCityLocation' : cityLocation,
         'storyCategory': storyCategory,

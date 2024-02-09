@@ -107,6 +107,17 @@ class _ComposePageState extends State<ComposePage> {
   String transportationPricing = "";
   List<String> finalVideoPaths = [];
 
+
+  bool Otherselectedforloveabouthere = false;
+  bool starRatingIsRequired = false;
+
+
+  bool isPublishingVideo = false; // Set this based on your condition
+
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final FocusNode _textFormFieldFocusNode = FocusNode();
+  final FocusNode _experienceTextFormFieldFocusNode = FocusNode();
+
   List<String> currencyCode = [
     '₪', // Israeli New Shekel
     '¥', // Japanese Yen
@@ -123,13 +134,9 @@ class _ComposePageState extends State<ComposePage> {
 
   String _selectedCurrencyCode = '₹'; // Default country code
 
-  final List<String> loveAboutHereOptions = [
-    'Beautiful',
-    'Calm',
-    'Party Place',
-    'Pubs',
-    'Restaurant',
-    'Others',
+   List<String> loveAboutHereOptions = [
+     'Location','Calm','Nature',
+
   ];
 
 
@@ -656,6 +663,7 @@ class _ComposePageState extends State<ComposePage> {
   @override
   void initState() {
     super.initState();
+
     fetchDataFromMongoDB();
 
     _databaseHelper = DatabaseHelper.instance;
@@ -1047,300 +1055,99 @@ class _ComposePageState extends State<ComposePage> {
 
                 //for regular story
 
-                Visibility(
-                  visible: selectedLabel == 'Regular Story',
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
+                Form(
+                  key: _formKey,
+                  child: Visibility(
+                    visible: selectedLabel == 'Regular Story',
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
 
 
-                      // category for regular stories
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height : 20),
-                            Text(
-                              'Category',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-
-
-                            Theme(
-                              data: Theme.of(context).copyWith(
-                                canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
-                              ),
-                              child: DropdownButton<String>(
-                                value: selectedCategory,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedCategory = newValue!;
-                                  });
-                                },
-                                items: <String>['Select','Solo trip', 'Trip With Friends','Romantic Trip', 'Trip With Family', 'Hangouts' , 'Office Trip', 'School Trip', 'Picnic', 'Others']
-                                    .map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value,style: Theme.of(context).textTheme.headline4),
-                                  );
-                                }).toList(),
-                                icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
-                                underline: Container(
-                                  height: 2,
-                                  color: Color(0xFFFB8C00),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 35),
-
-                      if (selectedCategory == 'Others')
+                        // category for regular stories
                         Padding(
                           padding: EdgeInsets.only(left: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-
-                                  Text(
-                                    'Name This Category ?',
-                                    style:Theme.of(context).textTheme.headline5,
-                                  ),
-                                  Container(
-                                    width: 300,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                      ),
-                                    ),
-                                    child: TextField(
-                                      onChanged: (text) {
-                                        setState(() {
-                                          otherCategory = text;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: ' ',
-                                        hintStyle: TextStyle(color: Colors.white),
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                      ),
-                                      style: Theme.of(context).textTheme.headline4,
-                                      maxLines: null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height: 35),
-                            ],
-                          ),
-                        ),
-
-
-
-
-                      //genre for regular story
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Genre',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Theme(
-                              data: Theme.of(context).copyWith(
-                                canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
-                              ),
-                              child: DropdownButton<String>(
-                                value: selectedGenre,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedGenre = newValue!;
-                                  });
-                                },
-                                items: <String>['Select', 'Lifestyle', 'Street Foods', 'Restaurants' , 'Party - Clubs & Bars',  'Fashion', 'Handicraft',  'Historical / Heritage',  'Festivals', 'Market',  'Art & Culture', 'Museum', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem','Others']
-
-                                    .map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value,style: Theme.of(context).textTheme.headline4),
-                                  );
-                                }).toList(),
-                                icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
-                                underline: Container(
-                                  height: 2,
-                                  color: Color(0xFFFB8C00),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 35),
-
-                      if (selectedGenre == 'Others')
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-
-                                  Text(
-                                    'Name This Genre ?',
-                                    style:Theme.of(context).textTheme.headline5,
-                                  ),
-                                  Container(
-                                    width: 300,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                      ),
-                                    ),
-                                    child: TextField(
-                                      onChanged: (text) {
-                                        setState(() {
-                                          otherGenre = text;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: '',
-                                        hintStyle: TextStyle(color: Colors.white),
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                      ),
-                                      style: Theme.of(context).textTheme.headline4,
-                                      maxLines: null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height : 35),
-                            ],
-                          ),
-                        ),
-
-                      // Additional field for famous food if genre is 'Food'
-                      if (selectedGenre == 'Festivals')
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-
-                                  Text(
-                                    'What Festival is Going On ?',
-                                    style:Theme.of(context).textTheme.headline5,
-                                  ),
-                                  Container(
-                                    width: 300,
-                                    decoration: BoxDecoration(
-                                      border: Border(
-                                        bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                      ),
-                                    ),
-                                    child: TextField(
-                                      onChanged: (text) {
-                                        setState(() {
-                                          festivalName = text;
-                                        });
-                                      },
-                                      decoration: InputDecoration(
-                                        hintText: 'e.g., HOLI',
-                                        hintStyle: TextStyle(color: Colors.white),
-                                        enabledBorder: InputBorder.none,
-                                        focusedBorder: InputBorder.none,
-                                      ),
-                                      style: Theme.of(context).textTheme.headline4,
-                                      maxLines: null,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height : 35),
-                            ],
-                          ),
-                        ),
-
-                      // Additional field for famous food if genre is 'Food'
-                      if (selectedGenre == 'Street Foods')
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
+                              SizedBox(height : 20),
                               Text(
-                                'Is this food famous for this place?',
+                                'Category',
                                 style:Theme.of(context).textTheme.headline5,
                               ),
-                              SizedBox(height: 20),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
+
+
+                              Container(
+                                width : 200,
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                  ),
+                                  child: DropdownButtonFormField<String>(
+                                    value: selectedCategory,
+                                    onChanged: (String? newValue) {
                                       setState(() {
-                                        isFoodFamous = true;
+                                        selectedCategory = newValue!;
+                                        _formKey.currentState!.validate();
                                       });
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      primary: isFoodFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
-                                      elevation: 0, // No shadow
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                    items: <String>['Select','Solo trip', 'Trip With Friends','Romantic Trip', 'Trip With Family', 'Hangouts' , 'Office Trip', 'School Trip', 'Picnic', 'Others']
+                                        .map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value,style: Theme.of(context).textTheme.headline4),
+                                      );
+                                    }).toList(),
+                                    icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
+                                    decoration: InputDecoration(
+                                      hintText: 'type here ...',
+                                      hintStyle: TextStyle(color: Colors.white),
+                                      errorBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.red, width: 2.0), // Customize the error bottom border
                                       ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.orange, width: 2.0), // Customize the enabled bottom border
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.orange, width: 2.0), // Customize the focused bottom border
+                                      ),
+                                      errorStyle: TextStyle(
+                                        color: Colors.red, // Customize the error text color
+                                        fontSize: 12.0,    // Customize the error text font size
+                                        // Customize the error text font style
+                                        // Add other text style properties as needed
+                                      ),
+
                                     ),
-                                    child: Text(
-                                      'Yes',
-                                      style: Theme.of(context).textTheme.headline4,
-                                    ),
-                                  ),
-                                  SizedBox(width: 10),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isFoodFamous = false;
-                                        foodType = ''; // Reset the food type if not famous
-                                      });
+
+                                    validator: (value) {
+                                      if (value == 'Select') {
+                                        return 'Please select a Category !';
+                                      }
+                                      return null;
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      primary: !isFoodFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
-                                      elevation: 0, // No shadow
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'No',
-                                      style: Theme.of(context).textTheme.headline4,
-                                    ),
                                   ),
-                                ],
+                                ),
                               ),
-                              if (isFoodFamous)
+                            ],
+                          ),
+                        ),
+
+                        SizedBox(height: 35),
+
+                        if (selectedCategory == 'Others')
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(height: 20),
+
                                     Text(
-                                      'What food is it famous for?',
+                                      'Name This Category ?',
                                       style:Theme.of(context).textTheme.headline5,
                                     ),
                                     Container(
@@ -1351,13 +1158,15 @@ class _ComposePageState extends State<ComposePage> {
                                         ),
                                       ),
                                       child: TextField(
+
+
                                         onChanged: (text) {
                                           setState(() {
-                                            foodType = text;
+                                            otherCategory = text;
                                           });
                                         },
                                         decoration: InputDecoration(
-                                          hintText: 'e.g., Samosa',
+                                          hintText: ' ',
                                           hintStyle: TextStyle(color: Colors.white),
                                           enabledBorder: InputBorder.none,
                                           focusedBorder: InputBorder.none,
@@ -1368,78 +1177,120 @@ class _ComposePageState extends State<ComposePage> {
                                     ),
                                   ],
                                 ),
-                              SizedBox(height : 35),
-                            ],
+                                SizedBox(height: 35),
+                              ],
+                            ),
                           ),
-                        ),
 
-                      // Additional field for famous fashion if genre is 'Fashion'
-                      if (selectedGenre == 'Fashion')
+
+
+
+                        //genre for regular story
                         Padding(
                           padding: EdgeInsets.only(left: 20.0),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                'Is this clothing famous for this place ?',
+                                'Genre',
                                 style:Theme.of(context).textTheme.headline5,
                               ),
-                              SizedBox(height: 20),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
+                              Container(
+                                width : 200,
+                                child: Theme(
+                                  data: Theme.of(context).copyWith(
+                                    canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                  ),
+                                  child: DropdownButtonFormField<String>(
+                                    value: selectedGenre,
+                                    onChanged: (String? newValue) {
                                       setState(() {
-                                        isFashionFamous = true;
+
+                                        selectedGenre = newValue!;
+
+                                        if(selectedGenre == 'Restaurants')
+                                          setState(() {
+                                            loveAboutHereOptions = ['Food','Staff','Pricing','Hygiene','Location','FastFood','Party Place'];
+                                          });
+
+                                        if(selectedGenre == 'Street Foods')
+                                          setState(() {
+                                            loveAboutHereOptions = ['Taste','Staff','Pricing','Hygiene','Location','FastFood'];
+                                          });
+
+                                        if(selectedGenre == 'Fashion')
+                                          setState(() {
+                                            loveAboutHereOptions = ['Good Quality','Staff','Pricing','Trending Clothes','Branded Clothes','Location','Discounts'];
+                                          });
+
+                                        if(selectedGenre == 'Market')
+                                          setState(() {
+                                            loveAboutHereOptions = ['Location','Uncrowded','Highly Negotiable','Parking Facility','Branded Clothes','Discounts','communal Market'];
+                                          });
+
+                                        _formKey.currentState!.validate();
+
                                       });
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      primary: isFashionFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
-                                      elevation: 0, // No shadow
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                    items: <String>['Select', 'Lifestyle', 'Street Foods', 'Restaurants' , 'Party - Clubs & Bars',  'Fashion', 'Handicraft',  'Historical / Heritage',  'Festivals', 'Market',  'Art & Culture', 'Museum', 'Advanture Place', 'Wild Life attraction', 'Entertainment Parks', 'National Parks', 'Cliffs & Mountains', 'Waterfalls', 'Forests',  'Beaches',   'Riverside',   'Resorts',   'Invasion Sites',   'Island',   'Haunted Places', 'Exhibitions',  'Caves',  'Aquatic Ecosystem','Others']
+
+                                        .map<DropdownMenuItem<String>>((String value) {
+                                      return DropdownMenuItem<String>(
+                                        value: value,
+                                        child: Text(value,style: Theme.of(context).textTheme.headline4),
+                                      );
+                                    }).toList(),
+                                    icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
+                                    decoration: InputDecoration(
+                                      hintText: 'type here ...',
+                                      hintStyle: TextStyle(color: Colors.white),
+                                      errorBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.red, width: 2.0), // Customize the error bottom border
                                       ),
+                                      enabledBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.orange, width: 2.0), // Customize the enabled bottom border
+                                      ),
+                                      focusedBorder: UnderlineInputBorder(
+                                        borderSide: BorderSide(color: Colors.orange, width: 2.0), // Customize the focused bottom border
+                                      ),
+                                      errorStyle: TextStyle(
+                                        color: Colors.red, // Customize the error text color
+                                        fontSize: 12.0,    // Customize the error text font size
+                                        // Customize the error text font style
+                                        // Add other text style properties as needed
+                                      ),
+
                                     ),
-                                    child: Text(
-                                      'Yes',
-                                      style: Theme.of(context).textTheme.headline4,
-                                    ),
-                                  ),
-                                  SizedBox(width: 20),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isFashionFamous = false;
-                                        fashionType = ''; // Reset the fashion type if not famous
-                                      });
+
+                                    validator: (value) {
+                                      if (value == 'Select') {
+                                        return 'Please select a Genre !';
+                                      }
+                                      return null;
                                     },
-                                    style: ElevatedButton.styleFrom(
-                                      primary: !isFashionFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
-                                      elevation: 0, // No shadow
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'No',
-                                      style: Theme.of(context).textTheme.headline4,
-                                    ),
                                   ),
-                                ],
+                                ),
                               ),
-                              SizedBox(height : 0),
-                              if (isFashionFamous)
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 35),
+
+                        if (selectedGenre == 'Others')
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(height: 25),
+
                                     Text(
-                                      'What Exactly its Famous For ?',
+                                      'Name This Genre ?',
                                       style:Theme.of(context).textTheme.headline5,
                                     ),
-                                    SizedBox(height : 10),
                                     Container(
                                       width: 300,
                                       decoration: BoxDecoration(
@@ -1448,96 +1299,45 @@ class _ComposePageState extends State<ComposePage> {
                                         ),
                                       ),
                                       child: TextField(
+
                                         onChanged: (text) {
                                           setState(() {
-                                            fashionType = text;
+                                            otherGenre = text;
                                           });
                                         },
                                         decoration: InputDecoration(
-                                          hintText: 'e.g., Traditional attire',
+                                          hintText: '',
                                           hintStyle: TextStyle(color: Colors.white),
                                           enabledBorder: InputBorder.none,
                                           focusedBorder: InputBorder.none,
                                         ),
                                         style: Theme.of(context).textTheme.headline4,
-                                        maxLines: null,
+                                        maxLines: 1,
                                       ),
                                     ),
                                   ],
                                 ),
-                              SizedBox(height : 35),
-                            ],
+                                SizedBox(height : 35),
+                              ],
+                            ),
                           ),
-                        ),
 
+                        // Additional field for famous food if genre is 'Food'
+                        if (selectedGenre == 'Festivals')
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
 
-                      // Additional field for famous Restaurant if genre is 'Restaurant'
-                      if (selectedGenre == 'Restaurants')
-                        Padding(
-                          padding: EdgeInsets.only(left: 20.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                'Is This Restaurant Famous For This Place ?',
-                                style:Theme.of(context).textTheme.headline5,
-                              ),
-                              SizedBox(height: 20),
-                              Row(
-                                children: [
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isRestaurantFamous = true;
-                                      });
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      primary: isRestaurantFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
-                                      elevation: 0, // No shadow
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'Yes',
-                                      style: Theme.of(context).textTheme.headline4,
-                                    ),
-                                  ),
-                                  SizedBox(width: 20),
-                                  ElevatedButton(
-                                    onPressed: () {
-                                      setState(() {
-                                        isRestaurantFamous = false;
-                                        restaurantType = ''; // Reset the fashion type if not famous
-                                      });
-                                    },
-                                    style: ElevatedButton.styleFrom(
-                                      primary: !isRestaurantFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
-                                      elevation: 0, // No shadow
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(18.0),
-                                        side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                      ),
-                                    ),
-                                    child: Text(
-                                      'No',
-                                      style: Theme.of(context).textTheme.headline4,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              SizedBox(height : 0),
-                              if (isRestaurantFamous)
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
                                   children: [
-                                    SizedBox(height: 25),
+
                                     Text(
-                                      'What Exactly its Famous For ?',
+                                      'What Festival is Going On ?',
                                       style:Theme.of(context).textTheme.headline5,
                                     ),
-                                    SizedBox(height : 10),
                                     Container(
                                       width: 300,
                                       decoration: BoxDecoration(
@@ -1546,13 +1346,14 @@ class _ComposePageState extends State<ComposePage> {
                                         ),
                                       ),
                                       child: TextField(
+
                                         onChanged: (text) {
                                           setState(() {
-                                            restaurantType = text;
+                                            festivalName = text;
                                           });
                                         },
                                         decoration: InputDecoration(
-                                          hintText: 'e.g., Traditional Serving',
+                                          hintText: 'e.g., HOLI',
                                           hintStyle: TextStyle(color: Colors.white),
                                           enabledBorder: InputBorder.none,
                                           focusedBorder: InputBorder.none,
@@ -1563,155 +1364,588 @@ class _ComposePageState extends State<ComposePage> {
                                     ),
                                   ],
                                 ),
-                              SizedBox(height : 35),
+                                SizedBox(height : 35),
+                              ],
+                            ),
+                          ),
+
+                        // Additional field for famous food if genre is 'Food'
+                        if (selectedGenre == 'Street Foods')
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Is this food famous for this place?',
+                                  style:Theme.of(context).textTheme.headline5,
+                                ),
+                                SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isFoodFamous = true;
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        primary: isFoodFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                        elevation: 0, // No shadow
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Yes',
+                                        style: Theme.of(context).textTheme.headline4,
+                                      ),
+                                    ),
+                                    SizedBox(width: 10),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isFoodFamous = false;
+                                          foodType = ''; // Reset the food type if not famous
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        primary: !isFoodFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                        elevation: 0, // No shadow
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'No',
+                                        style: Theme.of(context).textTheme.headline4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                if (isFoodFamous)
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 20),
+                                      Text(
+                                        'What food is it famous for?',
+                                        style:Theme.of(context).textTheme.headline5,
+                                      ),
+                                      Container(
+                                        width: 300,
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                          ),
+                                        ),
+                                        child: TextField(
+                                          onChanged: (text) {
+                                            setState(() {
+                                              foodType = text;
+                                            });
+                                          },
+                                          decoration: InputDecoration(
+                                            hintText: 'e.g., Samosa',
+                                            hintStyle: TextStyle(color: Colors.white),
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                          ),
+                                          style: Theme.of(context).textTheme.headline4,
+                                          maxLines: null,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                SizedBox(height : 35),
+                              ],
+                            ),
+                          ),
+
+                        // Additional field for famous fashion if genre is 'Fashion'
+                        if (selectedGenre == 'Fashion')
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Is this clothing famous for this place ?',
+                                  style:Theme.of(context).textTheme.headline5,
+                                ),
+                                SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isFashionFamous = true;
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        primary: isFashionFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                        elevation: 0, // No shadow
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Yes',
+                                        style: Theme.of(context).textTheme.headline4,
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isFashionFamous = false;
+                                          fashionType = ''; // Reset the fashion type if not famous
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        primary: !isFashionFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                        elevation: 0, // No shadow
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'No',
+                                        style: Theme.of(context).textTheme.headline4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height : 0),
+                                if (isFashionFamous)
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 25),
+                                      Text(
+                                        'What Exactly its Famous For ?',
+                                        style:Theme.of(context).textTheme.headline5,
+                                      ),
+                                      SizedBox(height : 10),
+                                      Container(
+                                        width: 300,
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                          ),
+                                        ),
+                                        child: TextField(
+                                          onChanged: (text) {
+                                            setState(() {
+                                              fashionType = text;
+                                            });
+                                          },
+                                          decoration: InputDecoration(
+                                            hintText: 'e.g., Traditional attire',
+                                            hintStyle: TextStyle(color: Colors.white),
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                          ),
+                                          style: Theme.of(context).textTheme.headline4,
+                                          maxLines: null,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                SizedBox(height : 35),
+                              ],
+                            ),
+                          ),
+
+
+                        // Additional field for famous Restaurant if genre is 'Restaurant'
+
+
+
+                        if (selectedGenre == 'Restaurants')
+
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  'Is This Restaurant Famous For This Place ?',
+                                  style:Theme.of(context).textTheme.headline5,
+                                ),
+                                SizedBox(height: 20),
+                                Row(
+                                  children: [
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isRestaurantFamous = true;
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        primary: isRestaurantFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                        elevation: 0, // No shadow
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'Yes',
+                                        style: Theme.of(context).textTheme.headline4,
+                                      ),
+                                    ),
+                                    SizedBox(width: 20),
+                                    ElevatedButton(
+                                      onPressed: () {
+                                        setState(() {
+                                          isRestaurantFamous = false;
+                                          restaurantType = ''; // Reset the fashion type if not famous
+                                        });
+                                      },
+                                      style: ElevatedButton.styleFrom(
+                                        primary: !isRestaurantFamous ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                        elevation: 0, // No shadow
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(18.0),
+                                          side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                        ),
+                                      ),
+                                      child: Text(
+                                        'No',
+                                        style: Theme.of(context).textTheme.headline4,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                SizedBox(height : 0),
+                                if (isRestaurantFamous)
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      SizedBox(height: 25),
+                                      Text(
+                                        'What Exactly its Famous For ?',
+                                        style:Theme.of(context).textTheme.headline5,
+                                      ),
+                                      SizedBox(height : 10),
+                                      Container(
+                                        width: 300,
+                                        decoration: BoxDecoration(
+                                          border: Border(
+                                            bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                          ),
+                                        ),
+                                        child: TextField(
+                                          onChanged: (text) {
+                                            setState(() {
+                                              restaurantType = text;
+                                            });
+                                          },
+                                          decoration: InputDecoration(
+                                            hintText: 'e.g., Traditional Serving',
+                                            hintStyle: TextStyle(color: Colors.white),
+                                            enabledBorder: InputBorder.none,
+                                            focusedBorder: InputBorder.none,
+                                          ),
+                                          style: Theme.of(context).textTheme.headline4,
+                                          maxLines: null,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                SizedBox(height : 35),
+                              ],
+                            ),
+                          ),
+
+
+                        //story title for regular story
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Story Title ',
+                                style:Theme.of(context).textTheme.headline5,
+                              ),
+                              Row(
+                                children: [
+                                  Container(
+
+                                    width: 300,
+
+                                    child: TextFormField(
+
+                                      focusNode: _textFormFieldFocusNode,
+
+                                      onChanged: (text) {
+                                        setState(() {
+                                          storyTitle = text;
+                                          _formKey.currentState!.validate();
+
+
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: 'type here ...',
+                                        hintStyle: TextStyle(color: Colors.white),
+                                        errorBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.red, width: 2.0), // Customize the error bottom border
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.orange, width: 2.0), // Customize the enabled bottom border
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(color: Colors.orange, width: 2.0), // Customize the focused bottom border
+                                        ),
+                                        errorStyle: TextStyle(
+                                          color: Colors.red, // Customize the error text color
+                                          fontSize: 12.0,    // Customize the error text font size
+                                            // Customize the error text font style
+                                          // Add other text style properties as needed
+                                        ),
+
+                                      ),
+                                      style: Theme.of(context).textTheme.headline4,
+
+                                      validator: (value) {
+
+                                          {
+                                          // Only enforce validation when publishing videos
+                                          if (value == null || value.isEmpty!) {
+
+                                            return 'Please enter story title !';
+                                          } else if ( value.length > 30) {
+                                            return 'Maximum length exceeded (30 characters) !';
+                                          }
+                                        }
+                                          return null;
+                                      },
+                                      maxLines: 1,
+                                    ),
+                                  ),
+                                  Text('${storyTitle.length}/30',style:TextStyle(color:storyTitle.length<=30?Colors.white70:Colors.red,fontSize:14,fontWeight: FontWeight.bold,))
+                                ],
+                              ),
                             ],
                           ),
                         ),
+                        SizedBox(height: 35),
 
+                        //experience for regular story
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Describe Your Experience : ',
+                                style:Theme.of(context).textTheme.headline5,
+                              ),
+                              Container(
+                                width: 300,
 
-                      //story title for regular story
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Story Title ',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Container(
-                              width: 300,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                child: TextFormField(
+                                  focusNode: _experienceTextFormFieldFocusNode,
+                                  onChanged: (text) {
+                                    setState(() {
+                                      experienceDescription = text;
+                                      _formKey.currentState!.validate();
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'type here ...',
+                                    hintStyle: TextStyle(color: Colors.white),
+                                    errorBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.red, width: 2.0), // Customize the error bottom border
+                                    ),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.orange, width: 2.0), // Customize the enabled bottom border
+                                    ),
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(color: Colors.orange, width: 2.0), // Customize the focused bottom border
+                                    ),
+                                    errorStyle: TextStyle(
+                                      color: Colors.red, // Customize the error text color
+                                      fontSize: 12.0,    // Customize the error text font size
+                                      // Customize the error text font style
+                                      // Add other text style properties as needed
+                                    ),
+
+                                  ),
+                                  style: Theme.of(context).textTheme.headline4,
+
+                                  validator: (value) {
+                                     {
+                                      // Only enforce validation when publishing videos
+                                      if (value == null || value.isEmpty!) {
+
+                                        return 'Please enter your experience !';
+                                      }
+                                    }
+                                    return null;
+                                  },
+
+                                  maxLines: null,
                                 ),
                               ),
-                              child: TextField(
-                                onChanged: (text) {
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 35),
+
+                        //what you love about here
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Text(
+                            'What You Love About Here ?',
+                            style:Theme.of(context).textTheme.headline5,
+                          ),
+                        ),
+                        SizedBox(height: 25),
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0,right : 20),
+                          child: Wrap(
+                            spacing: 10.0, // Horizontal spacing between buttons
+                            runSpacing: 5.0, // Vertical spacing between rows of buttons
+                            children: loveAboutHereOptions.map((option) {
+                              return ElevatedButton(
+                                onPressed: () {
                                   setState(() {
-                                    storyTitle = text;
+                                    if (selectedLoveAboutHere.contains(option)) {
+                                      selectedLoveAboutHere.remove(option);
+                                    } else {
+                                      selectedLoveAboutHere.add(option);
+                                    }
+
                                   });
                                 },
-                                decoration: InputDecoration(
-                                  hintText: 'type here ...',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
+                                style: ElevatedButton.styleFrom(
+                                  primary: selectedLoveAboutHere.contains(option) ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                  elevation: 0, // No shadow
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(18.0),
+                                    side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                  ),
                                 ),
-                                style: Theme.of(context).textTheme.headline4,
-                                maxLines: null,
-                              ),
-                            ),
-                          ],
+                                child: Text(
+                                  option,
+                                  style: Theme.of(context).textTheme.headline4,
+                                ),
+                              );
+                            }).toList(),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 35),
+                        Padding(
+                          padding: const EdgeInsets.only(left : 22.0,top : 10),
+                          child: ElevatedButton(onPressed: (){
+                            setState((){
+                              Otherselectedforloveabouthere = !Otherselectedforloveabouthere;
+                            });
 
-                      //experience for regular story
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Describe Your Experience : ',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Container(
-                              width: 300,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                ),
-                              ),
-                              child: TextField(
-                                onChanged: (text) {
-                                  setState(() {
-                                    experienceDescription = text;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'type here ...',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                                style: Theme.of(context).textTheme.headline4,
-                                maxLines: null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 35),
-
-                      //what you love about here
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Text(
-                          'What You Love About Here',
-                          style:Theme.of(context).textTheme.headline5,
-                        ),
-                      ),
-                      SizedBox(height: 25),
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Wrap(
-                          spacing: 10.0, // Horizontal spacing between buttons
-                          runSpacing: 5.0, // Vertical spacing between rows of buttons
-                          children: loveAboutHereOptions.map((option) {
-                            return ElevatedButton(
-                              onPressed: () {
-                                setState(() {
-                                  if (selectedLoveAboutHere.contains(option)) {
-                                    selectedLoveAboutHere.remove(option);
-                                  } else {
-                                    selectedLoveAboutHere.add(option);
-                                  }
-                                  if (option == 'Others') {
-                                    showOtherLoveAboutHereInput = true;
-                                  } else {
-                                    showOtherLoveAboutHereInput = false;
-                                  }
-                                });
-                              },
+                          },
                               style: ElevatedButton.styleFrom(
-                                primary: selectedLoveAboutHere.contains(option) ? Color(0xFFFB8C00) : Color(0xFF263238),
+                                primary: Otherselectedforloveabouthere ?Colors.orange : Color(0xFF263238),
                                 elevation: 0, // No shadow
                                 shape: RoundedRectangleBorder(
                                   borderRadius: BorderRadius.circular(18.0),
                                   side: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                 ),
                               ),
-                              child: Text(
-                                option,
-                                style: Theme.of(context).textTheme.headline4,
-                              ),
-                            );
-                          }).toList(),
+                              child: Text('other',style: Theme.of(context).textTheme.headline4,)),
                         ),
-                      ),
-                      if (showOtherLoveAboutHereInput)
+
+                        if (Otherselectedforloveabouthere == true)
+                          Padding(
+                            padding: EdgeInsets.only(left: 20.0,top:10),
+                            child: Row(
+                              children: [
+                                Container(
+                                  width: 200,
+                                  decoration: BoxDecoration(
+                                    border: Border(
+                                      bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+                                    ),
+                                  ),
+                                  child: TextField(
+                                    controller: loveAboutHereInputController,
+                                    onChanged: (text) {
+                                      setState(() {
+                                        // No need to update experienceDescription in this case
+                                      });
+                                    },
+                                    decoration: InputDecoration(
+                                      hintText: 'type here ...',
+                                      hintStyle: TextStyle(color: Colors.white70),
+                                      enabledBorder: InputBorder.none,
+                                      focusedBorder: InputBorder.none,
+                                    ),
+                                    style: Theme.of(context).textTheme.headline4,
+                                    maxLines: null,
+                                  ),
+                                ),
+                                ElevatedButton(
+                                  onPressed: () {
+                                    final newReason = loveAboutHereInputController.text;
+                                    if (newReason.isNotEmpty) {
+                                      setState(() {
+                                        // Append the new option to loveAboutHereOptions
+                                        loveAboutHereOptions.add(newReason);
+                                        // Update the selected option to the newly added one
+                                        selectedLoveAboutHere.add(newReason);
+                                        loveAboutHereInputController.clear();
+                                        showOtherLoveAboutHereInput = false; // Hide the input field
+                                      });
+                                    }
+                                  },
+                                  style: ElevatedButton.styleFrom(
+                                    primary: Color(0xFFFB8C00),
+                                    elevation: 0, // No shadow
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(18.0),
+                                    ),
+                                  ),
+                                  child: Text(
+                                    'Add',
+                                    style: Theme.of(context).textTheme.headline4,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        SizedBox(height: 35),
+
+                        //review this place
                         Padding(
                           padding: EdgeInsets.only(left: 20.0),
-                          child: Row(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+                              Text(
+                                'What you don’t like about this place? ',
+                                style:Theme.of(context).textTheme.headline5,
+                              ),
                               Container(
-                                width: 200,
+                                width: 300,
                                 decoration: BoxDecoration(
                                   border: Border(
                                     bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                   ),
                                 ),
                                 child: TextField(
-                                  controller: loveAboutHereInputController,
                                   onChanged: (text) {
                                     setState(() {
-                                      // No need to update experienceDescription in this case
+                                      dontLikeAboutHere = text;
                                     });
                                   },
                                   decoration: InputDecoration(
-                                    hintText: 'Other Reasons',
+                                    hintText: 'type here ...',
                                     hintStyle: TextStyle(color: Colors.white),
                                     enabledBorder: InputBorder.none,
                                     focusedBorder: InputBorder.none,
@@ -1720,574 +1954,150 @@ class _ComposePageState extends State<ComposePage> {
                                   maxLines: null,
                                 ),
                               ),
-                              ElevatedButton(
-                                onPressed: () {
-                                  final newReason = loveAboutHereInputController.text;
-                                  if (newReason.isNotEmpty) {
-                                    setState(() {
-                                      // Append the new option to loveAboutHereOptions
-                                      loveAboutHereOptions.add(newReason);
-                                      // Update the selected option to the newly added one
-                                      selectedLoveAboutHere.add(newReason);
-                                      loveAboutHereInputController.clear();
-                                      showOtherLoveAboutHereInput = false; // Hide the input field
-                                    });
-                                  }
-                                },
-                                style: ElevatedButton.styleFrom(
-                                  primary: Color(0xFFFB8C00),
-                                  elevation: 0, // No shadow
-                                  shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(18.0),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 35),
+
+
+                        // New input section for star rating
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Review This Place',
+                                style:Theme.of(context).textTheme.headline5,
+                              ),
+                              Container(
+                                width: 300,
+                                decoration: BoxDecoration(
+                                  border: Border(
+                                    bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
                                   ),
                                 ),
-                                child: Text(
-                                  'Add',
+                                child: TextField(
+                                  onChanged: (text) {
+                                    setState(() {
+                                      reviewText = text;
+                                    });
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'type here ...',
+                                    hintStyle: TextStyle(color: Colors.white),
+                                    enabledBorder: InputBorder.none,
+                                    focusedBorder: InputBorder.none,
+                                  ),
                                   style: Theme.of(context).textTheme.headline4,
+                                  maxLines: null,
                                 ),
                               ),
                             ],
                           ),
                         ),
-                      SizedBox(height: 35),
+                        SizedBox(height: 35),
 
-                      //review this place
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'What you don’t like about this place? ',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Container(
-                              width: 300,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                ),
+
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+
+
+                              Text(
+                                'Rate your experience here :',
+                                style: TextStyle(color: Colors.white, fontSize: 18),
                               ),
-                              child: TextField(
-                                onChanged: (text) {
-                                  setState(() {
-                                    dontLikeAboutHere = text;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'type here ...',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                                style: Theme.of(context).textTheme.headline4,
-                                maxLines: null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 35),
-
-
-                      // New input section for star rating
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Review This Place',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Container(
-                              width: 300,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                ),
-                              ),
-                              child: TextField(
-                                onChanged: (text) {
-                                  setState(() {
-                                    reviewText = text;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'type here ...',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                                style: Theme.of(context).textTheme.headline4,
-                                maxLines: null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 35),
-
-
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-
-
-                            Text(
-                              'Rate your experience here :',
-                              style: TextStyle(color: Colors.white, fontSize: 18),
-                            ),
-                            SizedBox( height: 13,),
-                            // Display stars based on the selected starRating
-                            Row(
-                              children: List.generate(5, (index) {
-                                return IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      // Set the starRating to the current index + 1
-                                      starRating = index + 1;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    index < starRating ? Icons.star : Icons.star_border,
-                                    color: Color(0xFFFB8C00),
-                                    size: 35,
-                                  ),
-                                );
-                              }),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 35),
-
-
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Make this story' , style: TextStyle(fontSize: 18, color : Colors.white),),
-                            SizedBox(height : 10),
-                            Container(
-
-
-                              child: Row(
-                                children: [
-                                  Theme(
-                                    data: Theme.of(context).copyWith(
-                                      canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                              SizedBox( height: 13,),
+                              // Display stars based on the selected starRating
+                              Row(
+                                children: List.generate(5, (index) {
+                                  return IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        // Set the starRating to the current index + 1
+                                        starRatingIsRequired = false;
+                                        starRating = index + 1;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      index < starRating ? Icons.star : Icons.star_border,
+                                      color: starRatingIsRequired ? Colors.red : Color(0xFFFB8C00),
+                                      size: 35,
                                     ),
-                                    child: DropdownButton<String>(
-                                      value: selectedVisibility,
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          selectedVisibility = newValue!;
-                                        });
-                                      },
-                                      items: <String>['Public', 'Private']
-                                          .map<DropdownMenuItem<String>>((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Row(
-                                            children: [
-                                              // Icons for "Public" and "Private"
-                                              value == 'Public'
-                                                  ? Icon(Icons.public, color: Colors.white)
-                                                  : Icon(Icons.lock, color: Colors.white),
-                                              SizedBox(width: 5),
-                                              Text(value,style: Theme.of(context).textTheme.headline4),
-                                              SizedBox(width: 10),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                      icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
-
-                                    ),
-                                  ),
-                                ],
+                                  );
+                                }),
                               ),
-                            ),
-
-
-                            SizedBox(height: 0),
-
-
-                          ],
+                            ],
+                          ),
                         ),
-                      ),
-                    ],
+                        SizedBox(height: 35),
 
+
+                        Padding(
+                          padding: EdgeInsets.only(left: 20.0),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text('Make this story' , style: TextStyle(fontSize: 18, color : Colors.white),),
+                              SizedBox(height : 10),
+                              Container(
+
+
+                                child: Row(
+                                  children: [
+                                    Theme(
+                                      data: Theme.of(context).copyWith(
+                                        canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
+                                      ),
+                                      child: DropdownButton<String>(
+                                        value: selectedVisibility,
+                                        onChanged: (String? newValue) {
+                                          setState(() {
+                                            selectedVisibility = newValue!;
+                                          });
+                                        },
+                                        items: <String>['Public', 'Private']
+                                            .map<DropdownMenuItem<String>>((String value) {
+                                          return DropdownMenuItem<String>(
+                                            value: value,
+                                            child: Row(
+                                              children: [
+                                                // Icons for "Public" and "Private"
+                                                value == 'Public'
+                                                    ? Icon(Icons.public, color: Colors.white)
+                                                    : Icon(Icons.lock, color: Colors.white),
+                                                SizedBox(width: 5),
+                                                Text(value,style: Theme.of(context).textTheme.headline4),
+                                                SizedBox(width: 10),
+                                              ],
+                                            ),
+                                          );
+                                        }).toList(),
+                                        icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
+
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+
+
+                              SizedBox(height: 0),
+
+
+                            ],
+                          ),
+                        ),
+                      ],
+
+                    ),
                   ),
                 ),
 
                 //for business development
-
-                Visibility(
-                  visible: selectedLabel == 'Business Product',
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-
-
-
-
-                      // category dropdown here
-                      SizedBox(height : 20),
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Category',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Theme(
-                              data: Theme.of(context).copyWith(
-                                canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
-                              ),
-                              child: DropdownButton<String>(
-                                value: selectedaCategory,
-                                onChanged: (String? newValue) {
-                                  setState(() {
-                                    selectedaCategory = newValue!;
-                                  });
-                                },
-                                items: <String>[
-                                  'Select', // Ensure there's exactly one 'Select' item
-                                  'Furniture',
-                                  'Handicraft Items',
-                                  'Handicraft Clothes',
-                                  'Other',
-                                ].map<DropdownMenuItem<String>>((String value) {
-                                  return DropdownMenuItem<String>(
-                                    value: value,
-                                    child: Text(value,style: Theme.of(context).textTheme.headline4),
-                                  );
-                                }).toList(),
-                                icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
-                                underline: Container(
-                                  height: 2,
-                                  color: Color(0xFFFB8C00),
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 30),
-
-                      //story title here
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Story Title ',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Container(
-                              width: 300,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                ),
-                              ),
-                              child: TextField(
-                                onChanged: (text) {
-                                  setState(() {
-                                    storyTitle = text;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'type here ...',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                                style: Theme.of(context).textTheme.headline4,
-                                maxLines: null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 30),
-
-                      //product description here
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Describe your product or service ',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Container(
-                              width: 300,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                ),
-                              ),
-                              child: TextField(
-                                onChanged: (text) {
-                                  setState(() {
-                                    productDescription = text;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'type here ...',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                                style: Theme.of(context).textTheme.headline4,
-                                maxLines: null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 30),
-
-                      // New input section for "What You Don't Like About This Place"
-                      Padding(
-                        padding: EdgeInsets.only(left : 20.0),
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Do you provide service / product at local’s door steps ?',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            SizedBox(height : 35),
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.start,
-                              children: [
-                                // Radio button for "Yes"
-                                Radio<String>(
-                                  value: 'Yes',
-                                  groupValue: selectedOption,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedOption = value!;
-                                    });
-                                  },
-                                  fillColor: MaterialStateColor.resolveWith((states) => Color(0xFFFB8C00)),
-                                  // Background color when selected
-                                ),
-                                Text('Yes',style : TextStyle(color : Colors.white)),
-                                Radio<String>(
-                                  value: 'No',
-                                  groupValue: selectedOption,
-                                  onChanged: (value) {
-                                    setState(() {
-                                      selectedOption = value!;
-                                    });
-                                  },
-
-                                  fillColor: MaterialStateColor.resolveWith((states) => Color(0xFFFB8C00)),// Background color when selected
-                                ),
-                                Text('No',style : TextStyle(color : Colors.white)),
-                              ],
-                            ),
-
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 30),
-
-                      //offered prices of your product
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Offered price of your product or Service',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-
-
-                            Container(
-                              padding: EdgeInsets.symmetric(vertical: 10.0, horizontal: 0.0),
-                              child: Row(
-                                children: [
-                                  // Country code dropdown
-                                  SizedBox(width : 5),
-                                  Theme(
-                                    data: Theme.of(context).copyWith(
-                                      canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
-                                    ),
-                                    child: DropdownButton<String>(
-                                      value: _selectedCurrencyCode,
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          _selectedCurrencyCode = newValue!;
-                                        });
-                                      },
-                                      items: currencyCode.map<DropdownMenuItem<String>>((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Text(
-
-                                            value,
-                                            style: Theme.of(context).textTheme.headline4, // Set text color to white
-                                          ),
-                                        );
-                                      }).toList(),
-                                    ),
-                                  ),
-                                  SizedBox(width: 5), // Add spacing between the dropdown and input field
-                                  // Phone number input field
-                                  Expanded(
-                                    child: Container(
-                                      child: TextField(
-                                        keyboardType: TextInputType.phone,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            productPrice = value;
-                                          });
-                                        },
-                                        decoration: InputDecoration(
-                                          filled: true,
-                                          fillColor: Colors.transparent, // Remove background color
-                                          border: OutlineInputBorder(
-                                            borderSide: BorderSide.none,
-                                          ),
-                                          contentPadding: EdgeInsets.symmetric(
-                                            vertical: 16.0,
-                                            horizontal: 10.0,
-                                          ),
-                                          hintText: 'Ex : 2250',
-                                          hintStyle: TextStyle(color: Colors.white), // Set hint text color to white
-                                        ),
-                                        style: Theme.of(context).textTheme.headline4, // Set text color to white
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height  : 30),
-
-                      //Delivery / transport Charges
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(
-                              'Delivery / transport Charges',
-                              style:Theme.of(context).textTheme.headline5,
-                            ),
-                            Container(
-                              width: 300,
-                              decoration: BoxDecoration(
-                                border: Border(
-                                  bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
-                                ),
-                              ),
-                              child: TextField(
-                                onChanged: (text) {
-                                  setState(() {
-                                    transportationPricing = text;
-                                  });
-                                },
-                                decoration: InputDecoration(
-                                  hintText: 'type here ...',
-                                  hintStyle: TextStyle(color: Colors.white),
-                                  enabledBorder: InputBorder.none,
-                                  focusedBorder: InputBorder.none,
-                                ),
-                                style: Theme.of(context).textTheme.headline4,
-                                maxLines: null,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 30),
-
-                      //make this story public or private
-                      Padding(
-                        padding: EdgeInsets.only(left: 20.0),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Make this story' , style: TextStyle(fontSize: 18, color : Colors.white),),
-                            Container(
-
-
-                              child: Row(
-                                children: [
-                                  Theme(
-                                    data: Theme.of(context).copyWith(
-                                      canvasColor: Color(0xFF263238), // Set the background color of the dropdown here
-                                    ),
-                                    child: DropdownButton<String>(
-                                      value: selectedVisibility,
-                                      onChanged: (String? newValue) {
-                                        setState(() {
-                                          selectedVisibility = newValue!;
-                                        });
-                                      },
-                                      items: <String>['Public', 'Private']
-                                          .map<DropdownMenuItem<String>>((String value) {
-                                        return DropdownMenuItem<String>(
-                                          value: value,
-                                          child: Row(
-                                            children: [
-                                              // Icons for "Public" and "Private"
-                                              value == 'Public'
-                                                  ? Icon(Icons.public, color: Colors.white)
-                                                  : Icon(Icons.lock, color: Colors.white),
-                                              SizedBox(width: 5),
-                                              Text(value,style: Theme.of(context).textTheme.headline4),
-                                              SizedBox(width: 10),
-                                            ],
-                                          ),
-                                        );
-                                      }).toList(),
-                                      icon: Icon(Icons.keyboard_arrow_down, color: Color(0xFFFB8C00)),
-
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-
-
-
-
-
-                          ],
-                        ),
-                      ),
-                      SizedBox(height  :0),
-
-
-
-
-
-
-                    ],
-
-                  ),
-                ),
-
 
 
                 //save draft or publish button
@@ -2350,10 +2160,35 @@ class _ComposePageState extends State<ComposePage> {
                       
                         height: 63,
                         child: ElevatedButton(
-                      
+
+
                           onPressed: () {
+
+
+                            setState(() {
+                              if(starRating == 0){
+                                starRatingIsRequired = true;
+                              }
+                            });
+
+
+
+
+
+
+
+                      if (_formKey.currentState!.validate() && starRatingIsRequired == false) {
+                        setState(() {
+
+                          isPublishClicked = !isPublishClicked;
+                          isSaveDraftClicked = false; // Reset the other button's state
+                        });
+                              // Your logic when the form is valid
+                        sendDataToBackend();
+                              print('Form is valid: $storyTitle');
+                            }
                       
-                            sendDataToBackend();
+
 
                             sendCustomNotificationToOneUser(
                                 userToken,
@@ -2365,10 +2200,7 @@ class _ComposePageState extends State<ComposePage> {
 
 
                             // Implement the functionality for publishing here
-                            setState(() {
-                              isPublishClicked = !isPublishClicked;
-                              isSaveDraftClicked = false; // Reset the other button's state
-                            });
+
                           },
                           style: ElevatedButton.styleFrom(
                             primary: isPublishClicked ? Color(0xFFFB8C00) : Colors.transparent, // Change background color

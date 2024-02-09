@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
+import 'package:learn_flutter/CustomItems/AutoScrollImages.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
 import 'package:learn_flutter/HomePage.dart';
@@ -341,26 +342,45 @@ class _LocalAssistState extends State<LocalAssist> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.help_outline,color : Colors.orange),
+                                      icon: Icon(Icons.help_outline, color: Colors.orange),
                                       onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Container(
+                                              height: MediaQuery.of(context).size.height,
 
-                                        showDialog(context: context, builder: (BuildContext context){
-                                          return Container(child : CustomPopUp(
-                                            imagePath: "assets/images/turnOff.svg",
-                                            textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
-                                            extraText:'You will earn dynamically in future, for now You will earn 400 INR for your presence. ' ,
-                                            what:'OK',
-                                            button: 'OK, Get it',));
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                   Container(
 
 
-                                        });
+                                                        child: AutoScrollImages(
+                                                          imageUrls: [
+                                                            'http://173.212.193.109:8080/appStories/newone.svg',
+                                                            'http://173.212.193.109:8080/appStories/homeSecond.svg',
+                                                            'http://173.212.193.109:8080/appStories/homeThird.svg',
+                                                            'http://173.212.193.109:8080/appStories/homeFourth.svg',
+                                                            'http://173.212.193.109:8080/appStories/homeFive.svg',
+                                                            // Add more image URLs as needed
+                                                          ],
+                                                        ),
+                                                      ),
 
 
-
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
                                       },
                                     ),
                                   ],
                                 ),
+
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
                                   children: [
@@ -385,6 +405,8 @@ class _LocalAssistState extends State<LocalAssist> {
                                     IconButton(
                                       icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
                                       onPressed: () {
+
+
                                         // Handle bottom icon press
                                       },
                                     ),
@@ -591,3 +613,7 @@ class _LocalAssistState extends State<LocalAssist> {
     );
   }
 }
+
+
+
+
