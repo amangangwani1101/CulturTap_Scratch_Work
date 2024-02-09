@@ -224,6 +224,7 @@ class _PingSectionState extends State<PingsSection>{
     });
   }
   bool toggle = true;
+  bool rotateButton = false;
 
   Future<void> paymentHandler(String name,String merchantName,double amount,String phone) async {
     try {
@@ -619,6 +620,48 @@ class _PingSectionState extends State<PingsSection>{
     }
   }
 
+  DateTime parseCustomDateTime(String dateTimeString) {
+    Map<String, int> monthMap = {
+      'Jan': 1, 'Feb': 2, 'Mar': 3, 'Apr': 4, 'May': 5, 'Jun': 6,
+      'Jul': 7, 'Aug': 8, 'Sep': 9, 'Oct': 10, 'Nov': 11, 'Dec': 12,
+    };
+
+    List<String> dateTimeParts = dateTimeString.split(' ');
+
+    List<String> dateParts = dateTimeParts[0].split('/');
+    int day = int.parse(dateParts[0]);
+    int month = monthMap[dateParts[1]]!;
+    int year = int.parse(dateParts[2]);
+
+    List<String> timeParts = dateTimeParts[1].split(':');
+    int hour = int.parse(timeParts[0]);
+    int minute = int.parse(timeParts[1]);
+
+    String amPm = dateTimeParts[2];
+
+    if (amPm.toLowerCase() == 'pm' && hour < 12) {
+      hour += 12;
+    } else if (amPm.toLowerCase() == 'am' && hour == 12) {
+      hour = 0;
+    }
+
+    DateTime parsedDateTime = DateTime(year, month, day, hour, minute);
+    return parsedDateTime;
+  }
+
+
+  DateTime setDateTime(date,time){
+    String parsedDateTime = ('$date $time');
+    DateTime parsedDateTime2 = parseCustomDateTime(parsedDateTime);
+    if (parsedDateTime2 != null) {
+      print('Parsed DateTime: $parsedDateTime2');
+    } else {
+      print('Invalid date format...');
+    }
+
+    return parsedDateTime2;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -664,7 +707,7 @@ class _PingSectionState extends State<PingsSection>{
                children: [
                  dataLoading ==false
                      ? Container(
-                   color : Colors.red,
+                   color : Theme.of(context).backgroundColor,
                    height : MediaQuery.of(context).size.height,
 
                    child: SingleChildScrollView(
@@ -847,27 +890,27 @@ class _PingSectionState extends State<PingsSection>{
                                                    meetStatus=='pending' || meetStatus=='cancel'?
                                                    Container(
                                                      color: Colors.red, // Background color red
-                                                     height: 16  , // Height set to 16
+                                                     padding: EdgeInsets.only(left:9,right:9,bottom: 2,top:2),// Background color red
                                                      constraints: BoxConstraints(
                                                        minWidth: 0,
                                                        maxWidth: double.infinity, // Adjust width according to text
                                                      ),
-                                                     child: Text('   '+
-                                                         (meetStatus=='pending'?'Request Pending':'Cancelled')+'   ',
-                                                       style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
+                                                     child: Text(
+                                                         (meetStatus=='pending'?'Pending':'Cancelled'),
+                                                       style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 12,fontWeight: FontWeight.w300,fontFamily: 'Poppins'), // Text color white
                                                      ),
                                                    )
                                                        : meetStatus=='accept'
                                                        ? Container(
                                                      color: HexColor('FB8C00'), // Background color red
-                                                     height: 16  , // Height set to 16
+                                                     padding: EdgeInsets.only(left:9,right:9,bottom: 2,top:2),// Background color red
                                                      constraints: BoxConstraints(
                                                        minWidth: 0,
                                                        maxWidth: double.infinity, // Adjust width according to text
                                                      ),
-                                                     child: Text('   '+
-                                                         'Accepted'+'   ',
-                                                       style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 10), // Text color white
+                                                     child: Text(
+                                                         'Accepted',
+                                                       style: TextStyle(color: Theme.of(context).backgroundColor,fontSize: 12,fontWeight: FontWeight.w300,fontFamily: 'Poppins'), // Text color white
                                                      ),
                                                    )
                                                        : meetStatus=='schedule'
@@ -1091,7 +1134,7 @@ class _PingSectionState extends State<PingsSection>{
                                                                sendCustomNotificationToOneUser(
                                                                    plannerToken,
                                                                    'Messages From ${userName}',
-                                                                   'Messages From ${userName}','Your trip planning request for ${date} is cancelled by planner',
+                                                                   'Messages From ${userName} <br/> Your trip planning request for ${date} is cancelled by ${userName}','Your trip planning request for ${date} is cancelled by ${userName}',
                                                                    'Cancelled','trip_planning_cancel',userId,'user'
                                                                );
                                                                // _refreshPage(time: 0,state: 'Cancelled');
@@ -1137,7 +1180,7 @@ class _PingSectionState extends State<PingsSection>{
                                                              sendCustomNotificationToOneUser(
                                                                  plannerToken,
                                                                  'Messages From ${userName}',
-                                                                 'Messages From ${userName}','Trip Planning Request Accepted <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Please Complete Payment</b>',
+                                                                 'Messages From ${userName} <br/> Trip Planning Request Accepted <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Please Complete Payment</b>','Trip Planning Request Accepted <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Please Complete Payment</b>',
                                                                  'Accepted','trip_planning_accept',userId,'user'
                                                              );
                                                            }
@@ -1194,7 +1237,7 @@ class _PingSectionState extends State<PingsSection>{
                                                                  sendCustomNotificationToOneUser(
                                                                      plannerToken,
                                                                      'Messages From ${userName}',
-                                                                     'Messages From ${userName}','Meeting request for ${date} is cancelled ',
+                                                                     'Messages From ${userName}<br/> Meeting request for ${date} is cancelled','Meeting request for ${date} is cancelled ',
                                                                      'Cancelled','trip_planning_cancel',userId,'helper'
                                                                  );
                                                                  // _refreshPage(time: 0,state: 'Cancelled');
@@ -1228,13 +1271,13 @@ class _PingSectionState extends State<PingsSection>{
                                                                sendCustomNotificationToOneUser(
                                                                    userToken,
                                                                    'Payment Successful',
-                                                                   'Payment Successful','Trip Planning Request Scheduled <br/> Meeting is On <a href="https://google.com">${date}</a> , ${startTime} - ${endTime} ',
+                                                                   'Payment Successful \n Trip Planning Request Scheduled \n Meeting is On ${date} , ${startTime} - ${endTime}','Trip Planning Request Scheduled <br/> Meeting is On <a href="https://google.com">${date}</a> , ${startTime} - ${endTime} ',
                                                                    'Scheduled','trip_planning_schedule',userID,'user'
                                                                );
                                                                sendCustomNotificationToOneUser(
                                                                    plannerToken,
                                                                    'Message From ${userName}',
-                                                                   'Message From ${userName}','Trip Planning Request Scheduled <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Be On Time .</b> <br/> Notifications will be sent before meeting',
+                                                                   'Message From ${userName} <br/> Trip Planning Request Scheduled <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Be On Time .</b> <br/> Notifications will be sent before meeting','Trip Planning Request Scheduled <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Be On Time .</b> <br/> Notifications will be sent before meeting',
                                                                    'Scheduled','trip_planning_schedule',userId,'helper'
                                                                );
                                                                print('$date,$index');
@@ -1252,12 +1295,30 @@ class _PingSectionState extends State<PingsSection>{
                                                    :(meetStatus=='schedule')
                                                    ?InkWell(
                                                  onTap: (){
-                                                    Navigator.push(
-                                                     context,
-                                                     MaterialPageRoute(
-                                                       builder: (context) => ScheduledCalendar(date:date,userId:userID,meetStartTime:startTime),
-                                                     ),
-                                                   );
+                                                    DateTime time= setDateTime(date, startTime);
+                                                    print('Time is ${time}');
+                                                    if(time != null && time!.isBefore(DateTime.now())){
+                                                      meetType=='sender'
+                                                          ? Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => ChatApps(senderId:userID,receiverId:'',date:date,startTime:startTime),
+                                                        ),
+                                                      )
+                                                          :Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => ChatApps(senderId:'',receiverId:userID,date:date,startTime:startTime),
+                                                        ),
+                                                      );
+                                                    }else{
+                                                      Navigator.push(
+                                                        context,
+                                                        MaterialPageRoute(
+                                                          builder: (context) => ScheduledCalendar(date:date,userId:userID,meetStartTime:startTime),
+                                                        ),
+                                                      );
+                                                    }
                                                  },
                                                  child: Container(
                                                    padding: EdgeInsets.only(top:10,bottom: 10),
@@ -1298,16 +1359,30 @@ class _PingSectionState extends State<PingsSection>{
                                              ],
                                      ),
                                    ),
-                                             Positioned(
-                                               top:30,
+                                             (meetType=='sender' && (meetStatus=='schedule')) || (meetType=='receiver' && (meetStatus=='pending' || meetStatus=='schedule'))
+                                                 ? Positioned(
+                                               bottom:30,
                                                right:30,
                                                child:InkWell(
                                                    onTap: ()async{
+                                                     setState(() {
+                                                       rotateButton = !rotateButton;
+                                                     });
                                                      await fetchDatasets(widget.userId);
+                                                    widget.state='All Pings';
                                                    },
-                                                   child: Icon(Icons.refresh,color: Colors.orange,size: 30,)
+                                                   child: Container(
+                                                       padding: EdgeInsets.all(10),
+                                                       decoration: BoxDecoration(
+                                                         borderRadius: BorderRadius.circular(50),
+                                                         color:Theme.of(context).primaryColorLight.withOpacity(0.8),
+                                                       ),
+                                                       child: Transform.rotate(
+                                                           angle: rotateButton ? 3.14 : 0,
+                                                           child: Icon(Icons.refresh,color: (meetType=='receiver' && meetStatus=='pending') ? Colors.red:Theme.of(context).primaryColorDark,size: 20,)))
                                                ),
                                              )
+                                                 : SizedBox(width:0),
                                            ],
                                          ),
                                        ):SizedBox(height:0),

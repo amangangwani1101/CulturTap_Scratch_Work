@@ -667,7 +667,7 @@ class _UserDetailsTableState extends State<UserDetailsTable> {
                   ),
                 ],
               ),
-              SizedBox(height: 3),
+              SizedBox(height: 5),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -684,13 +684,22 @@ class _UserDetailsTableState extends State<UserDetailsTable> {
                       mainAxisAlignment: MainAxisAlignment.start,
                       crossAxisAlignment: CrossAxisAlignment.end,
                       children: [
-                        Container(
-                          width:140,
-                          // color: Colors.orange,
-                          child: Text(
-                            widget.languageList!.join(' , '), // Join the list elements with a comma and space
-                            style: Theme.of(context).textTheme.subtitle2,
-                            maxLines: null,
+                        InkWell(
+                          onTap: (){
+                            if(widget.languageList!.length>4){
+                              setState(() {
+                                _showAll = false;
+                              });
+                            }
+                          },
+                          child: Container(
+                            width:140,
+                            // color: Colors.orange,
+                            child: Text(
+                              widget.languageList!.join(' , '), // Join the list elements with a comma and space
+                              style: Theme.of(context).textTheme.subtitle2,
+                              maxLines: null,
+                            ),
                           ),
                         ),
                         widget.languageList!.length >4 ?
@@ -711,36 +720,43 @@ class _UserDetailsTableState extends State<UserDetailsTable> {
                       ],
                     ),
                   )
-                      : Container(
-                    width: 170,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      children: [
-                        Container(
-                          width: 140,
-                          child: Text(
-                            widget.languageList!.join(' , '), // Join the list elements with a comma and space
-                            style: Theme.of(context).textTheme.subtitle2,
-                            maxLines: 2,
-                          ),
-                        ),
-                        InkWell(
-                          onTap: () {
+                      : InkWell(
+                          onTap: (){
                             setState(() {
                               _showAll = true;
                             });
                           },
-                          child: Icon(
-                            Icons.keyboard_arrow_down,
-                            size: 25,
-                            weight: 3.0,
-                            color: Colors.orange,
+                        child: Container(
+                    width: 170,
+                    child: Row(
+                        mainAxisAlignment: MainAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Container(
+                            width: 140,
+                            child: Text(
+                              widget.languageList!.join(' , '), // Join the list elements with a comma and space
+                              style: Theme.of(context).textTheme.subtitle2,
+                              maxLines: 2,
+                            ),
                           ),
-                        ),
-                      ],
+                          InkWell(
+                            onTap: (){
+                              setState(() {
+                                _showAll = true;
+                              });
+                            },
+                            child: Icon(
+                              Icons.keyboard_arrow_down,
+                              size: 25,
+                              weight: 3.0,
+                              color: Colors.orange,
+                            ),
+                          ),
+                        ],
                     ),
-                  )
+                  ),
+                      )
                       : Text('NA'),
                 ],
               ),

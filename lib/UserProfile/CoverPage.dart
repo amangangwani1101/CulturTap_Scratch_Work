@@ -349,7 +349,7 @@ class _UploadMethodsState extends State<UploadMethods> {
       print('here is profile image data');
       print(pickedFile.path);
       Navigator.of(context).pop();
-      await uploadImage(pickedFile.path);
+      await uploadImage(File(pickedFile.path));
     }
   }
 
@@ -370,14 +370,14 @@ class _UploadMethodsState extends State<UploadMethods> {
       print('here is profile image data');
       print(croppedImage.path);
       Navigator.of(context).pop();
-      await uploadImage(croppedImage.path);
+      await uploadImage(croppedImage);
 
     }
   }
 
-  Future<void> uploadImage(String imagePath) async {
+  Future<void> uploadImage(File imageFile) async {
     try {
-      final imageFile = File(imagePath);
+      // final imageFile = File(imagePath);
 
       final request = http.MultipartRequest(
         'POST',
@@ -398,7 +398,7 @@ class _UploadMethodsState extends State<UploadMethods> {
       final responseBody = await response.stream.bytesToString();
 
       print('Response status: ${response.statusCode}');
-      print('Response body: $responseBody');
+      print('Response body image: $responseBody');
     } catch (e) {
       print('Error uploading image: $e');
     }
