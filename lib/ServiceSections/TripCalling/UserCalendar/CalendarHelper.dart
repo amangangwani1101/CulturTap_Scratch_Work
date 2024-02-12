@@ -8,16 +8,18 @@ import 'package:flutter/material.dart';
 import '../../../BackendStore/BackendStore.dart';
 import '../../../UserProfile/ProfileHeader.dart';
 // import '../../rating.dart';
+import '../../../fetchDataFromMongodb.dart';
+import '../../../widgets/Constant.dart';
 import '../../../widgets/CustomDropDowns.dart';
 import '../../../widgets/hexColor.dart';
-
+import 'package:http/http.dart' as http;
 
 
 class CalendarHelper extends StatefulWidget{
   Map<String,dynamic>?plans;
-  String ?choosenDate,startTime,endTime,slotChossen,date,text,userName;
+  String ?choosenDate,startTime,endTime,slotChossen,date,text,userName,fromWhichPage;
   List<bool>?daysChoosen;
-  CalendarHelper({this.plans,this.choosenDate,this.startTime,this.endTime,this.slotChossen,this.date,this.text,this.userName,this.daysChoosen});
+  CalendarHelper({this.plans,this.choosenDate,this.startTime,this.endTime,this.slotChossen,this.date,this.text,this.userName,this.daysChoosen,this.fromWhichPage});
   @override
   _CalendarHelperState createState()=> _CalendarHelperState();
 }
@@ -74,14 +76,92 @@ class _CalendarHelperState  extends State<CalendarHelper>{
   late List<String> meetStartTimes=[],meetEndTimes=[];
   String? selectedDate,sendDate;
   DateTime?choosen;
+  bool dataLoaded = true;
   @override
   void initState(){
+    startSetup();
+  }
+  String formatDate(DateTime date) {
+    // Extract components of the date
+    String day = date.day.toString().padLeft(2, '0');
+    String month = date.month.toString().padLeft(2, '0');
+    String year = date.year.toString();
+
+    // Concatenate the components in the desired format
+    String formattedDate = '$day/$month/$year';
+
+    return formattedDate;
+  }
+
+  String formatToSpecialDate(DateTime date) {
+    // Define month abbreviations
+    List<String> monthAbbreviations = [
+      'JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN',
+      'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'
+    ];
+
+    // Extract components of the date
+    String day = date.day.toString().padLeft(2, '0');
+    String monthAbbreviation = monthAbbreviations[date.month - 1];
+
+    // Concatenate the components in the desired format
+    String formattedDate = '$day $monthAbbreviation';
+
+    return formattedDate;
+  }
+
+
+  Future<void> startSetup()async{
+    setState(() {
+      dataLoaded = false;
+    });
+    if(widget.choosenDate!=null) {
+      widget.choosenDate = formatDate(DateTime.now());
+      widget.date = formatToSpecialDate(DateTime.now());
+    }
+    await fetchProfileData();
     if(widget.choosenDate!=null){
       printMeetTimes(widget.choosenDate!);
       sendDate= widget.choosenDate;
     }
     print('Plans:${widget.plans}');
+    setState(() {
+      dataLoaded = true;
+    });
+  }
 
+  Future<void> _refreshPage() async{
+    await fetchProfileData();
+  }
+  Future<void> fetchProfileData() async {
+    final String serverUrl = Constant().serverUrl;
+    final url = Uri.parse('$serverUrl/userStoredData/${userID}');
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Datra i');
+      print(data);
+      setState(() {
+        widget.userName = data['userName'];
+        widget.plans = data['userServiceTripCallingData']['dayPlans'];
+        widget.startTime = data['userServiceTripCallingData']['startTimeFrom'];
+        widget.endTime = data['userServiceTripCallingData']['endTimeTo'];
+        widget.daysChoosen = data['userServiceTripCallingData']['daysChoosen'].where((dynamic element) => element is bool) // Filter out non-bool values
+            .cast<bool>() // Cast the remaining values to bool
+            .toList();
+      });
+    } else {
+      // Handle error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Try Again!!',style: Theme.of(context).textTheme.subtitle2,),
+        ),
+      );
+      Navigator.of(context).pop();
+      print('Failed to fetch dataset: ${response.statusCode}');
+      throw Exception('Failed to fetch profile data');
+    }
   }
   void printMeetTimes(String key) {
     try {
@@ -154,7 +234,12 @@ class _CalendarHelperState  extends State<CalendarHelper>{
         appBar: AppBar(title: ProfileHeader(reqPage: 5,text: widget.text,fromWhichPage: 'trip_planning_schedule_profile',onButtonPressed: (){
           Navigator.pop(context,sendDate);
         },),automaticallyImplyLeading: false,shadowColor: Colors.transparent,backgroundColor: Colors.white,),
-        body: SingleChildScrollView(
+        body: dataLoaded
+            ? RefreshIndicator(
+                backgroundColor: Color(0xFF263238),
+                color: Colors.orange,
+                onRefresh: _refreshPage,
+          child: SingleChildScrollView(
           child: Container(
             margin: EdgeInsets.only(left: 25,right:35),
             // color: Colors.red,
@@ -306,6 +391,8 @@ class _CalendarHelperState  extends State<CalendarHelper>{
             ),
           ),
         ),
+            )
+            : Center(child:CircularProgressIndicator(color:Colors.orange)),
       ),
     );
   }

@@ -25,8 +25,8 @@ class RateFeed extends StatefulWidget{
 
 class _RateFeedState extends State<RateFeed>{
 
-  String? startTime,date,meetType,meetTitle,userName,userPhoto;
-  bool dataGot = false;
+  String startTime='',date='',meetType='',meetTitle='',userName='',userPhoto='',userId='',helperId='',helperName='',helperPhoto='';
+  bool dataGot = false,ratingUnfilled=false;
   String liveLocation = 'Fetching location...';
   @override
   void initState() {
@@ -60,6 +60,55 @@ class _RateFeedState extends State<RateFeed>{
     }
   }
 
+  Future<void> fetchDataset(String userId) async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/userStoredData/${userId}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Users Name and Photo Taken');
+      setState(() {
+        if(meetType=='sender'){
+          userName = data['userName'];
+          userPhoto = data['userPhoto']!=null?data['userPhoto']:'';
+        }else{
+          helperName = data['userName'];
+          helperPhoto = data['userPhoto']!=null?data['userPhoto']:'';
+        }
+        print('UserName:${userName}');
+        print('HelperName:${helperName}');
+      });
+    } else {
+      // Handle error
+      print('Failed to fetch users name & phone : ${response.statusCode}');
+    }
+  }
+
+  Future<void> fetchDataset2(String userId) async {
+    final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+    final url = Uri.parse('$serverUrl/userStoredData/${userId}'); // Replace with your backend URL
+    final http.Response response = await http.get(url);
+
+    if (response.statusCode == 200) {
+      final data = json.decode(response.body);
+      print('Users Name and Photo Taken');
+      setState(() {
+        if(meetType=='sender'){
+          helperName = data['userName'];
+          helperPhoto = data['userPhoto']!=null?data['userPhoto']:'';
+        }else{
+          userName = data['userName'];
+          userPhoto = data['userPhoto']!=null?data['userPhoto']:'';
+        }
+        print('UserName:${userName}');
+        print('HelperName:${helperName}');
+      });
+    } else {
+      // Handle error
+      print('Failed to fetch users name & phone : ${response.statusCode}');
+    }
+  }
 
 
   Future<void> getLocation() async{
@@ -89,7 +138,13 @@ class _RateFeedState extends State<RateFeed>{
   }
 
   Future<void> meeting(String meetId) async{
+    setState(() {
+      dataGot = false;
+    });
     await  fetchMeetingData(meetId);
+    setState(() {
+      dataGot= true;
+    });
   }
 
   Future<void> fetchMeetingData(String meetId) async {
@@ -101,14 +156,15 @@ class _RateFeedState extends State<RateFeed>{
       final data = json.decode(response.body)['dataset'];
       print('Meeting Data Received ${data}');
       setState(() {
-        dataGot = true;
         startTime = data['time'];
         date = data['date'];
-        meetType = data['userId']!=userID?'sender':'receiver';
+        meetType = data['userId']==userID?'sender':'receiver';
         meetTitle = data['title'];
-        userName = data['userName'];
-        userPhoto = data['userPhoto'];
+        userId = data['userId'];
+        helperId = data['helperId'];
       });
+      await fetchDataset(userId);
+      await fetchDataset2(helperId);
     } else {
       print('Failed to fetch dataset: ${response.statusCode}');
     }
@@ -145,6 +201,7 @@ class _RateFeedState extends State<RateFeed>{
         'info':info,
         'companyInfo':info2,
         'type':type,
+        'userId':userID,
       };
       print('Feedback Form ::$data');
       final http.Response response = await http.patch(
@@ -190,7 +247,7 @@ class _RateFeedState extends State<RateFeed>{
     }
   }
 
-  int rating = 0;
+  int rating = -1;
   String textValue = '',textValue2='';
   @override
   Widget build(BuildContext context) {
@@ -198,306 +255,313 @@ class _RateFeedState extends State<RateFeed>{
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
       body: dataGot?SingleChildScrollView(
-        child:  Container(
-          padding: EdgeInsets.all(20),
-          color: Colors.white,
-          child: Column(
-            children: [
-             SizedBox(height: 30,),
-             Row(
-               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-               children: [
-                 Text('Rate & Feedback',style: Theme.of(context).textTheme.headline2,),
-                 InkWell(
-                     onTap: (){
-                       Navigator.push(
-                         context,
-                         MaterialPageRoute(
-                           builder: (context) => PingsSection(userId: userID,userName:userName,),
-                         ),
-                       );
-                     },
-                     child: Icon(Icons.close,size: 26,color: Theme.of(context).primaryColor,)),
-               ],
-             ),
-              SizedBox(height: 71,),
-              Container(
-                padding: EdgeInsets.only(right: 20),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+        child:  Column(
+          children: [
+            Container(
+              padding: EdgeInsets.all(20),
+              color: Colors.white,
+              child: Column(
+                children: [
+                 SizedBox(height: 50,),
+                 Row(
+                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                   children: [
+                     Text('Rate & Feedback',style: Theme.of(context).textTheme.headline2,),
+                     InkWell(
+                         onTap: (){
+                           Navigator.of(context).pop();
+                         },
+                         child: Icon(Icons.close,size: 26,color: Theme.of(context).primaryColor,)),
+                   ],
+                 ),
+                  SizedBox(height: 50,),
+                  Container(
+                    padding: EdgeInsets.only(right: 20),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        meetType=='user'
-                            ? CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage: AssetImage('assets/images/profile_image.svg'),// Use a default asset image
-                        )
-                            :CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage: AssetImage('assets/images/profile_image.svg'),// Use a default asset image
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          children: [
+                            meetType=='sender'
+                                ? CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: AssetImage('assets/images/profile_image.svg'),// Use a default asset image
+                            )
+                                :CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: AssetImage('assets/images/profile_image.svg'),// Use a default asset image
+                            ),
+                            SizedBox(width: 10,),
+                            SvgPicture.asset(
+                              'assets/images/local_assist_logo.svg', // Replace with the path to your SVG file
+                              width: 25, // Specify the width
+                              height: 25, // Specify the height
+                              color: Colors.black, // Change the color if needed
+                            ),
+                            SizedBox(width: 10,),
+                            meetType=='sender'
+                                ? CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage: AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                            )
+                                :CircleAvatar(
+                              radius: 20.0,
+                              backgroundImage:  AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+                            ),
+                          ],
                         ),
-                        SizedBox(width: 10,),
-                        SvgPicture.asset(
-                          'assets/images/local_assist_logo.svg', // Replace with the path to your SVG file
-                          width: 25, // Specify the width
-                          height: 25, // Specify the height
-                          color: Colors.black, // Change the color if needed
-                        ),
-                        SizedBox(width: 10,),
-                        meetType=='sender'
-                            ? CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage: AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
-                        )
-                            :CircleAvatar(
-                          radius: 20.0,
-                          backgroundImage:  AssetImage('assets/images/profile_image.jpg'),// Use a default asset image
+
+                        SizedBox(height: 15,),
+                        Container(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              meetType=='sender'
+                                  ?Container(
+                                child: Row(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Local Assistant Request With ',style: Theme.of(context).textTheme.subtitle2,),
+                                    Expanded(
+                                       child: Container(
+                                          alignment: Alignment.centerRight,
+                                          child: Text('${Constant().extractFirstName(helperName)}',style:  Theme.of(context).textTheme.subtitle2,)),
+                                    )
+                                  ],
+                                ),
+                              )
+                                  :Row(
+                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text('Local Assitant Request By',style: Theme.of(context).textTheme.subtitle2,),
+                                  SizedBox(width:20),
+                                  Expanded(
+                                    child: Container(
+                                        alignment: Alignment.centerRight,
+                                        child: Text('${Constant().extractFirstName(helperName)}',style: Theme.of(context).textTheme.subtitle2,)),
+                                  )
+                                ],
+                              ),
+                              SizedBox(height: 17,),
+                              Container(
+                                // decoration: BoxDecoration(border:Border.all(width: 1)),
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  children: [
+                                    Row(
+                                      children: [
+                                        Container(
+                                          child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,),
+                                        ),
+                                        SizedBox(width: 10,),
+                                        Text('${startTime!} \t',style: Theme.of(context).textTheme.headline6),
+                                        Text('India',style: Theme.of(context).textTheme.headline6,)
+                                      ],
+                                    ),
+                                    SizedBox(height: 4,),
+                                    Row(
+                                      children: [
+                                        Container(
+                                          child: Image.asset('assets/images/calendar.png',width: 20,height: 20,),
+                                        ),
+                                        SizedBox(width: 10,),
+                                        Text('Date ${date!} "${convertToDate(date!)}"',style: Theme.of(context).textTheme.headline6),
+                                      ],
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
-
-                    SizedBox(height: 15,),
-                    Container(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          meetType=='sender'
-                              ?Container(
-                            child: Row(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text('Trip planning Call with',style: Theme.of(context).textTheme.subtitle2,),
-                                SizedBox(width:20),
-                                Container(
-                                    width: 100,
-                                    alignment: Alignment.centerRight,
-                                    child: Text('${userName!}',style:  Theme.of(context).textTheme.subtitle2,))
-                              ],
-                            ),
-                          )
-                              :Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  ),
+                  SizedBox(height: 22,),
+                  Container(
+                    // decoration: BoxDecoration(border:Border.all(color: Colors.red)),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        InkWell(
+                          onTap: (){},
+                          child: Image.asset('assets/images/location.png',width: 22,height: 27,),
+                        ),
+                        SizedBox(width:10,),
+                        Container(
+                          child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text('Call requested by',style: Theme.of(context).textTheme.subtitle2,),
-                              SizedBox(width:20),
-                              Container(
-                                  width: 100,
-                                  alignment: Alignment.centerRight,
-                                  child: Text('${userName!}',style: Theme.of(context).textTheme.subtitle2,))
+                              Row(
+                                children: [
+                                  Text('Location ',style: Theme.of(context).textTheme.bodyText1,),
+                                  Icon(Icons.keyboard_arrow_down,size: 15,),
+                                ],
+                              ),
+                              Text(liveLocation,style: Theme.of(context).textTheme.bodyText2,), // Display user location here
                             ],
                           ),
-                          SizedBox(height: 17,),
-                          Container(
-                            // decoration: BoxDecoration(border:Border.all(width: 1)),
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                              children: [
-                                Row(
-                                  children: [
-                                    Container(
-                                      child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,),
-                                    ),
-                                    SizedBox(width: 10,),
-                                    Text('${startTime!} \t',style: Theme.of(context).textTheme.headline6),
-                                    Text('India',style: Theme.of(context).textTheme.headline6,)
-                                  ],
-                                ),
-                                SizedBox(height: 4,),
-                                Row(
-                                  children: [
-                                    Container(
-                                      child: Image.asset('assets/images/calendar.png',width: 20,height: 20,),
-                                    ),
-                                    SizedBox(width: 10,),
-                                    Text('Date ${date!} "${convertToDate(date!)}"',style: Theme.of(context).textTheme.headline6),
-                                  ],
-                                ),
-                              ],
-                            ),
-                          ),
-                        ],
-                      ),
+                        )
+                      ],
                     ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 22,),
-              Container(
-                // decoration: BoxDecoration(border:Border.all(color: Colors.red)),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.start,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    InkWell(
-                      onTap: (){},
-                      child: Image.asset('assets/images/location.png',width: 22,height: 27,),
-                    ),
-                    SizedBox(width:10,),
-                    Container(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
-                            children: [
-                              Text('Location ',style: Theme.of(context).textTheme.bodyText1,),
-                              Icon(Icons.keyboard_arrow_down,size: 15,),
-                            ],
-                          ),
-                          Text(liveLocation,style: Theme.of(context).textTheme.bodyText2,), // Display user location here
-                        ],
-                      ),
-                    )
-                  ],
-                ),
-              ),
-              SizedBox(height: 28,),
-              SizedBox(width: 26,),
-              Container(
-                // decoration: BoxDecoration(border:Border.all(width: 1)),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Column(
+                  ),
+                  SizedBox(height: 28,),
+                  SizedBox(width: 26,),
+                  Container(
+                    // decoration: BoxDecoration(border:Border.all(width: 1)),
+                    child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
+                        Column(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              child: Text(
+                                'Rate your Experience',
+                                style: ratingUnfilled?TextStyle(fontSize: 14,fontWeight: FontWeight.w600,color:Colors.red,fontFamily: 'Poppins') : Theme.of(context).textTheme.subtitle1,
+                              ),
+                            ),
+                            SizedBox(height: 11,),
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.start,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: List.generate(5, (index) {
+                                return GestureDetector(
+                                  onTap: () {
+                                    setState(() {
+                                      rating = index + 1;
+                                      print('Rating is$rating');
+                                      if(ratingUnfilled)
+                                        ratingUnfilled = false;
+                                    });
+                                  },
+                                  child: index<rating
+                                      ?SvgPicture.asset('assets/images/star-color.svg',width: 40,height: 40,)
+                                      :SvgPicture.asset('assets/images/star-no-color.svg',width: 30,height: 30,color: ratingUnfilled?Colors.red:Colors.black,),
+                                 );
+                              }),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: 28,),
                         Container(
-                          child: Text(
-                            'Rate your Experience',
-                            style: Theme.of(context).textTheme.subtitle1,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                  child: Text('Additional Feedback',style: Theme.of(context).textTheme.subtitle1)),
+                              SizedBox(height: 11,),
+                              Container(
+                                color: HexColor('#E9EAEB'),
+                                height: 104,
+                                child: TextField(
+                                  style: Theme.of(context).textTheme.headline6,
+                                  onChanged: (value) {
+                                    textValue = value;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Type here........',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  maxLines: 7, // Increase the maxLines for a larger text area
+                                ),
+                              ),
+
+                            ],
                           ),
                         ),
-                        SizedBox(height: 11,),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.start,
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: List.generate(5, (index) {
-                            return GestureDetector(
-                              onTap: () {
-                                setState(() {
-                                  rating = index + 1;
-                                  print('Rating is$rating');
-                                });
-                              },
-                              child: index<rating
-                                  ?SvgPicture.asset('assets/images/star-color.svg',width: 40,height: 40,)
-                                  :SvgPicture.asset('assets/images/star-no-color.svg',width: 30,height: 30),
-                            );
-                          }),
+                        SizedBox(height: 23.5,),
+                        Container(
+                          height: 1,
+                          decoration: BoxDecoration(
+                            border: Border.all(
+                                color: Colors.black
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 13.5,),
+                        Container(
+                          height: 102,
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                  height: 21,
+                                  child: Text('Wanna say something to Culturtap ?',style: Theme.of(context).textTheme.subtitle1,)),
+                              SizedBox(height: 11,),
+                              Container(
+                                color: HexColor('#E9EAEB'),
+                                height: 70,
+                                child: TextField(
+                                  style:Theme.of(context).textTheme.headline6,
+                                  onChanged: (value) {
+                                    textValue2 = value;
+                                  },
+                                  decoration: InputDecoration(
+                                    hintText: 'Type here........',
+                                    border: OutlineInputBorder(),
+                                  ),
+                                  maxLines: 5, // Increase the maxLines for a larger text area
+                                ),
+                              ),
+
+                            ],
+                          ),
                         ),
                       ],
                     ),
-                    SizedBox(height: 28,),
-                    Container(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                              child: Text('Additional Feedback',style: Theme.of(context).textTheme.subtitle1)),
-                          SizedBox(height: 11,),
-                          Container(
-                            color: HexColor('#E9EAEB'),
-                            height: meetType=='sender'?104:152,
-                            child: TextField(
-                              style: Theme.of(context).textTheme.headline6,
-                              onChanged: (value) {
-                                textValue = value;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Type here........',
-                                border: OutlineInputBorder(),
-                              ),
-                              maxLines: 7, // Increase the maxLines for a larger text area
-                            ),
-                          ),
-
-                        ],
-                      ),
-                    ),
-                    meetType=='sender'?SizedBox(height: 23.5,):SizedBox(height: 0,),
-                    meetType=='sender'
-                        ?Container(
-                      height: 1,
-                      decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Colors.black
-                        ),
-                      ),
-                    )
-                        :SizedBox(height: 0,),
-                    meetType=='sender'?SizedBox(height: 13.5,):SizedBox(height: 0,),
-                    meetType=='sender'
-                        ?Container(
-                      height: 102,
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Container(
-                              height: 21,
-                              child: Text('Wanna say something to Culturtap ?',style: Theme.of(context).textTheme.subtitle1,)),
-                          SizedBox(height: 11,),
-                          Container(
-                            color: HexColor('#E9EAEB'),
-                            height: 70,
-                            child: TextField(
-                              style:Theme.of(context).textTheme.headline6,
-                              onChanged: (value) {
-                                textValue2 = value;
-                              },
-                              decoration: InputDecoration(
-                                hintText: 'Type here........',
-                                border: OutlineInputBorder(),
-                              ),
-                              maxLines: 5, // Increase the maxLines for a larger text area
-                            ),
-                          ),
-
-                        ],
-                      ),
-                    )
-                        :SizedBox(height: 0,),
-                  ],
-                ),
+                  ),
+                  meetType=='sender'?SizedBox(height: 32,):SizedBox(height: 89,),
+                ],
               ),
-              meetType=='sender'?SizedBox(height: 32,):SizedBox(height: 89,),
-              Container(
-                height: 55,
-                child: FiledButton(
-                    backgroundColor: HexColor('#FB8C00'),
-                    onPressed: () async{
+            ),
+            Container(
+              width:MediaQuery.of(context).size.width,
+              height: 63,
+              child: FiledButton(
+                  backgroundColor: HexColor('#FB8C00'),
+                  onPressed: () async{
+                    print('Ratting ${rating}');
+                    if(rating==-1){
+                      setState(() {
+                        ratingUnfilled = true;
+                      });
+                    }
+                    else{
                       print('${widget.meetId},${meetType}');
                       if(widget.service=='Local Assistant'){
                         await updateLocalAssistFeedback(widget.meetId!,rating,textValue,meetType!,textValue2);
                         Navigator.pushReplacement(
                           context,
-                          MaterialPageRoute(builder: (context) => HomePage()),
+                          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',state:'Closed')),
                         );
                       }
-                      // Navigator.push(
-                      //   context,
-                      //   MaterialPageRoute(
-                      //     builder: (context) => HomePage(userId: widget.userId,userName: widget.userName,),
-                      //   ),
-                      // );
+                    }
+                    // Navigator.push(
+                    //   context,
+                    //   MaterialPageRoute(
+                    //     builder: (context) => HomePage(userId: widget.userId,userName: widget.userName,),
+                    //   ),
+                    // );
 
-                      // Navigator.of(context).pop();
-                    },
-                    child: Center(
-                        child: Text('SUBMIT',
-                            style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.white,
-                                fontSize: 16)))),
-              ),
-            ],
-          ),
+                    // Navigator.of(context).pop();
+                  },
+                  child: Center(
+                      child: Text('SUBMIT',
+                          style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                              fontSize: 18)))),
+            ),
+          ],
         ),
       ):Center(child: CircularProgressIndicator(),),
     );

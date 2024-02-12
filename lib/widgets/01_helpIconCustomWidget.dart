@@ -32,7 +32,7 @@ import '../UserProfile/ProfileHeader.dart';
 String? globalStartTime='6:00 PM';
 String? globalEndTime='9:00 PM';
 String? globalSlots = 'choice_1';
-List<bool>?globalAvailable = List.generate(7, (index) => true);
+List<bool>?globalAvailable;
 List<PaymentDetails> globalCards =[];
 bool isGone=false;
 
@@ -146,6 +146,8 @@ class CustomHelpOverlay extends StatelessWidget {
 
 
 
+
+
 class ServicePage extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
   final ServiceTripCallingData?data;
@@ -161,6 +163,236 @@ class ServicePage extends StatefulWidget{
 class _ServicePageState extends State<ServicePage>{
   String?startTime,endTime,slots;
   List<bool>?daysChoosen;
+
+  bool isTimeDifferenceGreaterThan30Minutes(String startTimeStr, String endTimeStr) {
+    Duration difference = calculateTimeDifference(startTimeStr, endTimeStr);
+    return difference.inMinutes > 30;
+  }
+
+  TimeOfDay _parseTimeString(String timeStr) {
+    // Parse the time string in the format "6:00 PM" to TimeOfDay object
+    List<String> splitTime = timeStr.split(' ');
+    String time = splitTime[0];
+    String period = splitTime[1];
+    List<String> splitHourMinute = time.split(':');
+    int hour = int.parse(splitHourMinute[0]);
+    int minute = int.parse(splitHourMinute[1]);
+
+    // Convert 12-hour format to 24-hour format if needed
+    if (period.toLowerCase() == 'pm' && hour < 12) {
+      hour += 12;
+    } else if (period.toLowerCase() == 'am' && hour == 12) {
+      hour = 0;
+    }
+
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  Duration calculateTimeDifference(String startTimeStr, String endTimeStr) {
+    // Parse the time strings into TimeOfDay objects
+    TimeOfDay startTime = _parseTimeString(startTimeStr);
+    TimeOfDay endTime = _parseTimeString(endTimeStr);
+
+    // Convert TimeOfDay objects to DateTime objects for easier manipulation
+    DateTime startDateTime = DateTime(2023, 1, 1, startTime.hour, startTime.minute);
+    DateTime endDateTime = DateTime(2023, 1, 1, endTime.hour, endTime.minute);
+
+    // Calculate the difference between times
+    Duration difference = endDateTime.difference(startDateTime);
+
+    // Ensure positive time difference if end time is earlier than start time
+    if (difference.isNegative) {
+      difference = Duration(hours: 24) + difference;
+    }
+
+    return difference;
+  }
+
+  bool validator(){
+    if((globalStartTime)==null || (globalEndTime)==null) {
+      Fluttertoast.showToast(
+        msg: "Please select your timing!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return false;
+    }
+    else if(globalSlots==null) {
+      Fluttertoast.showToast(
+        msg: "Please select your slots!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return false;
+    }
+    else if(isTimeDifferenceGreaterThan30Minutes(globalStartTime!,globalEndTime!) ==false){
+      Fluttertoast.showToast(
+        msg: "its a pop up time :(!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return false;
+    }
+    if(widget.profileDataProvider!=null){
+      widget.profileDataProvider?.setStartTime(globalStartTime!);
+      widget.profileDataProvider?.setEndTime(globalEndTime!);
+      widget.profileDataProvider?.setSlots(globalSlots!);
+      widget.profileDataProvider?.setAvailableSlots(globalAvailable!);
+    }
+    return true;
+  }
+
+  Future<void> updateUserTime (String userId,String startTime,String endTime,String slot,List<bool>daysChoosen) async{
+    try {
+      Map<String,dynamic>data = {
+        "userId":userId,
+        "startTime":startTime,
+        "endTime":endTime,
+        "slot":slot,
+        "daysChoosen":daysChoosen,
+      };
+      print('User$data');
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final http.Response response = await http.put(
+        Uri.parse('$serverUrl/updateUserTime'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Your Time Is Set :) '),
+          ),
+        );
+
+        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId:userID)));
+
+
+        if(widget.text=='edit'){
+          await showDialog(context: context, builder: (BuildContext context){
+            return Container(child: CustomHelpOverlay(button:'You Are All Set', text : 'Connect', extraText: 'Thank you for choosing to help other tourists on call to plan their trips. ',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },onBackPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },),);
+          },);
+          // showDialog(context: context, builder: (BuildContext context){
+          //   return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId: userID)));
+          //   },),);
+          // },
+          // );
+          widget.onButtonPressed!();
+        }
+        else{
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+              create:(context) => ProfileDataProvider(),
+              child: FinalProfile(userId: userID,clickedId: userID,),
+            ),),
+          );
+        }
+        print('Data saved successfully');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Try Again!!'),
+          ),
+        );
+        print('Failed to update time: ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error: $err");
+    }
+  }
+  Future<bool> checkUserTimeWithMeet (String userId,String startTime,String endTime,List<bool>daysChoosen) async{
+    try {
+      Map<String,dynamic>data = {
+        "userId":userId,
+        "startTime":startTime,
+        "endTime":endTime,
+        "daysChoosen":daysChoosen,
+      };
+      print('User$data');
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final http.Response response = await http.post(
+        Uri.parse('$serverUrl/checkEligibilityToEditTripPlanningTime'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+      try{
+        if (response.statusCode == 200) {
+          final responseData = json.decode(response.body);
+          print(responseData);
+          if(responseData['isEligible']){
+            return true;
+          }
+          else if(responseData['day']!=null){
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('You have a meet on ${responseData['day']}'),
+              ),
+            );
+            return false;
+          }
+          else{
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Your meets are scheduled'),
+              ),
+            );
+            return false;
+          }
+          print('Data saved successfully');
+        } else {
+          return false;
+        }
+      }catch(err){
+        print("Error: $err");
+        Fluttertoast.showToast(
+          msg: 'Try Again!!',
+          toastLength:
+          Toast.LENGTH_SHORT,
+          gravity:
+          ToastGravity.BOTTOM,
+          backgroundColor:
+          Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return false;
+      }
+    }catch(err){
+      print("Error: $err");
+      Fluttertoast.showToast(
+        msg: 'Try Again!!',
+        toastLength:
+        Toast.LENGTH_SHORT,
+        gravity:
+        ToastGravity.BOTTOM,
+        backgroundColor:
+        Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -226,59 +458,87 @@ class _ServicePageState extends State<ServicePage>{
             ),
           ),
           ),
-        // bottomNavigationBar:
-        // InkWell(
-        //   onTap: (){
-        //     // updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
-        //
-        //
-        //     // if(widget.profileDataProvider!=null){
-        //     //   widget.profileDataProvider?.setServide1();
-        //     //   Navigator.of(context).pop();
-        //     //   Navigator.of(context).pop();
-        //     // }
-        //     // if(isGone){
-        //     //   ScaffoldMessenger.of(context).showSnackBar(
-        //     //     SnackBar(
-        //     //       content: Text('Already Set!!'),
-        //     //     ),
-        //     //   );
-        //     //   Navigator.of(context).pop();
-        //     // }
-        //     if(validator()){
-        //       // setState(() {
-        //       //   isGone = true;
-        //       // });
-        //       if(widget.userId==null){
-        //         Navigator.of(context).pop();
-        //         if(widget.profileDataProvider!=null){
-        //           widget.profileDataProvider?.setServide1();
-        //         }
-        //       }
-        //       else{
-        //         updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
-        //         Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId: userID)));
-        //         // Navigator.of(context).pop();
-        //       }
-        //     // }else{}
-        //   },
-        //   child: Container(
-        //     width: MediaQuery.of(context).size.width,
-        //     // alignment: Alignment.center,
-        //     margin: EdgeInsets.only(left: 30,right:30),
-        //     padding: EdgeInsets.all(15),
-        //     decoration: BoxDecoration(
-        //       borderRadius: BorderRadius.circular(10),
-        //       color: Colors.orange,
-        //     ),
-        //     child: Row(
-        //       mainAxisAlignment: MainAxisAlignment.center,
-        //       children: [
-        //         Text('SET TIME',style: Theme.of(context).textTheme.caption,),
-        //       ],
-        //     ),
-        //   ),
-        // ),
+        bottomNavigationBar: InkWell(
+          onTap: ()async{
+
+
+            // updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
+
+
+            // globalAvailable = selectedDays;
+            // if(isGone){
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     SnackBar(
+            //       content: Text('Already Set!!'),
+            //     ),
+            //   );
+            //   Navigator.of(context).pop();
+            // }
+            print('Time choosen is :${globalAvailable}');
+            if(globalAvailable!.contains(true)==false){
+              // ScaffoldMessenger.of(context).showSnackBar(
+              //   SnackBar(
+              //     content: Text('Please select your availability!'),
+              //   ),
+              // );
+              Fluttertoast.showToast(
+                msg: "Please select your availability!",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+              );
+            }
+            else if(validator()){
+              // setState(() {
+              //   isGone = true;
+              // });
+              if(widget.userId==null){
+                if(widget.profileDataProvider!=null){
+                  widget.profileDataProvider?.setServide1();
+                }
+                await showDialog(context: context, builder: (BuildContext context){
+                  return Container(child: CustomHelpOverlay(button:'You Are All Set', text : 'Connect', extraText: 'Thank you for choosing to help other tourists on call to plan their trips. ',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },onBackPressed: (){
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+
+                  },),);
+                },);
+                // Future.delayed(Duration(seconds: 4), () {
+                //   Navigator.of(context).pop();
+                //   Navigator.of(context).pop(); // Replace this with your desired navigation logic
+                // });
+
+              }else{
+                if(widget.text=='edit'){
+                  await updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!,globalAvailable!);
+                }
+                else{
+                  bool response = await checkUserTimeWithMeet(widget.userId!,globalStartTime!,globalEndTime!,globalAvailable!);
+                  if(response){
+                    await updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!,globalAvailable!);
+                  }else{}
+                }
+                // Navigator.of(context).pop();
+              }
+            }else{}
+
+          },
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            alignment: Alignment.center,
+            height: 63,
+            // margin: EdgeInsets.only(left: 30,right:30),
+            decoration: BoxDecoration(
+              // borderRadius: BorderRadius.circular(10),
+              color: Colors.orange,
+            ),
+            child: Text('SET TIME',style: Theme.of(context).textTheme.caption,),
+          ),
+        ),
         ),
 
       );
@@ -604,17 +864,28 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
 
 
         if(widget.text=='edit'){
-          showDialog(context: context, builder: (BuildContext context){
-            return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
-              // Navigator.of(context).pop();
-              // Navigator.of(context).pop();
-              // Navigator.of(context).pop();
-              // Navigator.of(context).pop();
-              // Navigator.of(context).pop();
-              Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId: userID)));
+          await showDialog(context: context, builder: (BuildContext context){
+            return Container(child: CustomHelpOverlay(button:'You Are All Set', text : 'Connect', extraText: 'Thank you for choosing to help other tourists on call to plan their trips. ',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },onBackPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },),);
-          },
-          );
+          },);
+          // showDialog(context: context, builder: (BuildContext context){
+          //   return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId: userID)));
+          //   },),);
+          // },
+          // );
           widget.onButtonPressed!();
         }
         else{
@@ -783,39 +1054,6 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
 
 
 
-  bool validator(){
-     if((globalStartTime)==null || (globalEndTime)==null) {
-       Fluttertoast.showToast(
-         msg: "Please select your timing!",
-         toastLength: Toast.LENGTH_LONG,
-         gravity: ToastGravity.BOTTOM,
-       );
-       return false;
-     }
-    else if(globalSlots==null) {
-       Fluttertoast.showToast(
-         msg: "Please select your slots!",
-         toastLength: Toast.LENGTH_LONG,
-         gravity: ToastGravity.BOTTOM,
-       );
-      return false;
-    }
-    else if(isTimeDifferenceGreaterThan30Minutes(globalStartTime!,globalEndTime!) ==false){
-       Fluttertoast.showToast(
-         msg: "its a pop up time :(!",
-         toastLength: Toast.LENGTH_LONG,
-         gravity: ToastGravity.BOTTOM,
-       );
-      return false;
-    }
-    if(widget.profileDataProvider!=null){
-      widget.profileDataProvider?.setStartTime(globalStartTime!);
-      widget.profileDataProvider?.setEndTime(globalEndTime!);
-      widget.profileDataProvider?.setSlots(globalSlots!);
-      widget.profileDataProvider?.setAvailableSlots(selectedDays);
-    }
-    return true;
-  }
   String getDayName(int index) {
     // Returns the day name based on the index
     List<String> days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
@@ -861,9 +1099,9 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                         onChanged: (value) {
                           setState(() {
                             selectedDays[i] = value!;
-
                             // widget.profileDataProvider!.setAvailableSlots(i);
                           });
+                          globalAvailable = selectedDays;
                         },
                       ),
                       InkWell(
@@ -872,6 +1110,7 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                               selectedDays[i] = selectedDays[i]==true?false:true;
                               // widget.profileDataProvider!.setAvailableSlots(i);
                             });
+                            globalAvailable = selectedDays;
                           },
                           child: Text(getDayName(i),style: selectedDays[i]==true? TextStyle(fontSize: (14  ),color : Colors.orange, fontWeight : FontWeight.w600) : Theme.of(context).textTheme.subtitle2,)),
                     ],
@@ -890,86 +1129,6 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
                 //   child: Text('Submit'),
                 // ),
               ],
-            ),
-          ),
-          InkWell(
-            onTap: ()async{
-
-
-              // updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
-
-
-              globalAvailable = selectedDays;
-              // if(isGone){
-              //   ScaffoldMessenger.of(context).showSnackBar(
-              //     SnackBar(
-              //       content: Text('Already Set!!'),
-              //     ),
-              //   );
-              //   Navigator.of(context).pop();
-              // }
-              if(selectedDays.contains(true)==false){
-                // ScaffoldMessenger.of(context).showSnackBar(
-                //   SnackBar(
-                //     content: Text('Please select your availability!'),
-                //   ),
-                // );
-                Fluttertoast.showToast(
-                  msg: "Please select your availability!",
-                  toastLength: Toast.LENGTH_LONG,
-                  gravity: ToastGravity.BOTTOM,
-                );
-              }
-              else if(validator()){
-                // setState(() {
-                //   isGone = true;
-                // });
-                if(widget.userId==null){
-                  if(widget.profileDataProvider!=null){
-                    widget.profileDataProvider?.setServide1();
-                  }
-                  await showDialog(context: context, builder: (BuildContext context){
-                    return Container(child: CustomHelpOverlay(button:'You Are All Set', text : 'Connect', extraText: 'Thank you for choosing to help other tourists on call to plan their trips. ',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    },onBackPressed: (){
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-
-                    },),);
-                  },);
-                  // Future.delayed(Duration(seconds: 4), () {
-                  //   Navigator.of(context).pop();
-                  //   Navigator.of(context).pop(); // Replace this with your desired navigation logic
-                  // });
-
-                }else{
-                  if(widget.text=='edit'){
-                    await updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!,globalAvailable!);
-                  }
-                  else{
-                    bool response = await checkUserTimeWithMeet(widget.userId!,globalStartTime!,globalEndTime!,globalAvailable!);
-                    if(response){
-                      await updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!,globalAvailable!);
-                    }else{}
-                  }
-                  // Navigator.of(context).pop();
-                }
-              }else{}
-
-            },
-            child: Container(
-              width: screenWidth,
-              alignment: Alignment.center,
-              padding: EdgeInsets.all(15),
-              margin: EdgeInsets.only(left: 30,right:30),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(10),
-                color: Colors.orange,
-              ),
-              child: Text('SET TIME',style: Theme.of(context).textTheme.caption,),
             ),
           ),
           // FilledButton(

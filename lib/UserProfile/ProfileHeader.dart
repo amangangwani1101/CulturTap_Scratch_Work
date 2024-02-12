@@ -28,7 +28,7 @@ class ProfileHeader extends StatefulWidget {
   int reqPage;
   String? imagePath;
   String? userId,text,userName;
-  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick,raiseCloseRequest;
+  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick,raiseCloseRequest,helpClicked;
   ProfileDataProvider?profileDataProvider;
   String? profileStatus;
   String? assistMeetId;
@@ -40,7 +40,7 @@ class ProfileHeader extends StatefulWidget {
   String? chatsToWhere;
   final String? profileHeaderOfPage;
 
-  ProfileHeader({required this.reqPage,this.service,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage,this.raiseCloseRequest});
+  ProfileHeader({required this.reqPage,this.service,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage,this.raiseCloseRequest,this.helpClicked});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -341,7 +341,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
             ),
           )
-              :  widget.service!='trip_planning' && ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule' || widget.meetStatus=='aceept' || widget.meetStatus=='hold_accept') ?
+              :  widget.service!='trip_planning' && ( widget.meetStatus=='scheduledCloseRequest' || widget.meetStatus=='pending' || widget.meetStatus == 'schedule' || widget.meetStatus=='accept' || widget.meetStatus=='hold_accept' || widget.meetStatus=='close' || widget.meetStatus=='closed') ?
                    Container(  width : 70, height: 80,
             child : PopupMenuButton<String>(
               color: Colors.white,
@@ -352,11 +352,12 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
+                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField:  'Are You Sure ?' ,extraText: widget.state=='helper' ? 'You Want To Close This request' : widget.meetStatus=='schedule'?'You Want To Close This Request\nWe hope everything is fine now !':'You Want To Cancel This Request\nWe hope everything is fine now !', what: 'a',
                         meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
                     },
                   );
-                } else if (value == 'downloadRecording') {
+                }
+                else if (value == 'downloadRecording') {
                   // Handle the "Download Recording" option
                   // ...
                 }
@@ -376,28 +377,48 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   widget.raiseCloseRequest!();
 
                 }
+                else if(value=='help'){
+                  widget.helpClicked!();
+                }
               },
               itemBuilder: (BuildContext context) => [
-                PopupMenuItem<String>(
-                  value: widget.state == 'helper' ? 'raiseRequest' : 'closeRequest',
+                if(widget.meetStatus!='close' && widget.meetStatus!='closed' && !(widget.state=='helper' && widget.meetStatus=='accept' ))
+                  PopupMenuItem<String>(
+                  value: (widget.meetStatus=='scheduledCloseRequest' || widget.meetStatus=='schedule') && widget.state=='helper' ? 'raiseRequest' : 'closeRequest',
                   child: Container(
                     child: Row(
                       children: [
-                        widget.state == 'helper' && widget.meetStatus == 'schedule'  ?
-                        Icon(Icons.cancel_schedule_send_rounded, color: Colors.grey) : Icon(Icons.close, color: Colors.black),
+                        widget.meetStatus == 'schedule' || widget.meetStatus=='scheduledCloseRequest'  ?
+                        Icon(Icons.cancel_schedule_send_rounded, color: widget.meetStatus=='scheduledCloseRequest'?Colors.grey.withOpacity(0.5):Colors.grey) : Icon(Icons.close, color: Colors.black),
                         SizedBox(width: 8),
-                        widget.state == 'helper' ? Text(
-     widget.meetStatus == 'schedule' ? 'Raise Close Request' :  '',
-    style: Theme.of(context).textTheme.subtitle2,
-    ) :
+    //                     widget.state == 'helper' ? Text(
+    //  widget.meetStatus == 'schedule' ? 'Raise Close Request' :  '',
+    // style: Theme.of(context).textTheme.subtitle2,
+    // ) :
                         Text(
-                          widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Close Request' :  'Cancel Request',
-                          style: Theme.of(context).textTheme.subtitle2,
+                         widget.meetStatus=='scheduledCloseRequest' || widget.meetStatus == 'schedule' ? widget.state=='user'? 'Close Request' :'Raise Close Request' :  'Cancel Request',
+                          style: widget.meetStatus=='scheduledCloseRequest'? TextStyle(fontSize: (14  ),color : Color(0xFF001B33).withOpacity(0.5), fontWeight : FontWeight.w400): Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),
                   ),
                 ),
+                if(widget.meetStatus=='schedule' || widget.meetStatus=='scheduledCloseRequest' )
+                  PopupMenuItem<String>(
+                    value:'help',
+                    child: Container(
+                      child: Row(
+                        children: [
+                          Icon(Icons.help, color: Colors.grey),
+                          SizedBox(width: 8),
+                          Text(
+                            'Help',
+                            style: Theme.of(context).textTheme.subtitle2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 PopupMenuItem<String>(
                   value: 'downloadRecording',
                   child: Container(
@@ -472,7 +493,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
               itemBuilder: (BuildContext context) => [
                 if(!(widget.state=='helper' && widget.meetStatus=='started') && (widget.meetStatus!='close' && widget.meetStatus!='closed'))
                     PopupMenuItem<String>(
-                  value: widget.state == 'helper' ? 'raiseRequest' : 'closeRequest',
+                  value: 'closeRequest',
                   child: Container(
                     child: Row(
                       children: [

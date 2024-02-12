@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/rendering.dart';
 import 'package:flutter_svg/svg.dart';
 import 'package:geolocator/geolocator.dart';
@@ -27,10 +28,12 @@ import 'package:share_plus/share_plus.dart';
 import '../CustomItems/CustomPopUp.dart';
 import '../CustomItems/ImagePopUpWithTwoOption.dart';
 import '../Notifications/CustomNotificationMessages.dart';
+import '../ServiceSections/RatingSection.dart';
 import '../ServiceSections/TripCalling/Payments/RazorPay.dart';
 
 
 
+import '../Settings.dart';
 import '../UserProfile/CoverPage.dart';
 import '../UserProfile/ProfileHeader.dart';
 import '../fetchDataFromMongodb.dart';
@@ -91,6 +94,7 @@ class _ChatsPageState extends State<ChatsPage> {
   String findingHelpingHands = 'no';
   List <String>userWith10km=[],userWith10kmDist=[],userWith15km=[],userWith15kmDist=[];
   bool isContentLoaded = false;
+  bool adminForceClose = false;
   List<String>suggestedTexts = [
     'Need Mechanical help for my car ',
     'My Vehicle get Puncture  ',
@@ -129,7 +133,7 @@ class _ChatsPageState extends State<ChatsPage> {
   late IO.Socket socket;
   late RTCPeerConnection _peerConnection;
 
-
+  bool hasRequestRaised = false;
   String userName = '',userPhoto = '',helperId='',helperAddress='',helperName='',helperPhoto='',helperLongitude='',helperNumber='',meetStatus='',helperLatitude='', helperToken='',liveLatitudeToShare='',liveLongitudeToShare='';
   bool helperMessage=false;
   final String serverUrl = Constant().serverUrl;  // Replace with your server's URL
@@ -177,6 +181,8 @@ class _ChatsPageState extends State<ChatsPage> {
         // Parse the response JSON
         final List<dynamic> data = jsonDecode(response.body)['filteredUserIds'];
         userWith10km = List<String>.from(data);
+        print('Users distande ${userWith10km.length}');
+        print('Users distande ${userTokens.length}');
         return ; // Return the ID
       } else {
         print("Failed to save meet. Status code: ${response.statusCode}");
@@ -356,8 +362,18 @@ class _ChatsPageState extends State<ChatsPage> {
     setState(() {
       sender = user;
       receiver = helper;
+      hasRequestRaised = messages.last[1]== 'admin-force-close-reminder' || messages.last[1]=='helper-close-request';
+      adminForceClose = messages.last[1]== 'admin-force-close-reminder';
     });
+
+    void cancelAction(bool res){
+      print('Rese is $res');
+      return ;
+    }
+
   }
+
+
 
   Future<void> retriveMeetingConversation(String meetId) async {
     try {
@@ -374,7 +390,7 @@ class _ChatsPageState extends State<ChatsPage> {
           if(widget.state=='helper'  && responseData['paymentStatus']=='initiated'){
             print('Helper Message');
             helperMessage=true;
-            _controller.text = '';
+            messageTyping = true;
           }
           messages = conversationJson.map<List<String>>((list) {
             return (list as List<dynamic>).map<String>((e) => e.toString()).toList();
@@ -391,12 +407,14 @@ class _ChatsPageState extends State<ChatsPage> {
         // if(widget.state=='helper'  && responseData['helperIds'].length==0 && responseData['paymentStatus']=='initiated'){
         //   await updatePaymentStatus('pending',meetId);
         // }
-
         if(helperId!=''){
           if(widget.state=='user')
             await fetchHelperDataset(responseData['helperId']);
           else if(widget.state=='helper')
             await fetchHelperDataset(responseData['userId']);
+        }
+        if(widget.state=='helper'  && responseData['paymentStatus']=='initiated'){
+          _controller.text = 'Hey ${helperName}, I get your problem, let’s connect first on call. be calm down.';
         }
         seperateList(messages);
       } else {
@@ -459,6 +477,35 @@ class _ChatsPageState extends State<ChatsPage> {
       print("failed to update meeting chats : $err");
     }
   }
+
+  Future<void> updateMeetingChat(String meetId)async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'meetId':meetId
+      };
+      print('Meeting Chats Request Sent : $data');
+
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/removeLastMessageMeet'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+      } else {
+        print('Failed to update meeting chats : ${response.statusCode}');
+      }
+    }catch(err){
+      print("failed to update meeting chats : $err");
+    }
+  }
+
 
   Future<void> getMeetStatus() async {
     final String serverUrl = Constant().serverUrl; // Replace with your server's URL
@@ -528,36 +575,41 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
-  void updateBroadCastMessage(dynamic data)async{
-    setState(() {
-      _isUiEnabled = false;
-      messages.add([data['message'],data['user']]);
-      if(data['user']=='user')
-        sender.add(data['message']);
-      else if(data['user']=='helper')
-        receiver.add(data['message']);
-    });
-    if(data['user'].contains('admin')){
-      if(data['user']=='admin-user-1'|| data['user']=='admin-cancel' || data['user']=='admin-close')
-      {
-        _refreshPage(widget.meetId!,state: pageVisitor?'user':'helper');
-        await fetchHelperDataset(helperId);
+  void updateBroadCastMessage(dynamic data)async {
+    if (data['user'] == 'admin-force-close-reminder') {}
+    else {
+      setState(() {
+        _isUiEnabled = false;
+        messages.add([data['message'], data['user']]);
+        if (data['user'] == 'user') {
+          hasRequestRaised = false;
+          sender.add(data['message']);
+        }
+        else if (data['user'] == 'helper')
+          receiver.add(data['message']);
+      });
+      scrollToBottom();
+      if (data['user'].contains('admin')) {
+        if (data['user'] == 'admin-user-1' || data['user'] == 'admin-cancel' ||
+            data['user'] == 'admin-close') {
+          _refreshPage(widget.meetId!, state: pageVisitor ? 'user' : 'helper');
+          await fetchHelperDataset(helperId);
+        }
+        else
+          await fetchHelperDataset(helperId);
+        await getMeetStatus();
       }
-      else
+      if (data['user'] == 'helper-close-request') {
         await fetchHelperDataset(helperId);
-      await getMeetStatus();
+        await getMeetStatus();
+      }
+      if (widget.meetId != null && pageVisitor && helperId != '') {
+        await updatePaymentStatus('pending', widget.meetId!);
+      }
+      if (widget.meetId != null && helperId == '') {
+        await updatePaymentStatus('initiated', widget.meetId!);
+      }
     }
-    if(data['user']=='helper-close-request'){
-      await fetchHelperDataset(helperId);
-      await getMeetStatus();
-    }
-    if(widget.meetId!=null && pageVisitor && helperId!=''){
-      await updatePaymentStatus('pending',widget.meetId!);
-    }
-    if(widget.meetId!=null && helperId==''){
-      await updatePaymentStatus('initiated',widget.meetId!);
-    }
-    scrollToBottom();
   }
 
   // Function to handle the incoming offer
@@ -612,8 +664,8 @@ class _ChatsPageState extends State<ChatsPage> {
       print('Users Profile Data : $data');
       setState(() {
         helperId = userId;
-        helperLatitude=data['latitude']==null?'25.4622095':data['latitude'];
-        helperLongitude=data['longitude']==null?'78.6419707':data['longitude'];
+        helperLatitude=data['liveLatitude']==null?'25.4622095':data['liveLatitude'];
+        helperLongitude=data['liveLongitude']==null?'78.6419707':data['liveLongitude'];
         helperName = data['userName'];
         helperPhoto = data['userPhoto']!=null?data['userPhoto']:'';
         helperNumber = data['phoneNumber'].toString();
@@ -687,10 +739,9 @@ class _ChatsPageState extends State<ChatsPage> {
     super.initState();
     profileHeaderOfPage = 'local_assist';
     checkMeetStatus('');
-
     getMeetStatus();
     scrollToBottom();
-    if(widget.state == 'user' || widget.refresh != 'yes')
+    if((widget.state == 'user' || widget.refresh != 'yes') && widget.meetId==null)
       getLocation();
     _textFieldFocusNode.addListener(() {
       scrollToBottom();
@@ -736,6 +787,7 @@ class _ChatsPageState extends State<ChatsPage> {
       });
     }
   }
+
 
 
 
@@ -869,6 +921,99 @@ class _ChatsPageState extends State<ChatsPage> {
     //   }else{}
     // }
     // }
+
+    if(adminForceClose && pageVisitor){
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AdminForceClose(
+            action: (value) async {
+              if (value) {
+                print('Value is $value');
+                await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return ImagePopUpWithTwoOption(
+                      imagePath: 'assets/images/logo.png',
+                      textField: 'You are closing this request ?',
+                      extraText: 'Thank you for using our services !',
+                      what: 'a',
+                      meetId: widget.meetId,
+                      helperId: helperId,
+                      meetStatus: meetStatus,
+                      option2Callback: () async {
+                        await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
+                        await updateLocalUserPings(helperId, widget.meetId!, 'close');
+                        await updatePaymentStatus('close', widget.meetId!);
+                        socket.emit('message', {'message': '', 'user1': 'admin-close', 'user2': ''});
+                        sendCustomNotificationToOneUser(
+                          helperToken,
+                          'Messages From $userName',
+                          'Meeting is Closed By $userName',
+                          'Meeting is Closed By $userName',
+                          '${widget.meetId}',
+                          'trip_assistance_required',
+                          helperId,
+                          'helper',
+                        );
+                        await showDialog(
+                          context: context,
+                          builder: (BuildContext context) {
+                            return CustomPopUp(
+                              imagePath: "assets/images/turnOff.svg",
+                              textField: "Local Assistant Service",
+                              extraText: 'Meeting is Closed Successfully',
+                              what: 'OK',
+                              button: '< Go Back',
+                            );
+                          },
+                        );
+                      },
+                    );
+                  },
+                );
+              } else {
+                await updateMeetingChat(widget.meetId!);
+                setState(() {
+                  adminForceClose = false;
+                });
+              }
+            },
+          );
+        },
+      );
+
+    }
+  }
+
+  void closeMeet(){
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: 'You are closing this request ?',extraText: 'Thank you for using our services !', what: 'a',
+          meetId:widget.meetId ,helperId:helperId,meetStatus:meetStatus,option2Callback:()async{
+            await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
+            await updateLocalUserPings(helperId, widget.meetId!, 'close');
+            await updatePaymentStatus('close',widget.meetId!);
+            socket.emit('message', {'message':'','user1':'admin-close','user2':''});
+            sendCustomNotificationToOneUser(
+                helperToken,
+                'Messages From ${userName}',
+                'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
+                '${widget.meetId}','trip_assistance_required',helperId,'helper'
+            );
+            await showDialog(context: context, builder: (BuildContext context){
+              return CustomPopUp(
+                imagePath: "assets/images/turnOff.svg",
+                textField: "Local Assistant Service" ,
+                extraText:'Meeting is Closed Successfully' ,
+                what:'OK',
+                button: '< Go Back',
+              );
+            },);
+          },);
+      },
+    );
   }
 
   Future<void> socketConnection()async{
@@ -1271,7 +1416,7 @@ class _ChatsPageState extends State<ChatsPage> {
       },
 
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus,requestSend : requestSend,fromWhichPage : 'yes',chatsToWhere : widget.where,state : widget.state,cancelCloseClick:()async{
+        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus!='close' && meetStatus!='closed' && hasRequestRaised ?'scheduledCloseRequest' : meetStatus,requestSend : requestSend,fromWhichPage : 'yes',chatsToWhere : widget.where,state : widget.state,cancelCloseClick:()async{
           String updatedStatus = meetStatus == 'pending' || meetStatus=='hold_accept' || meetStatus=='accept'?'cancel':'close';
           if(updatedStatus=='cancel'){
             await updateLocalUserPings(widget.userId, widget.meetId!, updatedStatus);
@@ -1302,6 +1447,7 @@ class _ChatsPageState extends State<ChatsPage> {
           }else {
             await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
             await updateLocalUserPings(helperId, widget.meetId!, 'close');
+            socket.emit('message', {'message':'','user1':'admin-close','user2':''});
             await updatePaymentStatus('close',widget.meetId!);
             await showDialog(context: context, builder: (BuildContext context){
               return CustomPopUp(
@@ -1318,18 +1464,51 @@ class _ChatsPageState extends State<ChatsPage> {
                 'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
                 '${widget.meetId}','trip_assistance_required',helperId,'helper'
             );
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) =>  RateFeed(meetId:widget.meetId,service: 'Local Assistant',),
+              ),
+            );
           }
-          _refreshPage(widget.meetId!,state:pageVisitor?'user':'helper');
         },raiseCloseRequest: ()async{
-          await updateMeetingChats(widget.meetId!,['','helper-close-request']);
-          socket.emit('message', {'message':'','user1':'helper-close-request','user2':''});
-          sendCustomNotificationToOneUser(
-              helperToken,
-              'Messages From ${userName}',
-              'Ticket To Close Meet','Ticket To Close Meet',
-              '${widget.meetId}','trip_assistance_required',helperId,'user'
+          if(hasRequestRaised){
+            if(adminForceClose){}
+            else{
+              Fluttertoast.showToast(
+                msg:
+                'Waiting For Your Previous Request Raised',
+                toastLength:
+                Toast.LENGTH_SHORT,
+                gravity:
+                ToastGravity.BOTTOM,
+                backgroundColor:Colors.orange,
+                textColor: Colors.white,
+                fontSize: 16.0,
+              );
+            }
+          }
+          else{
+            await updateMeetingChats(widget.meetId!,['','helper-close-request']);
+            socket.emit('message', {'message':'','user1':'helper-close-request','user2':''});
+            sendCustomNotificationToOneUser(
+                helperToken,
+                'Messages From ${userName}',
+                'Ticket To Close Meet','Ticket To Close Meet',
+                '${widget.meetId}','trip_assistance_required',helperId,'user'
+            );
+            setState(() {
+              hasRequestRaised = true;
+            });
+          }
+          },helpClicked: (){
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => Help(fromWhichPage:'local_assistant_help'),
+            ),
           );
-          },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
+        },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent,toolbarHeight: 90,),
         body: Container(
           color: Theme.of(context).backgroundColor,
           height : MediaQuery.of(context).size.height,
@@ -1348,7 +1527,7 @@ class _ChatsPageState extends State<ChatsPage> {
                     controller: widget.meetId!=null?_scrollController:null,
 
                     child: Container(
-                      margin : EdgeInsets.only(bottom : 80),
+                      margin : meetStatus=='close' ? EdgeInsets.only(bottom : 130) : EdgeInsets.only(bottom : 90),
                       child: Padding(
                         padding: const EdgeInsets.all(0.0),
                         child: Container(
@@ -1416,9 +1595,12 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                         getLocation();
                                         setState(() {
+                                          userWith10km = [];
+                                          userWith10kmDist = [];
+                                          userWith15kmDist = [];
+                                          userWith15km = [];
                                           rotateButton = true;
                                         });
-
 
                                       },
                                       child: Row(
@@ -1646,7 +1828,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                           color: Theme.of(context).primaryColorLight,
                                           borderRadius: BorderRadius.only(
-                                            topLeft: Radius.circular(0.0),
+                                            topLeft: Radius.circular(-10.0),
                                             topRight: Radius.circular(20.0),
                                             bottomLeft: Radius.circular(20.0),
                                             bottomRight: Radius.circular(20.0),
@@ -1655,36 +1837,17 @@ class _ChatsPageState extends State<ChatsPage> {
                                         padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
                                         child: Column(
                                           crossAxisAlignment: CrossAxisAlignment.start,
-                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
                                           children: [
-                                            SizedBox(height: 5,),
-                                            Row(
-
-                                              crossAxisAlignment: CrossAxisAlignment.start,
-                                                  children: [
-                                                    Text(
-                                                      '$helperName',
-                                                      style: Theme.of(context).textTheme.subtitle1,
-                                                    ),
-                                                    SizedBox(width : 10),
-                                                    Expanded(
-                                                      child: Container(
-
-                                                        child: Text(
-                                                          'Close Request Ticket Raised By ${helperName}',
-                                                          style: TextStyle(fontSize: 10, fontFamily: 'Poppins', color: Colors.green),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                            ),
-                                            SizedBox(height: 15,),
                                             Text(
-                                                  '${helperName} raise a request to close meet.',
+                                              '${Constant().extractFirstName(helperName)}',
+                                              style: Theme.of(context).textTheme.subtitle1,
+                                            ),
+                                            Text(
+                                                  'Saviour request to close local assistant service.',
                                                   style: Theme.of(context).textTheme.subtitle2,
                                             ),
-                                            SizedBox(height: 15,),
-                                            meetStatus=='close'
+                                            SizedBox(height: 20,),
+                                            meetStatus=='close' || meetStatus=='closed'
                                                     ? SizedBox(height:0)
                                                     : InkWell(
                                                       onTap: ()async{
@@ -1712,22 +1875,20 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                     button: '< Go Back',
                                                                   );
                                                                 },);
+
+                                                                Navigator.push(
+                                                                  context,
+                                                                  MaterialPageRoute(
+                                                                    builder: (context) =>  RateFeed(meetId:widget.meetId,service: 'Local Assistant',),
+                                                                  ),
+                                                                );
                                                               },);
                                                           },
                                                         );
                                                       },
-                                                      child: Expanded(
-                                                        child: Container(
-                                                          padding: EdgeInsets.only(top:5,bottom:5),
-                                                          child: Row(
-                                                  mainAxisAlignment: MainAxisAlignment.start,
-
-                                                  children: [
-                                                          Text('Do You Want To ',style: TextStyle(fontSize:14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),),
-                                                          Text('Close Meet ?',style: TextStyle(fontSize:14,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.orange),),
-                                                  ],
-                                            ),
-                                                        ),
+                                                      child: Container(
+                                                        padding: EdgeInsets.all(10),
+                                                        child: Text('Close Request ',style: TextStyle(fontSize:16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.orange),),
                                                       ),
                                                     ),
 
@@ -1737,7 +1898,70 @@ class _ChatsPageState extends State<ChatsPage> {
                                       ),
                                                 ],
                                               )
-                                              :SizedBox(height: 0,)
+                                              :Container(
+                                            color: Theme.of(context).backgroundColor,
+
+                                            child:Row(
+                                              mainAxisAlignment: MainAxisAlignment.end,
+                                              crossAxisAlignment:
+                                              CrossAxisAlignment.start,
+                                              children: [
+                                            CircleAvatar(
+                                            backgroundColor: Colors.black,
+
+                                              radius: 15.0,
+                                              backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>, // Use a default asset image
+                                            ),
+                                                SizedBox(width: 6,),
+                                                Column(
+                                                  children: [
+                                                    Container(
+                                                        width:240,
+                                                        decoration: BoxDecoration(
+
+                                                          boxShadow: [
+
+                                                            BoxShadow(
+                                                              color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                                              spreadRadius: 0.3,
+                                                              blurRadius: 0.4,
+                                                              offset: Offset(0.7, 0.8), // Adjust the shadow offset
+                                                            ),
+                                                          ],
+
+                                                          color: Theme.of(context).primaryColorLight,
+                                                          borderRadius: BorderRadius.only(
+                                                            topLeft: Radius.circular(0.0),
+                                                            topRight: Radius.circular(20.0),
+                                                            bottomLeft: Radius.circular(20.0),
+                                                            bottomRight: Radius.circular(20.0),
+                                                          ),
+                                                        ),
+                                                        padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
+                                                        child: Column(
+                                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                          children: [
+                                                            Container(
+                                                              child: Text(
+                                                                'You',
+                                                                style: Theme.of(context).textTheme.subtitle1,
+                                                              ),
+                                                            ),
+                                                            SizedBox(height : 10),
+                                                            Text('You raised a request to close local assistant service',style:Theme.of(context).textTheme.subtitle2,),
+                                                            SizedBox(height:10),
+                                                            hasRequestRaised && meetStatus!='close' && meetStatus!='closed'
+                                                                ? Text('Waiting for response',
+                                                                style : TextStyle(fontStyle: FontStyle.italic,fontWeight: FontWeight.w600,fontSize : 14))
+                                                                :SizedBox(height:0),
+                                                          ],
+                                                        )),
+                                                  ],
+                                                ),
+                                              ],
+                                            )
+                                        )
                                             : message[1] == 'admin-helper-1'
                                             ? widget.state == 'user'
                                             ? Align(
@@ -1749,14 +1973,14 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                               GestureDetector(
                                                 onTap: () async {
-                                                  String mapsUrl =
-                                                      'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
-                                                  if (await canLaunch(
-                                                      mapsUrl)) {
-                                                    await launch(mapsUrl);
-                                                  } else {
-                                                    throw 'Could not launch $mapsUrl';
-                                                  }
+                                                  // String mapsUrl =
+                                                  //     'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                                  // if (await canLaunch(
+                                                  //     mapsUrl)) {
+                                                  //   await launch(mapsUrl);
+                                                  // } else {
+                                                  //   throw 'Could not launch $mapsUrl';
+                                                  // }
                                                 },
                                                 child: Container(
 
@@ -1772,7 +1996,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                                         radius: 15.0,
                                                         backgroundImage: Image.asset(
-                                                          'assets/images/logo.png', // Replace with the actual path to your image in the 'assets' folder
+                                                          'assets/images/profile_icon.png', // Replace with the actual path to your image in the 'assets' folder
                                                         ).image,
 
                                                       ),
@@ -1875,8 +2099,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                             ],
                                                                           ),
                                                                           Container(
-                                                                              width : 100,
-
+                                                                              width : 150,
                                                                               child:
                                                                               Text(
                                                                                 helperAddress,
@@ -1935,7 +2158,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                                       radius: 15.0,
                                                       backgroundImage: Image.asset(
-                                                        'assets/images/logo.png', // Replace with the actual path to your image in the 'assets' folder
+                                                        'assets/images/profile_icon.png', // Replace with the actual path to your image in the 'assets' folder
                                                       ).image,
 
                                                     ),
@@ -2013,7 +2236,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                         size: 24, // Set the size as needed
                                                                       ),
                                                                     ],
-                                                                  )
+                                                                  ),
+                                                                  SizedBox(height:10),
                                                                 ],
                                                               ),
                                                               SizedBox(
@@ -2025,7 +2249,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                   launch("tel:$helperNumber");
                                                                 },
                                                                 child: Text(
-                                                                  'Make A Phone Call',
+                                                                  'Make A Phone Call >',
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                       16,
@@ -2043,11 +2267,83 @@ class _ChatsPageState extends State<ChatsPage> {
                                                         ),
                                                       ),
                                                     ),
+
                                                   ],
                                                 ),
                                               ),
+                                              SizedBox(
+                                                height: 15,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment : MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(width:36),
+                                                  Container(
+                                                    width : 240,
 
+                                                    decoration: BoxDecoration(
 
+                                                      boxShadow: [
+
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                                          spreadRadius: 0.3,
+                                                          blurRadius: 0.4,
+                                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
+                                                        ),
+                                                      ],
+                                                      color: Theme.of(context).primaryColorLight,
+                                                      borderRadius: BorderRadius.only(
+                                                        topLeft: Radius.circular(-10.0),
+                                                        topRight: Radius.circular(20.0),
+                                                        bottomLeft: Radius.circular(20.0),
+                                                        bottomRight: Radius.circular(20.0),
+                                                      ),
+                                                    ),
+                                                    padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
+                                                    child: Expanded(
+                                                      child: Container(
+
+                                                        // Adjust the padding as needed
+
+                                                        padding: EdgeInsets.only(right: 4,left:4),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                          children: [
+                                                            SizedBox(
+                                                              height: 5,
+                                                            ),
+                                                            RichText(
+                                                              text: TextSpan(
+                                                                children: [
+                                                                  TextSpan(
+                                                                    text: 'Click On (',
+                                                                    style: Theme.of(context).textTheme.subtitle2,
+                                                                  ),
+                                                                  TextSpan(
+                                                                    text: '⋮',
+                                                                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color:Theme.of(context).primaryColor),
+                                                                  ),
+                                                                  TextSpan(
+                                                                    text: ') icon to raise request for closing local assistance, Tourist will accept the request to close this service.\n\nOtherwise you will not be able to receive any new request until the request dont get closed by itself in some hours.\n\nYou can also raise your concerns to us on feedback after closing the request.',
+                                                                    style: Theme.of(context).textTheme.subtitle2,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              height: 5,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         )
@@ -2091,7 +2387,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                                         radius: 15.0,
                                                         backgroundImage: Image.asset(
-                                                          'assets/images/logo.png', // Replace with the actual path to your image in the 'assets' folder
+                                                          'assets/images/profile_icon.png', // Replace with the actual path to your image in the 'assets' folder
                                                         ).image,
 
                                                       ),
@@ -2185,7 +2481,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                   launch("tel:$helperNumber");
                                                                 },
                                                                 child: Text(
-                                                                  'Make A Phone Call',
+                                                                  'Make A Phone Call >',
                                                                   style: TextStyle(
                                                                       fontSize:
                                                                       16,
@@ -2212,14 +2508,14 @@ class _ChatsPageState extends State<ChatsPage> {
                                               InkWell(
                                                 //gafv
                                                 onTap: () async {
-                                                  // String mapsUrl =
-                                                  //     'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
-                                                  // if (await canLaunch(
-                                                  //     mapsUrl)) {
-                                                  //   await launch(mapsUrl);
-                                                  // } else {
-                                                  //   throw 'Could not launch $mapsUrl';
-                                                  // }
+                                                  String mapsUrl =
+                                                      'https://www.google.com/maps/dir/?api=1&destination=$helperLatitude,$helperLongitude';
+                                                  if (await canLaunch(
+                                                      mapsUrl)) {
+                                                    await launch(mapsUrl);
+                                                  } else {
+                                                    throw 'Could not launch $mapsUrl';
+                                                  }
                                                   // Navigator.push(
                                                   //   context,
                                                   //   MaterialPageRoute(
@@ -2237,7 +2533,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                                       radius: 15.0,
                                                       backgroundImage: Image.asset(
-                                                        'assets/images/logo.png', // Replace with the actual path to your image in the 'assets' folder
+                                                        'assets/images/profile_icon.png', // Replace with the actual path to your image in the 'assets' folder
                                                       ).image,
 
                                                     ),
@@ -2348,23 +2644,20 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                                                         children: [
                                                                           Text(
-                                                                            'Go to The Map',
-                                                                            style: TextStyle(
+                                                                            'Go To The Map',
+                                                                            style:  TextStyle(
                                                                                 fontSize:
                                                                                 16,
                                                                                 fontWeight:
                                                                                 FontWeight
-                                                                                    .bold,
+                                                                                    .w600,
                                                                                 color: Colors
                                                                                     .orange,
                                                                                 fontFamily:
                                                                                 'Poppins'),
                                                                           ),
-                                                                          Image.asset(
-                                                                            'assets/images/arrow_fwd.png',
-                                                                            width: 16,
-                                                                            height: 16,
-                                                                          )
+                                                                          SizedBox(width :5),
+                                                                          Icon(Icons.arrow_forward_ios,size: 15,color:Colors.orange)
                                                                         ],
                                                                       ),
                                                                     ],
@@ -2399,7 +2692,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                                       radius: 15.0,
                                                       backgroundImage: Image.asset(
-                                                        'assets/images/logo.png', // Replace with the actual path to your image in the 'assets' folder
+                                                        'assets/images/profile_icon.png', // Replace with the actual path to your image in the 'assets' folder
                                                       ).image,
 
                                                     ),
@@ -2463,11 +2756,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                                               crossAxisAlignment: CrossAxisAlignment.start,
                                                               children: [
                                                                 Text(
-                                                                  '*Terms & conditions\n',
+                                                                  '*Terms & conditions',
                                                                   style: TextStyle(fontFamily: 'Poppins', fontSize: 13, fontWeight: FontWeight.w300,color:Colors.red),
-                                                                ),
-                                                                SizedBox(
-                                                                  height: 5,
                                                                 ),
                                                                 Text(
                                                                   'You will recieve 400 Rs for your physical availability.'
@@ -2507,11 +2797,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                 ),
                                                                 Text(
                                                                   "Let's Connect !",
-                                                                  style: TextStyle(fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.w300,color:Colors.green),
+                                                                  style: TextStyle(fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.w500,color:Colors.green),
                                                                 ),
 
                                                               ],
                                                             ),
+
                                                           ],
                                                         ),
                                                       ),
@@ -2519,11 +2810,79 @@ class _ChatsPageState extends State<ChatsPage> {
                                                   ],
                                                 ),
                                               ),
+                                              SizedBox(
+                                                height: 15,
+                                              ),
+                                              Row(
+                                                mainAxisAlignment : MainAxisAlignment.start,
+                                                crossAxisAlignment: CrossAxisAlignment.start,
+                                                children: [
+                                                  SizedBox(width:36),
+                                                  Container(
+                                                    width : 240,
 
+                                                    decoration: BoxDecoration(
 
+                                                      boxShadow: [
 
+                                                        BoxShadow(
+                                                          color: Colors.black.withOpacity(0.2), // Set your desired shadow color
+                                                          spreadRadius: 0.3,
+                                                          blurRadius: 0.4,
+                                                          offset: Offset(0.7, 0.8), // Adjust the shadow offset
+                                                        ),
+                                                      ],
+                                                      color: Theme.of(context).primaryColorLight,
+                                                      borderRadius: BorderRadius.only(
+                                                        topLeft: Radius.circular(-10.0),
+                                                        topRight: Radius.circular(20.0),
+                                                        bottomLeft: Radius.circular(20.0),
+                                                        bottomRight: Radius.circular(20.0),
+                                                      ),
+                                                    ),
+                                                    padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
+                                                    child: Expanded(
+                                                      child: Container(
 
+                                                        // Adjust the padding as needed
 
+                                                        padding: EdgeInsets.only(right: 4,left:4),
+                                                        child: Column(
+                                                          crossAxisAlignment:
+                                                          CrossAxisAlignment
+                                                              .start,
+                                                          children: [
+                                                            SizedBox(
+                                                              height: 5,
+                                                            ),
+                                                            RichText(
+                                                              text: TextSpan(
+                                                                children: [
+                                                                  TextSpan(
+                                                                    text: 'Click On (',
+                                                                    style: Theme.of(context).textTheme.subtitle2,
+                                                                  ),
+                                                                  TextSpan(
+                                                                    text: '⋮',
+                                                                    style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,color:Theme.of(context).primaryColor),
+                                                                  ),
+                                                                  TextSpan(
+                                                                    text: ') icon at top to close this Request , Your saviour need to raise close request when Assistance is completed successfully.\n\nYou can also raise your concerns to us on feedback after closing the request.',
+                                                                    style: Theme.of(context).textTheme.subtitle2,
+                                                                  ),
+                                                                ],
+                                                              ),
+                                                            ),
+                                                            SizedBox(
+                                                              height: 5,
+                                                            ),
+                                                          ],
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
                                             ],
                                           ),
                                         )
@@ -2677,9 +3036,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                               crossAxisAlignment : CrossAxisAlignment.start,
                                               children: [
                                                 CircleAvatar(
-                                                  backgroundColor: Colors.orange,
+                                                  // backgroundColor: Colors.orange,
                                                   radius: 15.0,
-                                                  backgroundImage: FileImage(File(userPhoto)),
+                                                  backgroundImage: FileImage(File(userPhoto)) as ImageProvider<Object>,
                                                 ),
                                                 SizedBox(width : 6),
                                                 Container(
@@ -2762,10 +3121,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                             ),
                                           ),
                                         )
-                                            : widget.state == 'user' &&
-                                            message[1].contains(
-                                                'admin') ==
-                                                false
+                                            : widget.state == 'user' && message[1].contains('admin') == false
                                             ? Align(
                                           alignment:
                                           Alignment.centerLeft,
@@ -2860,10 +3216,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                               ],
                                             ),
                                           ),
-                                        )
-                                            : message[1].contains(
-                                            'admin') ==
-                                            false
+                                        ) : message[1].contains('admin') == false
                                             ? Column(
                                           crossAxisAlignment:
                                           CrossAxisAlignment
@@ -2882,9 +3235,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                                   CircleAvatar(
                                                     backgroundColor: Colors.black,
                                                     radius: 15.0,
-                                                    backgroundImage:
-                                                    AssetImage(
-                                                        'assets/images/profile_iage.jpg'), // Use a default asset image
+                                                    backgroundImage: Image.asset(
+                                                      'assets/images/profile_icon.png', // Replace with the actual path to your image in the 'assets' folder
+                                                    ).image, // Use a default asset image
                                                   ),
                                                   SizedBox(width: 6,),
 
@@ -2963,8 +3316,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                           ],
                                         )
                                             : widget.state == 'user'
-                                            ? message[1] ==
-                                            'admin-user-1'
+                                            ? message[1] == 'admin-user-1'
                                             ? Column(
                                           crossAxisAlignment:
                                           CrossAxisAlignment
@@ -2983,7 +3335,6 @@ class _ChatsPageState extends State<ChatsPage> {
                                                 children: [
                                                   CircleAvatar(
                                                     backgroundColor: Colors.black,
-
                                                     radius: 15.0,
                                                     backgroundImage: FileImage(File(helperPhoto)) as ImageProvider<Object>, // Use a default asset image
                                                   ),
@@ -3017,18 +3368,18 @@ class _ChatsPageState extends State<ChatsPage> {
                                                       children: [
                                                         SizedBox(height: 5,),
                                                         Row(
-
-
+                                                          mainAxisAlignment: MainAxisAlignment.start,
+                                                          crossAxisAlignment: CrossAxisAlignment.center,
                                                           children: [
-                                                            Text(
-                                                              'Saviour',
-                                                              style: Theme.of(context).textTheme.subtitle1,
-                                                            ),
+                                                            Container(
+                                                             child: Text(
+                                                               '${Constant().extractFirstName(helperName)}',
+                                                               style: Theme.of(context).textTheme.subtitle1,
+                                                             ),
+                                                              ),
                                                             SizedBox(width : 10),
-
                                                             Expanded(
                                                               child: Container(
-
                                                                 child: Text(
                                                                   'Allotment Successful',
                                                                   style: TextStyle(fontSize: 10, fontFamily: 'Poppins', color: Colors.green),
@@ -3052,11 +3403,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                   fontFamily: 'Poppins',
                                                                   fontWeight: FontWeight.w300,
                                                                   fontSize: 14,
-                                                                  color: Colors.black, // Set the color as needed
+                                                                  color: Colors.green, // Set the color as needed
                                                                 ),
                                                               ),
                                                               TextSpan(
-                                                                text: CountryName == 'India' ? 'Rs 500' : '\$10',
+                                                                text: CountryName == 'India' ? 'Rs 500,' : '\$10',
                                                                 style: TextStyle(
                                                                   fontFamily: 'Poppins',
                                                                   fontWeight: FontWeight.w300,
@@ -3065,12 +3416,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                 ),
                                                               ),
                                                               TextSpan(
-                                                                text: ' if you successfully get assistance!',
+                                                                text: ' you successfully get local assistant!',
                                                                 style: TextStyle(
                                                                   fontFamily: 'Poppins',
                                                                   fontWeight: FontWeight.w300,
                                                                   fontSize: 14,
-                                                                  color: Colors.black, // Set the color as needed
+                                                                  color: Colors.green,// Set the color as needed
                                                                 ),
                                                               ),
                                                             ],
@@ -3107,7 +3458,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
                                                     radius: 15.0,
                                                     backgroundImage: Image.asset(
-                                                      'assets/images/logo.png', // Replace with the actual path to your image in the 'assets' folder
+                                                      'assets/images/profile_icon.png', // Replace with the actual path to your image in the 'assets' folder
                                                     ).image,
 
                                                   ),
@@ -3183,7 +3534,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                               ),
                                                               Text(
                                                                 "Let's Connect !",
-                                                                style: TextStyle(fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.w300,color:Colors.green),
+                                                                style: TextStyle(fontFamily: 'Poppins', fontSize: 14, fontWeight: FontWeight.w500,color:Colors.green),
                                                               ),
 
                                                             ],
@@ -3200,8 +3551,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                             : SizedBox(
                                           height: 0,
                                         )
-                                            : message[1] ==
-                                            'admin-user-1'
+                                            : message[1] == 'admin-user-1'
                                             ? Align(
                                           alignment: Alignment
                                               .centerRight,
@@ -3277,9 +3627,11 @@ class _ChatsPageState extends State<ChatsPage> {
                                       : SizedBox(
                                     height: 0,
                                   ),
+
+
+
                                   widget.userId==userID && meetStatus=='pending' && pageVisitor && _userRefreshingPageOnFirstMessage ==false &&  messages.length>0 && liveLocation!='fetching location'
                                       ? Container(
-
                                     padding : EdgeInsets.only(top : 20,left : 16),
 
                                     child: Row(
@@ -3295,10 +3647,6 @@ class _ChatsPageState extends State<ChatsPage> {
                                     ),
                                   )
                                       :SizedBox(height: 0,),
-
-
-
-
 
 
                                   ///-------------------------------------------------------------------------------------
@@ -3385,28 +3733,52 @@ class _ChatsPageState extends State<ChatsPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
-
-
-                        if(meetStatus=='cancel' || meetStatus=='close')
-                          Center(
-                            child: Container(
-                              height : 63,
-
-                              padding:EdgeInsets.only(left:10,right:10),
-                              decoration: BoxDecoration(
-                                color : Colors.grey[200],
-                                borderRadius: BorderRadius.circular(0),
-                                border: Border.all(color: Colors.orange),
+                        if((meetStatus=='cancel' || meetStatus=='close' || meetStatus=='closed'))
+                          Column(
+                            children: [
+                              meetStatus=='close'
+                                  ? InkWell(
+                                    onTap:(){
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>  RateFeed(meetId:widget.meetId,service: 'Local Assistant',),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                height : 63,
+                                padding:EdgeInsets.only(left:10,right:10),
+                                decoration: BoxDecoration(
+                                    color : Colors.orange,
+                                    borderRadius: BorderRadius.circular(0),
+                                    border: Border.all(color: Colors.orange),
+                                ),
+                                child: Center(child:Text(pageVisitor?'Give us a feedback' : 'Rate & Feedback',style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: Colors.white,
+                                      fontSize: 18))),
                               ),
-                              child: Center(child:Text(meetStatus=='cancel'?'Cancelled':'Closed',style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  color: Colors.orange,
-                                  fontSize: 18))),
-                            ),
+                                  )
+                                  : SizedBox(height:0),
+                              Container(
+                                height : 63,
+                                padding:EdgeInsets.only(left:10,right:10),
+                                decoration: BoxDecoration(
+                                  color : Colors.grey[200],
+                                  borderRadius: BorderRadius.circular(0),
+                                  border: Border.all(color: Colors.orange),
+                                ),
+                                child: Center(child:Text(meetStatus=='cancel'?'Cancelled':'Closed',style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.orange,
+                                    fontSize: 18))),
+                              ),
+                            ],
                           ),
 
 
-                        if(widget.state=='user' && (meetStatus == 'accept' || meetStatus == 'hold_accept'))
+                        if(widget.state=='user' && (meetStatus == 'accept'|| meetStatus=='hold_accept'))
                           Column(
                             children: [
 
@@ -3480,7 +3852,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-                        if( widget.state=='helper' && meetStatus == 'accept' &&  meetStatus != 'scheduled' )
+                        if(widget.state=='helper' && meetStatus == 'accept' &&  meetStatus != 'scheduled' )
                           Center(
                             child: Container(
                               height : 63,
@@ -3524,7 +3896,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
 
 
-                        ( (widget.state=='user' && meetStatus == 'hold_accept') ||  meetStatus == 'cancel' || meetStatus =='close' ||( widget.state=='user' && meetStatus=='accept' )|| (widget.state=='user' && meetStatus=='pending')
+                        ( (widget.state=='user' && meetStatus == 'hold_accept') ||  meetStatus == 'cancel' || meetStatus =='close' || meetStatus=='closed' ||( widget.state=='user' && meetStatus=='accept' )|| (widget.state=='user' && meetStatus=='pending')
                             || (meetStatus=='accept' && widget.state=='user') || (meetStatus == 'pending' && widget.state=='user') || meetStatus == 'accept' && widget.state=='user'  ) ||  (meetStatus=='accept' && widget.state=='helper')
                             ? Container():
                         Container(
@@ -3677,10 +4049,11 @@ class _ChatsPageState extends State<ChatsPage> {
                               ):SizedBox(width: 0,) : Container(),
 
 
-                              if (messageTyping==false && meetStatus=='schedule'  && (meetStatus=='schedule' ||  sender.length<=1))
+                              if (messageTyping==false   && (meetStatus=='schedule' ||  sender.length<=1))
                                 SizedBox(width : 5),
-                              if (messageTyping==false &&meetStatus=='schedule' && (meetStatus=='schedule' ||  sender.length<=1))
-                                Container(
+                              widget.meetId!=null
+                                  ?(messageTyping==false  && (meetStatus=='schedule' ||  sender.length<=1))
+                                    ? Container(
                                   decoration: BoxDecoration(borderRadius: BorderRadius.circular(50),
                                     boxShadow: [
 
@@ -3710,7 +4083,8 @@ class _ChatsPageState extends State<ChatsPage> {
                                     color : Theme.of(context).primaryColor,
                                   ),
                                 )
-                              else if((meetStatus=='schedule' ||  sender.length<=1))
+                                  :SizedBox(width: 0,) : Container(),
+                              if((messageTyping  || widget.meetId==null))
                                 GestureDetector(
                                   onTap: ()async{
                                     if(receiver.length==0 && sender.length>1){
@@ -3879,8 +4253,6 @@ class _ChatsPageState extends State<ChatsPage> {
                             ],
                           ),
                         ) ,
-
-
                       ],
                     ),
                   ): Container(),
@@ -3933,14 +4305,11 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 }
 
-class MapNavigatorScreen {
-}
 
 class LoadingDotAnimation extends StatefulWidget {
   @override
   _LoadingDotAnimationState createState() => _LoadingDotAnimationState();
 }
-
 class _LoadingDotAnimationState extends State<LoadingDotAnimation> with TickerProviderStateMixin {
   late AnimationController _controller1;
   late AnimationController _controller2;
@@ -4016,5 +4385,87 @@ class _LoadingDotAnimationState extends State<LoadingDotAnimation> with TickerPr
     _controller2.dispose();
     _controller3.dispose();
     super.dispose();
+  }
+}
+
+
+
+class AdminForceClose extends StatefulWidget{
+   Function(bool)? action;
+   AdminForceClose({this.action});
+  @override
+  State<AdminForceClose> createState() => _AdminForceCloseState();
+}
+class _AdminForceCloseState extends State<AdminForceClose> {
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.transparent,
+      body: WillPopScope(
+        onWillPop: ()async{
+          return false;
+      },
+        child: Stack(
+          children:[
+            BackdropFilter(
+              filter: ImageFilter.blur(sigmaX: 0, sigmaY: 0),
+              child: Container(
+                color: Colors.grey.withOpacity(0.3),
+              ),
+            ),
+            Positioned(
+              bottom: 0,
+              left:0,
+              child: Container(
+                width:MediaQuery.of(context).size.width,
+                child: Column(
+  children: [
+        Container(
+        color:Colors.white,
+        padding:EdgeInsets.only(top:15,bottom:15),
+        child: Center(child: Container(width:250, child: Text('Your Local Assistance Service will be closed in next 10 Min automatically',textAlign: TextAlign.center,style:Theme.of(context).textTheme.subtitle1))),
+        ),
+        GestureDetector(
+          onTap:(){
+            widget.action!(false);
+            Navigator.of(context).pop();
+        },
+          child: Container(
+          height:63,
+          decoration: BoxDecoration(
+            border:Border.all(
+                  color:Colors.orange
+            ),
+            color:Colors.white,
+          ),
+          child:Center(
+            child: Text('Not Now',style:TextStyle(color:Colors.orange,fontSize: 16,fontWeight: FontWeight.w700,fontFamily: 'Poppins')),
+          ),
+          ),
+        ),
+    GestureDetector(
+          onTap: (){
+            widget.action!(true);
+            Navigator.of(context).pop();
+          },
+          child: Container(
+          height:63,
+          decoration: BoxDecoration(
+            color:Colors.orange,
+          ),
+          child:Center(
+            child: Text('Close Local Assistant',style:Theme.of(context).textTheme.headline5),
+          ),
+          ),
+        ),
+  ],
+),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

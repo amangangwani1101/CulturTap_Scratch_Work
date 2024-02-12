@@ -1086,12 +1086,12 @@ class _ChatAppsState extends State<ChatApps> {
                     ? InkWell(
                   onTap: (){
                     if(meetStatus=='close'){
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => RateFeedBack(userId:userID,startTime: widget.startTime!,date:widget.date,fromWhichPage:'trip_planning_chat'),
-                        ),
-                      );
+                      // Navigator.push(
+                      //   context,
+                      //   MaterialPageRoute(
+                      //     builder: (context) => RateFeedBack(userId:userID,startTime: widget.startTime!,date:widget.date,fromWhichPage:'trip_planning_chat'),
+                      //   ),
+                      // );
                     }
                   },
                   child: Container(
@@ -1102,7 +1102,7 @@ class _ChatAppsState extends State<ChatApps> {
                       borderRadius: BorderRadius.circular(0),
                       border: Border.all(color: Colors.orange),
                     ),
-                    child: Center(child:Text(meetStatus=='close'?'Rate & Feedback' :'Closed',style: TextStyle(
+                    child: Center(child:Text('Closed',style: TextStyle(
                         fontWeight: FontWeight.bold,
                         color: Colors.orange,
                         fontSize: 18))),

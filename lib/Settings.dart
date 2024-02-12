@@ -306,7 +306,7 @@ class _SettingsPageState extends State<SettingsPage> {
                                   Navigator.push(
                                     context,
                                     MaterialPageRoute(
-                                      builder: (context) => CalendarHelper(userName:dataset?['userName']!=null?(dataset?['userName']):'',plans:dataset?['userServiceTripCallingData']['dayPlans']!=null?(dataset?['userServiceTripCallingData']['dayPlans']):{},choosenDate:formatDate(DateTime.now()),startTime:dataset?['userServiceTripCallingData']['startTimeFrom'],endTime:dataset?['userServiceTripCallingData']['endTimeTo'],slotChossen:dataset?['userServiceTripCallingData']['slotsChossen'],date:formatToSpecialDate(DateTime.now())!),
+                                      builder: (context) => CalendarHelper(),
                                     ),
                                   );
                                 },
@@ -329,7 +329,14 @@ class _SettingsPageState extends State<SettingsPage> {
                                         width: 220,
                                         child: Text('Calendar',style: Theme.of(context).textTheme.subtitle2,),
                                       ),
-                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {  },),
+                                      IconButton(icon: Icon(Icons.arrow_forward_ios,size: 11, color:Theme.of(context).primaryColor), onPressed: () {
+                                        Navigator.push(
+                                          context,
+                                          MaterialPageRoute(
+                                            builder: (context) => CalendarHelper(userName:dataset?['userName']!=null?(dataset?['userName']):'',plans:dataset?['userServiceTripCallingData']['dayPlans']!=null?(dataset?['userServiceTripCallingData']['dayPlans']):{},choosenDate:formatDate(DateTime.now()),startTime:dataset?['userServiceTripCallingData']['startTimeFrom'],endTime:dataset?['userServiceTripCallingData']['endTimeTo'],slotChossen:dataset?['userServiceTripCallingData']['slotsChossen'],date:formatToSpecialDate(DateTime.now())!),
+                                          ),
+                                        );
+                                      },),
                                     ],
                                   ),
                                 ),
@@ -1108,6 +1115,8 @@ class AboutUs extends StatelessWidget{
 
 
 class Help extends StatefulWidget {
+  String ? fromWhichPage;
+  Help({this.fromWhichPage});
   @override
   _HelpState createState() => _HelpState();
 }
@@ -1257,10 +1266,16 @@ class _HelpState extends State<Help> {
       if (response.statusCode == 200) {
         print('User request sent successfully');
         // Handle success, e.g., show a thank you message
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => ThankYou()),
-        );
+        if(widget.fromWhichPage=='local_assistant_help'){
+          Navigator.of(context).pop();
+        }
+        else{
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ThankYou()),
+          );
+        }
+
       } else {
         print('Failed to send user request. StatusCode: ${response.statusCode}');
         // Handle error

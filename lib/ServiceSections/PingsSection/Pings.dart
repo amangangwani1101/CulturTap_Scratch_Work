@@ -1412,7 +1412,7 @@ class _PingSectionState extends State<PingsSection>{
                                ((_selectedValue == 'Scheduled' && meetStatus =='schedule') ||
                                    (_selectedValue == 'Accepted' && (meetStatus =='accept'||meetStatus=='hold_accept'))||
                                    (_selectedValue == 'Pending' && meetStatus =='pending')||
-                                   (_selectedValue == 'Closed' && meetStatus =='close')||
+                                   (_selectedValue == 'Closed' && (meetStatus =='close' || meetStatus=='closed') )||
                                    (_selectedValue == 'Cancelled' && meetStatus =='cancel')||
                                    _selectedValue =='All Pings')
                                    ? GestureDetector(
@@ -2404,6 +2404,7 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
       appBar: AppBar(title: ProfileHeader(reqPage: 2,state:meetType=='sender'?'user':'helper',service: 'trip_planning', fromWhichPage: 'trip_planning_calendar_pings',meetStatus: start20Min?'started':meetStatus,
         onButtonPressed: ()async{
           await fetchMeetStatus();
+
           print('Meet is $meetStatus');
             Navigator.push(
               context,
