@@ -247,7 +247,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: userID,selectedService: widget.fromWhichPage=='local_assist' ? 'Local Assistant' : 'Trip Planning',),
+                        builder: (context) => PingsSection(userId: userID,selectedService: widget.fromWhichPage=='local_assist' ? 'Local Assistant' : 'Trip Planning',fromWhichPage: 'local_assist',),
                       ),
                     );
                   }

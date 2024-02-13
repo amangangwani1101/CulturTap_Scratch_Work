@@ -184,6 +184,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 else if(widget.fromWhichPage=='trip_planning_schedule_profile' || widget.fromWhichPage=='trip_planning_calendar_pings' || widget.fromWhichPage=='trip_planning_chat' || widget.fromWhichPage=='final_profile_edit'){
                   widget.onButtonPressed!();
                 }
+                else if(widget.fromWhichPage=='local-assistant-call'){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ),
+                  );
+                }
                 else if(widget.fromWhichPage == 'yes' ){
 
                   widget.chatsToWhere == 'local_assist' ?
@@ -196,7 +204,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                   Navigator.pushReplacement(
                     context,
-                    MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (widget.meetStatus=='pending')?'Pending':(widget.meetStatus=='schedule')?'Scheduled':(widget.meetStatus=='accept'||widget.meetStatus=='hold_accept')?'Accepted': widget.meetStatus=='cancel'?'Cancelled':(widget.meetStatus=='close')?'Closed':'All Pings')),
+                    MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : 'All Pings',fromWhichPage: 'local-assistant-call')),
                   );
 
                 }
@@ -382,14 +390,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 }
               },
               itemBuilder: (BuildContext context) => [
-                if(widget.meetStatus!='close' && widget.meetStatus!='closed' && !(widget.state=='helper' && widget.meetStatus=='accept' ))
+                if(widget.meetStatus!='close' && widget.meetStatus!='closed' && !(widget.state=='helper' && (widget.meetStatus=='accept' || widget.meetStatus=='hold_accept') ))
                   PopupMenuItem<String>(
                   value: (widget.meetStatus=='scheduledCloseRequest' || widget.meetStatus=='schedule') && widget.state=='helper' ? 'raiseRequest' : 'closeRequest',
                   child: Container(
                     child: Row(
                       children: [
                         widget.meetStatus == 'schedule' || widget.meetStatus=='scheduledCloseRequest'  ?
-                        Icon(Icons.cancel_schedule_send_rounded, color: widget.meetStatus=='scheduledCloseRequest'?Colors.grey.withOpacity(0.5):Colors.grey) : Icon(Icons.close, color: Colors.black),
+                        Icon(Icons.cancel_schedule_send_rounded, color: widget.meetStatus=='scheduledCloseRequest' && widget.state=='helper' ?Colors.grey.withOpacity(0.5):Colors.grey) : Icon(Icons.close, color: Colors.black),
                         SizedBox(width: 8),
     //                     widget.state == 'helper' ? Text(
     //  widget.meetStatus == 'schedule' ? 'Raise Close Request' :  '',
@@ -397,7 +405,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
     // ) :
                         Text(
                          widget.meetStatus=='scheduledCloseRequest' || widget.meetStatus == 'schedule' ? widget.state=='user'? 'Close Request' :'Raise Close Request' :  'Cancel Request',
-                          style: widget.meetStatus=='scheduledCloseRequest'? TextStyle(fontSize: (14  ),color : Color(0xFF001B33).withOpacity(0.5), fontWeight : FontWeight.w400): Theme.of(context).textTheme.subtitle2,
+                          style: widget.meetStatus=='scheduledCloseRequest' && widget.state=='helper'?  TextStyle(fontSize: (14  ),color : Color(0xFF001B33).withOpacity(0.5), fontWeight : FontWeight.w400): Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),

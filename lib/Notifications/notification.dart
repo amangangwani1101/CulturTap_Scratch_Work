@@ -333,17 +333,17 @@ class NotificationServices{
       }
     }
     else if(message.data['type']=='local_assistant_cancel'){
-      Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:message.data['service'],)));
+      Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService:'Local Assistant',state:'Cancelled')));
     }
-    // else if(message.data['type'].contains('local_assistant')){
-    //   print('yes its me');
-    //   Navigator.push(
-    //     context,
-    //     MaterialPageRoute(
-    //       builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],),
-    //     ),
-    //   );
-    // }
+    else if(message.data['type'].contains('local_assistant') && message.data['type']!='local_assistant_service'){
+      print('yes its me');
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],fromWhichPage: 'yes',),
+        ),
+      );
+    }
     else if(message.data['type']=='local_assistant_service'){
       print('yha print kr rha hu');
       print(message.data);

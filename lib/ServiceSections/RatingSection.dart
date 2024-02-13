@@ -215,7 +215,7 @@ class _RateFeedState extends State<RateFeed>{
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print(responseData);
-        Fluttertoast.showToast(
+        await Fluttertoast.showToast(
           msg:
           'Feedback Updated Successfully !',
           toastLength:
@@ -227,11 +227,15 @@ class _RateFeedState extends State<RateFeed>{
           textColor: Colors.white,
           fontSize: 16.0,
         );
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',state:'Closed')),
+        );
       } else {
         print('Failed to save data: ${response.statusCode}');
         Fluttertoast.showToast(
           msg:
-          'Try Again :( !',
+          'Unable To Submit Feedback.!',
           toastLength:
           Toast.LENGTH_SHORT,
           gravity:
@@ -266,15 +270,17 @@ class _RateFeedState extends State<RateFeed>{
                  Row(
                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                    children: [
-                     Text('Rate & Feedback',style: Theme.of(context).textTheme.headline2,),
+                     Text('Rate & Feedback',style:TextStyle(fontSize: 16,fontWeight: FontWeight.w600,color:Theme.of(context).primaryColorDark,fontFamily: 'Poppins'),),
                      InkWell(
                          onTap: (){
                            Navigator.of(context).pop();
                          },
-                         child: Icon(Icons.close,size: 26,color: Theme.of(context).primaryColor,)),
+                         child: Container(
+                             padding: EdgeInsets.all(10),
+                             child: Icon(Icons.close,size: 25,color: Theme.of(context).primaryColor,))),
                    ],
                  ),
-                  SizedBox(height: 50,),
+                  SizedBox(height: 30,),
                   Container(
                     padding: EdgeInsets.only(right: 20),
                     child: Column(
@@ -312,40 +318,20 @@ class _RateFeedState extends State<RateFeed>{
                           ],
                         ),
 
-                        SizedBox(height: 15,),
+                        SizedBox(height: 10,),
                         Container(
                           child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               meetType=='sender'
                                   ?Container(
-                                child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Local Assistant Request With ',style: Theme.of(context).textTheme.subtitle2,),
-                                    Expanded(
-                                       child: Container(
-                                          alignment: Alignment.centerRight,
-                                          child: Text('${Constant().extractFirstName(helperName)}',style:  Theme.of(context).textTheme.subtitle2,)),
-                                    )
-                                  ],
-                                ),
+                                child:   Text('Local Assistant Request With ${Constant().extractFirstName(helperName)}',style: Theme.of(context).textTheme.subtitle2,),
                               )
-                                  :Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text('Local Assitant Request By',style: Theme.of(context).textTheme.subtitle2,),
-                                  SizedBox(width:20),
-                                  Expanded(
-                                    child: Container(
-                                        alignment: Alignment.centerRight,
-                                        child: Text('${Constant().extractFirstName(helperName)}',style: Theme.of(context).textTheme.subtitle2,)),
-                                  )
-                                ],
+                                  :Container(
+                                child: Text('Local Assitant Request By ${Constant().extractFirstName(helperName)}',style: Theme.of(context).textTheme.subtitle2,),
                               ),
-                              SizedBox(height: 17,),
+                              SizedBox(height: 20,),
                               Container(
                                 // decoration: BoxDecoration(border:Border.all(width: 1)),
                                 child: Column(
@@ -354,18 +340,18 @@ class _RateFeedState extends State<RateFeed>{
                                     Row(
                                       children: [
                                         Container(
-                                          child: Image.asset('assets/images/time_icon.png',width: 20,height: 20,),
+                                          child: Icon(Icons.access_time_filled,size: 20,)
                                         ),
                                         SizedBox(width: 10,),
                                         Text('${startTime!} \t',style: Theme.of(context).textTheme.headline6),
                                         Text('India',style: Theme.of(context).textTheme.headline6,)
                                       ],
                                     ),
-                                    SizedBox(height: 4,),
+                                    SizedBox(height: 5,),
                                     Row(
                                       children: [
                                         Container(
-                                          child: Image.asset('assets/images/calendar.png',width: 20,height: 20,),
+                                          child:Icon(Icons.date_range_sharp,size: 20,),
                                         ),
                                         SizedBox(width: 10,),
                                         Text('Date ${date!} "${convertToDate(date!)}"',style: Theme.of(context).textTheme.headline6),
@@ -380,7 +366,7 @@ class _RateFeedState extends State<RateFeed>{
                       ],
                     ),
                   ),
-                  SizedBox(height: 22,),
+                  SizedBox(height: 12,),
                   Container(
                     // decoration: BoxDecoration(border:Border.all(color: Colors.red)),
                     child: Row(
@@ -389,7 +375,7 @@ class _RateFeedState extends State<RateFeed>{
                       children: [
                         InkWell(
                           onTap: (){},
-                          child: Image.asset('assets/images/location.png',width: 22,height: 27,),
+                          child: Icon(Icons.location_on,size: 24,),
                         ),
                         SizedBox(width:10,),
                         Container(
@@ -398,19 +384,18 @@ class _RateFeedState extends State<RateFeed>{
                             children: [
                               Row(
                                 children: [
-                                  Text('Location ',style: Theme.of(context).textTheme.bodyText1,),
-                                  Icon(Icons.keyboard_arrow_down,size: 15,),
+                                  Text('Location ',style: TextStyle(fontSize: 12,fontFamily: 'Poppins',fontWeight: FontWeight.w600,color:Theme.of(context).primaryColorDark),),
+                                  Icon(Icons.keyboard_arrow_down,size: 17,),
                                 ],
                               ),
-                              Text(liveLocation,style: Theme.of(context).textTheme.bodyText2,), // Display user location here
+                              Text(liveLocation,style: Theme.of(context).textTheme.subtitle2,), // Display user location here
                             ],
                           ),
                         )
                       ],
                     ),
                   ),
-                  SizedBox(height: 28,),
-                  SizedBox(width: 26,),
+                  SizedBox(height: 25,),
                   Container(
                     // decoration: BoxDecoration(border:Border.all(width: 1)),
                     child: Column(
@@ -427,7 +412,7 @@ class _RateFeedState extends State<RateFeed>{
                                 style: ratingUnfilled?TextStyle(fontSize: 14,fontWeight: FontWeight.w600,color:Colors.red,fontFamily: 'Poppins') : Theme.of(context).textTheme.subtitle1,
                               ),
                             ),
-                            SizedBox(height: 11,),
+                            SizedBox(height: 10,),
                             Row(
                               mainAxisAlignment: MainAxisAlignment.start,
                               crossAxisAlignment: CrossAxisAlignment.start,
@@ -447,9 +432,15 @@ class _RateFeedState extends State<RateFeed>{
                                  );
                               }),
                             ),
+                            ratingUnfilled
+                                ?Container(
+                                  padding: EdgeInsets.only(top:5),
+                                  child:Text('Please Rate Your Experience',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w600,color:Colors.red,fontFamily: 'Poppins'),),
+                                )
+                                : SizedBox(height: 0,),
                           ],
                         ),
-                        SizedBox(height: 28,),
+                        SizedBox(height: 25,),
                         Container(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
@@ -457,18 +448,24 @@ class _RateFeedState extends State<RateFeed>{
                             children: [
                               Container(
                                   child: Text('Additional Feedback',style: Theme.of(context).textTheme.subtitle1)),
-                              SizedBox(height: 11,),
+                              SizedBox(height: 10,),
                               Container(
-                                color: HexColor('#E9EAEB'),
+                                color: Theme.of(context).primaryColorLight,
                                 height: 104,
                                 child: TextField(
+                                  cursorColor: Colors.orange,
                                   style: Theme.of(context).textTheme.headline6,
                                   onChanged: (value) {
                                     textValue = value;
                                   },
                                   decoration: InputDecoration(
                                     hintText: 'Type here........',
-                                    border: OutlineInputBorder(),
+                                    hintStyle: Theme.of(context).textTheme.subtitle1,
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.orange,
+                                        )
+                                    ),
                                   ),
                                   maxLines: 7, // Increase the maxLines for a larger text area
                                 ),
@@ -477,7 +474,7 @@ class _RateFeedState extends State<RateFeed>{
                             ],
                           ),
                         ),
-                        SizedBox(height: 23.5,),
+                        SizedBox(height: 25,),
                         Container(
                           height: 1,
                           decoration: BoxDecoration(
@@ -486,20 +483,19 @@ class _RateFeedState extends State<RateFeed>{
                             ),
                           ),
                         ),
-                        SizedBox(height: 13.5,),
+                        SizedBox(height: 15,),
                         Container(
-                          height: 102,
+                          // color: Colors.red,
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.start,
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Container(
-                                  height: 21,
                                   child: Text('Wanna say something to Culturtap ?',style: Theme.of(context).textTheme.subtitle1,)),
-                              SizedBox(height: 11,),
+                              SizedBox(height: 10,),
                               Container(
-                                color: HexColor('#E9EAEB'),
-                                height: 70,
+                                color:  Theme.of(context).primaryColorLight,
+                                height: 75,
                                 child: TextField(
                                   style:Theme.of(context).textTheme.headline6,
                                   onChanged: (value) {
@@ -507,9 +503,14 @@ class _RateFeedState extends State<RateFeed>{
                                   },
                                   decoration: InputDecoration(
                                     hintText: 'Type here........',
-                                    border: OutlineInputBorder(),
+                                    hintStyle: Theme.of(context).textTheme.subtitle1,
+                                    border: OutlineInputBorder(
+                                        borderSide: BorderSide(
+                                          color: Colors.orange,
+                                        )
+                                    ),
                                   ),
-                                  maxLines: 5, // Increase the maxLines for a larger text area
+                                  maxLines: 7, // Increase the maxLines for a larger text area
                                 ),
                               ),
 
@@ -519,7 +520,7 @@ class _RateFeedState extends State<RateFeed>{
                       ],
                     ),
                   ),
-                  meetType=='sender'?SizedBox(height: 32,):SizedBox(height: 89,),
+                  SizedBox(height: 20,)
                 ],
               ),
             ),
@@ -539,10 +540,6 @@ class _RateFeedState extends State<RateFeed>{
                       print('${widget.meetId},${meetType}');
                       if(widget.service=='Local Assistant'){
                         await updateLocalAssistFeedback(widget.meetId!,rating,textValue,meetType!,textValue2);
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',state:'Closed')),
-                        );
                       }
                     }
                     // Navigator.push(
@@ -557,7 +554,7 @@ class _RateFeedState extends State<RateFeed>{
                   child: Center(
                       child: Text('SUBMIT',
                           style: TextStyle(
-                              fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.w800,
                               color: Colors.white,
                               fontSize: 18)))),
             ),

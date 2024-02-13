@@ -19,6 +19,7 @@ import 'package:provider/provider.dart';
 import '../../All_Notifications/customizeNotification.dart';
 import '../../BackendStore/BackendStore.dart';
 import '../../CustomItems/ImagePopUpWithTwoOption.dart';
+import '../../LocalAssistance/LocalAssist.dart';
 import '../../UserProfile/FinalUserProfile.dart';
 import '../../UserProfile/ProfileHeader.dart';
 // import '../../rating.dart';
@@ -686,7 +687,15 @@ class _PingSectionState extends State<PingsSection>{
         }
         else if(widget.fromWhichPage=='trip_planning_schedule_profile'){
           Navigator.of(context).pop();
-        }else{
+        }
+        else if(widget.fromWhichPage=='local_assist'){
+          Navigator.of(context).push(
+            MaterialPageRoute(
+              builder: (context) => LocalAssist(),
+            ),
+          );
+        }
+        else{
           // If you want to navigate directly to the homepage
           Navigator.pushReplacement(
             context,
@@ -1417,12 +1426,16 @@ class _PingSectionState extends State<PingsSection>{
                                    _selectedValue =='All Pings')
                                    ? GestureDetector(
                                  onTap: ()async{
-                                   await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
-                                     state: widget.userId==userId?'user':'helper',
-                                     meetId: meetId,
+                                   if(widget.userId!=userId && meetStatus=='choose'){}
+                                   else{
+                                     await Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId: widget.userId,
+                                       state: widget.userId==userId?'user':'helper',
+                                       meetId: meetId,
 
-                                   ),));
-                                   _refreshPage();
+                                     ),));
+                                     _refreshPage();
+
+                                   }
                                  },
                                  child: Container(
 
@@ -1650,7 +1663,7 @@ class _PingSectionState extends State<PingsSection>{
                                                //     '${widget.meetId}','trip_assistance_required',helperId,'helper'
                                                // );
                                                await updateMeetingChats(meetId!,['','admin-cancel']);
-                                               await updatePaymentStatus('close',meetId);
+                                               await updatePaymentStatus('cancel',meetId);
                                                _refreshPage();
 
                                              } else {

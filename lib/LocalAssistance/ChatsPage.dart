@@ -56,9 +56,9 @@ import '../ServiceSections/LocalAssistant/ChatSection/Uploader.dart';
 
 class ChatsPage extends StatefulWidget {
   String userId;
-  String ? state,meetId,helperId,meetStatus,where,paymentStatus,refresh;
+  String ? state,meetId,helperId,meetStatus,where,paymentStatus,refresh,fromWhichPage;
 
-  ChatsPage({required this.userId,this.state,this.meetId,this.helperId,this.meetStatus,this.where,this.paymentStatus,this.refresh});
+  ChatsPage({required this.userId,this.state,this.meetId,this.helperId,this.meetStatus,this.where,this.paymentStatus,this.refresh,this.fromWhichPage});
   @override
   State<ChatsPage> createState() => _ChatsPageState();
 
@@ -143,7 +143,7 @@ class _ChatsPageState extends State<ChatsPage> {
   List<String>sender=[],receiver=[];
   dynamic incomingSDPOffer;
   bool callEnded = false;
-
+  bool tryCloseMeet = false;
   String requestSend = 'yes';
   bool _helperRefreshCompleted = true;
 
@@ -362,7 +362,7 @@ class _ChatsPageState extends State<ChatsPage> {
     setState(() {
       sender = user;
       receiver = helper;
-      hasRequestRaised = messages.last[1]== 'admin-force-close-reminder' || messages.last[1]=='helper-close-request';
+      hasRequestRaised = messages.last[1]=='helper-close-request';
       adminForceClose = messages.last[1]== 'admin-force-close-reminder';
     });
 
@@ -373,6 +373,30 @@ class _ChatsPageState extends State<ChatsPage> {
 
   }
 
+  Future<void> retriveMeetConversation(String meetId) async {
+    try {
+      final http.Response response = await http.get(
+        Uri.parse('$serverUrl/fetchLocalMeetingConversation/$meetId'),);
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print('Meeting Conversation Restored');
+        print(responseData);
+
+        final List<dynamic> conversationJson = responseData['conversation'];
+        setState(() {
+          messages = conversationJson.map<List<String>>((list) {
+            return (list as List<dynamic>).map<String>((e) => e.toString()).toList();
+          }).toList();
+        });
+        seperateList(messages);
+      } else {
+        print('Failed to retrive meet date : ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error is aa2: $err");
+    }
+  }
 
 
   Future<void> retriveMeetingConversation(String meetId) async {
@@ -427,6 +451,8 @@ class _ChatsPageState extends State<ChatsPage> {
 
   Future<void> updatePaymentStatus(String paymentStatus,String meetId) async {
     try {
+      print('how many');
+      print(paymentStatus);
       final http.Response response = await http.patch(
         Uri.parse('$serverUrl/updateLocalMeetingHelperIds/$meetId'),
         headers: {
@@ -434,7 +460,6 @@ class _ChatsPageState extends State<ChatsPage> {
         },
         body:jsonEncode({"paymentStatus":paymentStatus,"time":DateTime.now().toIso8601String()}),
       );
-
       if (response.statusCode == 200) {
         final responseData = json.decode(response.body);
         print('Meeting Conversation Restored');
@@ -590,10 +615,36 @@ class _ChatsPageState extends State<ChatsPage> {
       });
       scrollToBottom();
       if (data['user'].contains('admin')) {
-        if (data['user'] == 'admin-user-1' || data['user'] == 'admin-cancel' ||
-            data['user'] == 'admin-close') {
-          _refreshPage(widget.meetId!, state: pageVisitor ? 'user' : 'helper');
-          await fetchHelperDataset(helperId);
+        if (data['user'] == 'admin-user-1' || data['user'] == 'admin-cancel') {
+          // if(data['user'] == 'admin-user-1'){
+          //   await updatePaymentStatus('pending', widget.meetId!);
+          // }
+          // else{
+          //   await updatePaymentStatus('cancel', widget.meetId!);
+          // }
+          if(data['user'] == 'admin-cancel'){
+            await getMeetStatus();
+            setState(() {});
+          }else{
+            await retriveMeetingConversation(widget.meetId!);
+            // setState(() {});
+            // _refreshPage(widget.meetId!, state: pageVisitor ? 'user' : 'helper');
+            // await fetchHelperDataset(helperId);
+          }
+        }
+        else if(data['user']=='admin-close'){
+          // _refreshPage(widget.meetId!, state: pageVisitor ? 'user' : 'helper');
+          if(pageVisitor){}
+          else{
+            Future.delayed(Duration(seconds: 2), () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) =>  RateFeed(meetId:widget.meetId,service: 'Local Assistant',),
+                ),
+              );
+            });
+          }
         }
         else
           await fetchHelperDataset(helperId);
@@ -603,8 +654,11 @@ class _ChatsPageState extends State<ChatsPage> {
         await fetchHelperDataset(helperId);
         await getMeetStatus();
       }
-      if (widget.meetId != null && pageVisitor && helperId != '') {
-        await updatePaymentStatus('pending', widget.meetId!);
+      if (widget.meetId != null && pageVisitor && helperId != '' ) {
+        if(data['user'] == 'admin-user-1'){}
+        else{
+          await updatePaymentStatus('pending', widget.meetId!);
+        }
       }
       if (widget.meetId != null && helperId == '') {
         await updatePaymentStatus('initiated', widget.meetId!);
@@ -930,50 +984,20 @@ class _ChatsPageState extends State<ChatsPage> {
             action: (value) async {
               if (value) {
                 print('Value is $value');
-                await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return ImagePopUpWithTwoOption(
-                      imagePath: 'assets/images/logo.png',
-                      textField: 'You are closing this request ?',
-                      extraText: 'Thank you for using our services !',
-                      what: 'a',
-                      meetId: widget.meetId,
-                      helperId: helperId,
-                      meetStatus: meetStatus,
-                      option2Callback: () async {
-                        await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
-                        await updateLocalUserPings(helperId, widget.meetId!, 'close');
-                        await updatePaymentStatus('close', widget.meetId!);
-                        socket.emit('message', {'message': '', 'user1': 'admin-close', 'user2': ''});
-                        sendCustomNotificationToOneUser(
-                          helperToken,
-                          'Messages From $userName',
-                          'Meeting is Closed By $userName',
-                          'Meeting is Closed By $userName',
-                          '${widget.meetId}',
-                          'trip_assistance_required',
-                          helperId,
-                          'helper',
-                        );
-                        await showDialog(
-                          context: context,
-                          builder: (BuildContext context) {
-                            return CustomPopUp(
-                              imagePath: "assets/images/turnOff.svg",
-                              textField: "Local Assistant Service",
-                              extraText: 'Meeting is Closed Successfully',
-                              what: 'OK',
-                              button: '< Go Back',
-                            );
-                          },
-                        );
-                      },
-                    );
-                  },
+                await updateMeetingChat(widget.meetId!);
+                await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
+                await updateLocalUserPings(helperId, widget.meetId!, 'close');
+                await updatePaymentStatus('close',widget.meetId!);
+                socket.emit('message', {'message':'','user1':'admin-close','user2':''});
+                sendCustomNotificationToOneUser(
+                    helperToken,
+                    'Messages From ${userName}',
+                    'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
+                    '${widget.meetId}','trip_assistance_required',helperId,'helper'
                 );
               } else {
                 await updateMeetingChat(widget.meetId!);
+                await retriveMeetingConversation(widget.meetId!);
                 setState(() {
                   adminForceClose = false;
                 });
@@ -986,35 +1010,7 @@ class _ChatsPageState extends State<ChatsPage> {
     }
   }
 
-  void closeMeet(){
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: 'You are closing this request ?',extraText: 'Thank you for using our services !', what: 'a',
-          meetId:widget.meetId ,helperId:helperId,meetStatus:meetStatus,option2Callback:()async{
-            await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
-            await updateLocalUserPings(helperId, widget.meetId!, 'close');
-            await updatePaymentStatus('close',widget.meetId!);
-            socket.emit('message', {'message':'','user1':'admin-close','user2':''});
-            sendCustomNotificationToOneUser(
-                helperToken,
-                'Messages From ${userName}',
-                'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
-                '${widget.meetId}','trip_assistance_required',helperId,'helper'
-            );
-            await showDialog(context: context, builder: (BuildContext context){
-              return CustomPopUp(
-                imagePath: "assets/images/turnOff.svg",
-                textField: "Local Assistant Service" ,
-                extraText:'Meeting is Closed Successfully' ,
-                what:'OK',
-                button: '< Go Back',
-              );
-            },);
-          },);
-      },
-    );
-  }
+
 
   Future<void> socketConnection()async{
     socket = IO.io(serverUrl+'/localAssistant', <String, dynamic>{
@@ -1311,9 +1307,11 @@ class _ChatsPageState extends State<ChatsPage> {
   }
 
   Future<void> createUpdateLocalUserPing(String userId,String meetId,String meetStatus,String userName,String userPhoto) async {
+    print('how many call');
+    print(meetStatus);
     final url = Uri.parse('${Constant().serverUrl}/setUpdateUserPings');
     Map<String, dynamic> requestData = {
-      "userId": userID,
+      "userId": userId,
       'meetId':meetId,
       'meetStatus':meetStatus,
       "userName":userName,
@@ -1409,17 +1407,23 @@ class _ChatsPageState extends State<ChatsPage> {
 
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : (meetStatus=='pending')?'Pending':(meetStatus=='schedule')?'Scheduled':(meetStatus=='accept'||meetStatus=='hold_accept')?'Accepted': meetStatus=='cancel'?'Cancelled':(meetStatus=='close')?'Closed':'All Pings')),
+          MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state :'All Pings',fromWhichPage: 'local-assistant-call', )),
         );
 
         return false;
       },
 
+
+
       child: Scaffold(
-        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus!='close' && meetStatus!='closed' && hasRequestRaised ?'scheduledCloseRequest' : meetStatus,requestSend : requestSend,fromWhichPage : 'yes',chatsToWhere : widget.where,state : widget.state,cancelCloseClick:()async{
+        appBar: AppBar(title: ProfileHeader(reqPage: 2,userId: widget.userId,assistMeetId: widget.meetId,tripHelperId: widget.helperId,meetStatus : meetStatus!='close' && meetStatus!='closed' && hasRequestRaised ?'scheduledCloseRequest' : meetStatus,requestSend : requestSend,fromWhichPage : widget.fromWhichPage?? 'yes',chatsToWhere : widget.where,state : widget.state,cancelCloseClick:()async{
           String updatedStatus = meetStatus == 'pending' || meetStatus=='hold_accept' || meetStatus=='accept'?'cancel':'close';
           if(updatedStatus=='cancel'){
+            if(meetStatus=='pending'){
+              await retriveMeetingConversation(widget.meetId!);
+            }
             await updateLocalUserPings(widget.userId, widget.meetId!, updatedStatus);
+            print('Helper|||| ${helperId}');
             if(helperId!=''){
               await updateLocalUserPings(helperId, widget.meetId!, updatedStatus);
               sendCustomNotificationToOneUser(
@@ -1433,8 +1437,11 @@ class _ChatsPageState extends State<ChatsPage> {
               await removePingsHelper(widget.meetId!);
             }
             await updateMeetingChats(widget.meetId!,['','admin-cancel']);
-            await updatePaymentStatus('close',widget.meetId!);
+            await updatePaymentStatus('cancel',widget.meetId!);
             socket.emit('message', {'message':'','user1':'admin-cancel','user2':''});
+            setState(() {
+              meetStatus = 'cancel';
+            });
             await showDialog(context: context, builder: (BuildContext context){
               return CustomPopUp(
                 imagePath: "assets/images/turnOff.svg",
@@ -1447,15 +1454,23 @@ class _ChatsPageState extends State<ChatsPage> {
           }else {
             await updateLocalUserPings(widget.userId, widget.meetId!, 'close');
             await updateLocalUserPings(helperId, widget.meetId!, 'close');
-            socket.emit('message', {'message':'','user1':'admin-close','user2':''});
             await updatePaymentStatus('close',widget.meetId!);
+            socket.emit('message', {'message':'','user1':'admin-close','user2':''});
             await showDialog(context: context, builder: (BuildContext context){
               return CustomPopUp(
                 imagePath: "assets/images/turnOff.svg",
-                textField: "Local Assistant Service" ,
-                extraText:'Meeting is Closed Successfully' ,
-                what:'OK',
-                button: '< Go Back',
+                textField: "Service Is Closed Successfully" ,
+                extraText:'We Hope Everything is fine. \n Your Feedback Is Necessary' ,
+                what:'local_assistant',
+                button: 'Rate & Feedback',
+                landingCallback: (){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) =>  RateFeed(meetId:widget.meetId,service: 'Local Assistant',),
+                    ),
+                  );
+                },
               );
             },);
             sendCustomNotificationToOneUser(
@@ -1463,12 +1478,6 @@ class _ChatsPageState extends State<ChatsPage> {
                 'Messages From ${userName}',
                 'Meeting is Closed By ${userName}','Meeting is Closed By ${userName}',
                 '${widget.meetId}','trip_assistance_required',helperId,'helper'
-            );
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) =>  RateFeed(meetId:widget.meetId,service: 'Local Assistant',),
-              ),
             );
           }
         },raiseCloseRequest: ()async{
@@ -1842,11 +1851,12 @@ class _ChatsPageState extends State<ChatsPage> {
                                               '${Constant().extractFirstName(helperName)}',
                                               style: Theme.of(context).textTheme.subtitle1,
                                             ),
+                                            SizedBox(height:5),
                                             Text(
                                                   'Saviour request to close local assistant service.',
                                                   style: Theme.of(context).textTheme.subtitle2,
                                             ),
-                                            SizedBox(height: 20,),
+                                            SizedBox(height: 10,),
                                             meetStatus=='close' || meetStatus=='closed'
                                                     ? SizedBox(height:0)
                                                     : InkWell(
@@ -1887,9 +1897,9 @@ class _ChatsPageState extends State<ChatsPage> {
                                                         );
                                                       },
                                                       child: Container(
-                                                        padding: EdgeInsets.all(10),
-                                                        child: Text('Close Request ',style: TextStyle(fontSize:16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.orange),),
-                                                      ),
+                                                        padding: EdgeInsets.only(bottom:10),
+                                                        child: Text('Close Request >',style: TextStyle(fontSize:16,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Colors.orange,),),
+                                                      ), 
                                                     ),
 
                                             // SizedBox(height: 10,),
@@ -1940,7 +1950,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                                         padding: EdgeInsets.only(left : 15, right : 10, top : 10, bottom :10),
                                                         child: Column(
                                                           crossAxisAlignment: CrossAxisAlignment.start,
-                                                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                                                          // mainAxisAlignment: MainAxisAlignment.spaceAround,
                                                           children: [
                                                             Container(
                                                               child: Text(
@@ -1948,12 +1958,14 @@ class _ChatsPageState extends State<ChatsPage> {
                                                                 style: Theme.of(context).textTheme.subtitle1,
                                                               ),
                                                             ),
-                                                            SizedBox(height : 10),
                                                             Text('You raised a request to close local assistant service',style:Theme.of(context).textTheme.subtitle2,),
                                                             SizedBox(height:10),
-                                                            hasRequestRaised && meetStatus!='close' && meetStatus!='closed'
-                                                                ? Text('Waiting for response',
-                                                                style : TextStyle(fontStyle: FontStyle.italic,fontWeight: FontWeight.w600,fontSize : 14))
+                                                            meetStatus!='close' && meetStatus!='closed'
+                                                                ? Container(
+                                                                  padding:EdgeInsets.only(bottom:10),
+                                                                  child: Text('Waiting for response',
+                                                                  style : TextStyle(fontStyle: FontStyle.italic,fontWeight: FontWeight.w600,fontSize : 14)),
+                                                                )
                                                                 :SizedBox(height:0),
                                                           ],
                                                         )),
@@ -3778,7 +3790,7 @@ class _ChatsPageState extends State<ChatsPage> {
                           ),
 
 
-                        if(widget.state=='user' && (meetStatus == 'accept'|| meetStatus=='hold_accept'))
+                        if(widget.state=='user' && (meetStatus == 'accept'))
                           Column(
                             children: [
 
@@ -3793,42 +3805,64 @@ class _ChatsPageState extends State<ChatsPage> {
                                   //     builder: (context) => RazorPayIntegration(),
                                   //   ),
                                   // );
-                                  if(true){
 
-
-
-                                    print(helperId);print('here we are ');
-                                    print(widget.meetId!);
-                                    await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
-                                    await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
-                                    await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
-                                    await updatePaymentStatus('pending',widget.meetId!);
-                                    socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
-                                    await getMeetStatus();
-                                    // await updateLocalUserPings('65ad32bc43e1dc64172f3ef7', widget.meetId!, 'schedule');
-                                    // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
-
-                                    // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
-
-
-
-                                    sendCustomNotificationToOneUser(
-                                      helperToken,
-                                      'Payment Successful',
-                                      'payment Successful','Connect With Tourist Via Text, Voice Call, Video Call',
-                                      '${widget.meetId}','trip_assistance_required',helperId,'helper',
-                                    );
-
-
-
-                                    setState(() {});
-                                  }else{
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                        content: Text('Payment UnSuccessful. Try Again!'),
-                                      ),
-                                    );
+                                  await getMeetStatus();
+                                  if(meetStatus=='cancel'){
+                                    await showDialog(context: context, builder: (BuildContext context){
+                                      return CustomPopUp(
+                                        imagePath: "assets/images/turnOff.svg",
+                                        textField: "Service Is Cancelled" ,
+                                        extraText: 'Payment Was Not Completed . We have cancelled your request!' ,
+                                        what:'local_assistant',
+                                        button: 'Go Back',
+                                        landingCallback: (){
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : 'All Pings',fromWhichPage: 'local-assistant-call')),
+                                          );
+                                        },
+                                      );
+                                    },);
                                   }
+                                  else{
+                                    if(true){
+
+
+
+                                      print(helperId);print('here we are ');
+                                      print(widget.meetId!);
+                                      await updateLocalUserPings(widget.userId, widget.meetId!, 'schedule');
+                                      await updateLocalUserPings(helperId, widget.meetId!, 'schedule');
+                                      await updateMeetingChats(widget.meetId!,[helperId,'admin-helper-1']);
+                                      await updatePaymentStatus('pending',widget.meetId!);
+                                      socket.emit('message', {'message':helperId,'user1':'admin-helper-1','user2':''});
+                                      await getMeetStatus();
+                                      // await updateLocalUserPings('65ad32bc43e1dc64172f3ef7', widget.meetId!, 'schedule');
+                                      // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
+
+                                      // sendCustomNotificationToUsers([helperId!], localAssistantHelperPay(userName,widget.meetId!));
+
+
+
+                                      sendCustomNotificationToOneUser(
+                                        helperToken,
+                                        'Payment Successful',
+                                        'payment Successful','Connect With Tourist Via Text, Voice Call, Video Call',
+                                        '${widget.meetId}','trip_assistance_required',helperId,'helper',
+                                      );
+
+
+
+                                      setState(() {});
+                                    }else{
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Payment UnSuccessful. Try Again!'),
+                                        ),
+                                      );
+                                    }
+                                  }
+
                                 },
                                 child: Container(
 
@@ -4174,17 +4208,6 @@ class _ChatsPageState extends State<ChatsPage> {
                                         setState(() {});
                                       }else{
                                         if(helperMessage && meetStatus != 'schedule'){
-
-                                          sendCustomNotificationToOneUser(
-                                              helperToken,
-                                            'Request Accepted by Saviour',
-                                            'Complete Your Payment',_controller.text,
-                                            '${widget.meetId}','trip_assistance_required',helperId,'user',
-                                          );
-
-
-
-
                                           print('kese ho');
 
                                             setState(() {
@@ -4199,7 +4222,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                           print('Controller : ${_controller.text},$helperId');
                                           await updateLocalHelperPings(widget.meetId!, 'accept');
                                           await createUpdateLocalUserPing(helperId ,widget.meetId!, 'accept',userName,userPhoto);
-                                          await updatePaymentStatus('pending',widget.meetId!);
+                                          await updatePaymentStatus('initiated',widget.meetId!);
                                           // await updateLocalUserPings(widget.userId, widget.meetId!, 'pending');
                                           // await updateLocalUserPings(helperId, widget.meetId!, 'accept');
                                           await updateMeetingChats(widget.meetId!,[_controller.text,'admin-user-1']);
@@ -4209,12 +4232,21 @@ class _ChatsPageState extends State<ChatsPage> {
                                           // setState(() {
                                           //   helperMessage=false;
                                           // });
-
-                                          startConnectionCards();
-
+                                          // startConnectionCards();
+                                          // await getMeetStatus();
+                                          await retriveMeetConversation(widget.meetId!);
+                                          sendCustomNotificationToOneUser(
+                                            helperToken,
+                                            'Request Accepted by Saviour',
+                                            'Complete Your Payment',_controller.text,
+                                            '${widget.meetId}','trip_assistance_required',helperId,'user',
+                                          );
+                                          // _refreshPage(widget.meetId!, state: pageVisitor ? 'user' : 'helper');
                                           setState(() {
                                             _userRefreshingPageOnFirstMessage = false;
                                           });
+
+
 
                                         }else{
 
@@ -4400,9 +4432,7 @@ class _AdminForceCloseState extends State<AdminForceClose> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.transparent,
-      body: WillPopScope(
+    return WillPopScope(
         onWillPop: ()async{
           return false;
       },
@@ -4465,7 +4495,6 @@ class _AdminForceCloseState extends State<AdminForceClose> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }
