@@ -37,10 +37,10 @@ class ProfileHeader extends StatefulWidget {
   String? requestSend;
   String? state,service;
   String? fromWhichPage;
-  String? chatsToWhere;
+  String? chatsToWhere,goToHome;
   final String? profileHeaderOfPage;
 
-  ProfileHeader({required this.reqPage,this.service,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage,this.raiseCloseRequest,this.helpClicked});
+  ProfileHeader({required this.reqPage,this.service,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage,this.raiseCloseRequest,this.helpClicked,this.goToHome});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -219,8 +219,8 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 else if(widget.text=='chats'){
                   widget.onButtonPressed!();
                 }
-                else if(widget.text=='meetingPings'){
-                  print('${widget.userName!}');
+                else if(widget.text=='meetingPings' || widget.goToHome=='homePage'){
+                  // print('${widget.userName!}');
                   Navigator.push(
                     context,
                     MaterialPageRoute(

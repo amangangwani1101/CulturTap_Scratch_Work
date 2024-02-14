@@ -128,7 +128,7 @@ class _PingSectionState extends State<PingsSection>{
     // Update the UI with new data if needed
     setState(() {
       isLoading = false;
-      widget.state = state;
+      // widget.state = state;
     });
   }
 
@@ -706,7 +706,7 @@ class _PingSectionState extends State<PingsSection>{
       },
       child: Scaffold(
         backgroundColor: Theme.of(context).primaryColorLight,
-        appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName,fromWhichPage: widget.fromWhichPage,onButtonPressed: (){
+        appBar: AppBar(title: ProfileHeader(reqPage: 1 ,text: widget.text,userName:widget.userName,fromWhichPage: widget.fromWhichPage, goToHome:'homePage',onButtonPressed: (){
           Navigator.of(context).pop();
         },),automaticallyImplyLeading: false,backgroundColor: Theme.of(context).backgroundColor, shadowColor: Colors.transparent, toolbarHeight: 90,),
         body: !isLoading
@@ -776,11 +776,46 @@ class _PingSectionState extends State<PingsSection>{
                                        _selectedValue =='All Pings' && meetStatus!='cancel' && meetStatus!='closed')
                                        ? InkWell(
                                          onTap: (){
-                                           if((meetType=='sender' && (meetStatus=='schedule'  || meetStatus=='close' || meetStatus=='closed')) || (meetType=='receiver' &&( meetStatus=='schedule' || meetStatus=='close' || meetStatus=='closed'))){
-                                             Navigator.push(
+
+                                           if(meetStatus=='schedule'){
+                                             DateTime time= setDateTime(date, startTime);
+                                             print('Time is ${time}');
+                                             if(time != null && time!.isBefore(DateTime.now())){
+                                               meetType=='sender'
+                                                   ? Navigator.push(
+                                                 context,
+                                                 MaterialPageRoute(
+                                                   builder: (context) => ChatApps(senderId:userID,receiverId:'',date:date,startTime:startTime),
+                                                 ),
+                                               )
+                                                   :Navigator.push(
+                                                 context,
+                                                 MaterialPageRoute(
+                                                   builder: (context) => ChatApps(senderId:'',receiverId:userID,date:date,startTime:startTime),
+                                                 ),
+                                               );
+                                             }
+                                             else{
+                                               Navigator.push(
+                                                 context,
+                                                 MaterialPageRoute(
+                                                   builder: (context) => ScheduledCalendar(date:date,userId:userID,meetStartTime:startTime),
+                                                 ),
+                                               );
+                                             }
+                                           }
+                                           else{
+                                             meetType=='sender'
+                                                 ? Navigator.push(
                                                context,
                                                MaterialPageRoute(
-                                                 builder: (context) => ScheduledCalendar(date:date,userId:userID,meetStartTime: startTime,),
+                                                 builder: (context) => ChatApps(senderId:userID,receiverId:'',date:date,startTime:startTime),
+                                               ),
+                                             )
+                                                 :Navigator.push(
+                                               context,
+                                               MaterialPageRoute(
+                                                 builder: (context) => ChatApps(senderId:'',receiverId:userID,date:date,startTime:startTime),
                                                ),
                                              );
                                            }
@@ -1056,7 +1091,7 @@ class _PingSectionState extends State<PingsSection>{
                                                            dataLoading = false;
                                                            widget.state='Cancelled';
                                                          });
-                                                         Fluttertoast.showToast(
+                                                         await Fluttertoast.showToast(
                                                            msg:
                                                            'Updated Meeting Status Successfully!!',
                                                            toastLength:
@@ -1070,8 +1105,8 @@ class _PingSectionState extends State<PingsSection>{
                                                          );
                                                          sendCustomNotificationToOneUser(
                                                              plannerToken,
-                                                             'Messages From ${userName}',
-                                                             'Messages From ${userName}','Meeting request for ${date} is cancelled ',
+                                                             'Trip Planning Service Update',
+                                                             'Request Raise On ${date} is cancelled by ${userName}\nUpdated Status Of Meet Is Cancelled','Request Raise On ${date} is cancelled by ${userName}\nUpdated Status Of Meet Is Cancelled',
                                                              'Cancelled','trip_planning_cancel',userId,'helper'
                                                          );
                                                          // _refreshPage(time: 0,state: 'Cancelled');
@@ -1079,6 +1114,11 @@ class _PingSectionState extends State<PingsSection>{
                                                      }
                                                      else{
                                                        setState(() {
+                                                         dataLoading = false;
+                                                       });
+                                                       callback();
+                                                       setState(() {
+                                                         dataLoading = true;
                                                          widget.state='Cancelled';
                                                        });
                                                      }
@@ -1089,7 +1129,7 @@ class _PingSectionState extends State<PingsSection>{
                                                      child: Center(child: Text('Cancel',style: TextStyle(fontSize: 18,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: HexColor('#FB8C00')),)),))
                                                    :(meetStatus=='pending' && meetType=='receiver')
                                                    ?Container(
-                                                     padding: EdgeInsets.only(top:10,bottom:10),
+                                                     padding: EdgeInsets.only(top:10,bottom:10,right: 10),
                                                      child: Text('*User need to unlock calendar before complete call scheduled.Please wait for event. ',style: TextStyle(fontSize: 14,fontWeight: FontWeight.w500,fontFamily: 'Poppins',color: HexColor('#FF0000')),),)
                                                    :(meetStatus=='choose')
                                                    ? Container(
@@ -1107,7 +1147,7 @@ class _PingSectionState extends State<PingsSection>{
                                                                  context: context,
                                                                  builder: (BuildContext context) {
                                                                    return ConfirmationDialog(
-                                                                     message:'Are You Sure To Cancel Meet With ${userName} Scheduled At ${date}',
+                                                                     message:'Are You Sure To Cancel Meet With ${userName} Scheduled On ${date}',
                                                                      onCancel: () {
                                                                        // Perform action on confirmation
                                                                        Navigator.pop(context,false);
@@ -1121,7 +1161,7 @@ class _PingSectionState extends State<PingsSection>{
                                                                    );});
                                                              if(finalRes){
                                                                setState(() {
-                                                                 dataLoading=true;
+                                                                 dataLoading = true;
                                                                });
                                                                await cancelMeeting(date, startTime, 'cancel', userId, 'cancel');
                                                                setState(() {
@@ -1130,7 +1170,7 @@ class _PingSectionState extends State<PingsSection>{
                                                                });
                                                                Fluttertoast.showToast(
                                                                  msg:
-                                                                 'Updated Meeting Status Successfully!!',
+                                                                 'Meeting Updated Successfully!!',
                                                                  toastLength:
                                                                  Toast.LENGTH_SHORT,
                                                                  gravity:
@@ -1142,15 +1182,19 @@ class _PingSectionState extends State<PingsSection>{
                                                                );
                                                                sendCustomNotificationToOneUser(
                                                                    plannerToken,
-                                                                   'Messages From ${userName}',
-                                                                   'Messages From ${userName} <br/> Your trip planning request for ${date} is cancelled by ${userName}','Your trip planning request for ${date} is cancelled by ${userName}',
+                                                                   'Trip Planning Service Update',
+                                                                   'Request Raise On ${date} is cancelled by ${userName}\nUpdated Status Of Meet Is Cancelled','Request Raise On ${date} is cancelled by ${userName}\nUpdated Status Of Meet Is Cancelled',
                                                                    'Cancelled','trip_planning_cancel',userId,'user'
                                                                );
-                                                               // _refreshPage(time: 0,state: 'Cancelled');
                                                              }
                                                            }
                                                            else{
                                                              setState(() {
+                                                               dataLoading = false;
+                                                             });
+                                                             callback();
+                                                             setState(() {
+                                                               dataLoading = true;
                                                                widget.state='Cancelled';
                                                              });
                                                            }
@@ -1168,9 +1212,9 @@ class _PingSectionState extends State<PingsSection>{
                                                                dataLoading = false;
                                                                widget.state='Pending';
                                                              });
-                                                             Fluttertoast.showToast(
+                                                             await Fluttertoast.showToast(
                                                                msg:
-                                                               'Updated Meeting Status Successfully!!',
+                                                               'Meeting Status Updated Successfully!!',
                                                                toastLength:
                                                                Toast.LENGTH_SHORT,
                                                                gravity:
@@ -1182,14 +1226,14 @@ class _PingSectionState extends State<PingsSection>{
                                                              );
                                                              sendCustomNotificationToOneUser(
                                                                  userToken,
-                                                                 'Request Sent!',
-                                                                 'Payment Request Sent Successfully!','Payment Request Sent Successfully!',
+                                                                 'Payment Request Sent Successfully',
+                                                                 'Waiting for Payment...','Waiting for Payment...',
                                                                  'Pending','trip_planning_accept',userID,'helper'
                                                              );
                                                              sendCustomNotificationToOneUser(
                                                                  plannerToken,
-                                                                 'Messages From ${userName}',
-                                                                 'Messages From ${userName} <br/> Trip Planning Request Accepted <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Please Complete Payment</b>','Trip Planning Request Accepted <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Please Complete Payment</b>',
+                                                                 'Trip Planning Service Updates',
+                                                                 'Request Accepted By ${userName} \nTrip Planning Request Accepted \nMeeting Details : ${date},${startTime}-${endTime}\nPlease Complete Payment','Request Accepted By ${userName} \nTrip Planning Request Accepted \nMeeting Details : ${date},${startTime}-${endTime}\nPlease Complete Payment',
                                                                  'Accepted','trip_planning_accept',userId,'user'
                                                              );
                                                            }
@@ -1231,7 +1275,7 @@ class _PingSectionState extends State<PingsSection>{
                                                                    dataLoading = false;
                                                                    widget.state='Cancelled';
                                                                  });
-                                                                 Fluttertoast.showToast(
+                                                                 await Fluttertoast.showToast(
                                                                    msg:
                                                                    'Updated Meeting Status Successfully!!',
                                                                    toastLength:
@@ -1245,8 +1289,8 @@ class _PingSectionState extends State<PingsSection>{
                                                                  );
                                                                  sendCustomNotificationToOneUser(
                                                                      plannerToken,
-                                                                     'Messages From ${userName}',
-                                                                     'Messages From ${userName}<br/> Meeting request for ${date} is cancelled','Meeting request for ${date} is cancelled ',
+                                                                     'Trip Planning Service Update',
+                                                                     'Request Accepted For Trip Planning Call On  ${date} is cancelled by ${userName}\nUpdated Status Of Meet Is Cancelled','Request Accepted For Trip Planning Call On  ${date} is cancelled by ${userName}\nUpdated Status Of Meet Is Cancelled',
                                                                      'Cancelled','trip_planning_cancel',userId,'helper'
                                                                  );
                                                                  // _refreshPage(time: 0,state: 'Cancelled');
@@ -1279,14 +1323,14 @@ class _PingSectionState extends State<PingsSection>{
                                                                });
                                                                sendCustomNotificationToOneUser(
                                                                    userToken,
-                                                                   'Payment Successful',
-                                                                   'Payment Successful \n Trip Planning Request Scheduled \n Meeting is On ${date} , ${startTime} - ${endTime}','Trip Planning Request Scheduled <br/> Meeting is On <a href="https://google.com">${date}</a> , ${startTime} - ${endTime} ',
+                                                                   'Trip Planning Service Updates',
+                                                                   'Payment Successful \nTrip Planning Request Scheduled \nMeeting is Scheduled On ${date} , ${startTime} - ${endTime} \nYou Will Be Notified On Scheduled Date','Payment Successful \nTrip Planning Request Scheduled \n Meeting is Scheduled On ${date} , ${startTime} - ${endTime} \nYou Will Be Notified On Scheduled Date',
                                                                    'Scheduled','trip_planning_schedule',userID,'user'
                                                                );
                                                                sendCustomNotificationToOneUser(
                                                                    plannerToken,
-                                                                   'Message From ${userName}',
-                                                                   'Message From ${userName} <br/> Trip Planning Request Scheduled <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Be On Time .</b> <br/> Notifications will be sent before meeting','Trip Planning Request Scheduled <br/> Meeting Details : ${date},${startTime}-${endTime} <br/> <b>Be On Time .</b> <br/> Notifications will be sent before meeting',
+                                                                   'Trip Planning Service Updates',
+                                                                   'Trip Planning Call is Scheduled with ${userName} \nMeeting Details : ${date},${startTime}-${endTime} \nYou Will Be Notified On Scheduled Date. Be On Time ','Trip Planning Call is  Scheduled with ${userName} \nMeeting Details : ${date},${startTime}-${endTime} \nYou Will Be Notified On Scheduled Date. Be On Time ',
                                                                    'Scheduled','trip_planning_schedule',userId,'helper'
                                                                );
                                                                print('$date,$index');
@@ -1378,7 +1422,13 @@ class _PingSectionState extends State<PingsSection>{
                                                        rotateButton = !rotateButton;
                                                      });
                                                      await fetchDatasets(widget.userId);
-                                                    widget.state='All Pings';
+                                                     // if(meetStatus=='schedule'){
+                                                     //   widget.state='Scheduled';
+                                                     // }else if(meetStatus=='close'){
+                                                     //   widget.state='Closed';
+                                                     // }else{
+                                                     //   widget.state='Pending';
+                                                     // }
                                                    },
                                                    child: Container(
                                                        padding: EdgeInsets.all(10),
@@ -1388,7 +1438,7 @@ class _PingSectionState extends State<PingsSection>{
                                                        ),
                                                        child: Transform.rotate(
                                                            angle: rotateButton ? 3.14 : 0,
-                                                           child: Icon(Icons.refresh,color: (meetType=='receiver' && meetStatus=='pending') ? Colors.red:Theme.of(context).primaryColorDark,size: 20,)))
+                                                           child: Icon(Icons.refresh,color: Theme.of(context).primaryColorDark,size: 20,)))
                                                ),
                                              )
                                                  : SizedBox(width:0),
@@ -2417,7 +2467,6 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
       appBar: AppBar(title: ProfileHeader(reqPage: 2,state:meetType=='sender'?'user':'helper',service: 'trip_planning', fromWhichPage: 'trip_planning_calendar_pings',meetStatus: start20Min?'started':meetStatus,
         onButtonPressed: ()async{
           await fetchMeetStatus();
-
           print('Meet is $meetStatus');
             Navigator.push(
               context,
@@ -2431,7 +2480,7 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
           String currentMeetStatus = meetStatus;
           await fetchMeetStatus();
           if(currentMeetStatus!=meetStatus){
-            Fluttertoast.showToast(
+            await Fluttertoast.showToast(
               msg:
               'Meeting Is Already Closed By ${plannerName}.Update Page!!',
               toastLength:
@@ -2446,6 +2495,12 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
             setState(() {
               closedMeet = true;
             });
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => PingsSection(userId:userID,state:'Closed',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+              ),
+            );
           }
           else{
               showDialog(
@@ -2460,16 +2515,16 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
                     if(meetType=='sender'){
                       sendCustomNotificationToOneUser(
                           userToken,
-                          'Trip Planning Meeting Updates',
-                          'Trip Planning Request Updates','Meeting is closed successfully',
+                          'Trip Planning Request Updates',
+                          'Meeting is closed.Please Give Your Feedback','Meeting is closed successfully',
                           'Closed','trip_planning_close',userID,'user'
                       );
                     }
                     else{
                       sendCustomNotificationToOneUser(
                           plannerToken,
-                          'Message From ${userName}',
-                          'Messages From ${userName}' ,'Meeting  with ${date} , ${startTime} is cancelled by ${userName}',
+                          'Trip Planning Request Updates',
+                          'Messages From ${userName}' ,'Meeting  with ${date} , ${startTime} is closed by ${userName}',
                           'Closed','trip_planning_close',userId,'helper'
                       );
                     }
@@ -2477,6 +2532,12 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
                       closedMeet = true;
                       updatedStatus = true;
                     });
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => PingsSection(userId:userID,state:'Closed',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+                      ),
+                    );
                   },);
               },
             );
@@ -2488,9 +2549,19 @@ class _ScheduledCalendarState extends State<ScheduledCalendar>{
           onWillPop: ()async{
             await fetchMeetStatus();
             if(meetStatus=='close'||closedMeet){
-              Navigator.pop(context,'Closed');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PingsSection(userId:userID,state:'Closed',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+                ),
+              );
             }else{
-              Navigator.pop(context,'Scheduled');
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PingsSection(userId:userID,state:'Scheduled',selectedService: 'Trip Planning',fromWhichPage: 'trip_planning',),
+                ),
+              );
             }
             return true;
         },

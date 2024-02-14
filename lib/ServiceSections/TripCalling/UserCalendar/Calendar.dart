@@ -20,7 +20,7 @@ import '../../../BackendStore/BackendStore.dart';
 import 'package:http/http.dart' as http;
 import '../../../widgets/CustomButton.dart';
 import '../../PingsSection/Pings.dart';
-import 'CalendarHelper.dart';
+import 'Calendar2Helper.dart';
 
 void main() async{
   // WidgetsFlutterBinding.ensureInitialized();
@@ -549,7 +549,7 @@ class _CalendarCheckState extends State<CalendarCheck>{
                   String choosenDate = await Navigator.push(
                     context,
                     MaterialPageRoute(
-                      builder: (context) => CalendarHelper(userName:widget.userName,plans:widget.plans,choosenDate:sendDate!,startTime:widget.userStartTime!,endTime:widget.userEndTime!,slotChossen: widget.slotChoosen!,daysChoosen:widget.daysChoosen,date:sendDate!),
+                      builder: (context) => CalendarHelper(choosenDate:sendDate!,date:sendDate!,userId:widget.id2),
                     ),
                   );
                   setState(() {
@@ -810,15 +810,15 @@ class _TimeSetState extends State<TimeSet>{
           await saveMeetingSchedule();
           sendCustomNotificationToOneUser(
               widget.plannerToken!,
-              'Messages From ${widget.user2Name}',
-              'Messages From ${widget.user2Name}','Trip Planning Request <br/> ${_meetingEditingController.text}',
+              'Messages From ${widget.userName}',
+              'Messages From ${widget.userName} \nTrip Planning Request \nMeeting Title : ${_meetingEditingController.text}','Messages From ${widget.userName} \nTrip Planning Request \nMeeting Title : ${_meetingEditingController.text}',
               'All Pings','trip_planning_request',widget.id2!,'helper'
           );
           sendCustomNotificationToOneUser(
               widget.userToken!,
-              'Messages Sent To  ${widget.userName}',
-              'Messages Sent To  ${widget.userName}','Trip Planning Request Sent Successfully',
-              'Pending','trip_planning_request',widget.id!,'user'
+              'Trip Planning Request Raised',
+              'Trip Planning Request Raised With ${widget.user2Name} \nWait for Trip Planner To Accept Your Request','Trip Planning Request Raised With ${widget.user2Name} \nWait for Trip Planner To Accept Your Request',
+              'All Pings','trip_planning_request',widget.id!,'user'
           );
           setState(() {
             buttonPressed = false;
@@ -874,7 +874,7 @@ class _TimeSetState extends State<TimeSet>{
               await Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => CalendarHelper(text:'calendarhelper',plans:widget.plans,choosenDate:widget.setDate!,startTime:widget.userStartTime!,endTime:widget.userEndTime!,slotChossen: widget.slotChoosen,date:widget.setDate,userName:widget.userName,daysChoosen: widget.daysChoosen,),
+                  builder: (context) => CalendarHelper(choosenDate:widget.setDate!,date:widget.setDate!,userId:widget.id2),
                 ),
               );
               Navigator.of(context).pop();
@@ -1195,6 +1195,11 @@ class _TimeSetState extends State<TimeSet>{
   }
 
   bool validator(String? time,String title,String? date){
+    print('output');
+    print(time);
+    print(title);
+    print(date);
+    print(isFutureSchedule(date!,time!));
     if(title==''){
       // ScaffoldMessenger.of(context).showSnackBar(
       //   SnackBar(
@@ -1208,37 +1213,80 @@ class _TimeSetState extends State<TimeSet>{
       //     content: Center(child: Text('Enter Meeting Title',style: Theme.of(context).textTheme.headline5,)),
       //   ),
       // );
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Enter Meeting Title'),
-        ),
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text('Enter Meeting Title'),
+      //   ),
+      // );
+       Fluttertoast.showToast(
+        msg:
+        'Enter Meeting Title',
+        toastLength:
+        Toast.LENGTH_SHORT,
+        gravity:
+        ToastGravity.BOTTOM,
+        backgroundColor:
+        Colors.orange.withOpacity(0.5),
+        textColor: Theme.of(context).primaryColorDark,
+        fontSize: 16.0,
       );
       setState(() {
         meetTitle = false;
       });
       return false;
     }
-    else if(time==null || !isFutureSchedule(date!,time!)){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Time Choosen Is Not Valid!!'),
-        ),
+    else if(time==null || time ==''){
+      Fluttertoast.showToast(
+        msg:
+        'Time Choosen Is Not Valid!!',
+        toastLength:
+        Toast.LENGTH_SHORT,
+        gravity:
+        ToastGravity.BOTTOM,
+        backgroundColor:
+        Colors.orange.withOpacity(0.5),
+        textColor: Theme.of(context).primaryColorDark,
+        fontSize: 16.0,
       );
       setState(() {
         meetTime = false;
       });
       return false;
     }
-    else if(time!=null && title!='' && date!=null && time!='' && isFutureSchedule(date,time)){
-      return true;
-    }else{
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Complete All The Required Fields!.'),
-        ),
+    else if(!isFutureSchedule(date!,time!)){
+      // ScaffoldMessenger.of(context).showSnackBar(
+      //   SnackBar(
+      //     content: Text('Choosen Time Already Passed , Check Your Time'),
+      //   ),
+      // );
+      Fluttertoast.showToast(
+        msg:
+        'Choosen Time Already Passed , Check Your Time',
+        toastLength:
+        Toast.LENGTH_SHORT,
+        gravity:
+        ToastGravity.BOTTOM,
+        backgroundColor:
+        Colors.orange.withOpacity(0.5),
+        textColor: Theme.of(context).primaryColorDark,
+        fontSize: 16.0,
       );
+      setState(() {
+        meetTime = false;
+      });
       return false;
     }
+    // else if(time!=null && title!='' && date!=null && time!='' && isFutureSchedule(date,time)){
+    //
+    // }else{
+    //   ScaffoldMessenger.of(context).showSnackBar(
+    //     SnackBar(
+    //       content: Text('Complete All The Required Fields!.'),
+    //     ),
+    //   );
+    //   return false;
+    // }
+    return true;
   }
 
   String addMinutesToTime(String timeString, int minutesToAdd) {
@@ -1437,17 +1485,37 @@ class _TimeSetState extends State<TimeSet>{
           child: FiledButton(
               backgroundColor: Colors.orange,
               onPressed: () async{
-                setState(() {
-                  buttonPressed = true;
-                });
-                _meetingEditingController.text = _meetingEditingController.text.trim();
-                print('$startTime,${widget.setDate},${_meetingEditingController.text}');
-                if(validator(startTime,_meetingEditingController.text,widget.setDate)){
-                  await checkSetDate_Time();
-                }else {}
-                setState(() {
-                  buttonPressed = false;
-                });
+
+                if(startTime==''){
+                  Fluttertoast.showToast(
+                    msg:
+                    'Time Choosen Is Not Valid!!',
+                    toastLength:
+                    Toast.LENGTH_SHORT,
+                    gravity:
+                    ToastGravity.BOTTOM,
+                    backgroundColor:
+                    Colors.orange.withOpacity(0.5),
+                    textColor: Theme.of(context).primaryColorDark,
+                    fontSize: 16.0,
+                  );
+                  setState(() {
+                    meetTime = false;
+                  });
+                }
+                else{
+                  setState(() {
+                    buttonPressed = true;
+                  });
+                  _meetingEditingController.text = _meetingEditingController.text.trim();
+                  print('$startTime,${widget.setDate},${_meetingEditingController.text}');
+                  if(validator(startTime,_meetingEditingController.text,widget.setDate)){
+                    await checkSetDate_Time();
+                  }else {}
+                  setState(() {
+                    buttonPressed = false;
+                  });
+                }
               },
               child: Center(
                   child: buttonPressed==false
