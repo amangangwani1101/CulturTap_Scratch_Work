@@ -161,7 +161,7 @@ class _RateFeedState extends State<RateFeed>{
         meetType = data['userId']==userID?'sender':'receiver';
         meetTitle = data['title'];
         userId = data['userId'];
-        helperId = data['helperId'];
+        helperId = data['helperId']==null?userID:data['helperId'];
       });
       await fetchDataset(userId);
       await fetchDataset2(helperId);

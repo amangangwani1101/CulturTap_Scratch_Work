@@ -411,7 +411,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
         final List<dynamic> conversationJson = responseData['conversation'];
         setState(() {
-          if(widget.state=='helper'  && responseData['paymentStatus']=='initiated'){
+          if(widget.state=='helper'  && responseData['paymentStatus']=='initiated' && meetStatus!='accept'){
             print('Helper Message');
             helperMessage=true;
             messageTyping = true;
@@ -437,7 +437,7 @@ class _ChatsPageState extends State<ChatsPage> {
           else if(widget.state=='helper')
             await fetchHelperDataset(responseData['userId']);
         }
-        if(widget.state=='helper'  && responseData['paymentStatus']=='initiated'){
+        if(widget.state=='helper'  && responseData['paymentStatus']=='initiated' && meetStatus!='accept'){
           _controller.text = 'Hey ${helperName}, I get your problem, let’s connect first on call. be calm down.';
         }
         seperateList(messages);
@@ -626,10 +626,14 @@ class _ChatsPageState extends State<ChatsPage> {
             await getMeetStatus();
             setState(() {});
           }else{
-            await retriveMeetingConversation(widget.meetId!);
+            // await retriveMeetingConversation(widget.meetId!);
             // setState(() {});
             // _refreshPage(widget.meetId!, state: pageVisitor ? 'user' : 'helper');
             // await fetchHelperDataset(helperId);
+            Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId:userID,
+              state: pageVisitor?'user':'helper',
+              meetId: widget.meetId,
+            ),));
           }
         }
         else if(data['user']=='admin-close'){
@@ -3754,7 +3758,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                       Navigator.push(
                                         context,
                                         MaterialPageRoute(
-                                          builder: (context) =>  RateFeed(meetId:widget.meetId,service: 'Local Assistant',),
+                                          builder: (context) =>  RateFeed(meetId:widget.meetId!,service: 'Local Assistant',),
                                         ),
                                       );
                                     },
@@ -4234,7 +4238,7 @@ class _ChatsPageState extends State<ChatsPage> {
                                           // });
                                           // startConnectionCards();
                                           // await getMeetStatus();
-                                          await retriveMeetConversation(widget.meetId!);
+                                          // await retriveMeetConversation(widget.meetId!);
                                           sendCustomNotificationToOneUser(
                                             helperToken,
                                             'Request Accepted by Saviour',
@@ -4246,7 +4250,10 @@ class _ChatsPageState extends State<ChatsPage> {
                                             _userRefreshingPageOnFirstMessage = false;
                                           });
 
-
+                                          Navigator.push(context, MaterialPageRoute(builder: (context) =>ChatsPage(userId:userID,
+                                            state: 'helper',
+                                            meetId: widget.meetId,
+                                          ),));
 
                                         }else{
 

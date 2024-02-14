@@ -337,12 +337,22 @@ class NotificationServices{
     }
     else if(message.data['type'].contains('local_assistant') && message.data['type']!='local_assistant_service'){
       print('yes its me');
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],fromWhichPage: 'yes',),
-        ),
-      );
+      if(message.data['type']=='admin-force-close-reminder'){
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => PingsSection(userId : message.data['userId'],state: 'Scheduled',selectedService: 'Local Assistant',fromWhichPage: 'yes',),
+          ),
+        );
+      }else{
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatsPage(userId : message.data['userId'],state: message.data['state'],meetId:message.data['meetId'],fromWhichPage: 'yes',),
+          ),
+        );
+      }
+
     }
     else if(message.data['type']=='local_assistant_service'){
       print('yha print kr rha hu');
