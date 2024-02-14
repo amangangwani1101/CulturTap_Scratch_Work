@@ -15,11 +15,14 @@ class CustomPopUp extends StatelessWidget {
   final String? extraText;
   final String button;
   final String? isDarkMode;
+  final VoidCallback? landingCallback;
+
 
   CustomPopUp({
     required this.imagePath,
     required this.textField,
     required this.what,
+    this.landingCallback,
     this.extraText,
     this.isDarkMode,
     required this.button,
@@ -42,7 +45,11 @@ class CustomPopUp extends StatelessWidget {
               children: [
                 GestureDetector(
                     onTap: (){
-                      Navigator.of(context).pop();
+                      if(what=='local_assistant'){
+                        landingCallback!();
+                      }else{
+                        Navigator.of(context).pop();
+                      }
                     },
                     child: Icon(Icons.close,color : Theme.of(context).primaryColorDark)),
               ],
@@ -71,7 +78,11 @@ class CustomPopUp extends StatelessWidget {
             if(button!=null)
               TextButton(
                 onPressed: (){
-                  Navigator.of(context).pop();
+                  if(what=='local_assistant')
+                    landingCallback!();
+                  else{
+                    Navigator.of(context).pop();
+                  }
                 },
                 child: Text(
                   button,

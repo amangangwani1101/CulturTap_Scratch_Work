@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'dart:ui';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
 import 'package:learn_flutter/CustomItems/imagePopUpWithOK.dart';
@@ -49,7 +50,41 @@ String capitalizeWords(String input) {
   return words.join(' ');
 }
 
+class PhotoScreen extends StatelessWidget {
+  final String imagePath;
 
+  PhotoScreen({required this.imagePath});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Colors.black,
+      body: Stack(
+        children: [
+          Center(
+            child: Image.file(File(imagePath),
+            ),
+          ),
+          Positioned(
+            top:0,
+            left: 0,
+            child: Container(
+              alignment: Alignment.topLeft,
+              width: MediaQuery.of(context).size.width,
+              padding: EdgeInsets.only(top: 30,left: 20,bottom: 20),
+              color: Colors.black38,
+              child: InkWell(
+                  onTap: (){
+                    Navigator.of(context).pop();
+                  },
+                  child: Icon(Icons.arrow_back,size: 40,)),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
 
 // Image Section
 class UserImage extends StatefulWidget {
@@ -69,198 +104,224 @@ class _UserImageState extends State<UserImage>{
 
 
   void handleImageUpdated(File image) {
-    print('Updated Image :${image.path}');
-    setState(() {
-      _userProfileImage = image; // Update the parameter in the main class
-    });
-    print('Updated Image :${_userProfileImage?.path}');
-    if (widget.text=='edit'){
-      widget.imagePathCallback!((image.path)!);
+    if(image.existsSync()==false){
+      print('its here');
+      setState(() {
+        _userProfileImage = null;
+        widget.imagePath=null;
+      });
+    }else{
+      print('Updated Image :${image!.path}');
+      setState(() {
+        _userProfileImage = image; // Update the parameter in the main class
+      });
+      print('Updated Image :${_userProfileImage?.path}');
+      if (widget.text=='edit'){
+        widget.imagePathCallback!((image.path)!);
+      }
+      else if(widget.profileDataProvider!=null)
+        widget.profileDataProvider?.updateImagePath((image.path)!);
     }
-    else if(widget.profileDataProvider!=null)
-      widget.profileDataProvider?.updateImagePath((image.path)!); // Update image path in the provider
+     // Update image path in the provider
   }
 
   @override
   Widget build(BuildContext context) {
     final bool hasVideoUploaded = false; // Replace with backend logic
     print('Name is ${widget.name}');
-    return Container(
-      padding: EdgeInsets.only(left: 10,right: 10),
-      height: 262,
-      color: Theme.of(context).backgroundColor,
-      // decoration: BoxDecoration(
-      //   border:Border.all(color: Colors.red),
-      // ),
-      child: Stack(
-        children: [
-          Container(
-            height: 161,
-            child:Stack(
-              children: [
-                !hasVideoUploaded
-                ? Container(
-                  color : Theme.of(context).primaryColorLight,
-                  width: 373,
-                  padding: EdgeInsets.only(top: 10),
-                  child: Column(
-                    mainAxisAlignment: widget.reqPages<1 ? MainAxisAlignment.center:MainAxisAlignment.start,
-                    children: [
-                      widget.reqPages<1
-                      ? Container(
-                        child: Image.asset(
-                          'assets/images/video_icon.png', // Replace with the actual path to your asset image
-                          width: 35, // Set the desired image width
-                          height: 35, // Set the desired image height
-                          fit: BoxFit.contain, // Adjust the fit as needed
-                        ),
-                      )
-                      :Column(children:[
-                          Container(
+    return Column(
+      children: [
+        Container(
+          padding: EdgeInsets.only(left: 10,right: 10),
+          height: 262,
+          // color: Theme.of(context).backgroundColor,
+          // decoration: BoxDecoration(
+          //   border:Border.all(color: Colors.red),
+          // ),
+          // color: Colors.red,
+          child: Stack(
+            children: [
+              Container(
+                height: 161,
+                child:Stack(
+                  children: [
+                    !hasVideoUploaded
+                    ? Container(
+                      color : Theme.of(context).primaryColorLight,
+                      margin: EdgeInsets.only(left: 10),
+                      width: MediaQuery.of(context).size.width,
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          widget.reqPages<1
+                          ? Container(
                             child: Image.asset(
                               'assets/images/video_icon.png', // Replace with the actual path to your asset image
                               width: 35, // Set the desired image width
                               height: 35, // Set the desired image height
                               fit: BoxFit.contain, // Adjust the fit as needed
                             ),
-                          ),
-                          Text('Add your cover'),
-                          Text('Expereince via video here !',style: Theme.of(context).textTheme.subtitle1,),
+                          )
+                          :Column(
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children:[
+                              Container(
+                                child: Image.asset(
+                                  'assets/images/video_icon.png', // Replace with the actual path to your asset image
+                                  width: 35, // Set the desired image width
+                                  height: 35, // Set the desired image height
+                                  fit: BoxFit.contain, // Adjust the fit as needed
+                                ),
+                              ),
+                              Text('Add your cover'),
+                              Text('Expereince via video here !',style: Theme.of(context).textTheme.subtitle1,),
 
-                        ],),
-                    ],
-                  ),
-                )
-                : Container(
-                  width: 373,
-                  color: Colors.grey, // Replace with your video player or widget
-                ),
-                Positioned(
-                  top: 5,
-                  right: 10,
-                  child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
-                    showDialog(
-                      context: context,
-                      barrierDismissible: true,
-                      builder: (context) {
-                        return CustomPopUp(
-                          imagePath: "assets/images/coverStoryPopup.svg",
-                          textField: "Set Your Cover Story !" ,
-                          extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
-                          what:'OK',
-                          button : "OK, Get it"
-                        );
-                      },
-                    );
-
-                  },
-                  ),
-                ),
-              ],
-            ),
-          ),
-          Positioned(
-            bottom: 0,
-            right: 0,
-            left: 0,
-            child: Container(
-              height: 160,
-              // decoration: BoxDecoration(
-              //   border:Border.all(color: Colors.green),
-              // ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  Stack(
-                    children: [
-                      Container(
-                        width: 132,
-                        height: 132,
-                        padding: widget.imagePath!=null || _userProfileImage!=null ?EdgeInsets.all(0) : EdgeInsets.all(10),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: widget.imagePath!=null || _userProfileImage!=null ? Colors.transparent:Colors.white,
-                          // border: Border.all(
-                          //   color: Theme.of(context).backgroundColor, // Border color
-                          //   width: 15.0, // Border width
-                          // ),
-                        ),
-                        child: widget.imagePath!=null && _userProfileImage==null
-                          ? widget.image=='network'
-                            ? CircleAvatar(
-                          radius: 60,
-                          backgroundImage: NetworkImage(widget.imagePath!), // Replace with the actual image URL
-                        )
-                            : CircleAvatar(
-                          radius: 60,
-                          backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>,
-                        )
-                          : _userProfileImage!=null
-                            ? CircleAvatar(
-                          radius: 60,
-                          backgroundImage: FileImage(_userProfileImage!),
-                        )
-                            : CircleAvatar(
-                          radius: 60,
-                          backgroundImage: AssetImage('assets/images/user.png'),
-                          backgroundColor: Colors.white,// Replace with user avatar image
-                        ),
+                            ],),
+                        ],
                       ),
-                      if (widget.reqPages<1) SizedBox(height: 0,) else
-                        Positioned(
-                          bottom: 0,
-                          right: 0,
-                        child: InkWell(
-                          onTap: (){
-                            widget.text!='edit'
-                                ? showDialog(context: context, builder: (BuildContext context){
-                              return Container(child: UploadMethods(onImageUpdated : handleImageUpdated));
-                            },)
-                                :showDialog(context: context, builder: (BuildContext context){
-                              return Container(child: UploadMethods(onImageUpdated : handleImageUpdated));
-                            },);
+                    )
+                    : Container(
+                      width: 373,
+                      color: Colors.grey, // Replace with your video player or widget
+                    ),
+                    Positioned(
+                      top: 5,
+                      right: 10,
+                      child: IconButton(icon:Icon(Icons.help_outline),color: HexColor('#FB8C00'),onPressed: (){
+                        showDialog(
+                          context: context,
+                          barrierDismissible: true,
+                          builder: (context) {
+                            return CustomPopUp(
+                              imagePath: "assets/images/coverStoryPopup.svg",
+                              textField: "Set Your Cover Story !" ,
+                              extraText:'Upload or create here the most thrilled experience you have, for your future audience!' ,
+                              what:'OK',
+                              button : "OK, Get it"
+                            );
                           },
-                          child: Container(
-                            width: 36,
-                            height: 34,
-                            decoration: BoxDecoration(color: Colors.orange,borderRadius: BorderRadius.circular(50),),
-                            child: widget.text!='edit'
-                                ? Center(
-                              child: Icon(Icons.camera_alt_outlined,color: Colors.white ,),
-                            )
-                                : Center(
-                              child: Icon(Icons.edit_outlined,color: Colors.white,),
-                            ),
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                  widget.reqPages<1?
-                  Container(
-                    height: 21,
-                    child: Text(
-                      widget.name!=null?capitalizeWords(widget.name!):'', // Replace with actual user name
-                      style: TextStyle(
-                        color : Theme.of(context).primaryColor,
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
-                        fontFamily: 'Poppins',
+                        );
+
+                      },
                       ),
                     ),
-                  ):Container(
-                    height: 21,
-                    child: EditNameForm(text: widget.text,profileDataProvider:widget.profileDataProvider,name:widget.name==null?'':capitalizeWords(widget.name!),callback: (value){
-                      widget.nameCallback!(value);
-                    },),
-                  ),
-                ],
+                  ],
+                ),
               ),
+              Positioned(
+                bottom: 20,
+                right: 0,
+                left: 0,
+                child: Container(
+                  // decoration: BoxDecoration(
+                  //   border:Border.all(color: Colors.green),
+                  // ),
+                  // color: Colors.red,
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Stack(
+                        children: [
+                          InkWell(
+                            onTap: (){
+                              if(widget.imagePath!=null || _userProfileImage!=null){
+                                Navigator.push(context, MaterialPageRoute(builder: (context)=> PhotoScreen(imagePath: widget.imagePath!=null?widget.imagePath!:_userProfileImage!.path)));
+                              }
+                            },
+                            child: Container(
+                              width: 132,
+                              height: 132,
+                              padding: widget.imagePath!=null || _userProfileImage!=null ?EdgeInsets.all(0) : EdgeInsets.all(10),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                                color: widget.imagePath!=null || _userProfileImage!=null ? Colors.transparent:Colors.white,
+                                // border: Border.all(
+                                //   color: Theme.of(context).backgroundColor, // Border color
+                                //   width: 15.0, // Border width
+                                // ),
+                              ),
+                              child: widget.imagePath!=null && _userProfileImage==null
+                                ? widget.image=='network'
+                                  ? CircleAvatar(
+                                radius: 60,
+                                backgroundImage: NetworkImage(widget.imagePath!), // Replace with the actual image URL
+                              )
+                                  : CircleAvatar(
+                                radius: 60,
+                                backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>,
+                              )
+                                : _userProfileImage!=null
+                                  ? CircleAvatar(
+                                radius: 60,
+                                backgroundImage: FileImage(_userProfileImage!),
+                              )
+                                  : CircleAvatar(
+                                radius: 60,
+                                backgroundImage: AssetImage('assets/images/user.png'),
+                                backgroundColor: Colors.white,// Replace with user avatar image
+                              ),
+                            ),
+                          ),
+                          if (widget.reqPages<1) SizedBox(height: 0,) else
+                            Positioned(
+                              bottom: 0,
+                              right: 0,
+                            child: InkWell(
+                              onTap: (){
+                                widget.text!='edit'
+                                    ? showDialog(context: context, builder: (BuildContext context){
+                                  return Container(child: UploadMethods(onImageUpdated : handleImageUpdated));
+                                },)
+                                    :showDialog(context: context, builder: (BuildContext context){
+                                  return Container(child: UploadMethods(onImageUpdated : handleImageUpdated,hasPhoto:(widget.imagePath!=null || _userProfileImage!=null)?true:false));
+                                },);
+                              },
+                              child: Container(
+                                width: 36,
+                                height: 34,
+                                decoration: BoxDecoration(color: Colors.orange,borderRadius: BorderRadius.circular(50),),
+                                child: widget.text!='edit'
+                                    ? Center(
+                                  child: Icon(Icons.camera_alt_outlined,color: Colors.white ,),
+                                )
+                                    :  Center(
+                                  child:Icon(Icons.edit_outlined,color: Colors.white,),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+
+                    ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 10,),
+            ],
+          ),
+        ),
+        SizedBox(height: 10,),
+        widget.reqPages<1
+            ? Container(
+          padding: EdgeInsets.only(left: 10,right: 10),
+          width: MediaQuery.of(context).size.width,
+          alignment: Alignment.center,
+          child: Text(
+            widget.name!=null?capitalizeWords(widget.name!):'', // Replace with actual user name
+            style: TextStyle(
+              color : Theme.of(context).primaryColor,
+              fontSize: 14,
+              fontWeight: FontWeight.bold,
+              fontFamily: 'Poppins',
             ),
           ),
-        ],
-      ),
+        ):EditNameForm(text: widget.text,profileDataProvider:widget.profileDataProvider,name:widget.name==null?'':capitalizeWords(widget.name!),callback: (value){
+          widget.nameCallback!(value);
+        },),
+      ],
     );
   }
 }
@@ -268,7 +329,8 @@ class _UserImageState extends State<UserImage>{
 // Image Uploading Optoins
 class UploadMethods extends StatefulWidget{
   final ImageCallback onImageUpdated;
-  UploadMethods({required this.onImageUpdated});
+  bool ?hasPhoto;
+  UploadMethods({required this.onImageUpdated,this.hasPhoto});
 
 
   @override
@@ -286,8 +348,17 @@ class _UploadMethodsState extends State<UploadMethods> {
       widget.onImageUpdated(File(pickedFile.path));
       print('here is profile image data');
       print(pickedFile.path);
-      await uploadImage(pickedFile.path);
+      Navigator.of(context).pop();
+      await uploadImage(File(pickedFile.path));
     }
+  }
+
+  Future<void> _removePicture() async {
+    print('we have picked the file');
+    File file = new File('');
+    widget.onImageUpdated(file);
+    Navigator.of(context).pop();
+
   }
 
   Future<void> _updateProfileImage() async {
@@ -298,13 +369,15 @@ class _UploadMethodsState extends State<UploadMethods> {
       widget.onImageUpdated(croppedImage);
       print('here is profile image data');
       print(croppedImage.path);
-      await uploadImage(croppedImage.path);
+      Navigator.of(context).pop();
+      await uploadImage(croppedImage);
+
     }
   }
 
-  Future<void> uploadImage(String imagePath) async {
+  Future<void> uploadImage(File imageFile) async {
     try {
-      final imageFile = File(imagePath);
+      // final imageFile = File(imagePath);
 
       final request = http.MultipartRequest(
         'POST',
@@ -325,7 +398,7 @@ class _UploadMethodsState extends State<UploadMethods> {
       final responseBody = await response.stream.bytesToString();
 
       print('Response status: ${response.statusCode}');
-      print('Response body: $responseBody');
+      print('Response body image: $responseBody');
     } catch (e) {
       print('Error uploading image: $e');
     }
@@ -351,51 +424,75 @@ class _UploadMethodsState extends State<UploadMethods> {
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
               Container(
-                width: 411,
-                height: 188,
                 color: Theme.of(context).backgroundColor,
                 child: Column(
                   children: [
-                    Center(
-                      child: Container(
-                        height: 90,
-                        width: 300,
-                        child: GestureDetector(
-                          onTap: _updateProfileImage,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Upload',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.black,decoration: TextDecoration.none,),),
-                              Icon(Icons.arrow_forward_rounded),
-                            ],
+                    widget.hasPhoto!=null && widget.hasPhoto==true
+                        ? Column(
+                      children: [
+                        Container(
+                          padding: EdgeInsets.only(top: 28,bottom: 28,left: 15,right: 15),
+                          child: GestureDetector(
+                            onTap: _removePicture,
+                            child: Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text('Remove Photo',style: TextStyle(fontSize: 17,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Theme.of(context).primaryColor,decoration: TextDecoration.none,),),
+                                Icon(Icons.arrow_forward_ios,size: 20,),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Container(
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            border: Border(
+                              bottom: BorderSide(
+                                color: Colors.black, // Set the border color
+                                width: 1.5, // Set the border width
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    )
+                        : SizedBox(height: 0,),
+                    Container(
+                      padding: EdgeInsets.only(top: 28,bottom: 28,left: 15,right: 15),
+                      child: GestureDetector(
+                        onTap: _takePicture,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Open Camera',style: TextStyle(fontSize: 17,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Theme.of(context).primaryColor,decoration: TextDecoration.none,),),
+                            Icon(Icons.arrow_forward_ios,size: 20,),
+                          ],
+                        ),
+                      ),
+                    ),
+                    Container(
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        border: Border(
+                          bottom: BorderSide(
+                            color: Colors.black, // Set the border color
+                            width: 1.5, // Set the border width
                           ),
                         ),
                       ),
                     ),
                     Container(
-                      width: 380,
-                      decoration: BoxDecoration(
-                        border: Border(
-                          bottom: BorderSide(
-                            color: Colors.black, // Set the border color
-                            width: 1.0, // Set the border width
-                          ),
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: Container(
-                        height: 90,
-                        width: 300,
-                        child: GestureDetector(
-                          onTap: _takePicture,
-                          child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text('Open Camera',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,fontFamily: 'Poppins',color: Colors.black,decoration: TextDecoration.none,),),
-                              Icon(Icons.arrow_forward_rounded),
-                            ],
-                          ),
+                      // height: 90,
+                      // width: 300,
+                      padding: EdgeInsets.only(top: 30,bottom: 30,left: 15,right: 15),
+                      child: GestureDetector(
+                        onTap: _updateProfileImage,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text('Upload From Gallery',style: TextStyle(fontSize: 17,fontWeight: FontWeight.w600,fontFamily: 'Poppins',color: Theme.of(context).primaryColor,decoration: TextDecoration.none,),),
+                            Icon(Icons.arrow_forward_ios,size: 20,),
+                          ],
                         ),
                       ),
                     ),
@@ -463,29 +560,50 @@ class _EditNameFormState extends State<EditNameForm> {
       onTap: toggleEdit,
       child: Row(
         mainAxisAlignment: MainAxisAlignment.center,
-        crossAxisAlignment: CrossAxisAlignment.end,
+        crossAxisAlignment: isEditing?CrossAxisAlignment.center:CrossAxisAlignment.start,
         children: [
-          SizedBox(width: 15,),
           isEditing
             ? Container(
-          width: 200,
+            width: 280,
+            decoration: BoxDecoration(
+              border: Border(
+                bottom: BorderSide(color: Color(0xFFFB8C00), width: 2.0),
+              ),
+            ),
           child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Enter Your Name',
+              hintStyle: TextStyle(color: Colors.black),
+              enabledBorder: InputBorder.none,
+              focusedBorder: InputBorder.none,
+            ),
             controller: nameController,
-            enableSuggestions: true,
-            clipBehavior: Clip.antiAlias,
             cursorColor: Colors.orange,
             textCapitalization: TextCapitalization.words,
             onChanged: (value){
               userName = value;
             },
-            style: TextStyle(fontSize: 14.0,fontWeight: FontWeight.w500,fontFamily: 'Poppins'),
+            maxLines: null,
+            style: Theme.of(context).textTheme.subtitle2,
           ),
         )
-            : Text(
-            userName!=null?userName:'',
-            style: TextStyle(fontSize: 14.0,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),
+            : Container(
+            margin: EdgeInsets.only(left: 25),
+            width: 180,
+              child: Expanded(
+                 child: Container(
+                   // width: 100,
+                   // color: Colors.red,
+                  alignment: Alignment.center,
+                  child: Text(
+                  userName!=null?userName:'',
+                    textAlign: TextAlign.center,
+                    style: Theme.of(context).textTheme.subtitle1,
           ),
-            SizedBox(width: 10,),
+                ),
+              ),
+            ),
+            SizedBox(width: 5,),
             InkWell(
               child: Icon(isEditing ? Icons.save_as_outlined : Icons.edit_outlined,color: Colors.black),
           ),

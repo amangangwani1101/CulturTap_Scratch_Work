@@ -3,8 +3,10 @@ import 'dart:convert';
 import 'dart:io';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
 import 'package:learn_flutter/CustomItems/ImagePopUpWithTwoOption.dart';
 import 'package:learn_flutter/HomePage.dart';
+import 'package:learn_flutter/LocalAssistance/LocalAssist.dart';
 // import 'package:learn_flutter/HomePage.dart';
 import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/UserProfile/FinalUserProfile.dart';
@@ -18,21 +20,27 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:http/http.dart' as http;
 import '../widgets/Constant.dart';
 
+
+String profileHeaderOfPage = '';
 // AppBar Section
 class ProfileHeader extends StatefulWidget {
 
   int reqPage;
   String? imagePath;
   String? userId,text,userName;
-  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick,onBackPressed;
+  VoidCallback? onButtonPressed,cancelCloseClick,downloadClick,raiseCloseRequest,helpClicked;
   ProfileDataProvider?profileDataProvider;
   String? profileStatus;
   String? assistMeetId;
   String? tripHelperId;
   String? meetStatus;
   String? requestSend;
+  String? state,service;
+  String? fromWhichPage;
+  String? chatsToWhere,goToHome;
+  final String? profileHeaderOfPage;
 
-  ProfileHeader({required this.reqPage,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.onBackPressed});
+  ProfileHeader({required this.reqPage,this.service,this.imagePath,this.userId,this.text,this.profileDataProvider,this.profileStatus, this.userName,this.onButtonPressed,this.assistMeetId,this.tripHelperId,this.meetStatus,this.requestSend,this.cancelCloseClick,this.downloadClick,this.state,this.fromWhichPage,this.chatsToWhere,this.profileHeaderOfPage,this.raiseCloseRequest,this.helpClicked,this.goToHome});
   @override
   _ProfileHeaderState createState() => _ProfileHeaderState();
 }
@@ -56,6 +64,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
       setState(() {
         widget.userId = userID;
         widget.userName = data['userName'];
+        widget.imagePath = data['userPhoto'];
         widget.profileStatus = data['profileStatus'];
       });
     } else {
@@ -126,13 +135,14 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                           child: Visibility(
 
-                            visible: widget.imagePath != null,
-                            child: CircleAvatar(
-                              backgroundColor: Colors.transparent,
+                            visible: true,
+                            child: widget.imagePath != null && widget.imagePath!='' ? CircleAvatar(
+                              backgroundImage: FileImage(File(widget.imagePath!)) as ImageProvider<Object>?,
+                              // backgroundColor: Colors.transparent,
                               radius: 20.0,
 
-                            ),
-                            replacement: SvgPicture.asset(
+                            )
+                                : SvgPicture.asset(
                               'assets/images/profile_icon.svg',
                               color : Theme.of(context).primaryColor,
                               width: 50.0,
@@ -145,7 +155,7 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
                         ),
                         SizedBox(height: 2,),
-                        Text('Profile',style: Theme.of(context).textTheme.bodyText1),
+                        Text(Constant().extractFirstName(userName),style: Theme.of(context).textTheme.bodyText1),
                       ]
                   ),
                 ),
@@ -157,21 +167,60 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
               ? Container (
 
-
+            // color: Colors.red,
             width: 70,
             height: 75,
 
             child: GestureDetector(
               onTap: (){
-                if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
+                if(widget.fromWhichPage=='trip_planning'){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ),
+                  );
+                }
+                else if(widget.fromWhichPage=='trip_planning_schedule_profile' || widget.fromWhichPage=='trip_planning_calendar_pings' || widget.fromWhichPage=='trip_planning_chat' || widget.fromWhichPage=='final_profile_edit'){
+                  widget.onButtonPressed!();
+                }
+                else if(widget.fromWhichPage=='local-assistant-call'){
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => HomePage(),
+                    ),
+                  );
+                }
+                else if(widget.fromWhichPage == 'yes' ){
+
+                  widget.chatsToWhere == 'local_assist' ?
+
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(builder: (context) => LocalAssist(),
+                      )) :
+
+
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant', state : 'All Pings',fromWhichPage: 'local-assistant-call')),
+                  );
+
+                }
+
+
+
+
+                else if(widget.text=='calendar' || widget.text=='calendarhelper' || widget.text=='edit') {
                   Navigator.of(context).pop();
                   Navigator.of(context).pop();
                 }
                 else if(widget.text=='chats'){
                   widget.onButtonPressed!();
                 }
-                else if(widget.text=='meetingPings'){
-                  print('${widget.userName!}');
+                else if(widget.text=='meetingPings' || widget.goToHome=='homePage'){
+                  // print('${widget.userName!}');
                   Navigator.push(
                     context,
                     MaterialPageRoute(
@@ -182,14 +231,11 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                 else if(widget.text=='You are all set'){
                   widget.onButtonPressed!();
                 }
-                else if(widget.meetStatus!=null) {
-                  widget.onBackPressed!();
-                }
                 else{
                   Navigator.of(context).pop();
                 }
               },
-              child: Center(child: Text('< Back ', style : TextStyle(fontSize: 16,fontWeight: FontWeight.w600))),
+              child: Center(child: Text('< Back ', style : TextStyle(fontSize: 14,fontWeight: FontWeight.w600))),
             ),
           )
               : widget.reqPage==4 || widget.reqPage==6 || widget.reqPage==8 ?SizedBox(width: 0,): SizedBox(height: 0,),
@@ -215,12 +261,12 @@ class _ProfileHeaderState extends State<ProfileHeader> {
             children: [
               InkWell(
                 onTap: (){
-                  print('Us2e:${userID}');
+                  print('Us2e:${widget.userId}');
                   if(widget.userId!=null){
                     Navigator.push(
                       context,
                       MaterialPageRoute(
-                        builder: (context) => PingsSection(userId: userID,selectedService: 'Trip Planning',state: 'All',),
+                        builder: (context) => PingsSection(userId: userID,selectedService: widget.fromWhichPage=='local_assist' ? 'Local Assistant' : 'Trip Planning',),
                       ),
                     );
                   }
@@ -302,10 +348,9 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   ? Image.asset('assets/images/skip.png',width: 60,height: 30,)
                   : Image.asset('assets/images/close_icon.png',width: 13,height: 13,),
             ),
-          ):
-
-          ( widget.meetStatus=='pending' || widget.meetStatus == 'schedule' || widget.meetStatus == 'hold_accept') ?
-          Container(  width : 70, height: 80,
+          )
+              :  widget.service!='trip_planning' && ( widget.meetStatus=='scheduledCloseRequest' || widget.meetStatus=='pending' || widget.meetStatus == 'schedule' || widget.meetStatus=='accept' || widget.meetStatus=='hold_accept' || widget.meetStatus=='close' || widget.meetStatus=='closed') ?
+                   Container(  width : 70, height: 80,
             child : PopupMenuButton<String>(
               color: Colors.white,
               onSelected: (value) {
@@ -315,41 +360,83 @@ class _ProfileHeaderState extends State<ProfileHeader> {
                   showDialog(
                     context: context,
                     builder: (BuildContext context) {
-                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
-                          meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
+                      return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField:  'Are You Sure ?' ,extraText: widget.state=='helper' ? 'You Want To Close This request' : widget.meetStatus=='schedule'?'You Want To Close This Request\nWe hope everything is fine now !':'You Want To Cancel This Request\nWe hope everything is fine now !', what: 'a',
+                        meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
                     },
                   );
-                } else if (value == 'downloadRecording') {
+                }
+                else if (value == 'downloadRecording') {
                   // Handle the "Download Recording" option
                   // ...
                 }
+                else if (value == 'raiseRequest') {
+
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (BuildContext context)
+                  // {
+                  //   return CustomPopUp(imagePath: '',
+                  //       textField: 'Request Raised Successfully',
+                  //       extraText: 'Thankyou for your Service',
+                  //       what: '',
+                  //       button: 'OK');
+                  // });
+
+                  widget.raiseCloseRequest!();
+
+                }
+                else if(value=='help'){
+                  widget.helpClicked!();
+                }
               },
               itemBuilder: (BuildContext context) => [
-                PopupMenuItem<String>(
-                  value: 'closeRequest',
+                if(widget.meetStatus!='close' && widget.meetStatus!='closed' && !(widget.state=='helper' && (widget.meetStatus=='accept' || widget.meetStatus=='hold_accept') ))
+                  PopupMenuItem<String>(
+                  value: (widget.meetStatus=='scheduledCloseRequest' || widget.meetStatus=='schedule') && widget.state=='helper' ? 'raiseRequest' : 'closeRequest',
                   child: Container(
                     child: Row(
                       children: [
-                        Icon(Icons.close, color: Colors.black),
+                        widget.meetStatus == 'schedule' || widget.meetStatus=='scheduledCloseRequest'  ?
+                        Icon(Icons.cancel_schedule_send_rounded, color: widget.meetStatus=='scheduledCloseRequest' && widget.state=='helper' ?Colors.grey.withOpacity(0.5):Colors.grey) : Icon(Icons.close, color: Colors.black),
                         SizedBox(width: 8),
+    //                     widget.state == 'helper' ? Text(
+    //  widget.meetStatus == 'schedule' ? 'Raise Close Request' :  '',
+    // style: Theme.of(context).textTheme.subtitle2,
+    // ) :
                         Text(
-                          widget.meetStatus == 'schedule' ? 'Close Request':'Cancel Request',
-                          style: Theme.of(context).textTheme.subtitle1,
+                         widget.meetStatus=='scheduledCloseRequest' || widget.meetStatus == 'schedule' ? widget.state=='user'? 'Close Request' :'Raise Close Request' :  'Cancel Request',
+                          style: widget.meetStatus=='scheduledCloseRequest' && widget.state=='helper'?  TextStyle(fontSize: (14  ),color : Color(0xFF001B33).withOpacity(0.5), fontWeight : FontWeight.w400): Theme.of(context).textTheme.subtitle2,
                         ),
                       ],
                     ),
                   ),
                 ),
+                if(widget.meetStatus=='schedule' || widget.meetStatus=='scheduledCloseRequest' )
+                  PopupMenuItem<String>(
+                    value:'help',
+                    child: Container(
+                      child: Row(
+                        children: [
+                          Icon(Icons.help, color: Colors.grey),
+                          SizedBox(width: 8),
+                          Text(
+                            'Help',
+                            style: Theme.of(context).textTheme.subtitle2,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
                 PopupMenuItem<String>(
                   value: 'downloadRecording',
                   child: Container(
                     child: Row(
                       children: [
-                        Icon(Icons.download, color: Colors.black),
+                        Icon(Icons.download, color:  widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
                         SizedBox(width: 8),
                         Text(
                           'Download Recording',
-                          style: Theme.of(context).textTheme.subtitle1,
+                          style: TextStyle( fontSize : 14, fontWeight:FontWeight.w300,color : widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
                         ),
                       ],
                     ),
@@ -369,8 +456,94 @@ class _ProfileHeaderState extends State<ProfileHeader> {
 
 
 
-          ):
-          Container(height: 70,width: 70,) ,
+          )
+              : widget.service=='trip_planning'
+                ? Container(  width : 70, height: 80,
+            child : PopupMenuButton<String>(
+              color: Colors.white,
+              onSelected: (value) {
+                // Handle the selected option
+                if (value == 'closeRequest') {
+                  // Display the custom popup when "Close Request" is selected
+                  if(widget.fromWhichPage=='trip_planning_calendar_pings' || widget.fromWhichPage=='trip_planning_chat'){
+                    widget.cancelCloseClick!();
+                  }
+                  else{
+                    showDialog(
+                      context: context,
+                      builder: (BuildContext context) {
+                        return ImagePopUpWithTwoOption(imagePath: 'assets/images/logo.png',textField: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'You are closing this request ?' : 'Are you sure ?',extraText: widget.meetStatus == 'accept' || widget.meetStatus == 'schedule' ? 'Thank you for using our services !' : 'We hope everything is fine now !', what: 'a',
+                          meetId:widget.assistMeetId ,helperId: widget.tripHelperId,meetStatus:widget.meetStatus,option2Callback:widget.cancelCloseClick,);
+                      },
+                    );
+                  }
+                } else if (value == 'downloadRecording') {
+                  // Handle the "Download Recording" option
+                  // ...
+                }
+                else if (value == 'raiseRequest') {
+
+                  // showDialog(
+                  //   context: context,
+                  //   builder: (BuildContext context)
+                  // {
+                  //   return CustomPopUp(imagePath: '',
+                  //       textField: 'Request Raised Successfully',
+                  //       extraText: 'Thankyou for your Service',
+                  //       what: '',
+                  //       button: 'OK');
+                  // });
+
+                  widget.raiseCloseRequest!();
+
+                }
+              },
+              itemBuilder: (BuildContext context) => [
+                if(!(widget.state=='helper' && widget.meetStatus=='started') && (widget.meetStatus!='close' && widget.meetStatus!='closed'))
+                    PopupMenuItem<String>(
+                  value: 'closeRequest',
+                  child: Container(
+                    child: Row(
+                      children: [
+                        Icon(Icons.close, color: Colors.black),
+                        SizedBox(width: 8),
+                        Text('Close Request' , style: Theme.of(context).textTheme.subtitle2,
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+                PopupMenuItem<String>(
+                  value: 'downloadRecording',
+                  child: Container(
+                    child: Row(
+                      children: [
+                        Icon(Icons.download, color:  widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
+                        SizedBox(width: 8),
+                        Text(
+                          'Download Recording',
+                          style: TextStyle( fontSize : 14, fontWeight:FontWeight.w300,color : widget.meetStatus == 'closed' ? Colors.black :Colors.grey),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+              child: Container(
+                width: 70,
+                height: 80,
+                child: Icon(
+                  Icons.more_vert,
+                  color: Theme.of(context).primaryColorDark,
+                  size: 24,
+                ),
+              ),
+            ),
+
+
+
+          )
+                : Container(height: 70,width: 70,) ,
         ],
       ),
     );

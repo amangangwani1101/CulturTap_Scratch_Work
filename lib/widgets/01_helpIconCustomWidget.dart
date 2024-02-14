@@ -5,6 +5,7 @@ import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_svg/svg.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/Payments/RazorPay.dart';
 import 'package:learn_flutter/ServiceSections/TripCalling/UserCalendar/CalendarHelper.dart';
@@ -14,9 +15,11 @@ import 'package:learn_flutter/fetchDataFromMongodb.dart';
 import 'package:learn_flutter/slider.dart';
 import 'package:learn_flutter/UserProfile/UserProfileEntry.dart';
 import 'package:learn_flutter/widgets/sample.dart';
+import 'package:provider/provider.dart';
 import 'package:razorpay_flutter/razorpay_flutter.dart';
 import '../BackendStore/BackendStore.dart';
 import '../CustomItems/CustomPopUp.dart';
+import '../UserProfile/FinalUserProfile.dart';
 import 'AlertBox2Option.dart';
 import 'Constant.dart';
 import 'package:http/http.dart' as http;
@@ -29,6 +32,7 @@ import '../UserProfile/ProfileHeader.dart';
 String? globalStartTime='6:00 PM';
 String? globalEndTime='9:00 PM';
 String? globalSlots = 'choice_1';
+List<bool>?globalAvailable;
 List<PaymentDetails> globalCards =[];
 bool isGone=false;
 
@@ -50,7 +54,9 @@ class CustomHelpOverlay extends StatelessWidget {
       onWillPop: ()async{
         if(navigate=='pings'){
           onBackPressed!();
-        }else
+        }else if(navigate=='edit'){
+          onBackPressed!();
+        }
           print(1);
         return true;
       },
@@ -79,7 +85,7 @@ class CustomHelpOverlay extends StatelessWidget {
                 ),
                 textAlign: TextAlign.center,
               ),
-              SizedBox(height: 16),
+              text==null?SizedBox(height: 0,):SizedBox(height: 16),
               if(extraText != null)
                 Text(
                 extraText!,
@@ -97,7 +103,7 @@ class CustomHelpOverlay extends StatelessWidget {
                 onPressed: () {
                   if (navigate == 'calendarhelper' ||
                       navigate == 'edit' ||
-                      navigate == 'pop') {
+                      navigate == 'pop' || navigate=='pings') {
                     onButtonPressed!();
 
                   } else if (navigate == 'pings') {
@@ -140,6 +146,8 @@ class CustomHelpOverlay extends StatelessWidget {
 
 
 
+
+
 class ServicePage extends StatefulWidget{
   final ProfileDataProvider? profileDataProvider;
   final ServiceTripCallingData?data;
@@ -154,7 +162,237 @@ class ServicePage extends StatefulWidget{
 
 class _ServicePageState extends State<ServicePage>{
   String?startTime,endTime,slots;
+  List<bool>?daysChoosen;
 
+  bool isTimeDifferenceGreaterThan30Minutes(String startTimeStr, String endTimeStr) {
+    Duration difference = calculateTimeDifference(startTimeStr, endTimeStr);
+    return difference.inMinutes > 30;
+  }
+
+  TimeOfDay _parseTimeString(String timeStr) {
+    // Parse the time string in the format "6:00 PM" to TimeOfDay object
+    List<String> splitTime = timeStr.split(' ');
+    String time = splitTime[0];
+    String period = splitTime[1];
+    List<String> splitHourMinute = time.split(':');
+    int hour = int.parse(splitHourMinute[0]);
+    int minute = int.parse(splitHourMinute[1]);
+
+    // Convert 12-hour format to 24-hour format if needed
+    if (period.toLowerCase() == 'pm' && hour < 12) {
+      hour += 12;
+    } else if (period.toLowerCase() == 'am' && hour == 12) {
+      hour = 0;
+    }
+
+    return TimeOfDay(hour: hour, minute: minute);
+  }
+
+  Duration calculateTimeDifference(String startTimeStr, String endTimeStr) {
+    // Parse the time strings into TimeOfDay objects
+    TimeOfDay startTime = _parseTimeString(startTimeStr);
+    TimeOfDay endTime = _parseTimeString(endTimeStr);
+
+    // Convert TimeOfDay objects to DateTime objects for easier manipulation
+    DateTime startDateTime = DateTime(2023, 1, 1, startTime.hour, startTime.minute);
+    DateTime endDateTime = DateTime(2023, 1, 1, endTime.hour, endTime.minute);
+
+    // Calculate the difference between times
+    Duration difference = endDateTime.difference(startDateTime);
+
+    // Ensure positive time difference if end time is earlier than start time
+    if (difference.isNegative) {
+      difference = Duration(hours: 24) + difference;
+    }
+
+    return difference;
+  }
+
+  bool validator(){
+    if((globalStartTime)==null || (globalEndTime)==null) {
+      Fluttertoast.showToast(
+        msg: "Please select your timing!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return false;
+    }
+    else if(globalSlots==null) {
+      Fluttertoast.showToast(
+        msg: "Please select your slots!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return false;
+    }
+    else if(isTimeDifferenceGreaterThan30Minutes(globalStartTime!,globalEndTime!) ==false){
+      Fluttertoast.showToast(
+        msg: "its a pop up time :(!",
+        toastLength: Toast.LENGTH_LONG,
+        gravity: ToastGravity.BOTTOM,
+      );
+      return false;
+    }
+    if(widget.profileDataProvider!=null){
+      widget.profileDataProvider?.setStartTime(globalStartTime!);
+      widget.profileDataProvider?.setEndTime(globalEndTime!);
+      widget.profileDataProvider?.setSlots(globalSlots!);
+      widget.profileDataProvider?.setAvailableSlots(globalAvailable!);
+    }
+    return true;
+  }
+
+  Future<void> updateUserTime (String userId,String startTime,String endTime,String slot,List<bool>daysChoosen) async{
+    try {
+      Map<String,dynamic>data = {
+        "userId":userId,
+        "startTime":startTime,
+        "endTime":endTime,
+        "slot":slot,
+        "daysChoosen":daysChoosen,
+      };
+      print('User$data');
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final http.Response response = await http.put(
+        Uri.parse('$serverUrl/updateUserTime'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Your Time Is Set :) '),
+          ),
+        );
+
+        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId:userID)));
+
+
+        if(widget.text=='edit'){
+          await showDialog(context: context, builder: (BuildContext context){
+            return Container(child: CustomHelpOverlay(button:'You Are All Set', text : 'Connect', extraText: 'Thank you for choosing to help other tourists on call to plan their trips. ',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },onBackPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+            },),);
+          },);
+          // showDialog(context: context, builder: (BuildContext context){
+          //   return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId: userID)));
+          //   },),);
+          // },
+          // );
+          widget.onButtonPressed!();
+        }
+        else{
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+              create:(context) => ProfileDataProvider(),
+              child: FinalProfile(userId: userID,clickedId: userID,),
+            ),),
+          );
+        }
+        print('Data saved successfully');
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Try Again!!'),
+          ),
+        );
+        print('Failed to update time: ${response.statusCode}');
+      }
+    }catch(err){
+      print("Error: $err");
+    }
+  }
+  Future<bool> checkUserTimeWithMeet (String userId,String startTime,String endTime,List<bool>daysChoosen) async{
+    try {
+      Map<String,dynamic>data = {
+        "userId":userId,
+        "startTime":startTime,
+        "endTime":endTime,
+        "daysChoosen":daysChoosen,
+      };
+      print('User$data');
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final http.Response response = await http.post(
+        Uri.parse('$serverUrl/checkEligibilityToEditTripPlanningTime'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+      try{
+        if (response.statusCode == 200) {
+          final responseData = json.decode(response.body);
+          print(responseData);
+          if(responseData['isEligible']){
+            return true;
+          }
+          else if(responseData['day']!=null){
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('You have a meet on ${responseData['day']}'),
+              ),
+            );
+            return false;
+          }
+          else{
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Your meets are scheduled'),
+              ),
+            );
+            return false;
+          }
+          print('Data saved successfully');
+        } else {
+          return false;
+        }
+      }catch(err){
+        print("Error: $err");
+        Fluttertoast.showToast(
+          msg: 'Try Again!!',
+          toastLength:
+          Toast.LENGTH_SHORT,
+          gravity:
+          ToastGravity.BOTTOM,
+          backgroundColor:
+          Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return false;
+      }
+    }catch(err){
+      print("Error: $err");
+      Fluttertoast.showToast(
+        msg: 'Try Again!!',
+        toastLength:
+        Toast.LENGTH_SHORT,
+        gravity:
+        ToastGravity.BOTTOM,
+        backgroundColor:
+        Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return false;
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -162,15 +400,16 @@ class _ServicePageState extends State<ServicePage>{
       startTime = widget.data?.setStartTime;
       endTime = widget.data?.setEndTime;
       slots = widget.data?.slots;
+      daysChoosen = widget.data?.availabilityChoosen;
       globalStartTime = startTime;
       globalEndTime = endTime;
       globalSlots = slots;
+      globalAvailable = daysChoosen;
     }
     final screenHeight = MediaQuery.of(context).size.height;
     return WillPopScope(
       onWillPop: ()async{
         if(widget.text=='edit' && isGone==true){
-
           widget.onButtonPressed!();
           Navigator.of(context).pop();
           Navigator.of(context).pop();
@@ -190,38 +429,116 @@ class _ServicePageState extends State<ServicePage>{
         return true;
       },
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar:AppBar(title: ProfileHeader(reqPage: 0,userId: widget.userId,text: widget.profileDataProvider==null?'':'calendar',),automaticallyImplyLeading: false,shadowColor: Colors.transparent, toolbarHeight: 90,),
         body: SingleChildScrollView(
-          child: Center(
-            child: Container(
-              color : Theme.of(context).backgroundColor,
-              child: Column(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children:[
-                      Container(
-                        width:318,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            SizedBox(height : 40),
-                            Text('Timing for interaction calls',style: Theme.of(context).textTheme.subtitle1,),
-                            Text('Select Your Time',style: Theme.of(context).textTheme.subtitle1,)
-                          ],
-                        ),
-                      ),
-                      TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
-                      SizedBox(height : 50),
-                      BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
-                      // SizedBox(height : 50),
-                      // AvailabilitySelect(),
+          child: Container(
+            color : Theme.of(context).backgroundColor,
+            child: Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  // color: Colors.red,
+                  margin: EdgeInsets.only(left: 30,right: 30),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text('Timing for interaction calls',style: Theme.of(context).textTheme.subtitle1,),
+                      SizedBox(height: 5,),
+                      Text('Select Your Time',style: Theme.of(context).textTheme.subtitle1,)
                     ],
                   ),
+                ),
+                SizedBox(height: 30,),
+                TimePicker(profileDataProvider:widget.profileDataProvider,startTime:startTime,endTime:endTime),
+                SizedBox(height : 60),
+                BandWidthSelect(text:widget.text,profileDataProvider:widget.profileDataProvider,slots:slots,daysChoosen:daysChoosen,userId:widget.userId,haveCards:widget.haveCards,onButtonPressed:widget.onButtonPressed),
+
+              ],
             ),
           ),
           ),
+        bottomNavigationBar: InkWell(
+          onTap: ()async{
 
 
+            // updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
 
+
+            // globalAvailable = selectedDays;
+            // if(isGone){
+            //   ScaffoldMessenger.of(context).showSnackBar(
+            //     SnackBar(
+            //       content: Text('Already Set!!'),
+            //     ),
+            //   );
+            //   Navigator.of(context).pop();
+            // }
+            print('Time choosen is :${globalAvailable}');
+            if(globalAvailable!.contains(true)==false){
+              // ScaffoldMessenger.of(context).showSnackBar(
+              //   SnackBar(
+              //     content: Text('Please select your availability!'),
+              //   ),
+              // );
+              Fluttertoast.showToast(
+                msg: "Please select your availability!",
+                toastLength: Toast.LENGTH_LONG,
+                gravity: ToastGravity.BOTTOM,
+              );
+            }
+            else if(validator()){
+              // setState(() {
+              //   isGone = true;
+              // });
+              if(widget.userId==null){
+                if(widget.profileDataProvider!=null){
+                  widget.profileDataProvider?.setServide1();
+                }
+                await showDialog(context: context, builder: (BuildContext context){
+                  return Container(child: CustomHelpOverlay(button:'You Are All Set', text : 'Connect', extraText: 'Thank you for choosing to help other tourists on call to plan their trips. ',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                  },onBackPressed: (){
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+                    Navigator.of(context).pop();
+
+                  },),);
+                },);
+                // Future.delayed(Duration(seconds: 4), () {
+                //   Navigator.of(context).pop();
+                //   Navigator.of(context).pop(); // Replace this with your desired navigation logic
+                // });
+
+              }else{
+                if(widget.text=='edit'){
+                  await updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!,globalAvailable!);
+                }
+                else{
+                  bool response = await checkUserTimeWithMeet(widget.userId!,globalStartTime!,globalEndTime!,globalAvailable!);
+                  if(response){
+                    await updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!,globalAvailable!);
+                  }else{}
+                }
+                // Navigator.of(context).pop();
+              }
+            }else{}
+
+          },
+          child: Container(
+            width: MediaQuery.of(context).size.width,
+            alignment: Alignment.center,
+            height: 63,
+            // margin: EdgeInsets.only(left: 30,right:30),
+            decoration: BoxDecoration(
+              // borderRadius: BorderRadius.circular(10),
+              color: Colors.orange,
+            ),
+            child: Text('SET TIME',style: Theme.of(context).textTheme.caption,),
+          ),
+        ),
         ),
 
       );
@@ -260,52 +577,29 @@ class _TimePickerState extends State<TimePicker>{
 
   Future<void> _selectStartTime(BuildContext context) async{
     final pickedTime = await showTimePicker(
-      initialEntryMode: TimePickerEntryMode.dialOnly,
+      // initialEntryMode: TimePickerEntryMode.dialOnly,
       context: context, initialTime: _startTime,
       builder: (BuildContext context, Widget? child) {
-        return MediaQuery(
-
-          data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-          child:Theme(
-            data: Theme.of(context).copyWith(
-            // Modify the TimePickerThemeData here
-            // primaryTextTheme: TextTheme(),
-            timePickerTheme: TimePickerThemeData(
-              padding:EdgeInsets.all(10),
-              entryModeIconColor: Theme.of(context).primaryColor,
-               helpTextStyle: TextStyle(fontSize: 16,color: Theme.of(context).primaryColor,fontFamily: 'Poppins',fontWeight: FontWeight.bold),
-               dialBackgroundColor: Theme.of(context).primaryColor,
-            dialTextColor: Theme.of(context).backgroundColor,
-             dialTextStyle: Theme.of(context).textTheme.headline5,
-            dialHandColor:Colors.white.withOpacity(0.5),
-            backgroundColor: Theme.of(context).backgroundColor, // Background color of the picker
-            hourMinuteTextStyle: Theme.of(context).textTheme.headline1,
-            hourMinuteTextColor: Colors.white, // Text color for hour and minute
-            // dialHandColor: Colors.orange.withOpacity(0.2), // Color of the dial hand
-            hourMinuteColor: Theme.of(context).primaryColor, // Color of the hour and minute hands
-            dayPeriodTextColor: Colors.white, // Text color for AM/PM
-            dayPeriodColor:Theme.of(context).primaryColor, // Color of AM/PM indicator
-            dayPeriodTextStyle: Theme.of(context).textTheme.headline2,
-              // shape: ShapeBorder().dimensions,
-              // Add other properties as needed
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              // change the border color
+              primary: Colors.orange.withOpacity(0.6),
+              // change the text color
+              onSurface: Colors.grey,
             ),
+            // button colors
+            buttonTheme: ButtonThemeData(
+              colorScheme: ColorScheme.light(
+                primary: Colors.green,
+              ),
             ),
-        child: Column(
-          children: [
-            SizedBox(height: 10,),
-            TextButtonTheme(
-            data: TextButtonThemeData(
-            style: ButtonStyle(
-            // Style the Cancel button
-              textStyle: MaterialStateProperty.all(Theme.of(context).textTheme.headline5),
-            foregroundColor: MaterialStateProperty.all(Theme.of(context).primaryColor), // Text color// Background color
-            // Add other styles for the OK button
-            ),
-            ),
-            child: child!,),
-          ],
-        )
-        ));
+          ), 
+          child: MediaQuery(
+              data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+            //
+          child: child!,),
+        );
       },
     );
 
@@ -342,12 +636,29 @@ class _TimePickerState extends State<TimePicker>{
 
   Future<void> _selectEndTime(BuildContext context) async{
     final pickedTime = await showTimePicker(
-      context: context, initialTime: _endTime,builder: (BuildContext context, Widget? child) {
-      return MediaQuery(
-        data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
-        child: child!,
-      );
-    },
+      context: context, initialTime: _endTime,
+      builder: (BuildContext context, Widget? child) {
+        return Theme(
+          data: ThemeData.light().copyWith(
+            colorScheme: ColorScheme.light(
+              // change the border color
+              primary: Colors.orange.withOpacity(0.6),
+              // change the text color
+              onSurface: Colors.grey,
+            ),
+            // button colors
+            buttonTheme: ButtonThemeData(
+              colorScheme: ColorScheme.light(
+                primary: Colors.green,
+              ),
+            ),
+          ),
+          child: MediaQuery(
+            data: MediaQuery.of(context).copyWith(alwaysUse24HourFormat: false),
+            //
+            child: child!,),
+        );
+      },
     );
 
     if(pickedTime!=null){
@@ -388,19 +699,20 @@ class _TimePickerState extends State<TimePicker>{
   Widget build(BuildContext context){
     final screenWidth = MediaQuery.of(context).size.width;
     return Container(
-      height: 280,
+      padding: EdgeInsets.only(left:20,right: 20),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            width: screenWidth*0.77,
-            height: 120,
+            // width: screenWidth*0.77,
+            // height: 120,
+            padding: EdgeInsets.only(right:20),
+            // color: Colors.red ,
             // decoration: BoxDecoration(border: Border.all(width: 1)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('From',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w400),),
+                Text('From',style: Theme.of(context).textTheme.subtitle1,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -414,7 +726,8 @@ class _TimePickerState extends State<TimePicker>{
                       padding: EdgeInsets.all(5),
                       height: 57,
                       decoration: BoxDecoration(
-                        color: HexColor('#5EEBEB').withOpacity(0.2),
+                        color: Colors.orange.withOpacity(0.2),
+                        // color: HexColor('#5EEBEB').withOpacity(0.2),
                         border: Border(
                           bottom: BorderSide(
                             color: Colors.black,
@@ -437,16 +750,17 @@ class _TimePickerState extends State<TimePicker>{
               ],
             ),
           ),
-          SizedBox(height: 20,),
+          SizedBox(height: 30,),
           Container(
-            width: screenWidth*0.77,
-            height: 120,
+            // width: screenWidth*0.77,
+            // height: 120,
+            padding: EdgeInsets.only(right:20),
             // decoration: BoxDecoration(border: Border.all(width: 1)),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.center,
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text('To',style: TextStyle(fontSize: 14,fontFamily: 'Poppins',fontWeight: FontWeight.w400),),
+                Text('To',style: Theme.of(context).textTheme.subtitle1,),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -460,7 +774,8 @@ class _TimePickerState extends State<TimePicker>{
                       padding: EdgeInsets.all(5),
                       height: 57,
                       decoration: BoxDecoration(
-                        color: HexColor('#5EEBEB').withOpacity(0.2),
+                        // color: HexColor('#5EEBEB').withOpacity(0.2),
+                        color: Colors.orange.withOpacity(0.2),
                         border: Border(
                           bottom: BorderSide(
                             color: Colors.black,
@@ -494,28 +809,39 @@ class BandWidthSelect extends StatefulWidget{
   final String?slots,userId,text;
   VoidCallback? onButtonPressed;
   bool?haveCards;
-  BandWidthSelect({this.profileDataProvider,this.slots,this.userId,this.haveCards,this.text,this.onButtonPressed});
+  List<bool>?daysChoosen;
+  BandWidthSelect({this.profileDataProvider,this.slots,this.userId,this.haveCards,this.text,this.onButtonPressed,this.daysChoosen});
   @override
   _BandWidthSelectState createState() => _BandWidthSelectState();
 }
+
 class _BandWidthSelectState extends State<BandWidthSelect>{
   String _radioValue='choice_1';
+  List<bool>selectedDays = List.generate(7, (index) => true);
 
   @override
   void initState(){
     if(widget.slots!=null){
       _radioValue = widget.slots!;
     }
+    else{
+      selectedDays = List.generate(7, (index) => true);
+    }
+    if(widget.daysChoosen!=null){
+      print('Days are ${widget.daysChoosen}');
+      selectedDays = widget.daysChoosen!;
+    }
   }
 
 
-  void updateUserTime (String userId,String startTime,String endTime,String slot) async{
+  Future<void> updateUserTime (String userId,String startTime,String endTime,String slot,List<bool>daysChoosen) async{
     try {
       Map<String,dynamic>data = {
         "userId":userId,
         "startTime":startTime,
         "endTime":endTime,
-        "slot":slot
+        "slot":slot,
+        "daysChoosen":daysChoosen,
       };
       print('User$data');
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
@@ -534,27 +860,42 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
           ),
         );
 
-        Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId:userID)));
+        // Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId:userID)));
 
-        if(widget.haveCards==false){
-          //
-          // widget.onButtonPressed!();
-        }
-        else if(widget.text=='edit'){
-          showDialog(context: context, builder: (BuildContext context){
-            return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+
+        if(widget.text=='edit'){
+          await showDialog(context: context, builder: (BuildContext context){
+            return Container(child: CustomHelpOverlay(button:'You Are All Set', text : 'Connect', extraText: 'Thank you for choosing to help other tourists on call to plan their trips. ',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
               Navigator.of(context).pop();
               Navigator.of(context).pop();
               Navigator.of(context).pop();
-              // Navigator.of(context).pop();
-              // Navigator.of(context).pop();
+            },onBackPressed: (){
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
+              Navigator.of(context).pop();
             },),);
-          },
-          );
+          },);
+          // showDialog(context: context, builder: (BuildContext context){
+          //   return Container(child: CustomHelpOverlay(imagePath: 'assets/images/profile_set_completed_icon.png',serviceSettings: false,text: 'You are all set',navigate: 'pop',onButtonPressed: (){
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     // Navigator.of(context).pop();
+          //     Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId: userID)));
+          //   },),);
+          // },
+          // );
           widget.onButtonPressed!();
         }
         else{
-          Navigator.of(context).pop();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => ChangeNotifierProvider(
+              create:(context) => ProfileDataProvider(),
+              child: FinalProfile(userId: userID,clickedId: userID,),
+            ),),
+          );
         }
         print('Data saved successfully');
       } else {
@@ -567,6 +908,82 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
       }
     }catch(err){
       print("Error: $err");
+    }
+  }
+
+  Future<bool> checkUserTimeWithMeet (String userId,String startTime,String endTime,List<bool>daysChoosen) async{
+    try {
+      Map<String,dynamic>data = {
+        "userId":userId,
+        "startTime":startTime,
+        "endTime":endTime,
+        "daysChoosen":daysChoosen,
+      };
+      print('User$data');
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final http.Response response = await http.post(
+        Uri.parse('$serverUrl/checkEligibilityToEditTripPlanningTime'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+      try{
+        if (response.statusCode == 200) {
+          final responseData = json.decode(response.body);
+          print(responseData);
+          if(responseData['isEligible']){
+            return true;
+          }
+          else if(responseData['day']!=null){
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('You have a meet on ${responseData['day']}'),
+              ),
+            );
+            return false;
+          }
+          else{
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Your meets are scheduled'),
+              ),
+            );
+            return false;
+          }
+          print('Data saved successfully');
+        } else {
+          return false;
+        }
+      }catch(err){
+        print("Error: $err");
+        Fluttertoast.showToast(
+          msg: 'Try Again!!',
+          toastLength:
+          Toast.LENGTH_SHORT,
+          gravity:
+          ToastGravity.BOTTOM,
+          backgroundColor:
+          Colors.green,
+          textColor: Colors.white,
+          fontSize: 16.0,
+        );
+        return false;
+      }
+    }catch(err){
+      print("Error: $err");
+      Fluttertoast.showToast(
+        msg: 'Try Again!!',
+        toastLength:
+        Toast.LENGTH_SHORT,
+        gravity:
+        ToastGravity.BOTTOM,
+        backgroundColor:
+        Colors.green,
+        textColor: Colors.white,
+        fontSize: 16.0,
+      );
+      return false;
     }
   }
 
@@ -637,165 +1054,93 @@ class _BandWidthSelectState extends State<BandWidthSelect>{
 
 
 
-  bool validator(){
-    if((globalStartTime)==null || (globalEndTime)==null){
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please select your timing!'),
-        ),
-      );
-      return false;
-    }
-    if(globalSlots==null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Please select your slots!'),
-        ),
-      );
-      return false;
-    }
-    if(isTimeDifferenceGreaterThan30Minutes(globalStartTime!,globalEndTime!) ==false){
-       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Give a PopUp'),
-        ),
-      );
-      return false;
-    }
-    if(widget.profileDataProvider!=null){
-      widget.profileDataProvider?.setStartTime(globalStartTime!);
-      widget.profileDataProvider?.setEndTime(globalEndTime!);
-      widget.profileDataProvider?.setSlots(globalSlots!);
-    }
-    return true;
+  String getDayName(int index) {
+    // Returns the day name based on the index
+    List<String> days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
+    return days[index];
   }
   @override
   Widget build(BuildContext context){
 
     final screenWidth = MediaQuery.of(context).size.width;
     return Container(
-      width: screenWidth*0.99,
-      height: 275,
       decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(10.0),
+        color: Theme.of(context).backgroundColor, // Container background color
+        boxShadow: [
+          BoxShadow(
+            color: Colors.grey.withOpacity(0.6),
+            spreadRadius: 0.4,
+            blurRadius: 0.6,
+            offset: Offset(0.5, 0.8),
+          ),
+        ],
+        borderRadius: BorderRadius.only(topLeft: Radius.circular(27),topRight: Radius.circular(27)),
         border: Border.all(
-          color: Colors.grey,
-          width: 0.2,
+          color: Colors.grey.withOpacity(0.6),
+          width: 0.5,
         ),
       ),
       child: Column(
-        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        crossAxisAlignment: CrossAxisAlignment.center,
         children:[
           Container(
-            width: screenWidth*0.78,
-            // decoration: BoxDecoration(
-            //   border: Border.all(
-            //     color: Colors.black,
-            //     width: 2,
-            //   ),
-            // ),
-            child: Align(
-                alignment: Alignment.topLeft,
-                child: Text('Select Bandwidth',style: TextStyle(fontSize: 14,fontWeight: FontWeight.bold,fontFamily: 'Poppins'),)),
-          ),
-          Column(
-            children: [
-              Row(
-                children: [
-                  SizedBox(width: screenWidth*0.06,),
-                  Radio(
-                    value: "choice_1",
-                    groupValue: _radioValue,
-                    activeColor: Colors.orange, // Change circle color to orange
-                    onChanged: (String? value) {
-                      setState(() {
-                        _radioValue = value!;
-                        print('Path is : $_radioValue');
-                      });
-                      if(widget.slots==null){
-                        widget.profileDataProvider?.setSlots(_radioValue);
-                        globalSlots = _radioValue;
-                      }
-                      else {
-                        globalSlots = _radioValue;
-                      }
-                    },
+            padding: EdgeInsets.only(left: 30,top: 15),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Select your availability',style: Theme.of(context).textTheme.subtitle1,),
+                SizedBox(height: 5.0),
+                for (int i = 0; i < 7; i++)
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.start,
+                    children: [
+                      Checkbox(
+                        activeColor: Colors.orange,
+                        value: selectedDays[i],
+                        onChanged: (value) {
+                          setState(() {
+                            selectedDays[i] = value!;
+                            // widget.profileDataProvider!.setAvailableSlots(i);
+                          });
+                          globalAvailable = selectedDays;
+                        },
+                      ),
+                      InkWell(
+                          onTap: (){
+                            setState(() {
+                              selectedDays[i] = selectedDays[i]==true?false:true;
+                              // widget.profileDataProvider!.setAvailableSlots(i);
+                            });
+                            globalAvailable = selectedDays;
+                          },
+                          child: Text(getDayName(i),style: selectedDays[i]==true? TextStyle(fontSize: (14  ),color : Colors.orange, fontWeight : FontWeight.w600) : Theme.of(context).textTheme.subtitle2,)),
+                    ],
                   ),
-                  Text("Daily"),
-                ],
-              ),
-              Row(
-                children: [
-                  SizedBox(width: screenWidth*0.06,),
-                  Radio(
-                    value: "choice_2",
-                    groupValue: _radioValue,
-                    activeColor: Colors.orange, // Change circle color to orange
-                    onChanged: (String? value) {
-                      setState(() {
-                        _radioValue = value!;
-                        print('Path is : $_radioValue');
-                      });
-                      if(widget.slots==null){
-                        widget.profileDataProvider?.setSlots(_radioValue);
-                        globalSlots = _radioValue;
-                      }
-                      else {
-                        globalSlots = _radioValue;
-                      }
-                    },
-                  ),
-                  Text("Only Weekends"),
-                ],
-              ),
-            ],
+                // ElevatedButton(
+                //   onPressed: () {
+                //     // Handle the selected days
+                //     List<String> selectedDayNames = [];
+                //     for (int i = 0; i < 7; i++) {
+                //       if (selectedDays[i]) {
+                //         selectedDayNames.add(getDayName(i));
+                //       }
+                //     }
+                //     print('Selected days: $selectedDayNames');
+                //   },
+                //   child: Text('Submit'),
+                // ),
+              ],
+            ),
           ),
-          Container(
-            width: 325,
-            height: 63,
-            child: FilledButton(
-                backgroundColor: HexColor('#FB8C00'),
-                onPressed: () {
-
-
-                  updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
-
-
-
-                  // if(isGone){
-                  //   ScaffoldMessenger.of(context).showSnackBar(
-                  //     SnackBar(
-                  //       content: Text('Already Set!!'),
-                  //     ),
-                  //   );
-                  //   Navigator.of(context).pop();
-                  // }
-                  if(validator()){
-                    // setState(() {
-                    //   isGone = true;
-                    // });
-                    if(widget.userId==null){
-                    // Navigator.of(context).pop();
-                    //   if(widget.profileDataProvider!=null){
-                    //     widget.profileDataProvider?.setServide1();
-                    //   }
-
-                    }else{
-                      updateUserTime(widget.userId!,globalStartTime!,globalEndTime!,globalSlots!);
-                      Navigator.push(context, MaterialPageRoute(builder: (context)=>SettingsPage(userId: userID)));
-                      // Navigator.of(context).pop();
-                    }
-                  }else{}
-
-                },
-                child: Center(
-                    child: Text('SET TIME',
-                        style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            color: Colors.white,
-                            fontSize: 18,fontFamily: 'Poppins')))),
-          ),
+          // FilledButton(
+          //     backgroundColor: Colors.orange,
+          //     onPressed: () {
+          //     },
+          //     child: Center(
+          //         child: Text('SET TIME',
+          //             style: TextStyle(
+          //                 fontWeight: FontWeight.bold,
+          //                 color: Colors.white,
+          //                 fontSize: 18,fontFamily: 'Poppins')))),
         ],
       ),
     );
@@ -823,6 +1168,7 @@ class CardItem {
     // required this.videoUrl,
   });
 }
+
 class PaymentSection extends StatefulWidget{
   ProfileDataProvider?profileDataProvider;
   List<CardDetails>?savedCards;
@@ -832,16 +1178,16 @@ class PaymentSection extends StatefulWidget{
   @override
   State<PaymentSection> createState() => _PaymentSectionState();
 }
+
 class _PaymentSectionState extends State<PaymentSection> {
   List<CardDetails> cards = [];
-  bool buttonPressed = false;
 
   bool cardform=false;
 
   @override
   void initState(){
     super.initState();
-    if(widget.profileDataProvider!=null && widget.text==null)
+    if(widget.profileDataProvider!=null)
       widget.profileDataProvider?.setServide1();
     if(widget.savedCards!=null){
       cards = widget.savedCards!;
@@ -849,7 +1195,7 @@ class _PaymentSectionState extends State<PaymentSection> {
     globalCards = [];
   }
 
-  Future<void> saveCardsToDatabase() async{
+  void saveCardsToDatabase() async{
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
@@ -979,68 +1325,12 @@ class _PaymentSectionState extends State<PaymentSection> {
         // },);
 
         // If you want to navigate directly to the homepage
-        if(widget.text=='edit'){
-          await saveCardsToDatabase();
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
-          );
-          return false;
-        }
-        else{
-          await showDialog(
-            context: context,
-            builder: (BuildContext context) {
-              Future.delayed(Duration(seconds: 2), () {
-                if (!buttonPressed) {
-                  // If the button was not pressed within 2 seconds, navigate to the home page
-                  if(widget.text==null){
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  }
-                  Navigator.of(context).pop();
-                  Navigator.of(context).pop();
-                }
-              });
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => SettingsPage(userId: userID)),
+        );
 
-              return Container(
-                child: CustomHelpOverlay(
-                  button: 'You Are All Set',
-                  text: 'Set your clock',
-                  extraText: 'Thank you for choosing to help other tourists on call to plan their trips.',
-                  navigate: 'pop',
-                  imagePath: 'assets/images/you_are_all_set.svg',
-                  serviceSettings: false,
-                  onButtonPressed: () {
-                    // Set the flag to indicate that the button was pressed
-                    buttonPressed = true;
-
-                    // Your button pressed action
-                    if(widget.text==null){
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    }
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                  onBackPressed: () {
-                    // Set the flag to indicate that the button was pressed
-                    buttonPressed = true;
-
-                    // Your back pressed action
-                    if(widget.text==null){
-                      Navigator.of(context).pop();
-                      Navigator.of(context).pop();
-                    }
-                    Navigator.of(context).pop();
-                    Navigator.of(context).pop();
-                  },
-                ),
-              );
-            },
-          );
-          return true;
-        }
+        return false; // Returning true will allow the user to pop the page
       },
       child: Scaffold(
         appBar: AppBar(toolbarHeight: 90, shadowColor: Colors.transparent,title: ProfileHeader(reqPage: 3,text:'You are all set',profileDataProvider:widget.profileDataProvider,  onButtonPressed: ()async{
@@ -1098,8 +1388,6 @@ class _PaymentSectionState extends State<PaymentSection> {
   }
 }
 
-
-
 class CardDetails{
   final String name;
   final String cardNo;
@@ -1117,6 +1405,9 @@ class CardDetails{
     this.options
   });
 }
+
+
+
 class PaymentCard extends StatefulWidget{
   final List<CardDetails> paymentCards;
   List<PaymentDetails>? paymentCard;
@@ -1129,6 +1420,8 @@ class PaymentCard extends StatefulWidget{
   @override
   _PaymentCardState createState() => _PaymentCardState();
 }
+
+
 class _PaymentCardState extends State<PaymentCard> {
   TextEditingController nameController = TextEditingController();
   TextEditingController cardNoController = TextEditingController();
@@ -1259,6 +1552,7 @@ class _PaymentCardState extends State<PaymentCard> {
   }
 }
 
+
 class CreditCardFormatter extends TextInputFormatter {
   @override
   TextEditingValue formatEditUpdate(TextEditingValue oldValue, TextEditingValue newValue) {
@@ -1297,75 +1591,6 @@ class FilledButton extends StatelessWidget {
         primary: backgroundColor,
       ),
       child: child,
-    );
-  }
-}
-
-class AvailabilitySelect extends StatefulWidget {
-
-  @override
-  _AvailabilitySelectState createState() => _AvailabilitySelectState();
-}
-class _AvailabilitySelectState extends State<AvailabilitySelect> {
-  List<bool> availabilityStatus = List.generate(7, (index) => true);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Column(
-        children: List.generate(7, (index) {
-          return DayCheckbox(
-            dayName: _getDayName(index),
-            isSelected: availabilityStatus[index],
-            onToggle: (value) {
-              setState(() {
-                availabilityStatus[index] = value;
-              });
-            },
-          );
-        }),
-      ),
-    );
-  }
-
-  String _getDayName(int index) {
-    final days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
-    return days[index];
-  }
-}
-class DayCheckbox extends StatelessWidget {
-  final String dayName;
-  final bool isSelected;
-  final ValueChanged<bool> onToggle;
-
-  DayCheckbox({
-    required this.dayName,
-    required this.isSelected,
-    required this.onToggle,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return InkWell(
-      onTap: () {
-        onToggle(!isSelected);
-      },
-      child: Container(
-        padding: EdgeInsets.all(8.0),
-        decoration: BoxDecoration(
-          color: isSelected ? Colors.orange : null,
-          border: Border.all(color: Colors.black),
-        ),
-        child: Center(
-          child: Text(
-            dayName,
-            style: TextStyle(
-              color: isSelected ? Colors.white : Colors.black,
-              fontWeight: FontWeight.bold,
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

@@ -8,10 +8,13 @@ import 'package:learn_flutter/ServiceSections/PingsSection/Pings.dart';
 import 'package:learn_flutter/widgets/AlertBox2Option.dart';
 
 import '../BackendStore/BackendStore.dart';
+import '../fetchDataFromMongodb.dart';
 import '../widgets/01_helpIconCustomWidget.dart';
 import '../widgets/Constant.dart';
 import '../widgets/hexColor.dart';
 import 'package:http/http.dart' as http;
+
+import 'TripCalling/UserCalendar/CalendarHelper.dart';
 
 
 // Single Service Cards
@@ -75,12 +78,12 @@ class _ServiceCardState extends State<ServiceCard>{
 
                       widget.iconImage == 'assets/images/service_help_1.jpg'
                           ? CustomPopUp(
-                    imagePath: "assets/images/tripPlanningHelp.svg",
-                    textField: "Accept trip planning calls for your expert regions to earn. connect with tourists and help them plan their future trips." ,
-                    extraText:' You will earn dynamically in future, for now 800 INR for 20 min of professional trip planning call.' ,
-                    what:'OK',
-                    button: 'OK, Get it',
-                  )
+                        imagePath: "assets/images/tripPlanningHelp.svg",
+                        textField: "Accept trip planning calls for your expert regions to earn. connect with tourists and help them plan their future trips." ,
+                        extraText:' You will earn dynamically in future, for now 800 INR for 20 min of professional trip planning call.' ,
+                        what:'OK',
+                        button: 'OK, Get it',
+                      )
                           : CustomPopUp(
                         imagePath: "assets/images/turnOff.svg",
                         textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
@@ -104,7 +107,8 @@ class _ServiceCardState extends State<ServiceCard>{
               ),
             ),
             child: Container(
-              padding: EdgeInsets.all(10),
+
+              height: 120,
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
@@ -114,11 +118,10 @@ class _ServiceCardState extends State<ServiceCard>{
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(widget.subTitleLabel,style: Theme.of(context).textTheme.subtitle1,),
-                      SizedBox(height: 5,),
                       Container(
                         child: RichText(
                           text: TextSpan(
-                            style: Theme.of(context).textTheme.subtitle2,
+                            style: DefaultTextStyle.of(context).style,
                             children: [
                               TextSpan(
                                   text: 'Earn Easy'
@@ -134,7 +137,6 @@ class _ServiceCardState extends State<ServiceCard>{
                           ),
                         ),
                       ),
-                      SizedBox(height: 5,),
                       Text('*Terms & Conditions applied',style: TextStyle(fontSize: 7,fontFamily: 'Poppins',color: Colors.pink,fontWeight: FontWeight.w600),),
                     ],
                   ),
@@ -188,7 +190,7 @@ class ConcentricCircles extends StatefulWidget{
   _ConcentricCirclesState createState() => _ConcentricCirclesState();
 }
 class _ConcentricCirclesState extends State<ConcentricCircles> {
-
+  String ?choosenDate;
   @override
   void initState(){
     super.initState();
@@ -196,7 +198,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
   void onPressedHandler() async {
     if(widget.text=='edit'){
       await showDialog(context: context, builder: (BuildContext context){
-        return Container(child: CustomHelpOverlay(button:'Continue', text : 'Set your clock', extraText: 'Set your clock Please provide timing when you will be able to attend the calls from other turists.',navigate:'edit',imagePath: 'assets/images/clock_icon.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+        return Container(child: CustomHelpOverlay(button:'Continue', text : 'Set your clock', extraText: 'Please provide timing when you will be able to attend the calls from other turists.',navigate:'edit',imagePath: 'assets/images/clock_icon.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
           Navigator.push(context, MaterialPageRoute(builder: (context) => ServicePage(text:widget.text,userId: widget.userId!,haveCards:widget.haveCards,onButtonPressed:(){
             setState(() {
               widget.isToggled = true;
@@ -209,7 +211,7 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
     }
     else{
       await showDialog(context: context, builder: (BuildContext context){
-        return Container(child: CustomHelpOverlay(button:'Continue', text : 'Set your clock', extraText: 'Set your clock Please provide timing when you will be able to attend the calls from other turists.',navigate:'edit',imagePath: 'assets/images/clock_icon.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
+        return Container(child: CustomHelpOverlay(button:'Continue', text : 'Set your clock', extraText: 'Please provide timing when you will be able to attend the calls from other turists.',navigate:'edit',imagePath: 'assets/images/clock_icon.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: (){
           Navigator.push(context, MaterialPageRoute(builder: (context) => ServicePage(profileDataProvider:widget.profileDataProvider)));
         },onBackPressed: (){
           Navigator.of(context).pop();
@@ -239,15 +241,28 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
 
   void service1HandlerState() async{
     await showDialog(context: context, builder: (BuildContext context){
-      return Container(child: CustomHelpOverlay(imagePath: 'assets/images/service1-state.png',text: 'Check Pings',navigate: 'edit',onButtonPressed: (){
-        Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(
-          userId: widget.userId!,
-          selectedService: 'Trip Planning',
-          state: 'Pending',
-          text: 'edit',
-        ),));
+      return Container(child: CustomHelpOverlay(button:'Check Calendar', text : 'You choose to off yourself for helping other tourists for their trip planning', extraText: 'You need to finish your remaining calls before closing this feature',navigate:'edit',imagePath: 'assets/images/profile_set.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: ()async{
+        await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => CalendarHelper(choosenDate: choosenDate,date:choosenDate),
+          ),
+        );
+        Navigator.of(context).pop();
+      },onBackPressed: (){
+        Navigator.of(context).pop();
       },),);
     },);
+     // await showDialog(context: context, builder: (BuildContext context){
+    //   return Container(child: CustomHelpOverlay(imagePath: 'assets/images/service1-state.png',text: 'Check Pings',navigate: 'edit',onButtonPressed: (){
+    //     Navigator.push(context, MaterialPageRoute(builder: (context) => PingsSection(
+    //       userId: widget.userId!,
+    //       selectedService: 'Trip Planning',
+    //       state: 'Pending',
+    //       text: 'edit',
+    //     ),));
+    //   },),);
+    // },);
   }
 
   void setService(){
@@ -266,10 +281,53 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
     try {
       final String serverUrl = Constant().serverUrl; // Replace with your server's URL
       final Map<String,dynamic> data = {
-        'userId':widget.userId
+        'userId':userID
       };
       final http.Response response = await http.patch(
         Uri.parse('$serverUrl/checkServiceStatus'), // Adjust the endpoint as needed
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode(data),
+      );
+
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        print(responseData);
+        if(!responseData['isEligible']){
+          setState(() {
+            choosenDate = responseData['date'];
+          });
+        }
+        return responseData['isEligible'];
+      } else {
+        print('Failed to check data: ${response.statusCode}');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Try Again!!'),
+          ),
+        );
+        return false;
+      }
+    }catch(err){
+      print("Error: $err");
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Try Again!!'),
+        ),
+      );
+      return false;
+    }
+  }
+
+  Future<bool> canUserCloseLocalAssistantService() async{
+    try {
+      final String serverUrl = Constant().serverUrl; // Replace with your server's URL
+      final Map<String,dynamic> data = {
+        'userId':userID
+      };
+      final http.Response response = await http.patch(
+        Uri.parse('$serverUrl/canUserCloseLocalAssistantService'), // Adjust the endpoint as needed
         headers: {
           "Content-Type": "application/json",
         },
@@ -411,27 +469,59 @@ class _ConcentricCirclesState extends State<ConcentricCircles> {
           }
           else{
             widget.profileDataProvider?.setServide2();
-            setState(() {
-              widget.isToggled = false;
-            });
+            showDialog(context: context, builder: (BuildContext context){
+              return ImagePopUpWithTwoOption(imagePath: 'assets/images/services-icon.png',textField: 'Are You Sure ?',extraText: 'You Want To Turn Off Local Assistant Service',option1:'No',option2:'Yes',onButton1Pressed: (){
+                // Perform action on confirmation
+                Navigator.of(context).pop();
+              },onButton2Pressed: (){
+                widget.profileDataProvider?.setServide1();
+                // widget.profileDataProvider?.unsetTripCalling();
+                setState(() {
+                  // widget.profileDataProvider?.setServide1();
+                  // widget.profileDataProvider?.unsetTripCalling();
+                  widget.isToggled = false;
+                });
+                Navigator.of(context).pop();
+              },);
+            },);
           }
-          if(widget.isToggled==true){
-            if(widget.profileDataProvider?.cardHaYaNhi()==false) {
-              await Navigator.push(context, MaterialPageRoute(
-                  builder: (context) =>
-                      PaymentSection(text: widget.text,
-                        profileDataProvider: widget.profileDataProvider,)));
-            }
-          }
+          // if(widget.isToggled==true){
+          //   if(widget.profileDataProvider?.cardHaYaNhi()==false) {
+          //     await Navigator.push(context, MaterialPageRoute(
+          //         builder: (context) =>
+          //             PaymentSection(text: widget.text,
+          //               profileDataProvider: widget.profileDataProvider,)));
+          //   }
+          // }
         }
         else if(widget.text=='editService2'){
-          setState(() {
-            widget.isToggled = widget.isToggled==true?false:true;
-          });
           if(widget.profileDataProvider!=null){
+            setState(() {
+              widget.isToggled = widget.isToggled==true?false:true;
+            });
             widget.profileDataProvider?.setServide2();
           }else{
-            saveServiceDatabse();
+            bool res = await canUserCloseLocalAssistantService();
+            if(res){
+              setState(() {
+                widget.isToggled = widget.isToggled==true?false:true;
+              });
+              saveServiceDatabse();
+            }else{
+              await showDialog(context: context, builder: (BuildContext context){
+                return Container(child: CustomHelpOverlay(button:'Check Your Pings', text : 'You choose to off yourself for helping other tourists for their local guidence', extraText: 'You need to finish your remaining tasks before closing this feature',navigate:'edit',imagePath: 'assets/images/local_assistant_service.svg',serviceSettings: false,profileDataProvider:widget.profileDataProvider,onButtonPressed: ()async{
+                  await Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => PingsSection(userId: userID,selectedService: 'Local Assistant',state: 'All Pings',),
+                    ),
+                  );
+                  Navigator.of(context).pop();
+                },onBackPressed: (){
+                  Navigator.of(context).pop();
+                },),);
+              },);
+            }
           }
           if(widget.isToggled==false)
             service1HandlerOff('assets/images/service2_off.png');

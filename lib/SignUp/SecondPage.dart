@@ -89,13 +89,13 @@ class _SecondPageState extends State<SecondPage> {
             child: Container(
                 width: 156, height: 90.6, child: Image.asset('assets/images/logo.png')),
           ),
-          backgroundColor: Colors.white,
+          backgroundColor: Theme.of(context).backgroundColor,
           shadowColor: Colors.transparent,
           automaticallyImplyLeading: false,
           toolbarHeight: 90,
         ),
         body: Container(
-          color : Colors.white,
+            color: Theme.of(context).backgroundColor,
           height : MediaQuery.of(context).size.height,
           width: double.infinity,
 
@@ -114,9 +114,9 @@ class _SecondPageState extends State<SecondPage> {
                         Container(
                           child: Image.asset('assets/images/secondPage.png'),
                           margin: const EdgeInsets.only(bottom: 25),
-                          height: 300,
+                          height: 250,
                           color: Colors.white,
-                        ),
+                        ), 
 
 
                         Container(
@@ -130,14 +130,14 @@ class _SecondPageState extends State<SecondPage> {
                           margin: EdgeInsets.only(bottom: 31),
                           child: Text(
                             'Start Your Adventure now ! ',
-                            style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColorDark),
+                            style: TextStyle(fontSize: 20, color: Theme.of(context).primaryColor),
                           ),
                         ),
                         Text(
                           'Please Enter Your',
                           style: TextStyle(
                             fontSize: 18,
-                            color: Theme.of(context).primaryColorDark,
+                            color: Theme.of(context).primaryColor,
                             fontWeight: FontWeight.w600,
                           ),
                         ),
@@ -146,7 +146,7 @@ class _SecondPageState extends State<SecondPage> {
                           'Mobile Number',
                           style: TextStyle(
                             fontSize: 16,
-                            color: Theme.of(context).primaryColorDark,
+                            color: Theme.of(context).primaryColor,
                             fontWeight: FontWeight.w300,
                           ),
                         ),
@@ -188,7 +188,7 @@ class _SecondPageState extends State<SecondPage> {
                                   child: TextField(
 
                                     focusNode: _inputFocusNode,
-                                    cursorColor : Theme.of(context).primaryColorDark,
+                                    cursorColor : Theme.of(context).primaryColorLight,
 
 
                                     style: TextStyle(fontSize: (18  ),color :Color(0xFF001B33) , fontWeight: FontWeight.bold,),textAlign : TextAlign.start,
@@ -222,7 +222,7 @@ class _SecondPageState extends State<SecondPage> {
                                       ),
                                       contentPadding: EdgeInsets.symmetric(
                                           vertical: 16.0, horizontal: 20.0),
-                                      hintText: ' Ex : 9026966203',
+                                      hintText: ' Ex : 9876543210',
                                       hintStyle : TextStyle(fontSize : 18,letterSpacing : 2.0,fontWeight : FontWeight.w600,color : Color(0xFFBABABA) ),
                                       errorText: _isPhoneNumberValid ? null : 'Invalid Phone Number',
                                       errorStyle : TextStyle(fontSize : 16),

@@ -47,7 +47,6 @@ class CustomDropdown {
                     onChanged: (String? newValue) {
                       setSelectedValue(newValue);
                       selectedValue = newValue;
-                      onChanged(newValue);
                     },
                     items: items.map((String item) {
                       return DropdownMenuItem<String>(
@@ -82,7 +81,7 @@ class CustomDOBDropDown extends StatelessWidget{
   final ValueChanged<DateTime?> onDateSelected;
   double deviceWidth;
 
-  CustomDOBDropDown({
+    CustomDOBDropDown({
     required this.label,
     required this.onDateSelected,
     required this.selectedDate,
@@ -95,12 +94,50 @@ class CustomDOBDropDown extends StatelessWidget{
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        SizedBox(height: 10,),
         Text(label,  style: Theme.of(context).textTheme.subtitle1,),
         SizedBox(height: 10,),
         InkWell(
           onTap: () async {
             DateTime? selected = await showDatePicker(
+              builder: (context, child) {
+                return Theme(
+                  data: Theme.of(context).copyWith(
+                    colorScheme: ColorScheme.light(
+                      surface: Theme.of(context).primaryColor,
+                      background: Theme.of(context).primaryColor,
+                      primary: Colors.orange,  // header background color
+                      onPrimary: Colors.white, // header text color
+                      onSurface: Theme.of(context).primaryColor,     // body text color
+                      secondary: Theme.of(context).primaryColor,
+                      onSecondary: Theme.of(context).primaryColor,
+                      onSecondaryContainer: Theme.of(context).primaryColor,
+                      surfaceVariant: Theme.of(context).primaryColor,
+                      outline: Theme.of(context).primaryColor,
+                      outlineVariant: Theme.of(context).primaryColor,
+                    ),
+                    textTheme: TextTheme(
+                      subtitle1: Theme.of(context).textTheme.subtitle1,
+                      subtitle2: Theme.of(context).textTheme.subtitle1,
+                      headline1: Theme.of(context).textTheme.subtitle1,
+                      headline2: Theme.of(context).textTheme.subtitle1,
+                      headline3: Theme.of(context).textTheme.headline1,
+                      headline4: Theme.of(context).textTheme.headline1,
+                      headline5: Theme.of(context).textTheme.subtitle1,
+                      bodyText2:  Theme.of(context).textTheme.subtitle1,
+                      bodyText1:  Theme.of(context).textTheme.subtitle1,
+                      overline:  Theme.of(context).textTheme.subtitle1,
+                      caption: Theme.of(context).textTheme.subtitle1,
+                    ),
+                    textButtonTheme: TextButtonThemeData(
+                      style: TextButton.styleFrom(
+                        textStyle: Theme.of(context).textTheme.headline2,
+                        foregroundColor: Colors.orange, // button text color
+                      ),
+                    ),
+                  ),
+                  child: child!,
+                );
+              },
               context: context,
               initialDate: selectedDate ?? DateTime.now(),
               firstDate: DateTime(1900),
@@ -127,8 +164,12 @@ class CustomDOBDropDown extends StatelessWidget{
                         : 'Select Date',
                    style: Theme.of(context).textTheme.subtitle2,),
                     text=='edit'
-                    ? Text('EDIT',  style: Theme.of(context).textTheme.headline4,)
-                    :selectedDate!=null?Icon(Icons.check_circle, color: Colors.green) : Icon(Icons.calendar_today_rounded,color: Colors.orange,),
+                        ? Text('EDIT',  style: Theme.of(context).textTheme.headline4,)
+                        :selectedDate!=null?Icon(Icons.check_circle, color: Colors.green) : Padding(
+
+                          padding: const EdgeInsets.all(3.0),
+                          child: Icon(Icons.calendar_today_rounded,color: Colors.orange,size: 23,),
+                        ),
                   // Calendar icon
                 ],
               ),

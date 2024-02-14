@@ -39,6 +39,7 @@ class _RotatingSvgWidgetState extends State<RotatingSvgWidget>
         child: SvgPicture.asset(
           widget.imagePath,
           fit: BoxFit.contain,
+          color: Theme.of(context).primaryColor,
         ),
       ),
     );

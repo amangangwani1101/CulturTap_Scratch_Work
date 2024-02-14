@@ -13,6 +13,10 @@ class Constant {
   String publishableKey = 'pk_test_51O1mwsSBFjpzQSTJYIRROzWlVlSlOL4ysCytD2icFn57ISGbDUDaVLyLgFJABlFaHDPgMmmOpvRKxE99x3w90HRf00ZwzrVv0R';
   int tripPlaningCost = 1000;
   String country = 'India';
+  String extractFirstName(String username) {
+    List<String> parts = username.split(' ');
+    return parts.isNotEmpty ? parts[0] : username;
+  }
   List<String> professionList = [
     'Doctor',
     'Engineer',

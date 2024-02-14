@@ -3,6 +3,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:learn_flutter/CulturTap/appbar.dart';
+import 'package:learn_flutter/CustomItems/AutoScrollImages.dart';
 import 'package:learn_flutter/CustomItems/CustomFooter.dart';
 import 'package:learn_flutter/CustomItems/CustomPopUp.dart';
 import 'package:learn_flutter/HomePage.dart';
@@ -34,7 +35,10 @@ class _LocalAssistState extends State<LocalAssist> {
 
   @override
   void initState() {
+
     super.initState();
+    whichPage == 'local_assist';
+
     // Your initialization code goes here
     localAssistOperation();
   }
@@ -190,7 +194,7 @@ class _LocalAssistState extends State<LocalAssist> {
       },
       child: Scaffold(
 
-        appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
+        appBar: AppBar(title : ProfileHeader(reqPage: 0,userId: userID,fromWhichPage: 'local_assist',),  automaticallyImplyLeading:false, toolbarHeight: 90, shadowColor: Colors.transparent,),
 
 
         body: SingleChildScrollView(
@@ -203,7 +207,7 @@ class _LocalAssistState extends State<LocalAssist> {
               child: Column(
                 children: [
                   // SizedBox(height: 20,),
-                  state=='user'
+                  state!=null && state!='ongoing' && state!='helper'
                       ?Builder(
                       builder: (context) {
                         return GestureDetector(
@@ -294,7 +298,7 @@ class _LocalAssistState extends State<LocalAssist> {
                               meetId: meetId,
                               where: 'local_assist',
                             ),));
-                            // await checkIsMeetOngoing();
+                            await checkIsMeetOngoing();
                           }
                         }
                         else {
@@ -302,8 +306,9 @@ class _LocalAssistState extends State<LocalAssist> {
                             builder: (context) =>
                                 ChatsPage(userId: userID,
                                   state: 'user',
+                                  where: 'local_assist',
                                 ),));
-                          // await checkIsMeetOngoing();
+                          await checkIsMeetOngoing();
                         }
                       }
                     },
@@ -337,34 +342,57 @@ class _LocalAssistState extends State<LocalAssist> {
                                   mainAxisAlignment: MainAxisAlignment.end,
                                   children: [
                                     IconButton(
-                                      icon: Icon(Icons.help_outline,color : Colors.orange),
+                                      icon: Icon(Icons.help_outline, color: Colors.orange),
                                       onPressed: () {
+                                        showDialog(
+                                          context: context,
+                                          builder: (BuildContext context) {
+                                            return Container(
+                                              height: MediaQuery.of(context).size.height,
 
-                                        showDialog(context: context, builder: (BuildContext context){
-                                          return Container(child : CustomPopUp(
-                                            imagePath: "assets/images/turnOff.svg",
-                                            textField: "Be the saviour of your nearby needy tourists. Saving life is the work of God. These customised requests and orders need your physical presence to the needy.Sometimes requests may be normal help but sometimes they may be critical like an accident." ,
-                                            extraText:'You will earn dynamically in future, for now You will earn 400 INR for your presence. ' ,
-                                            what:'OK',
-                                            button: 'OK, Get it',));
+                                              child: Center(
+                                                child: Column(
+                                                  mainAxisAlignment: MainAxisAlignment.center,
+                                                  children: [
+                                                   Container(
 
 
-                                        });
+                                                        child: AutoScrollImages(
+                                                          imageUrls: [
+                                                            'http://173.212.193.109:8080/appStories/newone.svg',
+                                                            'http://173.212.193.109:8080/appStories/homeSecond.svg',
+                                                            'http://173.212.193.109:8080/appStories/homeThird.svg',
+                                                            'http://173.212.193.109:8080/appStories/homeFourth.svg',
+                                                            'http://173.212.193.109:8080/appStories/homeFive.svg',
+                                                            // Add more image URLs as needed
+                                                          ],
+                                                        ),
+                                                      ),
 
 
-
+                                                  ],
+                                                ),
+                                              ),
+                                            );
+                                          },
+                                        );
                                       },
                                     ),
                                   ],
                                 ),
-                                Row(
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      'Immediate Local Assistance',
-                                      style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),
-                                    ),
-                                  ],
+
+                                Container(
+                                  // color: Colors.red,
+                                  child: Row(
+                                    mainAxisAlignment: MainAxisAlignment.start,
+                                    crossAxisAlignment: CrossAxisAlignment.center,
+                                    children: [
+                                      Text(
+                                        'Immediate Local Assistance',textAlign: TextAlign.center,
+                                        style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold,),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                                 Row(
                                   mainAxisAlignment: MainAxisAlignment.start,
@@ -381,6 +409,8 @@ class _LocalAssistState extends State<LocalAssist> {
                                     IconButton(
                                       icon: Icon(Icons.arrow_circle_right,color : Colors.orange),
                                       onPressed: () {
+
+
                                         // Handle bottom icon press
                                       },
                                     ),
@@ -587,3 +617,7 @@ class _LocalAssistState extends State<LocalAssist> {
     );
   }
 }
+
+
+
+

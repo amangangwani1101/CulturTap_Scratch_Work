@@ -195,10 +195,10 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
                     Navigator.of(context).pop();
                   },
                   child: Text(
-                    'No',
+                    'Cancel',
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
-                      color: Colors.orange[100],
+                      color: Colors.orange[50],
                       fontSize: 20,
                     ),
                   ),
@@ -219,8 +219,7 @@ class ImagePopUpWithTwoOption extends StatelessWidget {
                     option2Callback!();
                     Navigator.of(context).pop();
                   },
-                  child: Text(
-                    meetStatus == 'schedule' ? ' Close ' : 'Cancel',
+                  child: Text(' Confirm ' ,
                     style: TextStyle(
                       fontWeight: FontWeight.bold,
                       color: Colors.orange,
